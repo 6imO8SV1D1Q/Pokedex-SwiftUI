@@ -20,16 +20,16 @@ final class DIContainer: ObservableObject {
     }()
 
     // MARK: - UseCases
-    func makeFetchPokemonListUseCase() -> FetchPokemonListUseCaseProtocol {
+    nonisolated func makeFetchPokemonListUseCase() -> FetchPokemonListUseCaseProtocol {
         FetchPokemonListUseCase(repository: pokemonRepository)
     }
 
-    func makeFetchEvolutionChainUseCase() -> FetchEvolutionChainUseCaseProtocol {
+    nonisolated func makeFetchEvolutionChainUseCase() -> FetchEvolutionChainUseCaseProtocol {
         FetchEvolutionChainUseCase(repository: pokemonRepository)
     }
 
     // MARK: - ViewModels
-    func makePokemonListViewModel() -> PokemonListViewModel {
+    nonisolated func makePokemonListViewModel() -> PokemonListViewModel {
         PokemonListViewModel(
             fetchPokemonListUseCase: makeFetchPokemonListUseCase()
         )
