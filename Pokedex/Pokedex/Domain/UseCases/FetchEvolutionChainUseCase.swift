@@ -7,17 +7,44 @@
 
 import Foundation
 
+/// 進化チェーン取得UseCaseのプロトコル
 protocol FetchEvolutionChainUseCaseProtocol {
+    /// 指定されたポケモンの進化チェーンを取得
+    /// - Parameter pokemonId: ポケモンの図鑑番号
+    /// - Returns: 進化チェーンに含まれるポケモンIDの配列
+    /// - Throws: ネットワークエラー、データ解析エラーなど
     func execute(pokemonId: Int) async throws -> [Int]
 }
 
+/// ポケモンの進化チェーンを取得するUseCase
+///
+/// 指定されたポケモンが属する進化チェーン全体のポケモンIDリストを取得します。
+/// 例: フシギダネ(1)を指定すると、[1, 2, 3] (フシギダネ、フシギソウ、フシギバナ)を返します。
+/// 分岐進化（イーブイなど）にも対応しています。
+///
+/// - Important: ネットワーク通信が発生するため、async/awaitで実行してください。
 final class FetchEvolutionChainUseCase: FetchEvolutionChainUseCaseProtocol {
+
+    // MARK: - Properties
+
+    /// ポケモンデータを取得するリポジトリ
     private let repository: PokemonRepositoryProtocol
 
+    // MARK: - Initialization
+
+    /// イニシャライザ
+    /// - Parameter repository: ポケモンデータを取得するリポジトリ
     init(repository: PokemonRepositoryProtocol) {
         self.repository = repository
     }
 
+    // MARK: - Public Methods
+
+    /// 指定されたポケモンの進化チェーンを取得
+    ///
+    /// - Parameter pokemonId: ポケモンの図鑑番号
+    /// - Returns: 進化チェーンに含まれるポケモンIDの配列
+    /// - Throws: ネットワークエラー、データ解析エラーなど
     func execute(pokemonId: Int) async throws -> [Int] {
         // 1. pokemon-speciesを取得して進化チェーンIDを取得
         let species = try await repository.fetchPokemonSpecies(id: pokemonId)
@@ -36,6 +63,12 @@ final class FetchEvolutionChainUseCase: FetchEvolutionChainUseCaseProtocol {
         return pokemonIds
     }
 
+    // MARK: - Private Methods
+
+    /// 進化チェーンから再帰的にポケモンIDを抽出
+    /// - Parameters:
+    ///   - chainLink: 進化チェーンのノード
+    ///   - ids: 抽出したIDを格納する配列
     private func extractPokemonIds(from chainLink: EvolutionChain.ChainLink, into ids: inout [Int]) {
         if let id = chainLink.species.id {
             ids.append(id)
