@@ -11,13 +11,13 @@ struct PokemonGridItem: View {
     let pokemon: Pokemon
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: DesignConstants.Spacing.xSmall) {
             pokemonImage
             pokemonNumber
             pokemonName
             typesBadges
         }
-        .padding(8)
+        .padding(DesignConstants.Spacing.xSmall)
         .cardStyle()
     }
 
@@ -37,13 +37,13 @@ struct PokemonGridItem: View {
                 EmptyView()
             }
         }
-        .pokemonImageStyle(size: 100, clipShape: false)
+        .pokemonImageStyle(size: DesignConstants.ImageSize.large, clipShape: false)
     }
 
     private var pokemonNumber: some View {
-        Text("#\(String(format: "%03d", pokemon.id))")
+        Text(pokemon.formattedId)
             .font(.caption2)
-            .foregroundColor(.gray)
+            .foregroundColor(.secondary)
     }
 
     private var pokemonName: some View {
@@ -54,7 +54,7 @@ struct PokemonGridItem: View {
     }
 
     private var typesBadges: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: DesignConstants.Spacing.xxSmall) {
             ForEach(pokemon.types, id: \.slot) { type in
                 Text(type.japaneseName)
                     .typeBadgeStyle(type, fontSize: 9)

@@ -9,9 +9,9 @@ import SwiftUI
 
 // MARK: - Card Style
 struct CardStyle: ViewModifier {
-    var cornerRadius: CGFloat = 12
-    var shadowRadius: CGFloat = 4
-    var shadowOpacity: Double = 0.1
+    var cornerRadius: CGFloat = DesignConstants.CornerRadius.large
+    var shadowRadius: CGFloat = DesignConstants.Shadow.medium
+    var shadowOpacity: Double = DesignConstants.Shadow.opacity
 
     func body(content: Content) -> some View {
         content
@@ -23,9 +23,9 @@ struct CardStyle: ViewModifier {
 
 extension View {
     func cardStyle(
-        cornerRadius: CGFloat = 12,
-        shadowRadius: CGFloat = 4,
-        shadowOpacity: Double = 0.1
+        cornerRadius: CGFloat = DesignConstants.CornerRadius.large,
+        shadowRadius: CGFloat = DesignConstants.Shadow.medium,
+        shadowOpacity: Double = DesignConstants.Shadow.opacity
     ) -> some View {
         modifier(CardStyle(
             cornerRadius: cornerRadius,
@@ -43,7 +43,7 @@ struct PokemonImageStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
             .frame(width: size, height: size)
-            .background(Color.gray.opacity(0.05))
+            .background(Color(.quaternarySystemFill))
             .if(clipShape) { view in
                 view.clipShape(Circle())
             }
@@ -78,16 +78,26 @@ struct TypeBadgeStyle: ViewModifier {
         content
             .font(.system(size: fontSize))
             .fontWeight(.semibold)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
+            .padding(.horizontal, DesignConstants.Spacing.xSmall)
+            .padding(.vertical, DesignConstants.Spacing.xxSmall)
             .background(type.color)
-            .foregroundColor(.white)
-            .cornerRadius(4)
+            .foregroundColor(type.textColor)
+            .cornerRadius(DesignConstants.CornerRadius.small)
     }
 }
 
 extension View {
     func typeBadgeStyle(_ type: PokemonType, fontSize: CGFloat = 12) -> some View {
         modifier(TypeBadgeStyle(type: type, fontSize: fontSize))
+    }
+}
+
+// MARK: - Grid Item Button Style
+struct GridItemButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .opacity(configuration.isPressed ? 0.8 : 1.0)
+            .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
     }
 }

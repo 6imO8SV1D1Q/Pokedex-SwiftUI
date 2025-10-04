@@ -52,9 +52,9 @@ final class PokemonListViewModel: ObservableObject {
 
     func applyFilters() {
         filteredPokemons = pokemons.filter { pokemon in
-            // 名前検索（前方一致）
+            // 名前検索（部分一致）
             let matchesSearch = searchText.isEmpty ||
-                pokemon.name.lowercased().hasPrefix(searchText.lowercased())
+                pokemon.name.lowercased().contains(searchText.lowercased())
 
             // タイプフィルター
             let matchesType = selectedTypes.isEmpty ||
@@ -69,5 +69,12 @@ final class PokemonListViewModel: ObservableObject {
 
     func toggleDisplayMode() {
         displayMode = displayMode == .list ? .grid : .list
+    }
+
+    func clearFilters() {
+        searchText = ""
+        selectedTypes.removeAll()
+        selectedGeneration = 1
+        applyFilters()
     }
 }

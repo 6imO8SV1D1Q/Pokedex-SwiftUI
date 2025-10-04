@@ -19,7 +19,7 @@ struct PokemonListView: View {
         NavigationStack {
             Group {
                 if viewModel.isLoading {
-                    ProgressView("読み込み中...")
+                    LoadingView(message: "ポケモンを読み込んでいます...")
                 } else if let error = viewModel.errorMessage {
                     errorView(message: error)
                 } else {
@@ -66,9 +66,15 @@ struct PokemonListView: View {
     }
 
     private var pokemonList: some View {
-        List(viewModel.filteredPokemons) { pokemon in
-            NavigationLink(value: pokemon) {
-                PokemonRow(pokemon: pokemon)
+        Group {
+            if viewModel.filteredPokemons.isEmpty {
+                emptyStateView
+            } else {
+                List(viewModel.filteredPokemons) { pokemon in
+                    NavigationLink(value: pokemon) {
+                        PokemonRow(pokemon: pokemon)
+                    }
+                }
             }
         }
         .navigationDestination(for: Pokemon.self) { pokemon in
@@ -79,23 +85,25 @@ struct PokemonListView: View {
     }
 
     private var pokemonGrid: some View {
-        ScrollView {
-            LazyVGrid(
-                columns: [
-                    GridItem(.flexible()),
-                    GridItem(.flexible()),
-                    GridItem(.flexible())
-                ],
-                spacing: 16
-            ) {
-                ForEach(viewModel.filteredPokemons) { pokemon in
-                    NavigationLink(value: pokemon) {
-                        PokemonGridItem(pokemon: pokemon)
+        Group {
+            if viewModel.filteredPokemons.isEmpty {
+                emptyStateView
+            } else {
+                ScrollView {
+                    LazyVGrid(
+                        columns: Array(repeating: GridItem(.flexible()), count: DesignConstants.Grid.columns),
+                        spacing: DesignConstants.Grid.spacing
+                    ) {
+                        ForEach(viewModel.filteredPokemons) { pokemon in
+                            NavigationLink(value: pokemon) {
+                                PokemonGridItem(pokemon: pokemon)
+                            }
+                            .buttonStyle(GridItemButtonStyle())
+                        }
                     }
-                    .buttonStyle(.plain)
+                    .padding(DesignConstants.Spacing.medium)
                 }
             }
-            .padding()
         }
         .navigationDestination(for: Pokemon.self) { pokemon in
             PokemonDetailView(
@@ -104,18 +112,30 @@ struct PokemonListView: View {
         }
     }
 
+    private var emptyStateView: some View {
+        EmptyStateView(
+            title: "ポケモンが見つかりません",
+            message: "検索条件やフィルターを変更してみてください",
+            systemImage: "magnifyingglass",
+            actionTitle: "フィルターをクリア",
+            action: {
+                viewModel.clearFilters()
+            }
+        )
+    }
+
     private func errorView(message: String) -> some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignConstants.Spacing.medium) {
             errorIcon
             errorMessage(message)
             retryButton
         }
-        .padding()
+        .padding(DesignConstants.Spacing.medium)
     }
 
     private var errorIcon: some View {
-        Image(systemName: "exclamationmark.triangle")
-            .font(.largeTitle)
+        Image(systemName: "exclamationmark.triangle.fill")
+            .font(.system(size: 64))
             .foregroundColor(.red)
     }
 
