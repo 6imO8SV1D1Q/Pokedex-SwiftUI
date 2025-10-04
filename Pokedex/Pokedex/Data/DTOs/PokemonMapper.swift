@@ -18,7 +18,8 @@ enum PokemonMapper {
             types: mapTypes(from: pkm.types),
             stats: mapStats(from: pkm.stats),
             abilities: mapAbilities(from: pkm.abilities),
-            sprites: mapSprites(from: pkm.sprites)
+            sprites: mapSprites(from: pkm.sprites),
+            moves: mapMoves(from: pkm.moves)
         )
     }
 
@@ -63,5 +64,21 @@ enum PokemonMapper {
             frontShiny: sprites?.frontShiny,
             other: otherSprites
         )
+    }
+
+    private static func mapMoves(from moves: [PKMPokemonMove]?) -> [PokemonMove] {
+        guard let moves = moves else { return [] }
+        return moves.compactMap { move in
+            guard let moveName = move.move?.name else { return nil }
+
+            // 最新の習得方法を取得（versionGroupDetailsの最後の要素）
+            guard let latestDetail = move.versionGroupDetails?.last else { return nil }
+
+            return PokemonMove(
+                name: moveName,
+                learnMethod: latestDetail.moveLearnMethod?.name ?? "unknown",
+                level: latestDetail.levelLearnedAt
+            )
+        }
     }
 }

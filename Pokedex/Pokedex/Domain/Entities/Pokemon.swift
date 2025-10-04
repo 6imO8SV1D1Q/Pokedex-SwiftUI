@@ -17,6 +17,7 @@ struct Pokemon: Identifiable, Codable, Hashable {
     let stats: [PokemonStat]
     let abilities: [PokemonAbility]
     let sprites: PokemonSprites
+    let moves: [PokemonMove]
 
     // Hashable conformance
     func hash(into hasher: inout Hasher) {

@@ -49,4 +49,12 @@ final class PokemonRepository: PokemonRepositoryProtocol {
         cache[pokemon.id] = pokemon
         return pokemon
     }
+
+    func fetchPokemonSpecies(id: Int) async throws -> PokemonSpecies {
+        try await apiClient.fetchPokemonSpecies(id)
+    }
+
+    func fetchEvolutionChain(id: Int) async throws -> EvolutionChain {
+        try await apiClient.fetchEvolutionChain(id)
+    }
 }

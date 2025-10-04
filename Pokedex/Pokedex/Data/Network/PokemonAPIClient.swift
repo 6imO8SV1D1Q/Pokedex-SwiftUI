@@ -57,4 +57,14 @@ final class PokemonAPIClient {
 
         return pokemons.sorted { $0.id < $1.id }
     }
+
+    func fetchPokemonSpecies(_ id: Int) async throws -> PokemonSpecies {
+        let species = try await pokemonAPI.pokemonService.fetchPokemonSpecies(id)
+        return PokemonSpeciesMapper.map(from: species)
+    }
+
+    func fetchEvolutionChain(_ id: Int) async throws -> EvolutionChain {
+        let chain = try await pokemonAPI.evolutionService.fetchEvolutionChain(id)
+        return EvolutionChainMapper.map(from: chain)
+    }
 }
