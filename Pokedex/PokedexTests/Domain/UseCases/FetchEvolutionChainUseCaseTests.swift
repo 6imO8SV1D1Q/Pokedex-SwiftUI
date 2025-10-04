@@ -24,9 +24,9 @@ final class FetchEvolutionChainUseCaseTests: XCTestCase {
         super.tearDown()
     }
 
-    // MARK: - 正常系テスト
+    // MARK: - Success Cases
 
-    func test_execute_進化なしポケモンの場合自身のIDのみ返す() async throws {
+    func test_execute_noEvolution_returnsSelfIdOnly() async throws {
         // Given
         let pokemonId = 132 // Ditto (進化しない)
         mockRepository.speciesToReturn = PokemonSpecies.fixture(
@@ -52,7 +52,7 @@ final class FetchEvolutionChainUseCaseTests: XCTestCase {
         XCTAssertEqual(mockRepository.fetchEvolutionChainCallCount, 1)
     }
 
-    func test_execute_2段階進化の場合すべてのIDを返す() async throws {
+    func test_execute_twoStageEvolution_returnsAllIds() async throws {
         // Given (Bulbasaur -> Ivysaur -> Venusaur)
         let pokemonId = 1
         mockRepository.speciesToReturn = PokemonSpecies.fixture(
@@ -88,7 +88,7 @@ final class FetchEvolutionChainUseCaseTests: XCTestCase {
         XCTAssertEqual(result[2], 3) // Venusaur
     }
 
-    func test_execute_分岐進化の場合すべてのIDを返す() async throws {
+    func test_execute_branchEvolution_returnsAllIds() async throws {
         // Given (Eevee -> Vaporeon/Jolteon/Flareon)
         let pokemonId = 133 // Eevee
         mockRepository.speciesToReturn = PokemonSpecies.fixture(
@@ -128,9 +128,9 @@ final class FetchEvolutionChainUseCaseTests: XCTestCase {
         XCTAssertTrue(result.contains(136)) // Flareon
     }
 
-    // MARK: - 異常系テスト
+    // MARK: - Error Cases
 
-    func test_execute_進化チェーンIDが取得できない場合自身のIDのみ返す() async throws {
+    func test_execute_invalidChainUrl_returnsSelfIdOnly() async throws {
         // Given
         let pokemonId = 1
         mockRepository.speciesToReturn = PokemonSpecies.fixture(
@@ -148,7 +148,7 @@ final class FetchEvolutionChainUseCaseTests: XCTestCase {
         XCTAssertEqual(mockRepository.fetchEvolutionChainCallCount, 0) // 呼ばれない
     }
 
-    func test_execute_ネットワークエラー時にエラーをthrowする() async {
+    func test_execute_networkError_throwsError() async {
         // Given
         mockRepository.shouldThrowError = true
         mockRepository.errorToThrow = PokemonError.networkError(NSError(domain: "test", code: -1))

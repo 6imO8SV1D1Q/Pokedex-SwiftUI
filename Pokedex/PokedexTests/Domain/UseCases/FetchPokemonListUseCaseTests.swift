@@ -24,9 +24,9 @@ final class FetchPokemonListUseCaseTests: XCTestCase {
         super.tearDown()
     }
 
-    // MARK: - 正常系テスト
+    // MARK: - Success Cases
 
-    func test_execute_成功時にポケモンリストを返す() async throws {
+    func test_execute_success_returnsPokemonList() async throws {
         // Given
         let expectedPokemons = [
             Pokemon.fixture(id: 1, name: "bulbasaur"),
@@ -44,7 +44,7 @@ final class FetchPokemonListUseCaseTests: XCTestCase {
         XCTAssertEqual(mockRepository.fetchPokemonListCallCount, 1)
     }
 
-    func test_execute_デフォルトパラメータで実行できる() async throws {
+    func test_execute_withDefaultParameters_executesSuccessfully() async throws {
         // Given
         mockRepository.pokemonsToReturn = [Pokemon.fixture()]
 
@@ -56,9 +56,9 @@ final class FetchPokemonListUseCaseTests: XCTestCase {
         XCTAssertEqual(mockRepository.fetchPokemonListCallCount, 1)
     }
 
-    // MARK: - 異常系テスト
+    // MARK: - Error Cases
 
-    func test_execute_ネットワークエラー時にエラーをthrowする() async {
+    func test_execute_networkError_throwsError() async {
         // Given
         mockRepository.shouldThrowError = true
         mockRepository.errorToThrow = PokemonError.networkError(NSError(domain: "test", code: -1))
@@ -72,9 +72,9 @@ final class FetchPokemonListUseCaseTests: XCTestCase {
         }
     }
 
-    // MARK: - エッジケース
+    // MARK: - Edge Cases
 
-    func test_execute_空のリストを返す() async throws {
+    func test_execute_emptyList_returnsEmptyArray() async throws {
         // Given
         mockRepository.pokemonsToReturn = []
 
@@ -85,7 +85,7 @@ final class FetchPokemonListUseCaseTests: XCTestCase {
         XCTAssertTrue(result.isEmpty)
     }
 
-    func test_execute_大量のポケモンを返す() async throws {
+    func test_execute_largeDataset_returnsAllPokemons() async throws {
         // Given
         let manyPokemons = (1...151).map { Pokemon.fixture(id: $0, name: "pokemon\($0)") }
         mockRepository.pokemonsToReturn = manyPokemons

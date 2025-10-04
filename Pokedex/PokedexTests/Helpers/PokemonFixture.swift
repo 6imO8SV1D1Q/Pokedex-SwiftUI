@@ -122,7 +122,7 @@ extension EvolutionChain {
 extension EvolutionChain.ChainLink {
     static func fixture(
         species: Species = .fixture(),
-        evolvesTo: [ChainLink] = []
+        evolvesTo: [EvolutionChain.ChainLink] = []
     ) -> EvolutionChain.ChainLink {
         EvolutionChain.ChainLink(
             species: species,

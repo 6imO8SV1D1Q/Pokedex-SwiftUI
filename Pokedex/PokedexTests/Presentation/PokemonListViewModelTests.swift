@@ -27,9 +27,9 @@ final class PokemonListViewModelTests: XCTestCase {
         super.tearDown()
     }
 
-    // MARK: - ポケモンリスト取得のテスト
+    // MARK: - Load Pokemons Tests
 
-    func test_loadPokemons_成功時にポケモンリストが更新される() async {
+    func test_loadPokemons_success_updatesPokemonsList() async {
         // Given
         let expectedPokemons = [
             Pokemon.fixture(id: 1, name: "bulbasaur"),
@@ -47,7 +47,7 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertNil(sut.errorMessage)
     }
 
-    func test_loadPokemons_エラー時にエラーメッセージが設定される() async {
+    func test_loadPokemons_error_setsErrorMessage() async {
         // Given
         mockFetchPokemonListUseCase.shouldThrowError = true
 
@@ -60,7 +60,7 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertFalse(sut.isLoading)
     }
 
-    func test_loadPokemons_リトライ機能が動作する() async {
+    func test_loadPokemons_retry_succeedsAfterRetries() async {
         // Given
         mockFetchPokemonListUseCase.shouldThrowError = true
         mockFetchPokemonListUseCase.failCount = 2 // 2回失敗後、成功
@@ -75,15 +75,16 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertFalse(sut.isLoading)
     }
 
-    // MARK: - フィルター機能のテスト
+    // MARK: - Filter Tests
 
-    func test_applyFilters_検索テキストでフィルタリングされる() {
+    func test_applyFilters_searchText_filtersPokemons() async {
         // Given
-        sut.pokemons = [
+        mockFetchPokemonListUseCase.pokemonsToReturn = [
             Pokemon.fixture(id: 1, name: "bulbasaur"),
             Pokemon.fixture(id: 4, name: "charmander"),
             Pokemon.fixture(id: 7, name: "squirtle")
         ]
+        await sut.loadPokemons()
 
         // When
         sut.searchText = "char"
@@ -94,12 +95,13 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertEqual(sut.filteredPokemons[0].name, "charmander")
     }
 
-    func test_applyFilters_部分一致で検索される() {
+    func test_applyFilters_partialMatch_filtersPokemons() async {
         // Given
-        sut.pokemons = [
+        mockFetchPokemonListUseCase.pokemonsToReturn = [
             Pokemon.fixture(id: 1, name: "bulbasaur"),
             Pokemon.fixture(id: 2, name: "ivysaur")
         ]
+        await sut.loadPokemons()
 
         // When
         sut.searchText = "saur"
@@ -109,11 +111,12 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertEqual(sut.filteredPokemons.count, 2)
     }
 
-    func test_applyFilters_大文字小文字を区別しない() {
+    func test_applyFilters_caseInsensitive_filtersPokemons() async {
         // Given
-        sut.pokemons = [
+        mockFetchPokemonListUseCase.pokemonsToReturn = [
             Pokemon.fixture(id: 1, name: "bulbasaur")
         ]
+        await sut.loadPokemons()
 
         // When
         sut.searchText = "BULBA"
@@ -123,13 +126,14 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertEqual(sut.filteredPokemons.count, 1)
     }
 
-    func test_applyFilters_タイプでフィルタリングされる() {
+    func test_applyFilters_type_filtersPokemons() async {
         // Given
-        sut.pokemons = [
+        mockFetchPokemonListUseCase.pokemonsToReturn = [
             Pokemon.fixture(id: 1, types: [.fixture(name: "grass")]),
             Pokemon.fixture(id: 4, types: [.fixture(name: "fire")]),
             Pokemon.fixture(id: 7, types: [.fixture(name: "water")])
         ]
+        await sut.loadPokemons()
 
         // When
         sut.selectedTypes = ["fire"]
@@ -140,13 +144,14 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertEqual(sut.filteredPokemons[0].types[0].name, "fire")
     }
 
-    func test_applyFilters_複数タイプでフィルタリングされる() {
+    func test_applyFilters_multipleTypes_filtersPokemons() async {
         // Given
-        sut.pokemons = [
+        mockFetchPokemonListUseCase.pokemonsToReturn = [
             Pokemon.fixture(id: 1, types: [.fixture(name: "grass")]),
             Pokemon.fixture(id: 4, types: [.fixture(name: "fire")]),
             Pokemon.fixture(id: 7, types: [.fixture(name: "water")])
         ]
+        await sut.loadPokemons()
 
         // When
         sut.selectedTypes = ["fire", "water"]
@@ -156,12 +161,13 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertEqual(sut.filteredPokemons.count, 2)
     }
 
-    func test_applyFilters_検索テキストが空の場合すべて表示() {
+    func test_applyFilters_emptySearchText_showsAllPokemons() async {
         // Given
-        sut.pokemons = [
+        mockFetchPokemonListUseCase.pokemonsToReturn = [
             Pokemon.fixture(id: 1, name: "bulbasaur"),
             Pokemon.fixture(id: 2, name: "ivysaur")
         ]
+        await sut.loadPokemons()
 
         // When
         sut.searchText = ""
@@ -171,9 +177,9 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertEqual(sut.filteredPokemons.count, 2)
     }
 
-    // MARK: - 表示モード切り替えのテスト
+    // MARK: - Display Mode Tests
 
-    func test_toggleDisplayMode_リストとグリッドを切り替える() {
+    func test_toggleDisplayMode_togglesBetweenListAndGrid() {
         // Given
         XCTAssertEqual(sut.displayMode, .list)
 
@@ -190,11 +196,12 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertEqual(sut.displayMode, .list)
     }
 
-    // MARK: - フィルタークリアのテスト
+    // MARK: - Clear Filters Tests
 
-    func test_clearFilters_すべてのフィルターがクリアされる() {
+    func test_clearFilters_clearsAllFilters() async {
         // Given
-        sut.pokemons = [Pokemon.fixture()]
+        mockFetchPokemonListUseCase.pokemonsToReturn = [Pokemon.fixture()]
+        await sut.loadPokemons()
         sut.searchText = "test"
         sut.selectedTypes = ["fire", "water"]
         sut.selectedGeneration = 2

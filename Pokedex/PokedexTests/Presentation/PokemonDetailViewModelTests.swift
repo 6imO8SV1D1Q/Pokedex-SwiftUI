@@ -29,9 +29,9 @@ final class PokemonDetailViewModelTests: XCTestCase {
         super.tearDown()
     }
 
-    // MARK: - 初期化のテスト
+    // MARK: - Initialization Tests
 
-    func test_init_ポケモンが正しく設定される() {
+    func test_init_setsPokemonCorrectly() {
         // Given & When
         let pokemon = Pokemon.fixture(id: 25, name: "pikachu")
         let viewModel = PokemonDetailViewModel(
@@ -45,9 +45,9 @@ final class PokemonDetailViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.isShiny)
     }
 
-    // MARK: - 色違い切り替えのテスト
+    // MARK: - Shiny Toggle Tests
 
-    func test_toggleShiny_色違いフラグが切り替わる() {
+    func test_toggleShiny_togglesShinyFlag() {
         // Given
         XCTAssertFalse(sut.isShiny)
 
@@ -64,7 +64,7 @@ final class PokemonDetailViewModelTests: XCTestCase {
         XCTAssertFalse(sut.isShiny)
     }
 
-    func test_displayImageURL_通常時はpreferredImageURLを返す() {
+    func test_displayImageURL_normal_returnsPreferredImageURL() {
         // Given
         let sprites = PokemonSprites.fixture(
             frontDefault: "https://example.com/normal.png",
@@ -83,7 +83,7 @@ final class PokemonDetailViewModelTests: XCTestCase {
         XCTAssertEqual(sut.displayImageURL, "https://example.com/normal.png")
     }
 
-    func test_displayImageURL_色違い時はshinyImageURLを返す() {
+    func test_displayImageURL_shiny_returnsShinyImageURL() {
         // Given
         let sprites = PokemonSprites.fixture(
             frontDefault: "https://example.com/normal.png",
@@ -102,9 +102,9 @@ final class PokemonDetailViewModelTests: XCTestCase {
         XCTAssertEqual(sut.displayImageURL, "https://example.com/shiny.png")
     }
 
-    // MARK: - 進化チェーン読み込みのテスト
+    // MARK: - Evolution Chain Tests
 
-    func test_loadEvolutionChain_成功時に進化チェーンが更新される() async {
+    func test_loadEvolutionChain_success_updatesEvolutionChain() async {
         // Given
         mockFetchEvolutionChainUseCase.evolutionChainToReturn = [1, 2, 3]
 
@@ -119,7 +119,7 @@ final class PokemonDetailViewModelTests: XCTestCase {
         XCTAssertFalse(sut.isLoading)
     }
 
-    func test_loadEvolutionChain_エラー時は空配列になる() async {
+    func test_loadEvolutionChain_error_returnsEmptyArray() async {
         // Given
         mockFetchEvolutionChainUseCase.shouldThrowError = true
 
@@ -132,7 +132,7 @@ final class PokemonDetailViewModelTests: XCTestCase {
         XCTAssertFalse(sut.isLoading)
     }
 
-    func test_loadEvolutionChain_リトライ機能が動作する() async {
+    func test_loadEvolutionChain_retry_succeedsAfterRetries() async {
         // Given
         mockFetchEvolutionChainUseCase.shouldThrowError = true
         mockFetchEvolutionChainUseCase.failCount = 2 // 2回失敗後、成功
@@ -146,9 +146,9 @@ final class PokemonDetailViewModelTests: XCTestCase {
         XCTAssertFalse(sut.isLoading)
     }
 
-    // MARK: - 技のフィルタリングのテスト
+    // MARK: - Moves Filtering Tests
 
-    func test_filteredMoves_習得方法でフィルタリングされる() {
+    func test_filteredMoves_learnMethod_filtersCorrectly() {
         // Given
         let moves = [
             PokemonMove.fixture(name: "tackle", learnMethod: "level-up", level: 1),
@@ -170,7 +170,7 @@ final class PokemonDetailViewModelTests: XCTestCase {
         XCTAssertEqual(sut.filteredMoves[1].name, "body-slam")
     }
 
-    func test_filteredMoves_レベル順にソートされる() {
+    func test_filteredMoves_sortsByLevel() {
         // Given
         let moves = [
             PokemonMove.fixture(name: "move3", learnMethod: "level-up", level: 30),
@@ -192,7 +192,7 @@ final class PokemonDetailViewModelTests: XCTestCase {
         XCTAssertEqual(sut.filteredMoves[2].level, 30)
     }
 
-    func test_filteredMoves_マシン技を選択した場合正しくフィルタリングされる() {
+    func test_filteredMoves_machineMethod_filtersCorrectly() {
         // Given
         let moves = [
             PokemonMove.fixture(name: "tackle", learnMethod: "level-up", level: 1),
