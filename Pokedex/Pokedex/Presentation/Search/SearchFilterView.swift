@@ -21,51 +21,71 @@ struct SearchFilterView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // タイプフィルター
-                Section("タイプ") {
-                    ForEach(allTypes, id: \.self) { typeName in
-                        Button {
-                            toggleTypeSelection(typeName)
-                        } label: {
-                            HStack {
-                                Text(typeJapaneseName(typeName))
-                                Spacer()
-                                if viewModel.selectedTypes.contains(typeName) {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(.blue)
-                                }
-                            }
-                        }
-                        .foregroundColor(.primary)
-                    }
-                }
-
-                // 世代フィルター
-                Section("世代") {
-                    Picker("世代", selection: $viewModel.selectedGeneration) {
-                        Text("第1世代").tag(1)
-                    }
-                    .pickerStyle(.menu)
-                }
+                typeFilterSection
+                generationFilterSection
             }
             .navigationTitle("フィルター")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("クリア") {
-                        viewModel.selectedTypes.removeAll()
-                        viewModel.searchText = ""
-                        viewModel.selectedGeneration = 1
-                        viewModel.applyFilters()
-                    }
-                }
+                clearButton
+                applyButton
+            }
+        }
+    }
 
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("適用") {
-                        viewModel.applyFilters()
-                        dismiss()
-                    }
+    private var typeFilterSection: some View {
+        Section("タイプ") {
+            ForEach(allTypes, id: \.self) { typeName in
+                typeSelectionButton(typeName)
+            }
+        }
+    }
+
+    private func typeSelectionButton(_ typeName: String) -> some View {
+        Button {
+            toggleTypeSelection(typeName)
+        } label: {
+            HStack {
+                Text(typeJapaneseName(typeName))
+                Spacer()
+                if viewModel.selectedTypes.contains(typeName) {
+                    checkmark
                 }
+            }
+        }
+        .foregroundColor(.primary)
+    }
+
+    private var checkmark: some View {
+        Image(systemName: "checkmark")
+            .foregroundColor(.blue)
+    }
+
+    private var generationFilterSection: some View {
+        Section("世代") {
+            Picker("世代", selection: $viewModel.selectedGeneration) {
+                Text("第1世代").tag(1)
+            }
+            .pickerStyle(.menu)
+        }
+    }
+
+    private var clearButton: some ToolbarContent {
+        ToolbarItem(placement: .cancellationAction) {
+            Button("クリア") {
+                viewModel.selectedTypes.removeAll()
+                viewModel.searchText = ""
+                viewModel.selectedGeneration = 1
+                viewModel.applyFilters()
+            }
+        }
+    }
+
+    private var applyButton: some ToolbarContent {
+        ToolbarItem(placement: .confirmationAction) {
+            Button("適用") {
+                viewModel.applyFilters()
+                dismiss()
             }
         }
     }

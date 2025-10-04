@@ -45,53 +45,60 @@ struct PokemonDetailView: View {
     // MARK: - Header View
     private var headerView: some View {
         VStack(spacing: 16) {
-            // ポケモン画像
-            AsyncImage(url: URL(string: viewModel.displayImageURL ?? "")) { phase in
-                switch phase {
-                case .empty:
-                    ProgressView()
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                case .failure:
-                    Image(systemName: "questionmark.circle")
-                        .foregroundColor(.gray)
-                @unknown default:
-                    EmptyView()
-                }
+            pokemonImage
+            shinyToggle
+            pokemonNumber
+            pokemonName
+            typesBadges
+        }
+    }
+
+    private var pokemonImage: some View {
+        AsyncImage(url: URL(string: viewModel.displayImageURL ?? "")) { phase in
+            switch phase {
+            case .success(let image):
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            case .empty:
+                ProgressView()
+            case .failure:
+                Image(systemName: "questionmark.circle")
+                    .foregroundColor(.gray)
+            @unknown default:
+                EmptyView()
             }
-            .frame(width: 120, height: 120)
-            .background(Color.gray.opacity(0.1))
-            .clipShape(Circle())
-            .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 2)
+        }
+        .frame(width: 120, height: 120)
+        .background(Color.gray.opacity(0.1))
+        .clipShape(Circle())
+        .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 2)
+    }
 
-            // 色違い切り替え
-            Toggle("色違い", isOn: $viewModel.isShiny)
-                .padding(.horizontal, 40)
+    private var shinyToggle: some View {
+        Toggle("色違い", isOn: $viewModel.isShiny)
+            .padding(.horizontal, 40)
+    }
 
-            // 図鑑番号
-            Text(viewModel.pokemon.formattedId)
-                .font(.caption)
-                .foregroundColor(.secondary)
+    private var pokemonNumber: some View {
+        Text(viewModel.pokemon.formattedId)
+            .font(.caption)
+            .foregroundColor(.secondary)
+    }
 
-            // 名前
-            Text(viewModel.pokemon.displayName)
-                .font(.title)
-                .fontWeight(.bold)
+    private var pokemonName: some View {
+        Text(viewModel.pokemon.displayName)
+            .font(.title)
+            .fontWeight(.bold)
+    }
 
-            // タイプバッジ
-            HStack(spacing: 8) {
-                ForEach(viewModel.pokemon.types.sorted(by: { $0.slot < $1.slot }), id: \.slot) { type in
-                    Text(type.japaneseName)
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(type.color)
-                        .foregroundColor(.white)
-                        .cornerRadius(16)
-                }
+    private var typesBadges: some View {
+        HStack(spacing: 8) {
+            ForEach(viewModel.pokemon.types.sorted(by: { $0.slot < $1.slot }), id: \.slot) { type in
+                Text(type.japaneseName)
+                    .typeBadgeStyle(type)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 2)
             }
         }
     }
@@ -99,30 +106,35 @@ struct PokemonDetailView: View {
     // MARK: - Basic Info View
     private var basicInfoView: some View {
         HStack(spacing: 40) {
-            VStack {
-                Text("高さ")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                Text(String(format: "%.1f m", viewModel.pokemon.heightInMeters))
-                    .font(.title3)
-                    .fontWeight(.semibold)
-            }
-
-            Divider()
-                .frame(height: 40)
-
-            VStack {
-                Text("重さ")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                Text(String(format: "%.1f kg", viewModel.pokemon.weightInKilograms))
-                    .font(.title3)
-                    .fontWeight(.semibold)
-            }
+            heightInfo
+            Divider().frame(height: 40)
+            weightInfo
         }
         .padding()
         .background(Color.gray.opacity(0.1))
         .cornerRadius(12)
+    }
+
+    private var heightInfo: some View {
+        VStack {
+            Text("高さ")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Text(String(format: "%.1f m", viewModel.pokemon.heightInMeters))
+                .font(.title3)
+                .fontWeight(.semibold)
+        }
+    }
+
+    private var weightInfo: some View {
+        VStack {
+            Text("重さ")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Text(String(format: "%.1f kg", viewModel.pokemon.weightInKilograms))
+                .font(.title3)
+                .fontWeight(.semibold)
+        }
     }
 
     // MARK: - Evolution Chain View
