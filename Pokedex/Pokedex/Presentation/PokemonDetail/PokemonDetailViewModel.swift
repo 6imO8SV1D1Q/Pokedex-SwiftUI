@@ -39,10 +39,10 @@ final class PokemonDetailViewModel: ObservableObject {
 
     init(
         pokemon: Pokemon,
-        fetchEvolutionChainUseCase: FetchEvolutionChainUseCaseProtocol = DIContainer.shared.makeFetchEvolutionChainUseCase()
+        fetchEvolutionChainUseCase: FetchEvolutionChainUseCaseProtocol? = nil
     ) {
         self.pokemon = pokemon
-        self.fetchEvolutionChainUseCase = fetchEvolutionChainUseCase
+        self.fetchEvolutionChainUseCase = fetchEvolutionChainUseCase ?? DIContainer.shared.makeFetchEvolutionChainUseCase()
     }
 
     // 表示する画像URLを返す
