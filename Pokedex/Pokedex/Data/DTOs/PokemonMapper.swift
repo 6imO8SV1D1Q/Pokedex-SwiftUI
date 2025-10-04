@@ -9,7 +9,7 @@ import Foundation
 import PokemonAPI
 
 enum PokemonMapper {
-    nonisolated static func map(from pkm: PKMPokemon) -> Pokemon {
+    static func map(from pkm: PKMPokemon) -> Pokemon {
         Pokemon(
             id: pkm.id ?? 0,
             name: pkm.name ?? "",

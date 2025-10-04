@@ -11,12 +11,12 @@ struct PokemonRow: View {
     let pokemon: Pokemon
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: DesignConstants.Spacing.small) {
             pokemonImage
             pokemonInfo
             Spacer()
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, DesignConstants.Spacing.xxSmall)
     }
 
     private var pokemonImage: some View {
@@ -35,21 +35,21 @@ struct PokemonRow: View {
                 EmptyView()
             }
         }
-        .frame(width: 80, height: 80)
-        .background(Color.gray.opacity(0.1))
+        .frame(width: DesignConstants.ImageSize.medium, height: DesignConstants.ImageSize.medium)
+        .background(Color(.tertiarySystemFill))
         .clipShape(Circle())
-        .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 2)
+        .shadow(color: Color(.systemGray).opacity(DesignConstants.Shadow.opacity), radius: DesignConstants.Shadow.medium, x: 0, y: 2)
     }
 
     private var pokemonInfo: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: DesignConstants.Spacing.xxSmall) {
             pokemonHeader
             typesBadges
         }
     }
 
     private var pokemonHeader: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: DesignConstants.Spacing.xSmall) {
             Text(pokemon.formattedId)
                 .font(.caption)
                 .foregroundColor(.secondary)
@@ -60,7 +60,7 @@ struct PokemonRow: View {
     }
 
     private var typesBadges: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: DesignConstants.Spacing.xxSmall) {
             ForEach(pokemon.types.sorted(by: { $0.slot < $1.slot })) { type in
                 Text(type.japaneseName)
                     .typeBadgeStyle(type)

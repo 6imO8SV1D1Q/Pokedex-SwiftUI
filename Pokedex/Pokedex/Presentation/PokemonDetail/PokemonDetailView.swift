@@ -12,7 +12,7 @@ struct PokemonDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: DesignConstants.Spacing.large) {
                 // ヘッダー(画像、番号、名前、タイプ)
                 headerView
 
@@ -33,7 +33,7 @@ struct PokemonDetailView: View {
                 // 覚える技
                 movesView
             }
-            .padding()
+            .padding(DesignConstants.Spacing.medium)
         }
         .navigationTitle(viewModel.pokemon.displayName)
         .navigationBarTitleDisplayMode(.inline)
@@ -44,7 +44,7 @@ struct PokemonDetailView: View {
 
     // MARK: - Header View
     private var headerView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignConstants.Spacing.medium) {
             pokemonImage
             shinyToggle
             pokemonNumber
@@ -69,15 +69,15 @@ struct PokemonDetailView: View {
                 EmptyView()
             }
         }
-        .frame(width: 120, height: 120)
-        .background(Color.gray.opacity(0.1))
+        .frame(width: DesignConstants.ImageSize.xLarge, height: DesignConstants.ImageSize.xLarge)
+        .background(Color(.tertiarySystemFill))
         .clipShape(Circle())
-        .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 2)
+        .shadow(color: Color(.systemGray).opacity(DesignConstants.Shadow.opacity), radius: DesignConstants.Shadow.medium, x: 0, y: 2)
     }
 
     private var shinyToggle: some View {
         Toggle("色違い", isOn: $viewModel.isShiny)
-            .padding(.horizontal, 40)
+            .padding(.horizontal, DesignConstants.Spacing.xLarge * 2)
     }
 
     private var pokemonNumber: some View {
@@ -93,26 +93,24 @@ struct PokemonDetailView: View {
     }
 
     private var typesBadges: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: DesignConstants.Spacing.xSmall) {
             ForEach(viewModel.pokemon.types.sorted(by: { $0.slot < $1.slot }), id: \.slot) { type in
                 Text(type.japaneseName)
                     .typeBadgeStyle(type)
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 2)
             }
         }
     }
 
     // MARK: - Basic Info View
     private var basicInfoView: some View {
-        HStack(spacing: 40) {
+        HStack(spacing: DesignConstants.Spacing.xLarge * 2) {
             heightInfo
             Divider().frame(height: 40)
             weightInfo
         }
-        .padding()
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(12)
+        .padding(DesignConstants.Spacing.medium)
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(DesignConstants.CornerRadius.large)
     }
 
     private var heightInfo: some View {
@@ -139,14 +137,14 @@ struct PokemonDetailView: View {
 
     // MARK: - Evolution Chain View
     private var evolutionChainView: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: DesignConstants.Spacing.small) {
             Text("進化")
                 .font(.headline)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+                HStack(spacing: DesignConstants.Spacing.small) {
                     ForEach(Array(viewModel.evolutionChain.enumerated()), id: \.offset) { index, pokemonId in
-                        VStack(spacing: 4) {
+                        VStack(spacing: DesignConstants.Spacing.xxSmall) {
                             AsyncImage(url: URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/\(pokemonId).png")) { phase in
                                 switch phase {
                                 case .empty:
@@ -162,7 +160,7 @@ struct PokemonDetailView: View {
                                     EmptyView()
                                 }
                             }
-                            .frame(width: 60, height: 60)
+                            .frame(width: DesignConstants.ImageSize.small, height: DesignConstants.ImageSize.small)
 
                             Text(String(format: "#%03d", pokemonId))
                                 .font(.caption2)
@@ -176,18 +174,18 @@ struct PokemonDetailView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, DesignConstants.Spacing.xxSmall)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(12)
+        .padding(DesignConstants.Spacing.medium)
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(DesignConstants.CornerRadius.large)
     }
 
     // MARK: - Abilities View
     private var abilitiesView: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: DesignConstants.Spacing.xSmall) {
             Text("特性")
                 .font(.headline)
 
@@ -198,14 +196,14 @@ struct PokemonDetailView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(12)
+        .padding(DesignConstants.Spacing.medium)
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(DesignConstants.CornerRadius.large)
     }
 
     // MARK: - Moves View
     private var movesView: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: DesignConstants.Spacing.small) {
             HStack {
                 Text("覚える技")
                     .font(.headline)
@@ -225,12 +223,12 @@ struct PokemonDetailView: View {
                 Text("この方法で覚える技はありません")
                     .font(.caption)
                     .foregroundColor(.secondary)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, DesignConstants.Spacing.xSmall)
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(spacing: 8) {
+                    LazyHStack(spacing: DesignConstants.Spacing.xSmall) {
                         ForEach(viewModel.filteredMoves) { move in
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: DesignConstants.Spacing.xxSmall) {
                                 Text(move.displayName)
                                     .font(.caption)
                                     .fontWeight(.medium)
@@ -241,19 +239,19 @@ struct PokemonDetailView: View {
                                         .foregroundColor(.secondary)
                                 }
                             }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, DesignConstants.Spacing.small)
+                            .padding(.vertical, DesignConstants.Spacing.xSmall)
                             .background(Color.blue.opacity(0.1))
-                            .cornerRadius(8)
+                            .cornerRadius(DesignConstants.CornerRadius.medium)
                         }
                     }
-                    .padding(.horizontal, 4)
+                    .padding(.horizontal, DesignConstants.Spacing.xxSmall)
                 }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(12)
+        .padding(DesignConstants.Spacing.medium)
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(DesignConstants.CornerRadius.large)
     }
 }

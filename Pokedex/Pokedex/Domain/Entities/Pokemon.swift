@@ -137,6 +137,18 @@ struct PokemonType: Codable, Identifiable, Hashable {
             return Color.gray
         }
     }
+
+    // タイプバッジのテキスト色（アクセシビリティ考慮）
+    var textColor: Color {
+        switch name.lowercased() {
+        case "electric", "ice":
+            // 明るい背景色には黒文字
+            return Color.black
+        default:
+            // それ以外は白文字
+            return Color.white
+        }
+    }
 }
 
 // MARK: - PokemonStat
