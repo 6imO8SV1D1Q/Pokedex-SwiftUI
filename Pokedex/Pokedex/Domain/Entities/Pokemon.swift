@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct Pokemon: Identifiable, Codable {
+struct Pokemon: Identifiable, Codable, Hashable {
     let id: Int
     let name: String
     let height: Int              // デシメートル単位
@@ -17,6 +17,16 @@ struct Pokemon: Identifiable, Codable {
     let stats: [PokemonStat]
     let abilities: [PokemonAbility]
     let sprites: PokemonSprites
+    let moves: [PokemonMove]
+
+    // Hashable conformance
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    static func == (lhs: Pokemon, rhs: Pokemon) -> Bool {
+        lhs.id == rhs.id
+    }
 
     // 身長をメートル単位で取得
     var heightInMeters: Double {
@@ -40,13 +50,23 @@ struct Pokemon: Identifiable, Codable {
 }
 
 // MARK: - PokemonType
-struct PokemonType: Codable, Identifiable {
+struct PokemonType: Codable, Identifiable, Hashable {
     let id = UUID()
     let slot: Int
     let name: String
 
     enum CodingKeys: String, CodingKey {
         case slot, name
+    }
+
+    // Hashable conformance
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(slot)
+        hasher.combine(name)
+    }
+
+    static func == (lhs: PokemonType, rhs: PokemonType) -> Bool {
+        lhs.slot == rhs.slot && lhs.name == rhs.name
     }
 
     // タイプの日本語名
@@ -120,7 +140,7 @@ struct PokemonType: Codable, Identifiable {
 }
 
 // MARK: - PokemonStat
-struct PokemonStat: Codable, Identifiable {
+struct PokemonStat: Codable, Identifiable, Hashable {
     let id = UUID()
     let name: String
     let baseStat: Int
@@ -142,10 +162,20 @@ struct PokemonStat: Codable, Identifiable {
         case name
         case baseStat = "base_stat"
     }
+
+    // Hashable conformance
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(baseStat)
+    }
+
+    static func == (lhs: PokemonStat, rhs: PokemonStat) -> Bool {
+        lhs.name == rhs.name && lhs.baseStat == rhs.baseStat
+    }
 }
 
 // MARK: - PokemonAbility
-struct PokemonAbility: Codable, Identifiable {
+struct PokemonAbility: Codable, Identifiable, Hashable {
     let id = UUID()
     let name: String
     let isHidden: Bool
@@ -154,18 +184,34 @@ struct PokemonAbility: Codable, Identifiable {
         case name
         case isHidden = "is_hidden"
     }
+
+    // 表示用の名前
+    var displayName: String {
+        let baseName = name.capitalized
+        return isHidden ? "\(baseName) (隠れ特性)" : baseName
+    }
+
+    // Hashable conformance
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(isHidden)
+    }
+
+    static func == (lhs: PokemonAbility, rhs: PokemonAbility) -> Bool {
+        lhs.name == rhs.name && lhs.isHidden == rhs.isHidden
+    }
 }
 
 // MARK: - PokemonSprites
-struct PokemonSprites: Codable {
+struct PokemonSprites: Codable, Hashable {
     let frontDefault: String?
     let frontShiny: String?
     let other: OtherSprites?
 
-    struct OtherSprites: Codable {
+    struct OtherSprites: Codable, Hashable {
         let home: HomeSprites?
 
-        struct HomeSprites: Codable {
+        struct HomeSprites: Codable, Hashable {
             let frontDefault: String?
             let frontShiny: String?
 

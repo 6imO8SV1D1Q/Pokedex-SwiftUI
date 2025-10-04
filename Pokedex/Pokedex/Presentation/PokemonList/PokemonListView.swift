@@ -26,6 +26,11 @@ struct PokemonListView: View {
                 }
             }
             .navigationTitle("Pokédex")
+            .navigationDestination(for: Pokemon.self) { pokemon in
+                PokemonDetailView(
+                    viewModel: PokemonDetailViewModel(pokemon: pokemon)
+                )
+            }
             .task {
                 await viewModel.loadPokemons()
             }
@@ -34,7 +39,9 @@ struct PokemonListView: View {
 
     private var pokemonList: some View {
         List(viewModel.pokemons) { pokemon in
-            PokemonRow(pokemon: pokemon)
+            NavigationLink(value: pokemon) {
+                PokemonRow(pokemon: pokemon)
+            }
         }
     }
 
