@@ -8,18 +8,42 @@
 import Foundation
 import SwiftUI
 
+/// ポケモンのエンティティ
+///
+/// ポケモンの基本情報、タイプ、ステータス、特性などを保持します。
+/// PokéAPIから取得したデータをアプリ内で扱いやすい形に変換したものです。
 struct Pokemon: Identifiable, Codable, Hashable {
+    // MARK: - Properties
+
+    /// ポケモンの図鑑番号（一意の識別子）
     let id: Int
+
+    /// ポケモンの名前（英語名、小文字）
     let name: String
-    let height: Int              // デシメートル単位
-    let weight: Int              // ヘクトグラム単位
+
+    /// 身長（デシメートル単位）
+    let height: Int
+
+    /// 体重（ヘクトグラム単位）
+    let weight: Int
+
+    /// タイプ（最大2つ）
     let types: [PokemonType]
+
+    /// ステータス（種族値）
     let stats: [PokemonStat]
+
+    /// 特性
     let abilities: [PokemonAbility]
+
+    /// 画像URL
     let sprites: PokemonSprites
+
+    /// 習得技
     let moves: [PokemonMove]
 
-    // Hashable conformance
+    // MARK: - Hashable
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
@@ -28,31 +52,46 @@ struct Pokemon: Identifiable, Codable, Hashable {
         lhs.id == rhs.id
     }
 
-    // 身長をメートル単位で取得
+    // MARK: - Computed Properties
+
+    /// 身長をメートル単位で取得
+    /// - Returns: 身長（メートル）
     var heightInMeters: Double {
         Double(height) / 10.0
     }
 
-    // 体重をキログラム単位で取得
+    /// 体重をキログラム単位で取得
+    /// - Returns: 体重（キログラム）
     var weightInKilograms: Double {
         Double(weight) / 10.0
     }
 
-    // 図鑑番号表示用
+    /// 図鑑番号の表示用フォーマット
+    /// - Returns: 3桁0埋めされた図鑑番号（例: "#001"）
     var formattedId: String {
         String(format: "#%03d", id)
     }
 
-    // 表示用の名前
+    /// 表示用の名前（先頭大文字）
+    /// - Returns: 先頭が大文字の名前
     var displayName: String {
         name.capitalized
     }
 }
 
 // MARK: - PokemonType
+
+/// ポケモンのタイプ
+///
+/// ポケモンのタイプ情報（ほのお、みず、など）を保持します。
+/// タイプカラーと日本語名も提供します。
 struct PokemonType: Codable, Identifiable, Hashable {
     let id = UUID()
+
+    /// タイプスロット（1または2）
     let slot: Int
+
+    /// タイプ名（英語、小文字）
     let name: String
 
     enum CodingKeys: String, CodingKey {
@@ -69,7 +108,8 @@ struct PokemonType: Codable, Identifiable, Hashable {
         lhs.slot == rhs.slot && lhs.name == rhs.name
     }
 
-    // タイプの日本語名
+    /// タイプの日本語名
+    /// - Returns: 日本語のタイプ名（例: "ほのお", "みず"）
     var japaneseName: String {
         switch name.lowercased() {
         case "normal": return "ノーマル"
@@ -94,7 +134,8 @@ struct PokemonType: Codable, Identifiable, Hashable {
         }
     }
 
-    // ポケモン スカーレット・バイオレット 公式タイプカラー
+    /// ポケモン スカーレット・バイオレット 公式タイプカラー
+    /// - Returns: タイプに対応する色
     var color: Color {
         switch name.lowercased() {
         case "normal":
@@ -138,7 +179,8 @@ struct PokemonType: Codable, Identifiable, Hashable {
         }
     }
 
-    // タイプバッジのテキスト色（アクセシビリティ考慮）
+    /// タイプバッジのテキスト色（アクセシビリティ考慮）
+    /// - Returns: 背景色に応じて適切なテキスト色（黒または白）
     var textColor: Color {
         switch name.lowercased() {
         case "electric", "ice":
@@ -152,12 +194,21 @@ struct PokemonType: Codable, Identifiable, Hashable {
 }
 
 // MARK: - PokemonStat
+
+/// ポケモンのステータス（種族値）
+///
+/// HP、こうげき、ぼうぎょなどのステータス情報を保持します。
 struct PokemonStat: Codable, Identifiable, Hashable {
     let id = UUID()
+
+    /// ステータス名（英語）
     let name: String
+
+    /// 種族値
     let baseStat: Int
 
-    // 日本語表示名
+    /// 日本語表示名
+    /// - Returns: 日本語のステータス名
     var displayName: String {
         switch name {
         case "hp": return "HP"
@@ -187,9 +238,17 @@ struct PokemonStat: Codable, Identifiable, Hashable {
 }
 
 // MARK: - PokemonAbility
+
+/// ポケモンの特性
+///
+/// ポケモンの特性情報（通常特性と隠れ特性）を保持します。
 struct PokemonAbility: Codable, Identifiable, Hashable {
     let id = UUID()
+
+    /// 特性名（英語）
     let name: String
+
+    /// 隠れ特性かどうか
     let isHidden: Bool
 
     enum CodingKeys: String, CodingKey {
@@ -197,7 +256,8 @@ struct PokemonAbility: Codable, Identifiable, Hashable {
         case isHidden = "is_hidden"
     }
 
-    // 表示用の名前
+    /// 表示用の名前（隠れ特性の場合は注釈付き）
+    /// - Returns: 表示用の特性名
     var displayName: String {
         let baseName = name.capitalized
         return isHidden ? "\(baseName) (隠れ特性)" : baseName
@@ -215,9 +275,19 @@ struct PokemonAbility: Codable, Identifiable, Hashable {
 }
 
 // MARK: - PokemonSprites
+
+/// ポケモンの画像URL
+///
+/// 通常画像と色違い画像のURLを保持します。
+/// 複数のソース（デフォルト、Home）から最適な画像を選択できます。
 struct PokemonSprites: Codable, Hashable {
+    /// デフォルトの正面画像URL
     let frontDefault: String?
+
+    /// 色違いの正面画像URL
     let frontShiny: String?
+
+    /// その他の画像ソース
     let other: OtherSprites?
 
     struct OtherSprites: Codable, Hashable {
@@ -234,12 +304,14 @@ struct PokemonSprites: Codable, Hashable {
         }
     }
 
-    // 優先順位: Home > デフォルト
+    /// 優先順位に基づいた画像URL（Home > デフォルト）
+    /// - Returns: 最適な通常画像のURL
     var preferredImageURL: String? {
         other?.home?.frontDefault ?? frontDefault
     }
 
-    // 色違い用
+    /// 色違い画像のURL
+    /// - Returns: 最適な色違い画像のURL
     var shinyImageURL: String? {
         other?.home?.frontShiny ?? frontShiny
     }
