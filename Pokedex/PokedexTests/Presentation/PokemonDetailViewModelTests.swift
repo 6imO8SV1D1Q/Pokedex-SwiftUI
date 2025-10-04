@@ -16,22 +16,18 @@ final class PokemonDetailViewModelTests: XCTestCase {
     override func setUp() {
         super.setUp()
         mockFetchEvolutionChainUseCase = MockFetchEvolutionChainUseCase()
-        let testPokemon = Pokemon.fixture()
-        sut = PokemonDetailViewModel(
-            pokemon: testPokemon,
-            fetchEvolutionChainUseCase: mockFetchEvolutionChainUseCase
-        )
+        // ViewModelの初期化は各テストメソッド内で行う
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         sut = nil
         mockFetchEvolutionChainUseCase = nil
-        super.tearDown()
+        try await super.tearDown()
     }
 
     // MARK: - Initialization Tests
 
-    func test_init_setsPokemonCorrectly() {
+    func test_init_setsPokemonCorrectly() async {
         // Given & When
         let pokemon = Pokemon.fixture(id: 25, name: "pikachu")
         let viewModel = PokemonDetailViewModel(
@@ -47,8 +43,13 @@ final class PokemonDetailViewModelTests: XCTestCase {
 
     // MARK: - Shiny Toggle Tests
 
-    func test_toggleShiny_togglesShinyFlag() {
+    func test_toggleShiny_togglesShinyFlag() async {
         // Given
+        let testPokemon = Pokemon.fixture()
+        sut = PokemonDetailViewModel(
+            pokemon: testPokemon,
+            fetchEvolutionChainUseCase: mockFetchEvolutionChainUseCase
+        )
         XCTAssertFalse(sut.isShiny)
 
         // When
@@ -64,7 +65,7 @@ final class PokemonDetailViewModelTests: XCTestCase {
         XCTAssertFalse(sut.isShiny)
     }
 
-    func test_displayImageURL_normal_returnsPreferredImageURL() {
+    func test_displayImageURL_normal_returnsPreferredImageURL() async {
         // Given
         let sprites = PokemonSprites.fixture(
             frontDefault: "https://example.com/normal.png",
@@ -83,7 +84,7 @@ final class PokemonDetailViewModelTests: XCTestCase {
         XCTAssertEqual(sut.displayImageURL, "https://example.com/normal.png")
     }
 
-    func test_displayImageURL_shiny_returnsShinyImageURL() {
+    func test_displayImageURL_shiny_returnsShinyImageURL() async {
         // Given
         let sprites = PokemonSprites.fixture(
             frontDefault: "https://example.com/normal.png",
@@ -106,6 +107,11 @@ final class PokemonDetailViewModelTests: XCTestCase {
 
     func test_loadEvolutionChain_success_updatesEvolutionChain() async {
         // Given
+        let testPokemon = Pokemon.fixture()
+        sut = PokemonDetailViewModel(
+            pokemon: testPokemon,
+            fetchEvolutionChainUseCase: mockFetchEvolutionChainUseCase
+        )
         mockFetchEvolutionChainUseCase.evolutionChainToReturn = [1, 2, 3]
 
         // When
@@ -121,6 +127,11 @@ final class PokemonDetailViewModelTests: XCTestCase {
 
     func test_loadEvolutionChain_error_returnsEmptyArray() async {
         // Given
+        let testPokemon = Pokemon.fixture()
+        sut = PokemonDetailViewModel(
+            pokemon: testPokemon,
+            fetchEvolutionChainUseCase: mockFetchEvolutionChainUseCase
+        )
         mockFetchEvolutionChainUseCase.shouldThrowError = true
 
         // When
@@ -134,6 +145,11 @@ final class PokemonDetailViewModelTests: XCTestCase {
 
     func test_loadEvolutionChain_retry_succeedsAfterRetries() async {
         // Given
+        let testPokemon = Pokemon.fixture()
+        sut = PokemonDetailViewModel(
+            pokemon: testPokemon,
+            fetchEvolutionChainUseCase: mockFetchEvolutionChainUseCase
+        )
         mockFetchEvolutionChainUseCase.shouldThrowError = true
         mockFetchEvolutionChainUseCase.failCount = 2 // 2回失敗後、成功
         mockFetchEvolutionChainUseCase.evolutionChainToReturn = [1, 2]
@@ -148,7 +164,7 @@ final class PokemonDetailViewModelTests: XCTestCase {
 
     // MARK: - Moves Filtering Tests
 
-    func test_filteredMoves_learnMethod_filtersCorrectly() {
+    func test_filteredMoves_learnMethod_filtersCorrectly() async {
         // Given
         let moves = [
             PokemonMove.fixture(name: "tackle", learnMethod: "level-up", level: 1),
@@ -170,7 +186,7 @@ final class PokemonDetailViewModelTests: XCTestCase {
         XCTAssertEqual(sut.filteredMoves[1].name, "body-slam")
     }
 
-    func test_filteredMoves_sortsByLevel() {
+    func test_filteredMoves_sortsByLevel() async {
         // Given
         let moves = [
             PokemonMove.fixture(name: "move3", learnMethod: "level-up", level: 30),
@@ -192,7 +208,7 @@ final class PokemonDetailViewModelTests: XCTestCase {
         XCTAssertEqual(sut.filteredMoves[2].level, 30)
     }
 
-    func test_filteredMoves_machineMethod_filtersCorrectly() {
+    func test_filteredMoves_machineMethod_filtersCorrectly() async {
         // Given
         let moves = [
             PokemonMove.fixture(name: "tackle", learnMethod: "level-up", level: 1),

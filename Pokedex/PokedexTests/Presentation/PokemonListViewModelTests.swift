@@ -16,21 +16,22 @@ final class PokemonListViewModelTests: XCTestCase {
     override func setUp() {
         super.setUp()
         mockFetchPokemonListUseCase = MockFetchPokemonListUseCase()
-        sut = PokemonListViewModel(
-            fetchPokemonListUseCase: mockFetchPokemonListUseCase
-        )
+        // ViewModelの初期化は各テストメソッド内で行う
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         sut = nil
         mockFetchPokemonListUseCase = nil
-        super.tearDown()
+        try await super.tearDown()
     }
 
     // MARK: - Load Pokemons Tests
 
     func test_loadPokemons_success_updatesPokemonsList() async {
         // Given
+        sut = PokemonListViewModel(
+            fetchPokemonListUseCase: mockFetchPokemonListUseCase
+        )
         let expectedPokemons = [
             Pokemon.fixture(id: 1, name: "bulbasaur"),
             Pokemon.fixture(id: 2, name: "ivysaur")
@@ -49,6 +50,9 @@ final class PokemonListViewModelTests: XCTestCase {
 
     func test_loadPokemons_error_setsErrorMessage() async {
         // Given
+        sut = PokemonListViewModel(
+            fetchPokemonListUseCase: mockFetchPokemonListUseCase
+        )
         mockFetchPokemonListUseCase.shouldThrowError = true
         mockFetchPokemonListUseCase.failCount = 999 // 常に失敗させる
 
@@ -63,6 +67,9 @@ final class PokemonListViewModelTests: XCTestCase {
 
     func test_loadPokemons_retry_succeedsAfterRetries() async {
         // Given
+        sut = PokemonListViewModel(
+            fetchPokemonListUseCase: mockFetchPokemonListUseCase
+        )
         mockFetchPokemonListUseCase.shouldThrowError = true
         mockFetchPokemonListUseCase.failCount = 2 // 2回失敗後、成功
         mockFetchPokemonListUseCase.pokemonsToReturn = [Pokemon.fixture()]
@@ -80,6 +87,9 @@ final class PokemonListViewModelTests: XCTestCase {
 
     func test_applyFilters_searchText_filtersPokemons() async {
         // Given
+        sut = PokemonListViewModel(
+            fetchPokemonListUseCase: mockFetchPokemonListUseCase
+        )
         mockFetchPokemonListUseCase.pokemonsToReturn = [
             Pokemon.fixture(id: 1, name: "bulbasaur"),
             Pokemon.fixture(id: 4, name: "charmander"),
@@ -98,6 +108,9 @@ final class PokemonListViewModelTests: XCTestCase {
 
     func test_applyFilters_partialMatch_filtersPokemons() async {
         // Given
+        sut = PokemonListViewModel(
+            fetchPokemonListUseCase: mockFetchPokemonListUseCase
+        )
         mockFetchPokemonListUseCase.pokemonsToReturn = [
             Pokemon.fixture(id: 1, name: "bulbasaur"),
             Pokemon.fixture(id: 2, name: "ivysaur")
@@ -114,6 +127,9 @@ final class PokemonListViewModelTests: XCTestCase {
 
     func test_applyFilters_caseInsensitive_filtersPokemons() async {
         // Given
+        sut = PokemonListViewModel(
+            fetchPokemonListUseCase: mockFetchPokemonListUseCase
+        )
         mockFetchPokemonListUseCase.pokemonsToReturn = [
             Pokemon.fixture(id: 1, name: "bulbasaur")
         ]
@@ -129,6 +145,9 @@ final class PokemonListViewModelTests: XCTestCase {
 
     func test_applyFilters_type_filtersPokemons() async {
         // Given
+        sut = PokemonListViewModel(
+            fetchPokemonListUseCase: mockFetchPokemonListUseCase
+        )
         mockFetchPokemonListUseCase.pokemonsToReturn = [
             Pokemon.fixture(id: 1, types: [.fixture(name: "grass")]),
             Pokemon.fixture(id: 4, types: [.fixture(name: "fire")]),
@@ -147,6 +166,9 @@ final class PokemonListViewModelTests: XCTestCase {
 
     func test_applyFilters_multipleTypes_filtersPokemons() async {
         // Given
+        sut = PokemonListViewModel(
+            fetchPokemonListUseCase: mockFetchPokemonListUseCase
+        )
         mockFetchPokemonListUseCase.pokemonsToReturn = [
             Pokemon.fixture(id: 1, types: [.fixture(name: "grass")]),
             Pokemon.fixture(id: 4, types: [.fixture(name: "fire")]),
@@ -164,6 +186,9 @@ final class PokemonListViewModelTests: XCTestCase {
 
     func test_applyFilters_emptySearchText_showsAllPokemons() async {
         // Given
+        sut = PokemonListViewModel(
+            fetchPokemonListUseCase: mockFetchPokemonListUseCase
+        )
         mockFetchPokemonListUseCase.pokemonsToReturn = [
             Pokemon.fixture(id: 1, name: "bulbasaur"),
             Pokemon.fixture(id: 2, name: "ivysaur")
@@ -180,8 +205,11 @@ final class PokemonListViewModelTests: XCTestCase {
 
     // MARK: - Display Mode Tests
 
-    func test_toggleDisplayMode_togglesBetweenListAndGrid() {
+    func test_toggleDisplayMode_togglesBetweenListAndGrid() async {
         // Given
+        sut = PokemonListViewModel(
+            fetchPokemonListUseCase: mockFetchPokemonListUseCase
+        )
         XCTAssertEqual(sut.displayMode, .list)
 
         // When
@@ -201,6 +229,9 @@ final class PokemonListViewModelTests: XCTestCase {
 
     func test_clearFilters_clearsAllFilters() async {
         // Given
+        sut = PokemonListViewModel(
+            fetchPokemonListUseCase: mockFetchPokemonListUseCase
+        )
         mockFetchPokemonListUseCase.pokemonsToReturn = [Pokemon.fixture()]
         await sut.loadPokemons()
         sut.searchText = "test"

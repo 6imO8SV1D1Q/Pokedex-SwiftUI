@@ -26,6 +26,7 @@ final class FetchPokemonListUseCaseTests: XCTestCase {
 
     // MARK: - Success Cases
 
+    @MainActor
     func test_execute_success_returnsPokemonList() async throws {
         // Given
         let expectedPokemons = [
@@ -39,10 +40,8 @@ final class FetchPokemonListUseCaseTests: XCTestCase {
 
         // Then
         XCTAssertEqual(result.count, 2)
-        let firstName = result[0].name
-        let secondName = result[1].name
-        XCTAssertEqual(firstName, "bulbasaur")
-        XCTAssertEqual(secondName, "ivysaur")
+        XCTAssertEqual(result[0].name, "bulbasaur")
+        XCTAssertEqual(result[1].name, "ivysaur")
         XCTAssertEqual(mockRepository.fetchPokemonListCallCount, 1)
     }
 
@@ -87,6 +86,7 @@ final class FetchPokemonListUseCaseTests: XCTestCase {
         XCTAssertTrue(result.isEmpty)
     }
 
+    @MainActor
     func test_execute_largeDataset_returnsAllPokemons() async throws {
         // Given
         let manyPokemons = (1...151).map { Pokemon.fixture(id: $0, name: "pokemon\($0)") }
@@ -97,9 +97,7 @@ final class FetchPokemonListUseCaseTests: XCTestCase {
 
         // Then
         XCTAssertEqual(result.count, 151)
-        let firstId = result.first?.id
-        let lastId = result.last?.id
-        XCTAssertEqual(firstId, 1)
-        XCTAssertEqual(lastId, 151)
+        XCTAssertEqual(result.first?.id, 1)
+        XCTAssertEqual(result.last?.id, 151)
     }
 }
