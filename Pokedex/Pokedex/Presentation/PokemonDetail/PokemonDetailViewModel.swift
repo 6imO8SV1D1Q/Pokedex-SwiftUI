@@ -14,10 +14,15 @@ final class PokemonDetailViewModel: ObservableObject {
     @Published var isShiny = false
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var showError = false
     @Published var evolutionChain: [Int] = []
     @Published var selectedLearnMethod = "level-up"
 
     private let fetchEvolutionChainUseCase: FetchEvolutionChainUseCaseProtocol
+
+    // Constants
+    private let maxRetries = 3
+    private let timeoutSeconds: UInt64 = 10
 
     // フィルタリングされた技リスト
     var filteredMoves: [PokemonMove] {
@@ -54,11 +59,63 @@ final class PokemonDetailViewModel: ObservableObject {
     }
 
     func loadEvolutionChain() async {
-        do {
-            evolutionChain = try await fetchEvolutionChainUseCase.execute(pokemonId: pokemon.id)
-        } catch {
-            // 進化チェーン取得失敗時は空配列のまま
-            evolutionChain = []
+        await loadEvolutionChainWithRetry()
+    }
+
+    private func loadEvolutionChainWithRetry(attempt: Int = 0) async {
+        guard attempt < maxRetries else {
+            handleError(PokemonError.networkError(NSError(domain: "PokemonError", code: -1, userInfo: [NSLocalizedDescriptionKey: "最大再試行回数を超えました"])))
+            return
         }
+
+        isLoading = true
+        errorMessage = nil
+        showError = false
+
+        do {
+            evolutionChain = try await fetchWithTimeout {
+                try await self.fetchEvolutionChainUseCase.execute(pokemonId: self.pokemon.id)
+            }
+            isLoading = false
+        } catch {
+            if attempt < maxRetries - 1 {
+                // 再試行前に少し待つ
+                try? await Task.sleep(nanoseconds: 1_000_000_000) // 1秒
+                await loadEvolutionChainWithRetry(attempt: attempt + 1)
+            } else {
+                isLoading = false
+                // 進化チェーンの取得失敗は致命的ではないため、エラーを表示せず空配列のまま
+                evolutionChain = []
+            }
+        }
+    }
+
+    private func fetchWithTimeout<T>(_ operation: @escaping () async throws -> T) async throws -> T {
+        try await withThrowingTaskGroup(of: T.self) { group in
+            group.addTask {
+                try await operation()
+            }
+
+            group.addTask {
+                try await Task.sleep(nanoseconds: self.timeoutSeconds * 1_000_000_000)
+                throw PokemonError.timeout
+            }
+
+            guard let result = try await group.next() else {
+                throw PokemonError.timeout
+            }
+
+            group.cancelAll()
+            return result
+        }
+    }
+
+    private func handleError(_ error: Error) {
+        if let pokemonError = error as? PokemonError {
+            errorMessage = pokemonError.localizedDescription
+        } else {
+            errorMessage = "予期しないエラーが発生しました: \(error.localizedDescription)"
+        }
+        showError = true
     }
 }

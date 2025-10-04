@@ -37,6 +37,18 @@ struct PokemonDetailView: View {
         }
         .navigationTitle(viewModel.pokemon.displayName)
         .navigationBarTitleDisplayMode(.inline)
+        .alert("エラー", isPresented: $viewModel.showError) {
+            Button("OK") {
+                viewModel.showError = false
+            }
+            Button("再試行") {
+                Task {
+                    await viewModel.loadEvolutionChain()
+                }
+            }
+        } message: {
+            Text(viewModel.errorMessage ?? "不明なエラーが発生しました")
+        }
         .task {
             await viewModel.loadEvolutionChain()
         }

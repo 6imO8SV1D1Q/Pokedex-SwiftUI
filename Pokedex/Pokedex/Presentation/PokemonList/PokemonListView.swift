@@ -20,8 +20,6 @@ struct PokemonListView: View {
             Group {
                 if viewModel.isLoading {
                     LoadingView(message: "ポケモンを読み込んでいます...")
-                } else if let error = viewModel.errorMessage {
-                    errorView(message: error)
                 } else {
                     // 表示形式によって切り替え
                     switch viewModel.displayMode {
@@ -58,6 +56,18 @@ struct PokemonListView: View {
             }
             .sheet(isPresented: $showingFilter) {
                 SearchFilterView(viewModel: viewModel)
+            }
+            .alert("エラー", isPresented: $viewModel.showError) {
+                Button("OK") {
+                    viewModel.showError = false
+                }
+                Button("再試行") {
+                    Task {
+                        await viewModel.loadPokemons()
+                    }
+                }
+            } message: {
+                Text(viewModel.errorMessage ?? "不明なエラーが発生しました")
             }
             .task {
                 await viewModel.loadPokemons()
@@ -122,35 +132,5 @@ struct PokemonListView: View {
                 viewModel.clearFilters()
             }
         )
-    }
-
-    private func errorView(message: String) -> some View {
-        VStack(spacing: DesignConstants.Spacing.medium) {
-            errorIcon
-            errorMessage(message)
-            retryButton
-        }
-        .padding(DesignConstants.Spacing.medium)
-    }
-
-    private var errorIcon: some View {
-        Image(systemName: "exclamationmark.triangle.fill")
-            .font(.system(size: 64))
-            .foregroundColor(.red)
-    }
-
-    private func errorMessage(_ message: String) -> some View {
-        Text(message)
-            .multilineTextAlignment(.center)
-            .foregroundColor(.secondary)
-    }
-
-    private var retryButton: some View {
-        Button("再試行") {
-            Task {
-                await viewModel.loadPokemons()
-            }
-        }
-        .buttonStyle(.borderedProminent)
     }
 }
