@@ -14,7 +14,8 @@ final class PokemonListViewModel: ObservableObject {
     @Published private(set) var pokemons: [Pokemon] = []
     @Published var filteredPokemons: [Pokemon] = []
     @Published private(set) var isLoading = false
-    @Published private(set) var errorMessage: String?
+    @Published var errorMessage: String?
+    @Published var showError = false
 
     // 検索・フィルター用
     @Published var searchText = ""
@@ -32,22 +33,73 @@ final class PokemonListViewModel: ObservableObject {
     // Dependencies
     private let fetchPokemonListUseCase: FetchPokemonListUseCaseProtocol
 
+    // Constants
+    private let maxRetries = 3
+    private let timeoutSeconds: UInt64 = 10
+
     init(fetchPokemonListUseCase: FetchPokemonListUseCaseProtocol) {
         self.fetchPokemonListUseCase = fetchPokemonListUseCase
     }
 
     func loadPokemons() async {
-        isLoading = true
-        errorMessage = nil
+        await loadPokemonsWithRetry()
+    }
 
-        do {
-            pokemons = try await fetchPokemonListUseCase.execute(limit: 151, offset: 0)
-            applyFilters()
-        } catch {
-            errorMessage = error.localizedDescription
+    private func loadPokemonsWithRetry(attempt: Int = 0) async {
+        guard attempt < maxRetries else {
+            handleError(PokemonError.networkError(NSError(domain: "PokemonError", code: -1, userInfo: [NSLocalizedDescriptionKey: "最大再試行回数を超えました"])))
+            return
         }
 
-        isLoading = false
+        isLoading = true
+        errorMessage = nil
+        showError = false
+
+        do {
+            pokemons = try await fetchWithTimeout {
+                try await self.fetchPokemonListUseCase.execute(limit: 151, offset: 0)
+            }
+            applyFilters()
+            isLoading = false
+        } catch {
+            if attempt < maxRetries - 1 {
+                // 再試行前に少し待つ
+                try? await Task.sleep(nanoseconds: 1_000_000_000) // 1秒
+                await loadPokemonsWithRetry(attempt: attempt + 1)
+            } else {
+                isLoading = false
+                handleError(error)
+            }
+        }
+    }
+
+    private func fetchWithTimeout<T>(_ operation: @escaping () async throws -> T) async throws -> T {
+        try await withThrowingTaskGroup(of: T.self) { group in
+            group.addTask {
+                try await operation()
+            }
+
+            group.addTask {
+                try await Task.sleep(nanoseconds: self.timeoutSeconds * 1_000_000_000)
+                throw PokemonError.timeout
+            }
+
+            guard let result = try await group.next() else {
+                throw PokemonError.timeout
+            }
+
+            group.cancelAll()
+            return result
+        }
+    }
+
+    private func handleError(_ error: Error) {
+        if let pokemonError = error as? PokemonError {
+            errorMessage = pokemonError.localizedDescription
+        } else {
+            errorMessage = "予期しないエラーが発生しました: \(error.localizedDescription)"
+        }
+        showError = true
     }
 
     func applyFilters() {
