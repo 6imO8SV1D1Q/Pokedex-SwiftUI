@@ -23,7 +23,7 @@ enum PokemonMapper {
         )
     }
 
-    private static func mapTypes(from types: [PKMPokemonType]?) -> [PokemonType] {
+    nonisolated private static func mapTypes(from types: [PKMPokemonType]?) -> [PokemonType] {
         guard let types = types else { return [] }
         return types.compactMap { type in
             guard let slot = type.slot, let name = type.type?.name else { return nil }
@@ -31,7 +31,7 @@ enum PokemonMapper {
         }
     }
 
-    private static func mapStats(from stats: [PKMPokemonStat]?) -> [PokemonStat] {
+    nonisolated private static func mapStats(from stats: [PKMPokemonStat]?) -> [PokemonStat] {
         guard let stats = stats else { return [] }
         return stats.compactMap { stat in
             guard let name = stat.stat?.name, let baseStat = stat.baseStat else { return nil }
@@ -39,7 +39,7 @@ enum PokemonMapper {
         }
     }
 
-    private static func mapAbilities(from abilities: [PKMPokemonAbility]?) -> [PokemonAbility] {
+    nonisolated private static func mapAbilities(from abilities: [PKMPokemonAbility]?) -> [PokemonAbility] {
         guard let abilities = abilities else { return [] }
         return abilities.compactMap { ability in
             guard let name = ability.ability?.name else { return nil }
@@ -47,7 +47,7 @@ enum PokemonMapper {
         }
     }
 
-    private static func mapSprites(from sprites: PKMPokemonSprites?) -> PokemonSprites {
+    nonisolated private static func mapSprites(from sprites: PKMPokemonSprites?) -> PokemonSprites {
         let homeSprites: PokemonSprites.OtherSprites.HomeSprites? = {
             guard let home = sprites?.other?.home else { return nil }
             return PokemonSprites.OtherSprites.HomeSprites(
@@ -66,7 +66,7 @@ enum PokemonMapper {
         )
     }
 
-    private static func mapMoves(from moves: [PKMPokemonMove]?) -> [PokemonMove] {
+    nonisolated private static func mapMoves(from moves: [PKMPokemonMove]?) -> [PokemonMove] {
         guard let moves = moves else { return [] }
         return moves.compactMap { move in
             guard let moveName = move.move?.name else { return nil }
