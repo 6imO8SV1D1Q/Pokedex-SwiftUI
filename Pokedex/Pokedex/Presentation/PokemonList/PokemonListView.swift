@@ -23,7 +23,13 @@ struct PokemonListView: View {
                 } else if let error = viewModel.errorMessage {
                     errorView(message: error)
                 } else {
-                    pokemonList
+                    // 表示形式によって切り替え
+                    switch viewModel.displayMode {
+                    case .list:
+                        pokemonList
+                    case .grid:
+                        pokemonGrid
+                    }
                 }
             }
             .navigationTitle("Pokédex")
@@ -32,6 +38,16 @@ struct PokemonListView: View {
                 viewModel.applyFilters()
             }
             .toolbar {
+                // 表示形式切り替えボタン
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        viewModel.toggleDisplayMode()
+                    } label: {
+                        Image(systemName: viewModel.displayMode == .list ? "square.grid.2x2" : "list.bullet")
+                    }
+                }
+
+                // フィルターボタン
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         showingFilter = true
@@ -42,11 +58,6 @@ struct PokemonListView: View {
             }
             .sheet(isPresented: $showingFilter) {
                 SearchFilterView(viewModel: viewModel)
-            }
-            .navigationDestination(for: Pokemon.self) { pokemon in
-                PokemonDetailView(
-                    viewModel: PokemonDetailViewModel(pokemon: pokemon)
-                )
             }
             .task {
                 await viewModel.loadPokemons()
@@ -59,6 +70,37 @@ struct PokemonListView: View {
             NavigationLink(value: pokemon) {
                 PokemonRow(pokemon: pokemon)
             }
+        }
+        .navigationDestination(for: Pokemon.self) { pokemon in
+            PokemonDetailView(
+                viewModel: PokemonDetailViewModel(pokemon: pokemon)
+            )
+        }
+    }
+
+    private var pokemonGrid: some View {
+        ScrollView {
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                    GridItem(.flexible())
+                ],
+                spacing: 16
+            ) {
+                ForEach(viewModel.filteredPokemons) { pokemon in
+                    NavigationLink(value: pokemon) {
+                        PokemonGridItem(pokemon: pokemon)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding()
+        }
+        .navigationDestination(for: Pokemon.self) { pokemon in
+            PokemonDetailView(
+                viewModel: PokemonDetailViewModel(pokemon: pokemon)
+            )
         }
     }
 
