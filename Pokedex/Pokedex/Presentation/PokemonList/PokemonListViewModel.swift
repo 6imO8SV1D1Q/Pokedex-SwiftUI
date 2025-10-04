@@ -21,6 +21,14 @@ final class PokemonListViewModel: ObservableObject {
     @Published var selectedTypes: Set<String> = []
     @Published var selectedGeneration = 1
 
+    // 表示形式
+    enum DisplayMode {
+        case list
+        case grid
+    }
+
+    @Published var displayMode: DisplayMode = .list
+
     // Dependencies
     private let fetchPokemonListUseCase: FetchPokemonListUseCaseProtocol
 
@@ -57,5 +65,9 @@ final class PokemonListViewModel: ObservableObject {
 
             return matchesSearch && matchesType && matchesGeneration
         }
+    }
+
+    func toggleDisplayMode() {
+        displayMode = displayMode == .list ? .grid : .list
     }
 }
