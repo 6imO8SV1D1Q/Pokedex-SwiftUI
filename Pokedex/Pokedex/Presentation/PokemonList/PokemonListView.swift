@@ -106,21 +106,31 @@ struct PokemonListView: View {
 
     private func errorView(message: String) -> some View {
         VStack(spacing: 16) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.largeTitle)
-                .foregroundColor(.red)
-
-            Text(message)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
-
-            Button("再試行") {
-                Task {
-                    await viewModel.loadPokemons()
-                }
-            }
-            .buttonStyle(.borderedProminent)
+            errorIcon
+            errorMessage(message)
+            retryButton
         }
         .padding()
+    }
+
+    private var errorIcon: some View {
+        Image(systemName: "exclamationmark.triangle")
+            .font(.largeTitle)
+            .foregroundColor(.red)
+    }
+
+    private func errorMessage(_ message: String) -> some View {
+        Text(message)
+            .multilineTextAlignment(.center)
+            .foregroundColor(.secondary)
+    }
+
+    private var retryButton: some View {
+        Button("再試行") {
+            Task {
+                await viewModel.loadPokemons()
+            }
+        }
+        .buttonStyle(.borderedProminent)
     }
 }

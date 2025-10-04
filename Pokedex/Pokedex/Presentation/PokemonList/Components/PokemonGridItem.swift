@@ -12,52 +12,53 @@ struct PokemonGridItem: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            // ポケモン画像
-            AsyncImage(url: URL(string: pokemon.sprites.preferredImageURL ?? "")) { phase in
-                switch phase {
-                case .empty:
-                    ProgressView()
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                case .failure:
-                    Image(systemName: "questionmark.circle")
-                        .foregroundColor(.gray)
-                @unknown default:
-                    EmptyView()
-                }
-            }
-            .frame(width: 100, height: 100)
-
-            // 図鑑番号
-            Text("#\(String(format: "%03d", pokemon.id))")
-                .font(.caption2)
-                .foregroundColor(.gray)
-
-            // 名前
-            Text(pokemon.displayName)
-                .font(.caption)
-                .fontWeight(.medium)
-                .lineLimit(1)
-
-            // タイプバッジ
-            HStack(spacing: 4) {
-                ForEach(pokemon.types, id: \.slot) { type in
-                    Text(type.japaneseName)
-                        .font(.system(size: 9))
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(type.color)
-                        .foregroundColor(.white)
-                        .cornerRadius(4)
-                }
-            }
+            pokemonImage
+            pokemonNumber
+            pokemonName
+            typesBadges
         }
         .padding(8)
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+        .cardStyle()
+    }
+
+    private var pokemonImage: some View {
+        AsyncImage(url: URL(string: pokemon.sprites.preferredImageURL ?? "")) { phase in
+            switch phase {
+            case .success(let image):
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            case .empty:
+                ProgressView()
+            case .failure:
+                Image(systemName: "questionmark.circle")
+                    .foregroundColor(.gray)
+            @unknown default:
+                EmptyView()
+            }
+        }
+        .pokemonImageStyle(size: 100, clipShape: false)
+    }
+
+    private var pokemonNumber: some View {
+        Text("#\(String(format: "%03d", pokemon.id))")
+            .font(.caption2)
+            .foregroundColor(.gray)
+    }
+
+    private var pokemonName: some View {
+        Text(pokemon.displayName)
+            .font(.caption)
+            .fontWeight(.medium)
+            .lineLimit(1)
+    }
+
+    private var typesBadges: some View {
+        HStack(spacing: 4) {
+            ForEach(pokemon.types, id: \.slot) { type in
+                Text(type.japaneseName)
+                    .typeBadgeStyle(type, fontSize: 9)
+            }
+        }
     }
 }
