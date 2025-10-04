@@ -47,9 +47,21 @@ enum PokemonMapper {
     }
 
     private static func mapSprites(from sprites: PKMPokemonSprites?) -> PokemonSprites {
-        PokemonSprites(
+        let homeSprites: PokemonSprites.OtherSprites.HomeSprites? = {
+            guard let home = sprites?.other?.home else { return nil }
+            return PokemonSprites.OtherSprites.HomeSprites(
+                frontDefault: home.frontDefault,
+                frontShiny: home.frontShiny
+            )
+        }()
+
+        let otherSprites: PokemonSprites.OtherSprites? = homeSprites != nil ?
+            PokemonSprites.OtherSprites(home: homeSprites) : nil
+
+        return PokemonSprites(
             frontDefault: sprites?.frontDefault,
-            frontShiny: sprites?.frontShiny
+            frontShiny: sprites?.frontShiny,
+            other: otherSprites
         )
     }
 }
