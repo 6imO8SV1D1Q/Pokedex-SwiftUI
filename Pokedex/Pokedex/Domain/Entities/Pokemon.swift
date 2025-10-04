@@ -74,45 +74,45 @@ struct PokemonType: Codable, Identifiable {
         }
     }
 
-    // ポケモン公式タイプカラー
+    // ポケモン スカーレット・バイオレット 公式タイプカラー
     var color: Color {
         switch name.lowercased() {
         case "normal":
-            return Color(red: 168/255, green: 167/255, blue: 122/255)
+            return Color(red: 159/255, green: 161/255, blue: 159/255)
         case "fire":
-            return Color(red: 238/255, green: 129/255, blue: 48/255)
+            return Color(red: 230/255, green: 40/255, blue: 41/255)
         case "water":
-            return Color(red: 99/255, green: 144/255, blue: 240/255)
+            return Color(red: 53/255, green: 126/255, blue: 199/255)
         case "grass":
-            return Color(red: 122/255, green: 199/255, blue: 76/255)
+            return Color(red: 99/255, green: 187/255, blue: 68/255)
         case "electric":
-            return Color(red: 247/255, green: 208/255, blue: 44/255)
+            return Color(red: 238/255, green: 213/255, blue: 53/255)
         case "ice":
-            return Color(red: 150/255, green: 217/255, blue: 214/255)
+            return Color(red: 116/255, green: 206/255, blue: 192/255)
         case "fighting":
-            return Color(red: 194/255, green: 46/255, blue: 40/255)
+            return Color(red: 206/255, green: 64/255, blue: 86/255)
         case "poison":
-            return Color(red: 163/255, green: 62/255, blue: 161/255)
+            return Color(red: 185/255, green: 127/255, blue: 201/255)
         case "ground":
-            return Color(red: 226/255, green: 191/255, blue: 101/255)
+            return Color(red: 217/255, green: 119/255, blue: 70/255)
         case "flying":
-            return Color(red: 169/255, green: 143/255, blue: 243/255)
+            return Color(red: 139/255, green: 170/255, blue: 229/255)
         case "psychic":
-            return Color(red: 249/255, green: 85/255, blue: 135/255)
+            return Color(red: 243/255, green: 102/255, blue: 185/255)
         case "bug":
-            return Color(red: 166/255, green: 185/255, blue: 26/255)
+            return Color(red: 145/255, green: 193/255, blue: 47/255)
         case "rock":
-            return Color(red: 182/255, green: 161/255, blue: 54/255)
+            return Color(red: 199/255, green: 183/255, blue: 139/255)
         case "ghost":
-            return Color(red: 115/255, green: 87/255, blue: 151/255)
+            return Color(red: 82/255, green: 105/255, blue: 172/255)
         case "dragon":
-            return Color(red: 111/255, green: 53/255, blue: 252/255)
+            return Color(red: 11/255, green: 109/255, blue: 195/255)
         case "dark":
-            return Color(red: 112/255, green: 87/255, blue: 70/255)
+            return Color(red: 90/255, green: 83/255, blue: 102/255)
         case "steel":
-            return Color(red: 183/255, green: 183/255, blue: 206/255)
+            return Color(red: 90/255, green: 142/255, blue: 161/255)
         case "fairy":
-            return Color(red: 214/255, green: 133/255, blue: 173/255)
+            return Color(red: 236/255, green: 143/255, blue: 230/255)
         default:
             return Color.gray
         }
