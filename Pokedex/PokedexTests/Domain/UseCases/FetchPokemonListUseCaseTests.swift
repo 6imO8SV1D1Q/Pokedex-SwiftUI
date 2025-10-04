@@ -39,8 +39,10 @@ final class FetchPokemonListUseCaseTests: XCTestCase {
 
         // Then
         XCTAssertEqual(result.count, 2)
-        XCTAssertEqual(result[0].name, "bulbasaur")
-        XCTAssertEqual(result[1].name, "ivysaur")
+        let firstName = result[0].name
+        let secondName = result[1].name
+        XCTAssertEqual(firstName, "bulbasaur")
+        XCTAssertEqual(secondName, "ivysaur")
         XCTAssertEqual(mockRepository.fetchPokemonListCallCount, 1)
     }
 
@@ -95,7 +97,9 @@ final class FetchPokemonListUseCaseTests: XCTestCase {
 
         // Then
         XCTAssertEqual(result.count, 151)
-        XCTAssertEqual(result.first?.id, 1)
-        XCTAssertEqual(result.last?.id, 151)
+        let firstId = result.first?.id
+        let lastId = result.last?.id
+        XCTAssertEqual(firstId, 1)
+        XCTAssertEqual(lastId, 151)
     }
 }

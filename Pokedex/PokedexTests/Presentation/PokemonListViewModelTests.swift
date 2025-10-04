@@ -50,6 +50,7 @@ final class PokemonListViewModelTests: XCTestCase {
     func test_loadPokemons_error_setsErrorMessage() async {
         // Given
         mockFetchPokemonListUseCase.shouldThrowError = true
+        mockFetchPokemonListUseCase.failCount = 999 // 常に失敗させる
 
         // When
         await sut.loadPokemons()
