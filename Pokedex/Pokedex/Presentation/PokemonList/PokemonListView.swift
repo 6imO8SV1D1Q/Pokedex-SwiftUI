@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PokemonListView: View {
     @StateObject private var viewModel: PokemonListViewModel
+    @State private var showingFilter = false
 
     init(viewModel: PokemonListViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -26,6 +27,22 @@ struct PokemonListView: View {
                 }
             }
             .navigationTitle("Pokédex")
+            .searchable(text: $viewModel.searchText, prompt: "ポケモンを検索")
+            .onChange(of: viewModel.searchText) { _, _ in
+                viewModel.applyFilters()
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingFilter = true
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingFilter) {
+                SearchFilterView(viewModel: viewModel)
+            }
             .navigationDestination(for: Pokemon.self) { pokemon in
                 PokemonDetailView(
                     viewModel: PokemonDetailViewModel(pokemon: pokemon)
@@ -38,7 +55,7 @@ struct PokemonListView: View {
     }
 
     private var pokemonList: some View {
-        List(viewModel.pokemons) { pokemon in
+        List(viewModel.filteredPokemons) { pokemon in
             NavigationLink(value: pokemon) {
                 PokemonRow(pokemon: pokemon)
             }
