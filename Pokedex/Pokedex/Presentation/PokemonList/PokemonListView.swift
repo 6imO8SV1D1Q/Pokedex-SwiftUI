@@ -76,7 +76,10 @@ struct PokemonListView: View {
                 )
             }
             .sheet(isPresented: $showingFilter) {
-                SearchFilterView(viewModel: viewModel)
+                SearchFilterView(
+                    viewModel: viewModel,
+                    fetchAllAbilitiesUseCase: DIContainer.shared.makeFetchAllAbilitiesUseCase()
+                )
             }
             .sheet(isPresented: $showingSortOptions) {
                 SortOptionView(

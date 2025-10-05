@@ -10,6 +10,10 @@ import SwiftUI
 struct SearchFilterView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var viewModel: PokemonListViewModel
+    @State private var allAbilities: [String] = []
+    @State private var isLoadingAbilities = false
+
+    let fetchAllAbilitiesUseCase: FetchAllAbilitiesUseCaseProtocol
 
     // 全18タイプのリスト
     private let allTypes = [
@@ -22,6 +26,7 @@ struct SearchFilterView: View {
         NavigationStack {
             Form {
                 typeFilterSection
+                abilityFilterSection
                 generationFilterSection
             }
             .navigationTitle("フィルター")
@@ -29,6 +34,9 @@ struct SearchFilterView: View {
             .toolbar {
                 clearButton
                 applyButton
+            }
+            .onAppear {
+                loadAbilities()
             }
         }
     }
@@ -61,6 +69,33 @@ struct SearchFilterView: View {
             .foregroundColor(.blue)
     }
 
+    private var abilityFilterSection: some View {
+        Section("特性") {
+            if isLoadingAbilities {
+                ProgressView()
+            } else {
+                ForEach(allAbilities, id: \.self) { abilityName in
+                    abilitySelectionButton(abilityName)
+                }
+            }
+        }
+    }
+
+    private func abilitySelectionButton(_ abilityName: String) -> some View {
+        Button {
+            toggleAbilitySelection(abilityName)
+        } label: {
+            HStack {
+                Text(abilityName.capitalized)
+                Spacer()
+                if viewModel.selectedAbilities.contains(abilityName) {
+                    checkmark
+                }
+            }
+        }
+        .foregroundColor(.primary)
+    }
+
     private var generationFilterSection: some View {
         Section("世代") {
             Picker("世代", selection: $viewModel.selectedGeneration) {
@@ -74,6 +109,7 @@ struct SearchFilterView: View {
         ToolbarItem(placement: .cancellationAction) {
             Button("クリア") {
                 viewModel.selectedTypes.removeAll()
+                viewModel.selectedAbilities.removeAll()
                 viewModel.searchText = ""
                 viewModel.selectedGeneration = 1
                 viewModel.applyFilters()
@@ -95,6 +131,29 @@ struct SearchFilterView: View {
             viewModel.selectedTypes.remove(typeName)
         } else {
             viewModel.selectedTypes.insert(typeName)
+        }
+    }
+
+    private func toggleAbilitySelection(_ abilityName: String) {
+        if viewModel.selectedAbilities.contains(abilityName) {
+            viewModel.selectedAbilities.remove(abilityName)
+        } else {
+            viewModel.selectedAbilities.insert(abilityName)
+        }
+    }
+
+    private func loadAbilities() {
+        guard allAbilities.isEmpty else { return }
+
+        isLoadingAbilities = true
+        Task {
+            do {
+                allAbilities = try await fetchAllAbilitiesUseCase.execute()
+            } catch {
+                // エラーが発生しても空のリストを表示
+                allAbilities = []
+            }
+            isLoadingAbilities = false
         }
     }
 

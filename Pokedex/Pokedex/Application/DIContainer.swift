@@ -19,6 +19,10 @@ final class DIContainer: ObservableObject {
         PokemonRepository()
     }()
 
+    private lazy var abilityRepository: AbilityRepositoryProtocol = {
+        AbilityRepository()
+    }()
+
     // MARK: - UseCases
     func makeFetchPokemonListUseCase() -> FetchPokemonListUseCaseProtocol {
         FetchPokemonListUseCase(repository: pokemonRepository)
@@ -32,11 +36,20 @@ final class DIContainer: ObservableObject {
         SortPokemonUseCase()
     }
 
+    func makeFilterPokemonByAbilityUseCase() -> FilterPokemonByAbilityUseCaseProtocol {
+        FilterPokemonByAbilityUseCase()
+    }
+
+    func makeFetchAllAbilitiesUseCase() -> FetchAllAbilitiesUseCaseProtocol {
+        FetchAllAbilitiesUseCase(abilityRepository: abilityRepository)
+    }
+
     // MARK: - ViewModels
     func makePokemonListViewModel() -> PokemonListViewModel {
         PokemonListViewModel(
             fetchPokemonListUseCase: makeFetchPokemonListUseCase(),
-            sortPokemonUseCase: makeSortPokemonUseCase()
+            sortPokemonUseCase: makeSortPokemonUseCase(),
+            filterPokemonByAbilityUseCase: makeFilterPokemonByAbilityUseCase()
         )
     }
 }

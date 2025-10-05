@@ -39,6 +39,9 @@ final class PokemonListViewModel: ObservableObject {
     /// 選択されたタイプ
     @Published var selectedTypes: Set<String> = []
 
+    /// 選択された特性
+    @Published var selectedAbilities: Set<String> = []
+
     /// 選択された世代（現在は第1世代のみ）
     @Published var selectedGeneration = 1
 
@@ -66,6 +69,9 @@ final class PokemonListViewModel: ObservableObject {
     /// ポケモンソートUseCase
     private let sortPokemonUseCase: SortPokemonUseCaseProtocol
 
+    /// 特性フィルタリングUseCase
+    private let filterPokemonByAbilityUseCase: FilterPokemonByAbilityUseCaseProtocol
+
     /// 最大再試行回数
     private let maxRetries = 3
 
@@ -78,12 +84,15 @@ final class PokemonListViewModel: ObservableObject {
     /// - Parameters:
     ///   - fetchPokemonListUseCase: ポケモンリスト取得UseCase
     ///   - sortPokemonUseCase: ポケモンソートUseCase
+    ///   - filterPokemonByAbilityUseCase: 特性フィルタリングUseCase
     init(
         fetchPokemonListUseCase: FetchPokemonListUseCaseProtocol,
-        sortPokemonUseCase: SortPokemonUseCaseProtocol
+        sortPokemonUseCase: SortPokemonUseCaseProtocol,
+        filterPokemonByAbilityUseCase: FilterPokemonByAbilityUseCaseProtocol
     ) {
         self.fetchPokemonListUseCase = fetchPokemonListUseCase
         self.sortPokemonUseCase = sortPokemonUseCase
+        self.filterPokemonByAbilityUseCase = filterPokemonByAbilityUseCase
     }
 
     // MARK: - Public Methods
@@ -96,7 +105,7 @@ final class PokemonListViewModel: ObservableObject {
     /// フィルターを適用
     func applyFilters() {
         // フィルタリング
-        let filtered = pokemons.filter { pokemon in
+        var filtered = pokemons.filter { pokemon in
             // 名前検索（部分一致）
             let matchesSearch = searchText.isEmpty ||
                 pokemon.name.lowercased().contains(searchText.lowercased())
@@ -110,6 +119,12 @@ final class PokemonListViewModel: ObservableObject {
 
             return matchesSearch && matchesType && matchesGeneration
         }
+
+        // 特性フィルター適用
+        filtered = filterPokemonByAbilityUseCase.execute(
+            pokemonList: filtered,
+            selectedAbilities: selectedAbilities
+        )
 
         // ソート適用
         filteredPokemons = sortPokemonUseCase.execute(
@@ -134,6 +149,7 @@ final class PokemonListViewModel: ObservableObject {
     func clearFilters() {
         searchText = ""
         selectedTypes.removeAll()
+        selectedAbilities.removeAll()
         selectedGeneration = 1
         applyFilters()
     }
