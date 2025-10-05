@@ -79,3 +79,7 @@ fastlane/test_output
 
 # Mac
 .DS_Store
+
+# Claude Code
+CLAUDE.md
+.claude/
