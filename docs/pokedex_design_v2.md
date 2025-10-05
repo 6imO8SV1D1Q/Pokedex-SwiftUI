@@ -10,7 +10,7 @@
 
 | バージョン | 日付 | 変更内容 |
 |----------|------|---------|
-| 2.0.0 | 2025-10-05 | 初版作成。世代別表示、全ポケモン対応、フィルター・ソート機能拡張の設計 |
+| 2.0.0 | 2025-10-05 | 初版作成。バージョングループ別表示、全ポケモン対応、フィルター・ソート機能拡張の設計 |
 
 ---
 
@@ -26,11 +26,11 @@
 
 ```
 Presentation Layer (SwiftUI Views + ViewModels)
-    ↓↑ 新機能: 世代選択、ソート、フィルター拡張
+    ↓↑ 新機能: バージョングループ選択、ソート、フィルター拡張
 Domain Layer (Entities + UseCases + Protocols)
     ↓↑ 新機能: 世代対応、技・特性フィルター
 Data Layer (Repositories + API Clients + Cache)
-    ↓↑ 新機能: 世代別データ取得、Kingfisher統合
+    ↓↑ 新機能: バージョングループ別データ取得、Kingfisher統合
 External Services (PokéAPI)
 ```
 
@@ -102,15 +102,15 @@ struct BaseStats: Equatable {
 }
 ```
 
-#### 1.4 新しいEntity: GenerationEntity
+#### 1.4 新しいEntity: VersionGroupEntity
 
 ```swift
-struct GenerationEntity: Identifiable, Equatable {
+struct VersionGroupEntity: Identifiable, Equatable {
     let id: Int                              // 世代番号 (1-9)、0=全国図鑑
     let name: String                         // "第1世代"
     let pokemonSpeciesRange: ClosedRange<Int> // 例: 1...151
     
-    static let nationalDex = GenerationEntity(
+    static let nationalDex = VersionGroupEntity(
         id: 0,
         name: "全国図鑑",
         pokemonSpeciesRange: 1...1  // プレースホルダー、実際はAPIから取得
@@ -119,30 +119,30 @@ struct GenerationEntity: Identifiable, Equatable {
 ```
 
 **世代データの取得:**
-- アプリ起動時にPokéAPI `/api/v2/generation/{id}/` から各世代の情報を取得
+- アプリ起動時にPokéAPI `/api/v2/generation/{id}/` から各バージョングループの情報を取得
 - `/api/v2/pokemon-species?limit=0` から最新の総ポケモン数を取得
-- 取得した情報を元に `GenerationEntity.allGenerations` を動的に構築
+- 取得した情報を元に `VersionGroupEntity.allVersionGroups` を動的に構築
 
 **実装例:**
 ```swift
-final class GenerationDataLoader {
-    func loadGenerations() async throws -> [GenerationEntity] {
+final class VersionGroupDataLoader {
+    func loadVersionGroups() async throws -> [VersionGroupEntity] {
         // 最新の総ポケモン数を取得
         let totalCount = try await fetchTotalPokemonCount()
         
-        var generations: [GenerationEntity] = []
+        var generations: [VersionGroupEntity] = []
         
         // 全国図鑑
-        generations.append(GenerationEntity(
+        generations.append(VersionGroupEntity(
             id: 0,
             name: "全国図鑑",
             pokemonSpeciesRange: 1...totalCount
         ))
         
-        // 各世代のデータを取得
+        // 各バージョングループのデータを取得
         for genId in 1...9 {  // 現在の最大世代
-            let genData = try await fetchGeneration(id: genId)
-            generations.append(GenerationEntity(
+            let genData = try await fetchVersionGroup(id: genId)
+            generations.append(VersionGroupEntity(
                 id: genId,
                 name: "第\(genId)世代",
                 pokemonSpeciesRange: genData.pokemonSpeciesRange
@@ -159,9 +159,9 @@ final class GenerationDataLoader {
         return response.count
     }
     
-    private func fetchGeneration(id: Int) async throws -> (pokemonSpeciesRange: ClosedRange<Int>) {
+    private func fetchVersionGroup(id: Int) async throws -> (pokemonSpeciesRange: ClosedRange<Int>) {
         // PokéAPI: /api/v2/generation/{id}/
-        let genData = try await apiClient.fetchGeneration(id: id)
+        let genData = try await apiClient.fetchVersionGroup(id: id)
         
         // pokemon_species配列から最小・最大IDを取得
         let ids = genData.pokemonSpecies.map { $0.id }.sorted()
@@ -280,7 +280,7 @@ struct SearchFilterEntity {
 ```swift
 protocol FetchPokemonListUseCase {
     func execute(
-        generation: GenerationEntity,
+        generation: VersionGroupEntity,
         progressHandler: ((Double) -> Void)?
     ) async throws -> [PokemonListItemEntity]
 }
@@ -296,11 +296,11 @@ final class DefaultFetchPokemonListUseCase: FetchPokemonListUseCase {
     }
     
     func execute(
-        generation: GenerationEntity,
+        generation: VersionGroupEntity,
         progressHandler: ((Double) -> Void)? = nil
     ) async throws -> [PokemonListItemEntity] {
         
-        // 世代に応じた範囲のポケモンを取得
+        // バージョングループに応じた範囲のポケモンを取得
         let range = generation.pokemonSpeciesRange
         let pokemonList = try await repository.fetchPokemonList(
             idRange: range,
@@ -510,22 +510,22 @@ final class DefaultFetchAllMovesUseCase: FetchAllMovesUseCase {
 }
 ```
 
-#### 2.7 新しいUseCase: FetchGenerationsUseCase
+#### 2.7 新しいUseCase: FetchVersionGroupsUseCase
 
 ```swift
-protocol FetchGenerationsUseCase {
-    func execute() async throws -> [GenerationEntity]
+protocol FetchVersionGroupsUseCase {
+    func execute() async throws -> [VersionGroupEntity]
 }
 
-final class DefaultFetchGenerationsUseCase: FetchGenerationsUseCase {
-    private let generationRepository: GenerationRepository
+final class DefaultFetchVersionGroupsUseCase: FetchVersionGroupsUseCase {
+    private let generationRepository: VersionGroupRepository
     
-    init(generationRepository: GenerationRepository) {
+    init(generationRepository: VersionGroupRepository) {
         self.generationRepository = generationRepository
     }
     
-    func execute() async throws -> [GenerationEntity] {
-        return try await generationRepository.fetchAllGenerations()
+    func execute() async throws -> [VersionGroupEntity] {
+        return try await generationRepository.fetchAllVersionGroups()
     }
 }
 ```
@@ -621,17 +621,17 @@ final class DefaultPokemonRepository: PokemonRepository {
         // PokéAPIからポケモン情報を取得
         let dto = try await apiClient.fetchPokemon(id: id)
         
-        // 世代別のタイプ・特性を取得
-        let typesForGeneration = try await fetchTypesForGeneration(pokemonId: id, generation: generation)
-        let abilitiesForGeneration = try await fetchAbilitiesForGeneration(pokemonId: id, generation: generation)
+        // バージョングループ別のタイプ・特性を取得
+        let typesForVersionGroup = try await fetchTypesForVersionGroup(pokemonId: id, generation: generation)
+        let abilitiesForVersionGroup = try await fetchAbilitiesForVersionGroup(pokemonId: id, generation: generation)
         
         // DTOからEntityに変換
         return PokemonListItemEntity(
             id: dto.id,
             name: dto.name,
-            types: typesForGeneration,
+            types: typesForVersionGroup,
             spriteUrl: dto.sprites.frontDefault,
-            abilities: abilitiesForGeneration,
+            abilities: abilitiesForVersionGroup,
             baseStats: BaseStats(
                 hp: dto.stats.first { $0.stat.name == "hp" }?.baseStat ?? 0,
                 attack: dto.stats.first { $0.stat.name == "attack" }?.baseStat ?? 0,
@@ -644,8 +644,8 @@ final class DefaultPokemonRepository: PokemonRepository {
         )
     }
     
-    private func fetchTypesForGeneration(pokemonId: Int, generation: Int) async throws -> [PokemonType] {
-        // pokemon-species APIから世代別のタイプ情報を取得
+    private func fetchTypesForVersionGroup(pokemonId: Int, generation: Int) async throws -> [PokemonType] {
+        // pokemon-species APIからバージョングループ別のタイプ情報を取得
         // 実装詳細はPokéAPI仕様に依存
         // 必要に応じて別のエンドポイントを使用
         
@@ -654,10 +654,10 @@ final class DefaultPokemonRepository: PokemonRepository {
         return dto.types.map { PokemonType(rawValue: $0.type.name) ?? .normal }
     }
     
-    private func fetchAbilitiesForGeneration(pokemonId: Int, generation: Int) async throws -> [AbilityInfo] {
+    private func fetchAbilitiesForVersionGroup(pokemonId: Int, generation: Int) async throws -> [AbilityInfo] {
         let dto = try await apiClient.fetchPokemon(id: pokemonId)
         
-        // 世代別のフィルタリング
+        // バージョングループ別のフィルタリング
         // 第1-2世代: 特性なし
         if generation <= 2 {
             return []
@@ -705,7 +705,7 @@ final class DefaultAbilityRepository: AbilityRepository {
         let filteredAbilities: [String]
         if let generation = generation {
             filteredAbilities = abilities.filter { ability in
-                // 特性の登場世代をチェック(APIから取得)
+                // 特性の登場バージョングループをチェック(APIから取得)
                 ability.generation <= generation
             }.map { $0.name }
         } else {
@@ -771,7 +771,7 @@ final class DefaultMoveRepository: MoveRepository {
         for moveId in moveIds {
             // このポケモンがこの技を習得できるか確認
             if let moveData = pokemonDTO.moves.first(where: { $0.move.id == moveId }) {
-                // 世代別の習得方法を取得
+                // バージョングループ別の習得方法を取得
                 for versionGroupDetail in moveData.versionGroupDetails {
                     if versionGroupDetail.generation == generation {
                         let method = parseLearnMethod(
@@ -817,46 +817,46 @@ final class DefaultMoveRepository: MoveRepository {
 }
 ```
 
-#### 1.4 新しいRepository: GenerationRepository
+#### 1.4 新しいRepository: VersionGroupRepository
 
 ```swift
-protocol GenerationRepository {
-    func fetchAllGenerations() async throws -> [GenerationEntity]
+protocol VersionGroupRepository {
+    func fetchAllVersionGroups() async throws -> [VersionGroupEntity]
     func fetchTotalPokemonCount() async throws -> Int
 }
 
-final class DefaultGenerationRepository: GenerationRepository {
+final class DefaultVersionGroupRepository: VersionGroupRepository {
     private let apiClient: PokemonAPIClient
-    private let cache: GenerationCache
+    private let cache: VersionGroupCache
     
-    init(apiClient: PokemonAPIClient, cache: GenerationCache) {
+    init(apiClient: PokemonAPIClient, cache: VersionGroupCache) {
         self.apiClient = apiClient
         self.cache = cache
     }
     
-    func fetchAllGenerations() async throws -> [GenerationEntity] {
+    func fetchAllVersionGroups() async throws -> [VersionGroupEntity] {
         let cacheKey = "all_generations"
         
-        if let cached = cache.getGenerations(key: cacheKey) {
+        if let cached = cache.getVersionGroups(key: cacheKey) {
             return cached
         }
         
         // 最新の総ポケモン数を取得
         let totalCount = try await fetchTotalPokemonCount()
         
-        var generations: [GenerationEntity] = []
+        var generations: [VersionGroupEntity] = []
         
         // 全国図鑑
-        generations.append(GenerationEntity(
+        generations.append(VersionGroupEntity(
             id: 0,
             name: "全国図鑑",
             pokemonSpeciesRange: 1...totalCount
         ))
         
-        // 各世代を取得(最大10世代まで試行)
+        // 各バージョングループを取得(最大10世代まで試行)
         for genId in 1...10 {
             do {
-                let genData = try await apiClient.fetchGeneration(id: genId)
+                let genData = try await apiClient.fetchVersionGroup(id: genId)
                 
                 // pokemon_speciesからIDを抽出して範囲を決定
                 let speciesIds = genData.pokemonSpecies
@@ -867,18 +867,18 @@ final class DefaultGenerationRepository: GenerationRepository {
                     continue
                 }
                 
-                generations.append(GenerationEntity(
+                generations.append(VersionGroupEntity(
                     id: genId,
                     name: "第\(genId)世代",
                     pokemonSpeciesRange: minId...maxId
                 ))
             } catch {
-                // 世代が存在しない場合はループ終了
+                // バージョングループが存在しない場合はループ終了
                 break
             }
         }
         
-        cache.setGenerations(key: cacheKey, generations: generations)
+        cache.setVersionGroups(key: cacheKey, generations: generations)
         
         return generations
     }
@@ -1000,18 +1000,18 @@ final class PokemonListViewModel: ObservableObject {
     @Published var displayMode: DisplayMode = .list
     
     // v2.0 追加プロパティ
-    @Published var selectedGeneration: GenerationEntity = .nationalDex
+    @Published var selectedVersionGroup: VersionGroupEntity = .nationalDex
     @Published var currentSortOption: SortOption = .pokedexNumber
     @Published var selectedPokemonId: Int?  // スクロール位置保持用
     @Published private(set) var loadingProgress: Double = 0.0
-    @Published private(set) var isLoadingGenerations = false
+    @Published private(set) var isLoadingVersionGroups = false
     
-    private(set) var allGenerations: [GenerationEntity] = []
+    private(set) var allVersionGroups: [VersionGroupEntity] = []
     
     // UseCases
     private let fetchPokemonListUseCase: FetchPokemonListUseCase
     private let sortPokemonUseCase: SortPokemonUseCase
-    private let fetchGenerationsUseCase: FetchGenerationsUseCase
+    private let fetchVersionGroupsUseCase: FetchVersionGroupsUseCase
     
     // フィルター済みポケモンリスト
     private var unfilteredPokemonList: [PokemonListItemEntity] = []
@@ -1019,30 +1019,30 @@ final class PokemonListViewModel: ObservableObject {
     init(
         fetchPokemonListUseCase: FetchPokemonListUseCase,
         sortPokemonUseCase: SortPokemonUseCase,
-        fetchGenerationsUseCase: FetchGenerationsUseCase
+        fetchVersionGroupsUseCase: FetchVersionGroupsUseCase
     ) {
         self.fetchPokemonListUseCase = fetchPokemonListUseCase
         self.sortPokemonUseCase = sortPokemonUseCase
-        self.fetchGenerationsUseCase = fetchGenerationsUseCase
+        self.fetchVersionGroupsUseCase = fetchVersionGroupsUseCase
     }
     
-    func loadGenerations() async {
-        isLoadingGenerations = true
+    func loadVersionGroups() async {
+        isLoadingVersionGroups = true
         
         do {
-            allGenerations = try await fetchGenerationsUseCase.execute()
+            allVersionGroups = try await fetchVersionGroupsUseCase.execute()
             
             // 全国図鑑がデフォルトで選択されている
-            if let nationalDex = allGenerations.first(where: { $0.id == 0 }) {
-                selectedGeneration = nationalDex
+            if let nationalDex = allVersionGroups.first(where: { $0.id == 0 }) {
+                selectedVersionGroup = nationalDex
             }
         } catch {
             print("Error loading generations: \(error)")
             // フォールバック: 最低限の世代データを用意
-            allGenerations = [.nationalDex]
+            allVersionGroups = [.nationalDex]
         }
         
-        isLoadingGenerations = false
+        isLoadingVersionGroups = false
     }
     
     func loadPokemon() async {
@@ -1051,7 +1051,7 @@ final class PokemonListViewModel: ObservableObject {
         
         do {
             unfilteredPokemonList = try await fetchPokemonListUseCase.execute(
-                generation: selectedGeneration,
+                generation: selectedVersionGroup,
                 progressHandler: { [weak self] progress in
                     Task { @MainActor in
                         self?.loadingProgress = progress
@@ -1069,8 +1069,8 @@ final class PokemonListViewModel: ObservableObject {
         isLoading = false
     }
     
-    func changeGeneration(_ generation: GenerationEntity) async {
-        selectedGeneration = generation
+    func changeVersionGroup(_ generation: VersionGroupEntity) async {
+        selectedVersionGroup = generation
         await loadPokemon()
     }
     
@@ -1116,7 +1116,7 @@ final class SearchViewModel: ObservableObject {
     @Published private(set) var isLoadingMoves = false
     
     // 世代情報(PokemonListViewModelから受け取る)
-    var currentGeneration: GenerationEntity = .nationalDex
+    var currentVersionGroup: VersionGroupEntity = .nationalDex
     
     // UseCases
     private let fetchAllAbilitiesUseCase: FetchAllAbilitiesUseCase
@@ -1137,8 +1137,8 @@ final class SearchViewModel: ObservableObject {
     }
     
     func loadAbilities() async {
-        // 第1-2世代は特性なし
-        guard currentGeneration.id >= 3 || currentGeneration.id == 0 else {
+        // 第1-2バージョングループは特性なし
+        guard currentVersionGroup.id >= 3 || currentVersionGroup.id == 0 else {
             availableAbilities = []
             return
         }
@@ -1146,7 +1146,7 @@ final class SearchViewModel: ObservableObject {
         isLoadingAbilities = true
         
         do {
-            let generation = currentGeneration.id == 0 ? 9 : currentGeneration.id
+            let generation = currentVersionGroup.id == 0 ? 9 : currentVersionGroup.id
             availableAbilities = try await fetchAllAbilitiesUseCase.execute(generation: generation)
         } catch {
             print("Error loading abilities: \(error)")
@@ -1156,8 +1156,8 @@ final class SearchViewModel: ObservableObject {
     }
     
     func loadMoves() async {
-        // 技フィルターは世代選択時のみ有効
-        guard currentGeneration.id != 0 else {
+        // 技フィルターはバージョングループ選択時のみ有効
+        guard currentVersionGroup.id != 0 else {
             availableMoves = []
             return
         }
@@ -1165,7 +1165,7 @@ final class SearchViewModel: ObservableObject {
         isLoadingMoves = true
         
         do {
-            availableMoves = try await fetchAllMovesUseCase.execute(generation: currentGeneration.id)
+            availableMoves = try await fetchAllMovesUseCase.execute(generation: currentVersionGroup.id)
         } catch {
             print("Error loading moves: \(error)")
         }
@@ -1197,14 +1197,14 @@ final class SearchViewModel: ObservableObject {
         selectedMoves.removeAll()
     }
     
-    func onGenerationChanged(_ generation: GenerationEntity) {
-        currentGeneration = generation
+    func onVersionGroupChanged(_ generation: VersionGroupEntity) {
+        currentVersionGroup = generation
         
         // 世代変更時、フィルターをクリア
         selectedAbilities.removeAll()
         selectedMoves.removeAll()
         
-        // 新しい世代の特性・技を読み込む
+        // 新しいバージョングループの特性・技を読み込む
         Task {
             await loadAbilities()
             await loadMoves()
@@ -1213,12 +1213,12 @@ final class SearchViewModel: ObservableObject {
     
     var isAbilityFilterEnabled: Bool {
         // 全国図鑑または第3世代以降
-        currentGeneration.id == 0 || currentGeneration.id >= 3
+        currentVersionGroup.id == 0 || currentVersionGroup.id >= 3
     }
     
     var isMoveFilterEnabled: Bool {
-        // 世代選択時のみ有効
-        currentGeneration.id != 0
+        // バージョングループ選択時のみ有効
+        currentVersionGroup.id != 0
     }
 }
 ```
@@ -1383,24 +1383,24 @@ struct BaseStatsView: View {
 }
 ```
 
-#### 2.4 新しいView: GenerationSelectorView
+#### 2.4 新しいView: VersionGroupSelectorView
 
 ```swift
-struct GenerationSelectorView: View {
-    @Binding var selectedGeneration: GenerationEntity
-    let generations: [GenerationEntity]
-    let onGenerationChange: (GenerationEntity) -> Void
+struct VersionGroupSelectorView: View {
+    @Binding var selectedVersionGroup: VersionGroupEntity
+    let generations: [VersionGroupEntity]
+    let onVersionGroupChange: (VersionGroupEntity) -> Void
     
     var body: some View {
         Menu {
             ForEach(generations) { generation in
                 Button(action: {
-                    selectedGeneration = generation
-                    onGenerationChange(generation)
+                    selectedVersionGroup = generation
+                    onVersionGroupChange(generation)
                 }) {
                     HStack {
                         Text(generation.name)
-                        if generation.id == selectedGeneration.id {
+                        if generation.id == selectedVersionGroup.id {
                             Image(systemName: "checkmark")
                         }
                     }
@@ -1408,7 +1408,7 @@ struct GenerationSelectorView: View {
             }
         } label: {
             HStack {
-                Text(selectedGeneration.name)
+                Text(selectedVersionGroup.name)
                 Image(systemName: "chevron.down")
             }
             .padding(.horizontal, 12)
@@ -1501,7 +1501,7 @@ struct AbilityFilterView: View {
                 .font(.headline)
             
             if !isEnabled {
-                Text("全国図鑑モードでは利用可能です。第1-2世代では特性システムが存在しません。")
+                Text("全国図鑑モードでは利用可能です。第1-2バージョングループでは特性システムが存在しません。")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .padding()
@@ -1586,7 +1586,7 @@ struct MoveFilterView: View {
                 .font(.headline)
             
             if !isEnabled {
-                Text("技フィルターは世代を選択した場合のみ利用可能です。")
+                Text("技フィルターはバージョングループを選択した場合のみ利用可能です。")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .padding()
@@ -1690,15 +1690,15 @@ struct PokemonListView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // ツールバー: 世代選択・ソート・表示切り替え
+                // ツールバー: バージョングループ選択・ソート・表示切り替え
                 HStack {
-                    GenerationSelectorView(
-                        selectedGeneration: $viewModel.selectedGeneration,
-                        generations: viewModel.allGenerations,
-                        onGenerationChange: { generation in
+                    VersionGroupSelectorView(
+                        selectedVersionGroup: $viewModel.selectedVersionGroup,
+                        generations: viewModel.allVersionGroups,
+                        onVersionGroupChange: { generation in
                             Task {
-                                await viewModel.changeGeneration(generation)
-                                searchViewModel.onGenerationChanged(generation)
+                                await viewModel.changeVersionGroup(generation)
+                                searchViewModel.onVersionGroupChanged(generation)
                             }
                         }
                     )
@@ -1732,8 +1732,8 @@ struct PokemonListView: View {
                     Spacer()
                     LoadingProgressView(
                         progress: viewModel.loadingProgress,
-                        current: Int(viewModel.loadingProgress * Double(viewModel.selectedGeneration.pokemonSpeciesRange.count)),
-                        total: viewModel.selectedGeneration.pokemonSpeciesRange.count
+                        current: Int(viewModel.loadingProgress * Double(viewModel.selectedVersionGroup.pokemonSpeciesRange.count)),
+                        total: viewModel.selectedVersionGroup.pokemonSpeciesRange.count
                     )
                     Spacer()
                 } else {
@@ -1923,15 +1923,15 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertTrue(mockFetchUseCase.executeCalled)
     }
     
-    func test_changeGeneration_shouldReloadPokemon() async {
+    func test_changeVersionGroup_shouldReloadPokemon() async {
         // Given
-        let generation2 = GenerationEntity(id: 2, name: "第2世代", pokemonSpeciesRange: 1...251)
+        let generation2 = VersionGroupEntity(id: 2, name: "第2世代", pokemonSpeciesRange: 1...251)
         
         // When
-        await sut.changeGeneration(generation2)
+        await sut.changeVersionGroup(generation2)
         
         // Then
-        XCTAssertEqual(sut.selectedGeneration.id, 2)
+        XCTAssertEqual(sut.selectedVersionGroup.id, 2)
         XCTAssertTrue(mockFetchUseCase.executeCalled)
     }
     
@@ -1965,7 +1965,7 @@ final class PokemonRepositoryIntegrationTests: XCTestCase {
         sut = DefaultPokemonRepository(apiClient: mockAPIClient, cache: cache)
     }
     
-    func test_fetchPokemonList_shouldReturnCorrectGeneration() async throws {
+    func test_fetchPokemonList_shouldReturnCorrectVersionGroup() async throws {
         // Given
         mockAPIClient.setupMockResponses()
         
@@ -2038,9 +2038,9 @@ final class PokemonListUITests: XCTestCase {
 ### 1. ポケモンリスト取得フロー
 
 ```
-ユーザー操作: 世代選択
+ユーザー操作: バージョングループ選択
     ↓
-PokemonListViewModel.changeGeneration()
+PokemonListViewModel.changeVersionGroup()
     ↓
 FetchPokemonListUseCase.execute(generation: ...)
     ↓
@@ -2087,18 +2087,18 @@ SortPokemonUseCase.execute() (ソート適用)
 View再描画
 ```
 
-### 3. 世代切り替えフロー
+### 3. バージョングループ切り替えフロー
 
 ```
-ユーザー操作: 世代切り替え
+ユーザー操作: バージョングループ切り替え
     ↓
-PokemonListViewModel.changeGeneration()
+PokemonListViewModel.changeVersionGroup()
     ↓
-SearchViewModel.onGenerationChanged()
+SearchViewModel.onVersionGroupChanged()
     ↓ (並列実行)
 ├─ FetchPokemonListUseCase (ポケモンリスト取得)
 └─ FetchAllAbilitiesUseCase (特性リスト取得)
-   └─ FetchAllMovesUseCase (技リスト取得、世代選択時のみ)
+   └─ FetchAllMovesUseCase (技リスト取得、バージョングループ選択時のみ)
     ↓
 SearchViewModel: フィルタークリア
     ↓
@@ -2123,12 +2123,12 @@ View再描画
 | 技リスト | `/api/v2/move?limit=1000` | 全技のマスターリスト |
 | 技詳細 | `/api/v2/move/{id}` | 技のタイプ、世代情報 |
 
-### 2. 世代別データの取得方法
+### 2. バージョングループ別データの取得方法
 
 **世代別タイプの取得:**
 ```swift
 // pokemon-species APIを使用
-// past_types フィールドに過去の世代でのタイプ情報が含まれる
+// past_types フィールドに過去のバージョングループでのタイプ情報が含まれる
 // 例: サーナイトの場合
 // 第5世代まで: タイプ = [psychic]
 // 第6世代以降: タイプ = [psychic, fairy]
@@ -2138,8 +2138,8 @@ View再描画
 ```swift
 // pokemon APIのabilitiesフィールド
 // 各特性には is_hidden フラグがある
-// 世代による特性の変更は pokemon-species の varieties で管理
-// 例: ゲンガーの場合、世代によって異なるフォームとして扱われる可能性
+// バージョングループによる特性の変更は pokemon-species の varieties で管理
+// 例: ゲンガーの場合、バージョングループによって異なるフォームとして扱われる可能性
 ```
 
 **技の習得方法:**
@@ -2171,7 +2171,7 @@ View再描画
 
 ### 2. アニメーション
 
-**世代切り替え時:**
+**バージョングループ切り替え時:**
 - フェードアウト → ローディング表示 → フェードイン
 - アニメーション時間: 0.3秒
 
@@ -2301,10 +2301,10 @@ await withThrowingTaskGroup(of: PokemonListItemEntity.self) { group in
 **大量データの段階的解放:**
 ```swift
 // 不要になったキャッシュを定期的にクリア
-func clearOldGenerationCache() {
-    // 現在選択中の世代以外のキャッシュを削除
+func clearOldVersionGroupCache() {
+    // 現在選択中のバージョングループ以外のキャッシュを削除
     cache.removeAll { key, _ in
-        !key.contains("gen\(selectedGeneration.id)")
+        !key.contains("gen\(selectedVersionGroup.id)")
     }
 }
 ```
@@ -2338,7 +2338,7 @@ prefetcher.start()
 ```swift
 // 世代IDの検証
 guard (0...9).contains(generation.id) else {
-    throw ValidationError.invalidGeneration
+    throw ValidationError.invalidVersionGroup
 }
 
 // ポケモンIDの検証
@@ -2389,26 +2389,26 @@ final class DIContainer {
     let filterByMovesUseCase: FilterPokemonByMovesUseCase
     let fetchAllAbilitiesUseCase: FetchAllAbilitiesUseCase
     let fetchAllMovesUseCase: FetchAllMovesUseCase
-    let fetchGenerationsUseCase: FetchGenerationsUseCase
+    let fetchVersionGroupsUseCase: FetchVersionGroupsUseCase
     
     // Repositories
     private let pokemonRepository: PokemonRepository
     private let abilityRepository: AbilityRepository
     private let moveRepository: MoveRepository
-    private let generationRepository: GenerationRepository
+    private let generationRepository: VersionGroupRepository
     
     // Cache
     private let pokemonCache: PokemonCache
     private let abilityCache: AbilityCache
     private let moveCache: MoveCache
-    private let generationCache: GenerationCache
+    private let generationCache: VersionGroupCache
     
     init() {
         // Cache初期化
         pokemonCache = PokemonCache()
         abilityCache = AbilityCache()
         moveCache = MoveCache()
-        generationCache = GenerationCache()
+        generationCache = VersionGroupCache()
         
         // API Client初期化
         let apiClient = DefaultPokemonAPIClient()
@@ -2426,7 +2426,7 @@ final class DIContainer {
             apiClient: apiClient,
             cache: moveCache
         )
-        generationRepository = DefaultGenerationRepository(
+        generationRepository = DefaultVersionGroupRepository(
             apiClient: apiClient,
             cache: generationCache
         )
@@ -2449,7 +2449,7 @@ final class DIContainer {
         fetchAllMovesUseCase = DefaultFetchAllMovesUseCase(
             moveRepository: moveRepository
         )
-        fetchGenerationsUseCase = DefaultFetchGenerationsUseCase(
+        fetchVersionGroupsUseCase = DefaultFetchVersionGroupsUseCase(
             generationRepository: generationRepository
         )
         
@@ -2470,7 +2470,7 @@ final class DIContainer {
         PokemonListViewModel(
             fetchPokemonListUseCase: fetchPokemonListUseCase,
             sortPokemonUseCase: sortPokemonUseCase,
-            fetchGenerationsUseCase: fetchGenerationsUseCase
+            fetchVersionGroupsUseCase: fetchVersionGroupsUseCase
         )
     }
     
@@ -2608,7 +2608,7 @@ Domain/
 1. ✅ PokemonRow表示拡張(特性・種族値追加)
 2. ✅ 特性フィルター機能
 3. ✅ 種族値ソート機能
-4. ✅ 世代別表示機能
+4. ✅ バージョングループ別表示機能
 5. ✅ 全ポケモン対応(1025匹)
 6. ✅ ローディングUI改善
 7. ✅ 技フィルター機能(複数技対応)

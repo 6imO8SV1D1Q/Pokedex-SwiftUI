@@ -215,4 +215,22 @@ final class PokemonAPIClient {
 
         return pokemons.sorted { $0.id < $1.id }
     }
+
+    func fetchPokedex(_ name: String) async throws -> [Int] {
+        let pokedex = try await pokemonAPI.gameService.fetchPokedex(name)
+
+        guard let pokemonEntries = pokedex.pokemonEntries else {
+            return []
+        }
+
+        // pokemon_speciesのIDを抽出
+        return pokemonEntries.compactMap { entry in
+            guard let urlString = entry.pokemonSpecies?.url,
+                  let components = urlString.split(separator: "/").last,
+                  let id = Int(components) else {
+                return nil
+            }
+            return id
+        }.sorted()
+    }
 }

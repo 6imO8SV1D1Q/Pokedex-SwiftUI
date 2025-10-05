@@ -45,6 +45,9 @@ struct Pokemon: Identifiable, Codable, Hashable {
     /// 習得技
     let moves: [PokemonMove]
 
+    /// このポケモンが登場可能な世代リスト（movesから判定）
+    let availableGenerations: [Int]
+
     // MARK: - Hashable
 
     func hash(into hasher: inout Hasher) {
@@ -72,7 +75,7 @@ struct Pokemon: Identifiable, Codable, Hashable {
     /// 図鑑番号の表示用フォーマット
     /// - Returns: 3桁0埋めされた図鑑番号（例: "#001"）
     var formattedId: String {
-        String(format: "#%03d", id)
+        String(format: "#%03d", speciesId)
     }
 
     /// 表示用の名前（先頭大文字）
@@ -85,6 +88,196 @@ struct Pokemon: Identifiable, Codable, Hashable {
     /// - Returns: 全ステータスの種族値の合計
     var totalBaseStat: Int {
         stats.reduce(0) { $0 + $1.baseStat }
+    }
+
+    /// このフォルムが登場可能な最後の世代番号（nilの場合は制限なし）
+    /// - Returns: 最終登場世代、制限がない場合はnil。バトル専用フォームは0（表示しない）
+    var lastAvailableGeneration: Int? {
+        // バトル専用・ビジュアル変更のみのフォーム: 表示しない
+        // ミミッキュ（ばれたすがた）
+        if name.contains("-busted") {
+            return 0
+        }
+
+        // ぬしポケモン: 表示しない（通常フォームと性能同じ）
+        if name.contains("-totem") {
+            return 0
+        }
+
+        // コライドン・ミライドンのバトルフォーム: 表示しない
+        if name.contains("koraidon-") && name != "koraidon" {
+            return 0
+        }
+        if name.contains("miraidon-") && name != "miraidon" {
+            return 0
+        }
+
+        // 見た目だけが違うフォーム（cosmetic forms）: 表示しない
+        // メテノの色違いフォーム
+        if name.hasPrefix("minior-") && name != "minior" {
+            return 0
+        }
+        // ビビヨンの模様違い
+        if name.hasPrefix("vivillon-") && name != "vivillon" {
+            return 0
+        }
+        // フラベベ/フラエッテ/フラージェスの花の色違い
+        if (name.hasPrefix("flabebe-") || name.hasPrefix("floette-") || name.hasPrefix("florges-")) &&
+           !name.contains("eternal") {  // フラエッテ-エターナルは特別なので除外しない
+            return 0
+        }
+        // トリミアンのトリミング
+        if name.hasPrefix("furfrou-") && name != "furfrou" {
+            return 0
+        }
+        // 相棒ピカチュウ/イーブイ: 第7世代のみ（Let's Go専用）
+        if name == "pikachu-starter" || name == "eevee-starter" {
+            return 7
+        }
+
+        // ピカチュウの特殊フォーム（詳細画面で表示するため一覧には出さない）
+        if name.hasPrefix("pikachu-") && name != "pikachu" && name != "pikachu-gmax" {
+            return 0
+        }
+
+        // 性能差のないマイナーチェンジフォーム
+        // マギアナ（500年前の色）
+        if name == "magearna-original" {
+            return 0
+        }
+        // ウッウ（うのミサイル/丸のみ）: バトル中の見た目変化
+        if name.hasPrefix("cramorant-") && name != "cramorant" {
+            return 0
+        }
+        // ザルード（とうちゃん）
+        if name == "zarude-dada" {
+            return 0
+        }
+        // ワッカネズミ/イッカネズミ（3匹/4匹家族）
+        if name.hasPrefix("maushold-") {
+            return 0
+        }
+        // シャリタツ（そった/たれた/のびた）
+        if name.hasPrefix("tatsugiri-") {
+            return 0
+        }
+        // ノココッチ（2節/3節）
+        if name.hasPrefix("dudunsparce-") {
+            return 0
+        }
+        // コレクレー（はこフォルム/とほフォルム）
+        if name == "gimmighoul-roaming" {
+            return 0
+        }
+
+        // キョダイマックス: 詳細画面で表示するため一覧には出さない
+        // 種族値も特性も変わらないため
+        if name.contains("-gmax") {
+            return 0
+        }
+
+        // メガシンカ: 第7世代まで（第8世代以降は削除）
+        if name.contains("-mega") {
+            return 7
+        }
+
+        // ゲンシカイキ: 第7世代まで（第8世代以降は削除）
+        if name.contains("-primal") {
+            return 7
+        }
+
+        // その他のフォームは制限なし
+        return nil
+    }
+
+    /// このフォルムが初登場した世代番号
+    /// - Returns: 初登場世代（1-9）、通常フォームの場合はspeciesIdから判定
+    var introductionGeneration: Int {
+        // リージョンフォームの判定
+        if name.contains("-alola") {
+            return 7  // 第7世代（サン・ムーン）
+        }
+        if name.contains("-galar") {
+            return 8  // 第8世代（ソード・シールド）
+        }
+        if name.contains("-hisui") {
+            return 8  // 第8世代（レジェンズアルセウス）
+        }
+        if name.contains("-paldea") {
+            return 9  // 第9世代（スカーレット・バイオレット）
+        }
+
+        // キョダイマックス: 第8世代専用（第9世代以降は削除された機能）
+        if name.contains("-gmax") {
+            return 8
+        }
+
+        // ピカチュウの特殊フォーム
+        // コスプレピカチュウ: 第6世代（ORAS）
+        if name.hasPrefix("pikachu-rock-star") || name.hasPrefix("pikachu-belle") ||
+           name.hasPrefix("pikachu-pop-star") || name.hasPrefix("pikachu-phd") ||
+           name.hasPrefix("pikachu-libre") || name.hasPrefix("pikachu-cosplay") {
+            return 6
+        }
+        // キャップピカチュウ: 第7世代（サン・ムーン）
+        if name.contains("-cap") && !name.contains("-gmax") {
+            return 7
+        }
+        // 相棒ピカチュウ/イーブイ: 第7世代（Let's Go）
+        if name.hasPrefix("pikachu-starter") || name.hasPrefix("pikachu-partner") ||
+           name == "eevee-starter" {
+            return 7
+        }
+        // ワールドキャップピカチュウ: 第8世代
+        if name.hasPrefix("pikachu-world-cap") {
+            return 8
+        }
+
+        // フォルムチェンジの判定（基本フォームと同じ世代）
+        // Rotomの各フォーム: 第4世代で追加（プラチナ）
+        if name.hasPrefix("rotom-") {
+            return 4
+        }
+
+        // Deoxysの各フォルム: 第3世代で追加
+        if name.hasPrefix("deoxys-") {
+            return 3
+        }
+
+        // メガシンカ: 第6世代
+        if name.contains("-mega") {
+            return 6
+        }
+
+        // ゲンシカイキ: 第6世代
+        if name.contains("-primal") {
+            return 6
+        }
+
+        // その他の特殊フォームは通常フォームと同じ世代とみなす
+        // speciesIdから世代を判定
+        switch speciesId {
+        case 1...151:
+            return 1
+        case 152...251:
+            return 2
+        case 252...386:
+            return 3
+        case 387...493:
+            return 4
+        case 494...649:
+            return 5
+        case 650...721:
+            return 6
+        case 722...809:
+            return 7
+        case 810...905:
+            return 8
+        case 906...1025:
+            return 9
+        default:
+            return 1  // デフォルト
+        }
     }
 
     /// 種族値の表示文字列

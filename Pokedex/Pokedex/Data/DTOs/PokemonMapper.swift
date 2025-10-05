@@ -10,6 +10,18 @@ import PokemonAPI
 
 enum PokemonMapper {
     nonisolated static func map(from pkm: PKMPokemon) -> Pokemon {
+        /// Version groupと世代のマッピング
+        let versionGroupToGeneration: [String: Int] = [
+            "red-blue": 1, "yellow": 1,
+            "gold-silver": 2, "crystal": 2,
+            "ruby-sapphire": 3, "emerald": 3, "firered-leafgreen": 3, "colosseum": 3, "xd": 3,
+            "diamond-pearl": 4, "platinum": 4, "heartgold-soulsilver": 4,
+            "black-white": 5, "black-2-white-2": 5,
+            "x-y": 6, "omega-ruby-alpha-sapphire": 6,
+            "sun-moon": 7, "ultra-sun-ultra-moon": 7, "lets-go-pikachu-lets-go-eevee": 7,
+            "sword-shield": 8, "brilliant-diamond-shining-pearl": 8, "legends-arceus": 8,
+            "scarlet-violet": 9
+        ]
         // species.urlからIDを抽出（例: "https://pokeapi.co/api/v2/pokemon-species/25/" → 25）
         let speciesId: Int = {
             guard let urlString = pkm.species?.url else {
@@ -26,6 +38,9 @@ enum PokemonMapper {
             return id
         }()
 
+        // movesから登場可能な世代を抽出
+        let availableGenerations = extractAvailableGenerations(from: pkm.moves, versionMapping: versionGroupToGeneration)
+
         return Pokemon(
             id: pkm.id ?? 0,
             speciesId: speciesId,
@@ -36,8 +51,30 @@ enum PokemonMapper {
             stats: mapStats(from: pkm.stats),
             abilities: mapAbilities(from: pkm.abilities),
             sprites: mapSprites(from: pkm.sprites),
-            moves: mapMoves(from: pkm.moves)
+            moves: mapMoves(from: pkm.moves),
+            availableGenerations: availableGenerations
         )
+    }
+
+    /// movesから登場可能な世代を抽出
+    nonisolated private static func extractAvailableGenerations(from moves: [PKMPokemonMove]?, versionMapping: [String: Int]) -> [Int] {
+        guard let moves = moves, !moves.isEmpty else { return [] }
+
+        var generations = Set<Int>()
+
+        for move in moves {
+            guard let versionGroupDetails = move.versionGroupDetails else { continue }
+
+            for detail in versionGroupDetails {
+                guard let versionGroupName = detail.versionGroup?.name else { continue }
+
+                if let generation = versionMapping[versionGroupName] {
+                    generations.insert(generation)
+                }
+            }
+        }
+
+        return generations.sorted()
     }
 
     nonisolated private static func mapTypes(from types: [PKMPokemonType]?) -> [PokemonType] {

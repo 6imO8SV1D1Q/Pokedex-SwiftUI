@@ -1,5 +1,5 @@
 //
-//  GenerationSelectorView.swift
+//  VersionGroupSelectorView.swift
 //  Pokedex
 //
 //  Created on 2025-10-05.
@@ -7,18 +7,18 @@
 
 import SwiftUI
 
-struct GenerationSelectorView: View {
+struct VersionGroupSelectorView: View {
     @ObservedObject var viewModel: PokemonListViewModel
 
     var body: some View {
         Menu {
-            ForEach(viewModel.allGenerations) { generation in
+            ForEach(viewModel.allVersionGroups) { versionGroup in
                 Button {
-                    viewModel.changeGeneration(generation)
+                    viewModel.changeVersionGroup(versionGroup)
                 } label: {
                     HStack {
-                        Text(generation.displayName)
-                        if viewModel.selectedGeneration.id == generation.id {
+                        Text(versionGroup.displayName)
+                        if viewModel.selectedVersionGroup.id == versionGroup.id {
                             Image(systemName: "checkmark")
                         }
                     }
@@ -27,7 +27,7 @@ struct GenerationSelectorView: View {
         } label: {
             HStack(spacing: 4) {
                 Image(systemName: "globe")
-                Text(viewModel.selectedGeneration.displayName)
+                Text(viewModel.selectedVersionGroup.displayName)
                     .font(.subheadline)
                 Image(systemName: "chevron.down")
                     .font(.caption)

@@ -24,11 +24,17 @@ struct PokemonListView: View {
                 if viewModel.isLoading {
                     VStack {
                         Spacer()
-                        LoadingProgressView(
-                            progress: viewModel.loadingProgress,
-                            current: Int(viewModel.loadingProgress * Double(viewModel.selectedGeneration.pokemonRange.count)),
-                            total: viewModel.selectedGeneration.pokemonRange.count
-                        )
+                        VStack(spacing: 16) {
+                            ProgressView(value: viewModel.loadingProgress)
+                                .progressViewStyle(.linear)
+                                .frame(width: 200)
+                            Text("読み込み中...")
+                                .font(.headline)
+                                .foregroundColor(.secondary)
+                            Text("\(Int(viewModel.loadingProgress * 100))%")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                         Spacer()
                     }
                 } else {
@@ -47,9 +53,9 @@ struct PokemonListView: View {
                 viewModel.applyFilters()
             }
             .toolbar {
-                // 世代セレクター
+                // バージョングループセレクター
                 ToolbarItem(placement: .navigationBarLeading) {
-                    GenerationSelectorView(viewModel: viewModel)
+                    VersionGroupSelectorView(viewModel: viewModel)
                 }
 
                 // 表示形式切り替えボタン

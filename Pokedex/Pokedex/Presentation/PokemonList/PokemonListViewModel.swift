@@ -45,11 +45,11 @@ final class PokemonListViewModel: ObservableObject {
     /// 選択された特性
     @Published var selectedAbilities: Set<String> = []
 
-    /// 選択された世代
-    @Published var selectedGeneration: Generation = .generation1
+    /// 選択されたバージョングループ
+    @Published var selectedVersionGroup: VersionGroup = .nationalDex
 
-    /// 全世代リスト
-    private(set) var allGenerations: [Generation] = []
+    /// 全バージョングループリスト
+    private(set) var allVersionGroups: [VersionGroup] = []
 
     // MARK: - Display Mode
 
@@ -79,7 +79,7 @@ final class PokemonListViewModel: ObservableObject {
     private let filterPokemonByAbilityUseCase: FilterPokemonByAbilityUseCaseProtocol
 
     /// 世代情報取得UseCase
-    private let fetchGenerationsUseCase: FetchGenerationsUseCaseProtocol
+    private let fetchVersionGroupsUseCase: FetchVersionGroupsUseCaseProtocol
 
     /// ポケモンリポジトリ
     private let pokemonRepository: PokemonRepositoryProtocol
@@ -97,21 +97,21 @@ final class PokemonListViewModel: ObservableObject {
     ///   - fetchPokemonListUseCase: ポケモンリスト取得UseCase
     ///   - sortPokemonUseCase: ポケモンソートUseCase
     ///   - filterPokemonByAbilityUseCase: 特性フィルタリングUseCase
-    ///   - fetchGenerationsUseCase: 世代情報取得UseCase
+    ///   - fetchVersionGroupsUseCase: バージョングループ情報取得UseCase
     ///   - pokemonRepository: ポケモンリポジトリ
     init(
         fetchPokemonListUseCase: FetchPokemonListUseCaseProtocol,
         sortPokemonUseCase: SortPokemonUseCaseProtocol,
         filterPokemonByAbilityUseCase: FilterPokemonByAbilityUseCaseProtocol,
-        fetchGenerationsUseCase: FetchGenerationsUseCaseProtocol,
+        fetchVersionGroupsUseCase: FetchVersionGroupsUseCaseProtocol,
         pokemonRepository: PokemonRepositoryProtocol
     ) {
         self.fetchPokemonListUseCase = fetchPokemonListUseCase
         self.sortPokemonUseCase = sortPokemonUseCase
         self.filterPokemonByAbilityUseCase = filterPokemonByAbilityUseCase
-        self.fetchGenerationsUseCase = fetchGenerationsUseCase
+        self.fetchVersionGroupsUseCase = fetchVersionGroupsUseCase
         self.pokemonRepository = pokemonRepository
-        self.allGenerations = fetchGenerationsUseCase.execute()
+        self.allVersionGroups = fetchVersionGroupsUseCase.execute()
     }
 
     // MARK: - Public Methods
@@ -121,9 +121,16 @@ final class PokemonListViewModel: ObservableObject {
         await loadPokemonsWithRetry()
     }
 
+    /// キャッシュをクリアして再読み込み（デバッグ用）
+    func clearCacheAndReload() async {
+        pokemonRepository.clearCache()
+        await loadPokemons()
+    }
+
     /// フィルターを適用
     func applyFilters() {
         // フィルタリング
+        // 注: 世代フィルターはRepositoryで既に適用済みなので、ここでは検索とタイプのみ
         var filtered = pokemons.filter { pokemon in
             // 名前検索（部分一致）
             let matchesSearch = searchText.isEmpty ||
@@ -133,10 +140,7 @@ final class PokemonListViewModel: ObservableObject {
             let matchesType = selectedTypes.isEmpty ||
                 pokemon.types.contains { selectedTypes.contains($0.name) }
 
-            // 世代フィルター（speciesIdで判定）
-            let matchesGeneration = selectedGeneration.pokemonRange.contains(pokemon.speciesId)
-
-            return matchesSearch && matchesType && matchesGeneration
+            return matchesSearch && matchesType
         }
 
         // 特性フィルター適用
@@ -164,10 +168,10 @@ final class PokemonListViewModel: ObservableObject {
         displayMode = displayMode == .list ? .grid : .list
     }
 
-    /// 世代を変更
-    /// - Parameter generation: 新しい世代
-    func changeGeneration(_ generation: Generation) {
-        selectedGeneration = generation
+    /// バージョングループを変更
+    /// - Parameter versionGroup: 新しいバージョングループ
+    func changeVersionGroup(_ versionGroup: VersionGroup) {
+        selectedVersionGroup = versionGroup
         Task {
             await loadPokemons()
         }
@@ -199,7 +203,7 @@ final class PokemonListViewModel: ObservableObject {
         do {
             pokemons = try await fetchWithTimeout {
                 try await self.pokemonRepository.fetchPokemonList(
-                    generation: self.selectedGeneration,
+                    versionGroup: self.selectedVersionGroup,
                     progressHandler: { [weak self] progress in
                         Task { @MainActor in
                             self?.loadingProgress = progress
