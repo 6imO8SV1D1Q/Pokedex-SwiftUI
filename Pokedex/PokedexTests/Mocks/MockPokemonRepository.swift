@@ -16,6 +16,7 @@ final class MockPokemonRepository: PokemonRepositoryProtocol {
     var evolutionChainToReturn: EvolutionChain?
     var shouldThrowError = false
     var errorToThrow: Error = PokemonError.networkError(NSError(domain: "test", code: -1))
+    var failCount = 0
 
     // 呼び出し回数の記録
     var fetchPokemonListCallCount = 0
@@ -23,14 +24,32 @@ final class MockPokemonRepository: PokemonRepositoryProtocol {
     var fetchPokemonSpeciesCallCount = 0
     var fetchEvolutionChainCallCount = 0
 
-    func fetchPokemonList(limit: Int, offset: Int) async throws -> [Pokemon] {
+    func fetchPokemonList(limit: Int, offset: Int, progressHandler: ((Double) -> Void)? = nil) async throws -> [Pokemon] {
         fetchPokemonListCallCount += 1
 
         if shouldThrowError {
-            throw errorToThrow
+            if fetchPokemonListCallCount <= failCount {
+                throw errorToThrow
+            }
         }
 
         return pokemonsToReturn
+    }
+
+    func fetchPokemonList(versionGroup: VersionGroup, progressHandler: ((Double) -> Void)? = nil) async throws -> [Pokemon] {
+        fetchPokemonListCallCount += 1
+
+        if shouldThrowError {
+            if fetchPokemonListCallCount <= failCount {
+                throw errorToThrow
+            }
+        }
+
+        return pokemonsToReturn
+    }
+
+    func clearCache() {
+        // Mock implementation - do nothing
     }
 
     func fetchPokemonDetail(id: Int) async throws -> Pokemon {

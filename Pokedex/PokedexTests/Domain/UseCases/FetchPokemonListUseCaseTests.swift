@@ -62,6 +62,7 @@ final class FetchPokemonListUseCaseTests: XCTestCase {
     func test_execute_networkError_throwsError() async {
         // Given
         mockRepository.shouldThrowError = true
+        mockRepository.failCount = 999 // 常に失敗させる
         mockRepository.errorToThrow = PokemonError.networkError(NSError(domain: "test", code: -1))
 
         // When & Then
