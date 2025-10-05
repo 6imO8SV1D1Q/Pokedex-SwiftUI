@@ -49,57 +49,97 @@ final class MoveRepository: MoveRepositoryProtocol {
         moveIds: [Int],
         versionGroup: String
     ) async throws -> [MoveLearnMethod] {
-
-        // ポケモン情報を取得（PKMPokemon from PokemonAPI）
         let pkmPokemon = try await apiClient.fetchRawPokemon(pokemonId)
-
         var learnMethods: [MoveLearnMethod] = []
 
         for moveId in moveIds {
-            // このポケモンがこの技を習得できるか確認
-            guard let pkmMove = pkmPokemon.moves?.first(where: { move in
-                // PKMAPIResourceのURLからIDを抽出して比較
-                guard let urlString = move.move?.url,
-                      let urlComponents = urlString.split(separator: "/").last,
-                      let id = Int(urlComponents) else {
-                    return false
-                }
-                return id == moveId
-            }) else {
-                continue
-            }
-
-            // バージョングループ別の習得方法を探す
-            if let versionGroupDetail = pkmMove.versionGroupDetails?.first(where: { detail in
-                detail.versionGroup?.name == versionGroup
-            }) {
-                let method = parseLearnMethod(
-                    methodName: versionGroupDetail.moveLearnMethod?.name ?? "",
-                    level: versionGroupDetail.levelLearnedAt,
-                    machine: nil  // TODO: TM/TR番号の取得
-                )
-
-                // 技の詳細情報を取得
-                let moveDetail = try await apiClient.fetchMove(moveId)
-
-                let moveEntity = MoveEntity(
-                    id: moveId,
-                    name: moveDetail.name ?? "unknown",
-                    type: PokemonType(
-                        slot: 1,
-                        name: moveDetail.type?.name ?? "normal"
-                    )
-                )
-
-                learnMethods.append(MoveLearnMethod(
-                    move: moveEntity,
-                    method: method,
-                    versionGroup: versionGroup
-                ))
+            if let learnMethod = try await extractLearnMethod(
+                from: pkmPokemon,
+                moveId: moveId,
+                versionGroup: versionGroup
+            ) {
+                learnMethods.append(learnMethod)
             }
         }
 
         return learnMethods
+    }
+
+    /// ポケモンの技習得方法を抽出
+    /// - Parameters:
+    ///   - pkmPokemon: PokéAPIのポケモンデータ
+    ///   - moveId: 技ID
+    ///   - versionGroup: バージョングループ
+    /// - Returns: 習得方法、習得できない場合はnil
+    private func extractLearnMethod(
+        from pkmPokemon: PKMPokemon,
+        moveId: Int,
+        versionGroup: String
+    ) async throws -> MoveLearnMethod? {
+        guard let pkmMove = findPokemonMove(in: pkmPokemon, moveId: moveId),
+              let versionGroupDetail = findVersionGroupDetail(in: pkmMove, versionGroup: versionGroup) else {
+            return nil
+        }
+
+        let method = parseLearnMethod(
+            methodName: versionGroupDetail.moveLearnMethod?.name ?? "",
+            level: versionGroupDetail.levelLearnedAt,
+            machine: nil  // TODO: TM/TR番号の取得
+        )
+
+        let moveEntity = try await fetchMoveEntity(moveId: moveId)
+
+        return MoveLearnMethod(
+            move: moveEntity,
+            method: method,
+            versionGroup: versionGroup
+        )
+    }
+
+    /// ポケモンが覚える技の中から指定IDの技を検索
+    /// - Parameters:
+    ///   - pkmPokemon: PokéAPIのポケモンデータ
+    ///   - moveId: 技ID
+    /// - Returns: 見つかった技データ、なければnil
+    private func findPokemonMove(in pkmPokemon: PKMPokemon, moveId: Int) -> PKMPokemonMove? {
+        pkmPokemon.moves?.first { move in
+            guard let urlString = move.move?.url,
+                  let urlComponents = urlString.split(separator: "/").last,
+                  let id = Int(urlComponents) else {
+                return false
+            }
+            return id == moveId
+        }
+    }
+
+    /// 技の習得方法からバージョングループに対応する詳細を検索
+    /// - Parameters:
+    ///   - pkmMove: ポケモンの技データ
+    ///   - versionGroup: バージョングループ
+    /// - Returns: バージョン別の習得詳細、なければnil
+    private func findVersionGroupDetail(
+        in pkmMove: PKMPokemonMove,
+        versionGroup: String
+    ) -> PKMPokemonMoveVersion? {
+        pkmMove.versionGroupDetails?.first { detail in
+            detail.versionGroup?.name == versionGroup
+        }
+    }
+
+    /// 技の詳細情報を取得してEntityに変換
+    /// - Parameter moveId: 技ID
+    /// - Returns: 技Entity
+    private func fetchMoveEntity(moveId: Int) async throws -> MoveEntity {
+        let moveDetail = try await apiClient.fetchMove(moveId)
+
+        return MoveEntity(
+            id: moveId,
+            name: moveDetail.name ?? "unknown",
+            type: PokemonType(
+                slot: 1,
+                name: moveDetail.type?.name ?? "normal"
+            )
+        )
     }
 
     private func parseLearnMethod(

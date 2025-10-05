@@ -184,32 +184,41 @@ struct SearchFilterView: View {
     private func loadAbilities() {
         guard allAbilities.isEmpty else { return }
 
-        isLoadingAbilities = true
-        Task {
-            do {
-                allAbilities = try await fetchAllAbilitiesUseCase.execute()
-            } catch {
-                // エラーが発生しても空のリストを表示
-                allAbilities = []
-            }
-            isLoadingAbilities = false
-        }
+        loadData(
+            isLoading: $isLoadingAbilities,
+            fetch: { try await fetchAllAbilitiesUseCase.execute() },
+            onSuccess: { allAbilities = $0 },
+            onError: { allAbilities = [] }
+        )
     }
 
     private func loadMoves() {
         guard allMoves.isEmpty else { return }
         guard isMoveFilterEnabled else { return }
 
-        isLoadingMoves = true
+        loadData(
+            isLoading: $isLoadingMoves,
+            fetch: { try await fetchAllMovesUseCase.execute(versionGroup: viewModel.selectedVersionGroup.id) },
+            onSuccess: { allMoves = $0 },
+            onError: { allMoves = [] }
+        )
+    }
+
+    private func loadData<T>(
+        isLoading: Binding<Bool>,
+        fetch: @escaping () async throws -> T,
+        onSuccess: @escaping (T) -> Void,
+        onError: @escaping () -> Void
+    ) {
+        isLoading.wrappedValue = true
         Task {
             do {
-                allMoves = try await fetchAllMovesUseCase.execute(
-                    versionGroup: viewModel.selectedVersionGroup.id
-                )
+                let result = try await fetch()
+                onSuccess(result)
             } catch {
-                allMoves = []
+                onError()
             }
-            isLoadingMoves = false
+            isLoading.wrappedValue = false
         }
     }
 

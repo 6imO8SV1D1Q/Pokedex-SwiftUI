@@ -9,6 +9,12 @@ import Foundation
 
 /// 技によるポケモンフィルタリングUseCaseのプロトコル
 protocol FilterPokemonByMovesUseCaseProtocol {
+    /// 選択された技をすべて習得できるポケモンのみを抽出
+    /// - Parameters:
+    ///   - pokemonList: フィルター対象のポケモンリスト
+    ///   - selectedMoves: 選択された技のリスト
+    ///   - versionGroup: 対象バージョングループ
+    /// - Returns: ポケモンと習得方法のタプルの配列
     func execute(
         pokemonList: [Pokemon],
         selectedMoves: [MoveEntity],
@@ -17,6 +23,7 @@ protocol FilterPokemonByMovesUseCaseProtocol {
 }
 
 /// 技によるポケモンフィルタリングUseCase
+/// 指定された技をすべて習得可能なポケモンのみを抽出する
 final class FilterPokemonByMovesUseCase: FilterPokemonByMovesUseCaseProtocol {
     private let moveRepository: MoveRepositoryProtocol
 
@@ -37,7 +44,6 @@ final class FilterPokemonByMovesUseCase: FilterPokemonByMovesUseCaseProtocol {
         var results: [(Pokemon, [MoveLearnMethod])] = []
 
         for pokemon in pokemonList {
-            // このポケモンが選択された技をすべて習得できるか確認
             let learnMethods = try await moveRepository.fetchLearnMethods(
                 pokemonId: pokemon.id,
                 moveIds: selectedMoves.map { $0.id },
