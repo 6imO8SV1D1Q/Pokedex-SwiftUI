@@ -81,5 +81,6 @@ fastlane/test_output
 .DS_Store
 
 # Claude Code
+claude.md
 CLAUDE.md
 .claude/
