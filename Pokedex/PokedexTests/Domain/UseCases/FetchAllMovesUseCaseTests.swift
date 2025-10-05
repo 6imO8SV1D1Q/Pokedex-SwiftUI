@@ -25,7 +25,7 @@ final class FetchAllMovesUseCaseTests: XCTestCase {
 
     // MARK: - Tests
 
-    func test_技リストを正常に取得できる() async throws {
+    func test_execute_returnsAllMoves() async throws {
         // Given
         let expectedMoves = [
             MoveEntity(id: 1, name: "thunderbolt", type: PokemonType(slot: 1, name: "electric")),
@@ -44,7 +44,7 @@ final class FetchAllMovesUseCaseTests: XCTestCase {
         XCTAssertEqual(result[1].name, "surf")
     }
 
-    func test_バージョングループなしでも取得できる() async throws {
+    func test_execute_withNoVersionGroup_returnsAllMoves() async throws {
         // Given
         let expectedMoves = [
             MoveEntity(id: 1, name: "tackle", type: PokemonType(slot: 1, name: "normal"))
@@ -59,7 +59,7 @@ final class FetchAllMovesUseCaseTests: XCTestCase {
         XCTAssertEqual(result[0].name, "tackle")
     }
 
-    func test_エラーが発生した場合は例外をスローする() async {
+    func test_execute_withRepositoryError_throwsError() async {
         // Given
         let expectedError = NSError(domain: "TestError", code: 1)
         mockRepository.fetchAllMovesResult = .failure(expectedError)
@@ -67,13 +67,13 @@ final class FetchAllMovesUseCaseTests: XCTestCase {
         // When & Then
         do {
             _ = try await sut.execute(versionGroup: "scarlet-violet")
-            XCTFail("エラーがスローされるべき")
+            XCTFail("Should throw error")
         } catch {
             XCTAssertNotNil(error)
         }
     }
 
-    func test_空のリストも正常に処理できる() async throws {
+    func test_execute_withEmptyList_returnsEmptyArray() async throws {
         // Given
         mockRepository.fetchAllMovesResult = .success([])
 

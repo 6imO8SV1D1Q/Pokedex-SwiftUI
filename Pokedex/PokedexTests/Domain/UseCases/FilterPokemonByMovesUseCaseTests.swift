@@ -25,7 +25,7 @@ final class FilterPokemonByMovesUseCaseTests: XCTestCase {
 
     // MARK: - Tests
 
-    func test_空の技リストで実行すると全ポケモンが返される() async throws {
+    func test_execute_withEmptySelectedMoves_returnsAllPokemon() async throws {
         // Given
         let pokemonList = [
             PokemonFixture.pikachu,
@@ -46,7 +46,7 @@ final class FilterPokemonByMovesUseCaseTests: XCTestCase {
         XCTAssertEqual(result[1].pokemon.id, PokemonFixture.charizard.id)
     }
 
-    func test_技を習得できるポケモンのみが返される() async throws {
+    func test_execute_withSingleMove_returnsOnlyPokemonThatLearnIt() async throws {
         // Given
         let pokemonList = [
             PokemonFixture.pikachu,
@@ -76,7 +76,7 @@ final class FilterPokemonByMovesUseCaseTests: XCTestCase {
         XCTAssertEqual(result[0].learnMethods[0].move.id, 1)
     }
 
-    func test_すべての技を習得できないポケモンは除外される() async throws {
+    func test_execute_withMultipleMoves_returnsOnlyPokemonThatLearnAll() async throws {
         // Given
         let pokemonList = [
             PokemonFixture.pikachu,
@@ -87,7 +87,7 @@ final class FilterPokemonByMovesUseCaseTests: XCTestCase {
             MoveEntity(id: 2, name: "surf", type: PokemonType(slot: 1, name: "water"))
         ]
 
-        // 1つの技しか習得できない（2つ必要だが1つだけ）
+        // Only 1 move can be learned (need 2, but only 1 is available)
         let learnMethod = MoveLearnMethod(
             move: selectedMoves[0],
             method: .levelUp(level: 10),
@@ -103,10 +103,10 @@ final class FilterPokemonByMovesUseCaseTests: XCTestCase {
         )
 
         // Then
-        XCTAssertEqual(result.count, 0, "すべての技を習得できないポケモンは結果に含まれない")
+        XCTAssertEqual(result.count, 0, "Pokemon that cannot learn all moves should not be included")
     }
 
-    func test_エラーが発生した場合は例外をスローする() async {
+    func test_execute_withRepositoryError_throwsError() async {
         // Given
         let pokemonList = [PokemonFixture.pikachu]
         let selectedMoves = [
@@ -122,9 +122,8 @@ final class FilterPokemonByMovesUseCaseTests: XCTestCase {
                 selectedMoves: selectedMoves,
                 versionGroup: "scarlet-violet"
             )
-            XCTFail("エラーがスローされるべき")
+            XCTFail("Should throw error")
         } catch {
-            // エラーが正しくスローされた
             XCTAssertNotNil(error)
         }
     }

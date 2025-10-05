@@ -8,9 +8,26 @@
 import Foundation
 @testable import Pokedex
 
+struct PokemonFixture {
+    static let pikachu = Pokemon.fixture(
+        id: 25,
+        speciesId: 25,
+        name: "pikachu",
+        types: [PokemonType(slot: 1, name: "electric")]
+    )
+
+    static let charizard = Pokemon.fixture(
+        id: 6,
+        speciesId: 6,
+        name: "charizard",
+        types: [PokemonType(slot: 1, name: "fire"), PokemonType(slot: 2, name: "flying")]
+    )
+}
+
 extension Pokemon {
     static func fixture(
         id: Int = 1,
+        speciesId: Int = 1,
         name: String = "bulbasaur",
         height: Int = 7,
         weight: Int = 69,
@@ -18,10 +35,12 @@ extension Pokemon {
         stats: [PokemonStat] = [.fixture()],
         abilities: [PokemonAbility] = [.fixture()],
         sprites: PokemonSprites = .fixture(),
-        moves: [PokemonMove] = [.fixture()]
+        moves: [PokemonMove] = [.fixture()],
+        availableGenerations: [Int] = [1]
     ) -> Pokemon {
         Pokemon(
             id: id,
+            speciesId: speciesId,
             name: name,
             height: height,
             weight: weight,
@@ -29,7 +48,8 @@ extension Pokemon {
             stats: stats,
             abilities: abilities,
             sprites: sprites,
-            moves: moves
+            moves: moves,
+            availableGenerations: availableGenerations
         )
     }
 }
