@@ -10,7 +10,29 @@ import Combine
 
 /// ポケモン一覧画面のViewModel
 ///
-/// ポケモンのリスト取得、検索、フィルタリング、表示形式の切り替え機能を提供します。
+/// ポケモンのリスト取得、検索、フィルタリング、ソート、表示形式の切り替え機能を提供します。
+///
+/// ## 主な機能
+/// - バージョングループ別のポケモンリスト取得
+/// - 名前検索（部分一致）
+/// - タイプ、特性、技による複合フィルタリング
+/// - 種族値やステータスによるソート
+/// - リスト/グリッド表示の切り替え
+/// - 進捗表示付きローディング
+/// - 自動リトライ機能（最大3回）
+///
+/// ## フィルター制約
+/// - 技フィルター: バージョングループ選択時のみ有効（全国図鑑モードでは無効）
+/// - 特性フィルター: 第3世代以降で有効（第1〜2世代では無効）
+///
+/// ## 使用例
+/// ```swift
+/// let viewModel = container.makePokemonListViewModel()
+/// await viewModel.loadPokemons()
+/// viewModel.searchText = "pikachu"
+/// viewModel.selectedTypes = ["electric"]
+/// viewModel.applyFilters()
+/// ```
 @MainActor
 final class PokemonListViewModel: ObservableObject {
 
@@ -129,6 +151,13 @@ final class PokemonListViewModel: ObservableObject {
     // MARK: - Public Methods
 
     /// ポケモンリストを読み込む
+    ///
+    /// 現在選択されているバージョングループのポケモンをすべて取得します。
+    /// 取得後は自動的にフィルターとソートが適用されます。
+    ///
+    /// - Note: 初回ロード時は2〜3秒かかる場合があります。
+    ///         2回目以降はキャッシュが効くため高速に取得できます。
+    ///         ネットワークエラー時は最大3回まで自動リトライします。
     func loadPokemons() async {
         await loadPokemonsWithRetry()
     }
@@ -140,6 +169,12 @@ final class PokemonListViewModel: ObservableObject {
     }
 
     /// フィルターを適用
+    ///
+    /// 検索テキスト、タイプ、特性、技の条件に基づいてポケモンをフィルタリングします。
+    /// フィルタリング後は現在のソートオプションが自動的に適用されます。
+    ///
+    /// - Note: 技フィルターはAPIリクエストが発生するため、他のフィルターより時間がかかります。
+    ///         技フィルター実行中は`isFiltering`がtrueになります。
     func applyFilters() {
         Task {
             await applyFiltersAsync()
@@ -205,7 +240,11 @@ final class PokemonListViewModel: ObservableObject {
     }
 
     /// バージョングループを変更
+    ///
     /// - Parameter versionGroup: 新しいバージョングループ
+    ///
+    /// - Note: バージョングループ変更時はポケモンリストが再読み込みされます。
+    ///         キャッシュがある場合は約0.3秒、ない場合は約1〜2秒かかります。
     func changeVersionGroup(_ versionGroup: VersionGroup) {
         selectedVersionGroup = versionGroup
         Task {

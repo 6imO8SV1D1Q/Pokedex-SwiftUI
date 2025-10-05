@@ -8,7 +8,20 @@
 import Foundation
 import PokemonAPI
 
-/// 技情報を管理するRepository
+/// 技データを管理するリポジトリの実装
+///
+/// PokéAPIから技情報を取得し、キャッシュを管理します。
+/// バージョングループごとに異なる技リストを返すことができます。
+///
+/// ## 主な責務
+/// - 全技データの取得とキャッシュ
+/// - ポケモンの技習得方法の取得
+/// - バージョングループ別の技フィルタリング
+///
+/// ## キャッシュ戦略
+/// - メモリキャッシュ（MoveCache）を使用
+/// - バージョングループごとにキャッシュキーを分離
+/// - MainActorで同期化
 final class MoveRepository: MoveRepositoryProtocol {
     private let apiClient: PokemonAPIClient
     private let cache: MoveCache
@@ -18,6 +31,14 @@ final class MoveRepository: MoveRepositoryProtocol {
         self.cache = cache
     }
 
+    /// 指定されたバージョングループで使用可能な全ての技を取得
+    ///
+    /// - Parameter versionGroup: バージョングループID。nilの場合は全技を返す
+    /// - Returns: 技のリスト（名前順にソート済み）
+    /// - Throws: APIエラー、ネットワークエラー
+    ///
+    /// - Note: 結果はメモリキャッシュに保存されます。
+    ///         2回目以降の呼び出しはキャッシュから即座に返されます。
     func fetchAllMoves(versionGroup: String?) async throws -> [MoveEntity] {
         let cacheKey = "moves_\(versionGroup ?? "all")"
 
@@ -44,6 +65,17 @@ final class MoveRepository: MoveRepositoryProtocol {
         return moves
     }
 
+    /// 指定されたポケモンが指定された技を習得できるか、習得方法とともに取得
+    ///
+    /// - Parameters:
+    ///   - pokemonId: ポケモンのID
+    ///   - moveIds: 技のIDリスト
+    ///   - versionGroup: 対象のバージョングループID（例: "red-blue", "scarlet-violet"）
+    /// - Returns: 習得可能な技とその習得方法のリスト
+    /// - Throws: APIエラー、ネットワークエラー
+    ///
+    /// - Note: moveIdsに含まれていても習得不可能な技は結果に含まれません。
+    ///         各技ごとにAPIリクエストが発生するため、多数の技を指定すると時間がかかります。
     func fetchLearnMethods(
         pokemonId: Int,
         moveIds: [Int],
