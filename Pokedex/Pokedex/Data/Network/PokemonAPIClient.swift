@@ -233,4 +233,40 @@ final class PokemonAPIClient {
             return id
         }.sorted()
     }
+
+    // MARK: - Move API
+
+    func fetchAllMoves() async throws -> [(id: Int, name: String)] {
+        // 技リストを取得（limit=1000で十分）
+        let pagedObject = try await pokemonAPI.moveService.fetchMoveList(
+            paginationState: .initial(pageLimit: 1000)
+        )
+
+        guard let results = pagedObject.results else {
+            return []
+        }
+
+        // リソースからIDと名前を抽出（詳細取得せずに高速化）
+        let moves = results.compactMap { resource -> (id: Int, name: String)? in
+            guard let name = resource.name,
+                  let urlString = resource.url,
+                  let idString = urlString.split(separator: "/").last,
+                  let id = Int(idString) else {
+                return nil
+            }
+            return (id: id, name: name)
+        }
+
+        return moves
+    }
+
+    func fetchMove(_ id: Int) async throws -> PKMMove {
+        return try await pokemonAPI.moveService.fetchMove(id)
+    }
+
+    // MARK: - Raw Pokemon API (for move version group details)
+
+    func fetchRawPokemon(_ id: Int) async throws -> PKMPokemon {
+        return try await pokemonAPI.pokemonService.fetchPokemon(id)
+    }
 }

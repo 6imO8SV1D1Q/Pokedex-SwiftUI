@@ -102,74 +102,38 @@ struct BaseStats: Equatable {
 }
 ```
 
-#### 1.4 新しいEntity: VersionGroupEntity
+#### 1.4 新しいEntity: VersionGroup (実装済み)
 
 ```swift
-struct VersionGroupEntity: Identifiable, Equatable {
-    let id: Int                              // 世代番号 (1-9)、0=全国図鑑
-    let name: String                         // "第1世代"
-    let pokemonSpeciesRange: ClosedRange<Int> // 例: 1...151
-    
-    static let nationalDex = VersionGroupEntity(
-        id: 0,
+struct VersionGroup: Identifiable, Equatable {
+    let id: String                           // "red-blue", "scarlet-violet", "national"
+    let name: String                         // "赤・緑・青"
+    let generation: Int                      // 世代番号 (1-9)
+    let pokedexNames: [String]?              // ["kanto"], nilは全国図鑑
+
+    static let nationalDex = VersionGroup(
+        id: "national",
         name: "全国図鑑",
-        pokemonSpeciesRange: 1...1  // プレースホルダー、実際はAPIから取得
+        generation: 9,
+        pokedexNames: nil
     )
 }
 ```
 
-**世代データの取得:**
-- アプリ起動時にPokéAPI `/api/v2/generation/{id}/` から各バージョングループの情報を取得
-- `/api/v2/pokemon-species?limit=0` から最新の総ポケモン数を取得
-- 取得した情報を元に `VersionGroupEntity.allVersionGroups` を動的に構築
+**バージョングループデータ:**
+- 静的に定義された22個のバージョングループ
+- `VersionGroup.allVersionGroups` で全リストを取得
 
-**実装例:**
+**実装例 (実装済み):**
 ```swift
-final class VersionGroupDataLoader {
-    func loadVersionGroups() async throws -> [VersionGroupEntity] {
-        // 最新の総ポケモン数を取得
-        let totalCount = try await fetchTotalPokemonCount()
-        
-        var generations: [VersionGroupEntity] = []
-        
-        // 全国図鑑
-        generations.append(VersionGroupEntity(
-            id: 0,
-            name: "全国図鑑",
-            pokemonSpeciesRange: 1...totalCount
-        ))
-        
-        // 各バージョングループのデータを取得
-        for genId in 1...9 {  // 現在の最大世代
-            let genData = try await fetchVersionGroup(id: genId)
-            generations.append(VersionGroupEntity(
-                id: genId,
-                name: "第\(genId)世代",
-                pokemonSpeciesRange: genData.pokemonSpeciesRange
-            ))
-        }
-        
-        return generations
-    }
-    
-    private func fetchTotalPokemonCount() async throws -> Int {
-        // PokéAPI: /api/v2/pokemon-species?limit=0
-        // response.count が総数
-        let response = try await apiClient.fetchPokemonSpeciesCount()
-        return response.count
-    }
-    
-    private func fetchVersionGroup(id: Int) async throws -> (pokemonSpeciesRange: ClosedRange<Int>) {
-        // PokéAPI: /api/v2/generation/{id}/
-        let genData = try await apiClient.fetchVersionGroup(id: id)
-        
-        // pokemon_species配列から最小・最大IDを取得
-        let ids = genData.pokemonSpecies.map { $0.id }.sorted()
-        let range = ids.first!...ids.last!
-        
-        return (pokemonSpeciesRange: range)
-    }
-}
+// VersionGroup.swift で静的に定義
+static let allVersionGroups: [VersionGroup] = [
+    .nationalDex,
+    .redBlue,
+    .yellow,
+    .goldSilver,
+    // ... 全22個
+]
 ```
 
 #### 1.5 新しいEntity: MoveEntity
@@ -274,41 +238,31 @@ struct SearchFilterEntity {
 
 ### 2. UseCase拡張・新規作成
 
-#### 2.1 FetchPokemonListUseCase の拡張
+#### 2.1 FetchPokemonListUseCase (実装済み)
 
-**インターフェース拡張:**
+**インターフェース:**
 ```swift
-protocol FetchPokemonListUseCase {
-    func execute(
-        generation: VersionGroupEntity,
-        progressHandler: ((Double) -> Void)?
-    ) async throws -> [PokemonListItemEntity]
+protocol FetchPokemonListUseCaseProtocol {
+    func execute() async throws -> [Pokemon]
 }
 ```
 
-**実装例:**
+**実装:**
 ```swift
-final class DefaultFetchPokemonListUseCase: FetchPokemonListUseCase {
-    private let repository: PokemonRepository
-    
-    init(repository: PokemonRepository) {
+final class FetchPokemonListUseCase: FetchPokemonListUseCaseProtocol {
+    private let repository: PokemonRepositoryProtocol
+
+    init(repository: PokemonRepositoryProtocol) {
         self.repository = repository
     }
-    
-    func execute(
-        generation: VersionGroupEntity,
-        progressHandler: ((Double) -> Void)? = nil
-    ) async throws -> [PokemonListItemEntity] {
-        
-        // バージョングループに応じた範囲のポケモンを取得
-        let range = generation.pokemonSpeciesRange
-        let pokemonList = try await repository.fetchPokemonList(
-            idRange: range,
-            generation: generation.id == 0 ? 9 : generation.id,  // 全国図鑑=第9世代
-            progressHandler: progressHandler
+
+    func execute() async throws -> [Pokemon] {
+        // リポジトリから全ポケモンリストを取得
+        return try await repository.fetchPokemonList(
+            limit: 151,
+            offset: 0,
+            progressHandler: nil
         )
-        
-        return pokemonList
     }
 }
 ```
@@ -510,22 +464,16 @@ final class DefaultFetchAllMovesUseCase: FetchAllMovesUseCase {
 }
 ```
 
-#### 2.7 新しいUseCase: FetchVersionGroupsUseCase
+#### 2.7 新しいUseCase: FetchVersionGroupsUseCase (実装済み)
 
 ```swift
-protocol FetchVersionGroupsUseCase {
-    func execute() async throws -> [VersionGroupEntity]
+protocol FetchVersionGroupsUseCaseProtocol {
+    func execute() -> [VersionGroup]
 }
 
-final class DefaultFetchVersionGroupsUseCase: FetchVersionGroupsUseCase {
-    private let generationRepository: VersionGroupRepository
-    
-    init(generationRepository: VersionGroupRepository) {
-        self.generationRepository = generationRepository
-    }
-    
-    func execute() async throws -> [VersionGroupEntity] {
-        return try await generationRepository.fetchAllVersionGroups()
+final class FetchVersionGroupsUseCase: FetchVersionGroupsUseCaseProtocol {
+    func execute() -> [VersionGroup] {
+        return VersionGroup.allVersionGroups
     }
 }
 ```
@@ -989,24 +937,30 @@ final class PokemonCache {
 
 ### 1. ViewModel拡張
 
-#### 1.1 PokemonListViewModel の拡張
+#### 1.1 PokemonListViewModel (実装済み)
 
 ```swift
 @MainActor
 final class PokemonListViewModel: ObservableObject {
-    // 既存のプロパティ
-    @Published private(set) var pokemonList: [PokemonListItemEntity] = []
+    // Published Properties
+    @Published private(set) var pokemons: [Pokemon] = []
+    @Published private(set) var filteredPokemons: [Pokemon] = []
     @Published private(set) var isLoading = false
-    @Published var displayMode: DisplayMode = .list
-    
-    // v2.0 追加プロパティ
-    @Published var selectedVersionGroup: VersionGroupEntity = .nationalDex
-    @Published var currentSortOption: SortOption = .pokedexNumber
-    @Published var selectedPokemonId: Int?  // スクロール位置保持用
     @Published private(set) var loadingProgress: Double = 0.0
-    @Published private(set) var isLoadingVersionGroups = false
-    
-    private(set) var allVersionGroups: [VersionGroupEntity] = []
+    @Published var errorMessage: String?
+    @Published var showError = false
+
+    // Filter Properties
+    @Published var searchText = ""
+    @Published var selectedTypes: Set<String> = []
+    @Published var selectedAbilities: Set<String> = []
+
+    // v2.0 実装済み
+    @Published var selectedVersionGroup: VersionGroup = .nationalDex
+    @Published var currentSortOption: SortOption = .pokedexNumber
+    @Published var displayMode: DisplayMode = .list
+
+    private(set) var allVersionGroups: [VersionGroup] = []
     
     // UseCases
     private let fetchPokemonListUseCase: FetchPokemonListUseCase
