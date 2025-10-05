@@ -9,10 +9,24 @@ import SwiftUI
 
 struct PokemonListView: View {
     @StateObject private var viewModel: PokemonListViewModel
-    @State private var showingFilter = false
-    @State private var showingSortOptions = false
     @State private var scrollPosition: Int?
     @State private var hasLoaded = false
+
+    enum ActiveSheet: Identifiable {
+        case filter
+        case sort
+        case versionGroup
+
+        var id: Int {
+            switch self {
+            case .filter: return 0
+            case .sort: return 1
+            case .versionGroup: return 2
+            }
+        }
+    }
+
+    @State private var activeSheet: ActiveSheet?
 
     init(viewModel: PokemonListViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -20,46 +34,24 @@ struct PokemonListView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if viewModel.isLoading {
-                    VStack {
-                        Spacer()
-                        VStack(spacing: 16) {
-                            ProgressView(value: viewModel.loadingProgress)
-                                .progressViewStyle(.linear)
-                                .frame(width: 200)
-                            Text("読み込み中...")
-                                .font(.headline)
-                                .foregroundColor(.secondary)
-                            Text("\(Int(viewModel.loadingProgress * 100))%")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        Spacer()
-                    }
-                } else {
-                    // 表示形式によって切り替え
-                    switch viewModel.displayMode {
-                    case .list:
-                        pokemonList
-                    case .grid:
-                        pokemonGrid
-                    }
+            contentView
+                .navigationTitle("Pokédex")
+                .searchable(text: $viewModel.searchText, prompt: "ポケモンを検索")
+                .onChange(of: viewModel.searchText) { _, _ in
+                    viewModel.applyFilters()
                 }
-            }
-            .navigationTitle("Pokédex")
-            .searchable(text: $viewModel.searchText, prompt: "ポケモンを検索")
-            .onChange(of: viewModel.searchText) { _, _ in
-                viewModel.applyFilters()
-            }
-            .toolbar {
+                .toolbar {
                 // バージョングループセレクター
-                ToolbarItem(placement: .navigationBarLeading) {
-                    VersionGroupSelectorView(viewModel: viewModel)
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        activeSheet = .versionGroup
+                    } label: {
+                        Image(systemName: "globe")
+                    }
                 }
 
-                // 表示形式切り替えボタン
-                ToolbarItem(placement: .navigationBarLeading) {
+                // 表示形式切り替え
+                ToolbarItem(placement: .topBarLeading) {
                     Button {
                         viewModel.toggleDisplayMode()
                     } label: {
@@ -68,22 +60,18 @@ struct PokemonListView: View {
                 }
 
                 // ソートボタン
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        showingSortOptions = true
+                        activeSheet = .sort
                     } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "arrow.up.arrow.down")
-                            Text(viewModel.currentSortOption.displayName)
-                                .font(.caption)
-                        }
+                        Image(systemName: "arrow.up.arrow.down")
                     }
                 }
 
                 // フィルターボタン
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        showingFilter = true
+                        activeSheet = .filter
                     } label: {
                         Image(systemName: "line.3.horizontal.decrease.circle")
                     }
@@ -94,19 +82,53 @@ struct PokemonListView: View {
                     viewModel: PokemonDetailViewModel(pokemon: pokemon)
                 )
             }
-            .sheet(isPresented: $showingFilter) {
-                SearchFilterView(
-                    viewModel: viewModel,
-                    fetchAllAbilitiesUseCase: DIContainer.shared.makeFetchAllAbilitiesUseCase()
-                )
-            }
-            .sheet(isPresented: $showingSortOptions) {
-                SortOptionView(
-                    currentSortOption: $viewModel.currentSortOption,
-                    onSortChange: { option in
-                        viewModel.changeSortOption(option)
+            .sheet(item: $activeSheet) { sheet in
+                switch sheet {
+                case .filter:
+                    SearchFilterView(
+                        viewModel: viewModel,
+                        fetchAllAbilitiesUseCase: DIContainer.shared.makeFetchAllAbilitiesUseCase(),
+                        fetchAllMovesUseCase: DIContainer.shared.makeFetchAllMovesUseCase()
+                    )
+                case .sort:
+                    SortOptionView(
+                        currentSortOption: $viewModel.currentSortOption,
+                        onSortChange: { option in
+                            viewModel.changeSortOption(option)
+                        }
+                    )
+                case .versionGroup:
+                    NavigationStack {
+                        List {
+                            ForEach(viewModel.allVersionGroups) { versionGroup in
+                                Button {
+                                    viewModel.changeVersionGroup(versionGroup)
+                                    activeSheet = nil
+                                } label: {
+                                    HStack {
+                                        Text(versionGroup.displayName)
+                                        Spacer()
+                                        if viewModel.selectedVersionGroup.id == versionGroup.id {
+                                            Image(systemName: "checkmark")
+                                                .foregroundColor(.blue)
+                                        }
+                                    }
+                                    .foregroundColor(.primary)
+                                }
+                            }
+                        }
+                        .navigationTitle("バージョングループ")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("完了") {
+                                    activeSheet = nil
+                                }
+                            }
+                        }
                     }
-                )
+                    .presentationDetents([.medium, .large])
+                }
             }
             .alert("エラー", isPresented: $viewModel.showError) {
                 Button("OK") {
@@ -126,6 +148,50 @@ struct PokemonListView: View {
                         await viewModel.loadPokemons()
                         hasLoaded = true
                     }
+                }
+            }
+        }
+    }
+
+    private var contentView: some View {
+        Group {
+            if viewModel.isLoading {
+                VStack {
+                    Spacer()
+                    VStack(spacing: 16) {
+                        ProgressView(value: viewModel.loadingProgress)
+                            .progressViewStyle(.linear)
+                            .frame(width: 200)
+                        Text("読み込み中...")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                        Text("\(Int(viewModel.loadingProgress * 100))%")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                }
+            } else if viewModel.isFiltering {
+                VStack {
+                    Spacer()
+                    VStack(spacing: 16) {
+                        ProgressView()
+                        Text("技フィルター処理中...")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                        Text("しばらくお待ちください")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                }
+            } else {
+                // 表示形式によって切り替え
+                switch viewModel.displayMode {
+                case .list:
+                    pokemonList
+                case .grid:
+                    pokemonGrid
                 }
             }
         }

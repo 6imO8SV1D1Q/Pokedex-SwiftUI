@@ -402,7 +402,7 @@ enum SortOption {
 **4.3.4 表示範囲**
 - **全国図鑑モード:** 全ポケモン(1〜1025)を表示
 - **バージョングループ選択時:** 選択したバージョングループまでに登場したポケモンのみ表示
-  - 例: 第1バージョングループ選択時は001〜151のみ、第2バージョングループ選択時は001〜251
+  - 例: red-blue選択時は001〜151のみ、gold-silver選択時は001〜251
 
 **4.3.5 バージョングループ切り替え時の動作**
 1. ローディング表示
@@ -414,48 +414,49 @@ enum SortOption {
 
 **4.4.1 Domain層の変更**
 
-- 新しいEntity: `GenerationEntity`
-  
+- 新しいEntity: `VersionGroupEntity`
+
 ```swift
-struct GenerationEntity {
-    let id: Int
+struct VersionGroupEntity {
+    let id: String
     let name: String
-    let pokemonSpeciesRange: ClosedRange<Int>
+    let generation: Int
+    let pokedexNames: [String]?
 }
 ```
 
 - `PokemonEntity`の拡張:
-  - `generation: Int` - 初登場世代
-  - `typesByGeneration: [Int: [PokemonType]]` - 世代別タイプ
-  - `abilitiesByGeneration: [Int: [AbilityInfo]]` - 世代別特性
+  - `introductionGeneration: Int` - 初登場世代
+  - `lastAvailableGeneration: Int?` - 最後に登場した世代
+  - `availableGenerations: [Int]` - 登場可能な世代リスト
 
-- 新しいUseCase: `FetchPokemonForGenerationUseCase`
-  - 入力: 世代ID
+- 新しいUseCase: `FetchPokemonForVersionGroupUseCase`
+  - 入力: バージョングループ
   - 出力: そのバージョングループのポケモンリスト
 
 **4.4.2 Data層の変更**
 
 **PokéAPI調査事項:**
+- バージョングループ情報の取得: `/api/v2/version-group/{id}/`
 - 世代情報の取得: `/api/v2/generation/{id}/`
-- バージョングループ別のポケモン種族情報
-- タイプ・特性の世代別履歴取得方法
+- Pokedex情報: `/api/v2/pokedex/{name}/`
 
 **リポジトリ拡張:**
-- `PokemonRepository`に世代パラメータを追加
-- `func fetchPokemonList(generation: Int) async throws -> [PokemonListItemEntity]`
+- `PokemonRepository`にバージョングループパラメータを追加
+- `func fetchPokemonList(versionGroup: VersionGroup, progressHandler: ((Double) -> Void)?) async throws -> [Pokemon]`
 
 **キャッシュ戦略:**
 - バージョングループごとにキャッシュを分離
-- キャッシュキー: `"pokemon_list_gen\(generation)"`
+- キャッシュキー: `versionGroupCaches[versionGroup.id]`
 
 **4.4.3 Presentation層の変更**
 
 - `PokemonListViewModel`に以下を追加:
-  - `@Published var selectedGeneration: Int = 9` // デフォルトは最新世代
-  - `@Published var availableGenerations: [GenerationEntity]`
-  - `func changeGeneration(_ generation: Int) async`
+  - `@Published var selectedVersionGroup: VersionGroup = .nationalDex`
+  - `@Published var allVersionGroups: [VersionGroup]`
+  - `func changeVersionGroup(_ versionGroup: VersionGroup) async`
 
-- 新しいView: `GenerationSelectorView`
+- 新しいView: `VersionGroupSelectorView`
   - バージョングループ選択UI
   - 現在選択中のバージョングループを強調表示
 
@@ -464,36 +465,36 @@ struct GenerationEntity {
 - [ ] バージョングループを切り替えると、そのバージョングループのポケモンのみ表示される
 - [ ] バージョングループ別のタイプ・特性が正しく表示される
 - [ ] バージョングループ切り替え時にローディングが表示される
-- [ ] デフォルトは第9世代(最新)
+- [ ] デフォルトは全国図鑑モード
 
 ---
 
-### 5. 全ポケモン対応(第1〜9世代、約1025匹)
+### 5. 全ポケモン対応(全バージョングループ、フォーム含む約1302件)
 
 #### 5.1 概要
-現在の第1世代151匹から、全バージョングループのポケモン約1025匹に対応を拡大する。
+全バージョングループのポケモン（基本形態＋リージョンフォーム＋その他フォーム）約1302件に対応を拡大する。
 
 #### 5.2 背景・目的
-- **現状の課題:** 第1バージョングループのみ対応、ユーザーの選択肢が限定的
-- **改善の価値:** 
-  - 全ポケモンを網羅し、あらゆるバージョングループのファンに対応
+- **現状の課題:** 限定的なポケモンのみ対応、ユーザーの選択肢が限定的
+- **改善の価値:**
+  - 全ポケモン・全フォームを網羅し、あらゆるバージョングループのファンに対応
   - バージョングループ別表示機能の前提条件
 
 #### 5.3 機能詳細
 
 **5.3.1 対応範囲**
-- 第1世代〜第9バージョングループのポケモン(図鑑番号1〜1025)
-- リージョンフォーム、フォルムチェンジは今後の検討課題
+- 全バージョングループのポケモン（図鑑番号1〜1025 + フォーム約277件 = 約1302件）
+- リージョンフォーム、メガシンカ、ガラルのすがた等を含む
 
 **5.3.2 データ取得戦略**
 
 大量データ取得に伴う課題:
-- 取得時間が長い(1025件のAPIリクエスト)
+- 取得時間が長い(1302件のAPIリクエスト)
 - ユーザー待機時間の増加
 - メモリ使用量の増加
 
 **段階的ロード戦略:**
-1. **初回表示:** 選択バージョングループのポケモンのみ取得(例: 第1世代なら151匹)
+1. **初回表示:** 選択バージョングループのポケモンのみ取得(例: red-blueなら151匹)
 2. **バックグラウンドロード:** 残りのバージョングループを優先度順に取得
 3. **キャッシュ活用:** 一度取得したデータは再利用
 

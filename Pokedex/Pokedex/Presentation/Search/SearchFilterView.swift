@@ -12,8 +12,11 @@ struct SearchFilterView: View {
     @ObservedObject var viewModel: PokemonListViewModel
     @State private var allAbilities: [String] = []
     @State private var isLoadingAbilities = false
+    @State private var allMoves: [MoveEntity] = []
+    @State private var isLoadingMoves = false
 
     let fetchAllAbilitiesUseCase: FetchAllAbilitiesUseCaseProtocol
+    let fetchAllMovesUseCase: FetchAllMovesUseCaseProtocol
 
     // 全18タイプのリスト
     private let allTypes = [
@@ -27,6 +30,7 @@ struct SearchFilterView: View {
             Form {
                 typeFilterSection
                 abilityFilterSection
+                moveFilterSection
             }
             .navigationTitle("フィルター")
             .navigationBarTitleDisplayMode(.inline)
@@ -36,6 +40,7 @@ struct SearchFilterView: View {
             }
             .onAppear {
                 loadAbilities()
+                loadMoves()
             }
         }
     }
@@ -95,11 +100,48 @@ struct SearchFilterView: View {
         .foregroundColor(.primary)
     }
 
+    private var moveFilterSection: some View {
+        Section("技") {
+            if !isMoveFilterEnabled {
+                Text("技フィルターはバージョングループを選択した場合のみ利用可能です。")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            } else if isLoadingMoves {
+                ProgressView()
+            } else {
+                ForEach(allMoves.prefix(100)) { move in // 最初の100件のみ表示
+                    moveSelectionButton(move)
+                }
+            }
+        }
+    }
+
+    private func moveSelectionButton(_ move: MoveEntity) -> some View {
+        Button {
+            toggleMoveSelection(move)
+        } label: {
+            HStack {
+                Text(move.name.capitalized)
+                Spacer()
+                if viewModel.selectedMoves.contains(where: { $0.id == move.id }) {
+                    checkmark
+                }
+            }
+        }
+        .foregroundColor(.primary)
+        .disabled(viewModel.selectedMoves.count >= 4 && !viewModel.selectedMoves.contains(where: { $0.id == move.id }))
+    }
+
+    private var isMoveFilterEnabled: Bool {
+        viewModel.selectedVersionGroup.id != "national"
+    }
+
     private var clearButton: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
             Button("クリア") {
                 viewModel.selectedTypes.removeAll()
                 viewModel.selectedAbilities.removeAll()
+                viewModel.selectedMoves.removeAll()
                 viewModel.searchText = ""
                 viewModel.applyFilters()
             }
@@ -131,6 +173,14 @@ struct SearchFilterView: View {
         }
     }
 
+    private func toggleMoveSelection(_ move: MoveEntity) {
+        if let index = viewModel.selectedMoves.firstIndex(where: { $0.id == move.id }) {
+            viewModel.selectedMoves.remove(at: index)
+        } else if viewModel.selectedMoves.count < 4 {
+            viewModel.selectedMoves.append(move)
+        }
+    }
+
     private func loadAbilities() {
         guard allAbilities.isEmpty else { return }
 
@@ -143,6 +193,23 @@ struct SearchFilterView: View {
                 allAbilities = []
             }
             isLoadingAbilities = false
+        }
+    }
+
+    private func loadMoves() {
+        guard allMoves.isEmpty else { return }
+        guard isMoveFilterEnabled else { return }
+
+        isLoadingMoves = true
+        Task {
+            do {
+                allMoves = try await fetchAllMovesUseCase.execute(
+                    versionGroup: viewModel.selectedVersionGroup.id
+                )
+            } catch {
+                allMoves = []
+            }
+            isLoadingMoves = false
         }
     }
 

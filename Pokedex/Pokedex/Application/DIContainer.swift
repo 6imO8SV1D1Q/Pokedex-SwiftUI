@@ -23,6 +23,12 @@ final class DIContainer: ObservableObject {
         AbilityRepository()
     }()
 
+    private lazy var moveRepository: MoveRepositoryProtocol = {
+        let apiClient = PokemonAPIClient()
+        let cache = MoveCache()
+        return MoveRepository(apiClient: apiClient, cache: cache)
+    }()
+
     // MARK: - UseCases
     func makeFetchPokemonListUseCase() -> FetchPokemonListUseCaseProtocol {
         FetchPokemonListUseCase(repository: pokemonRepository)
@@ -48,12 +54,21 @@ final class DIContainer: ObservableObject {
         FetchVersionGroupsUseCase()
     }
 
+    func makeFetchAllMovesUseCase() -> FetchAllMovesUseCaseProtocol {
+        FetchAllMovesUseCase(moveRepository: moveRepository)
+    }
+
+    func makeFilterPokemonByMovesUseCase() -> FilterPokemonByMovesUseCaseProtocol {
+        FilterPokemonByMovesUseCase(moveRepository: moveRepository)
+    }
+
     // MARK: - ViewModels
     func makePokemonListViewModel() -> PokemonListViewModel {
         PokemonListViewModel(
             fetchPokemonListUseCase: makeFetchPokemonListUseCase(),
             sortPokemonUseCase: makeSortPokemonUseCase(),
             filterPokemonByAbilityUseCase: makeFilterPokemonByAbilityUseCase(),
+            filterPokemonByMovesUseCase: makeFilterPokemonByMovesUseCase(),
             fetchVersionGroupsUseCase: makeFetchVersionGroupsUseCase(),
             pokemonRepository: pokemonRepository
         )

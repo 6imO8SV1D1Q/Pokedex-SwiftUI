@@ -28,6 +28,9 @@ final class PokemonListViewModel: ObservableObject {
     /// ローディング進捗（0.0〜1.0）
     @Published private(set) var loadingProgress: Double = 0.0
 
+    /// フィルター処理中
+    @Published private(set) var isFiltering = false
+
     /// エラーメッセージ
     @Published var errorMessage: String?
 
@@ -44,6 +47,9 @@ final class PokemonListViewModel: ObservableObject {
 
     /// 選択された特性
     @Published var selectedAbilities: Set<String> = []
+
+    /// 選択された技
+    @Published var selectedMoves: [MoveEntity] = []
 
     /// 選択されたバージョングループ
     @Published var selectedVersionGroup: VersionGroup = .nationalDex
@@ -78,6 +84,9 @@ final class PokemonListViewModel: ObservableObject {
     /// 特性フィルタリングUseCase
     private let filterPokemonByAbilityUseCase: FilterPokemonByAbilityUseCaseProtocol
 
+    /// 技フィルタリングUseCase
+    private let filterPokemonByMovesUseCase: FilterPokemonByMovesUseCaseProtocol
+
     /// 世代情報取得UseCase
     private let fetchVersionGroupsUseCase: FetchVersionGroupsUseCaseProtocol
 
@@ -97,18 +106,21 @@ final class PokemonListViewModel: ObservableObject {
     ///   - fetchPokemonListUseCase: ポケモンリスト取得UseCase
     ///   - sortPokemonUseCase: ポケモンソートUseCase
     ///   - filterPokemonByAbilityUseCase: 特性フィルタリングUseCase
+    ///   - filterPokemonByMovesUseCase: 技フィルタリングUseCase
     ///   - fetchVersionGroupsUseCase: バージョングループ情報取得UseCase
     ///   - pokemonRepository: ポケモンリポジトリ
     init(
         fetchPokemonListUseCase: FetchPokemonListUseCaseProtocol,
         sortPokemonUseCase: SortPokemonUseCaseProtocol,
         filterPokemonByAbilityUseCase: FilterPokemonByAbilityUseCaseProtocol,
+        filterPokemonByMovesUseCase: FilterPokemonByMovesUseCaseProtocol,
         fetchVersionGroupsUseCase: FetchVersionGroupsUseCaseProtocol,
         pokemonRepository: PokemonRepositoryProtocol
     ) {
         self.fetchPokemonListUseCase = fetchPokemonListUseCase
         self.sortPokemonUseCase = sortPokemonUseCase
         self.filterPokemonByAbilityUseCase = filterPokemonByAbilityUseCase
+        self.filterPokemonByMovesUseCase = filterPokemonByMovesUseCase
         self.fetchVersionGroupsUseCase = fetchVersionGroupsUseCase
         self.pokemonRepository = pokemonRepository
         self.allVersionGroups = fetchVersionGroupsUseCase.execute()
@@ -129,6 +141,13 @@ final class PokemonListViewModel: ObservableObject {
 
     /// フィルターを適用
     func applyFilters() {
+        Task {
+            await applyFiltersAsync()
+        }
+    }
+
+    /// フィルターを適用（非同期版）
+    private func applyFiltersAsync() async {
         // フィルタリング
         // 注: 世代フィルターはRepositoryで既に適用済みなので、ここでは検索とタイプのみ
         var filtered = pokemons.filter { pokemon in
@@ -148,6 +167,23 @@ final class PokemonListViewModel: ObservableObject {
             pokemonList: filtered,
             selectedAbilities: selectedAbilities
         )
+
+        // 技フィルター適用
+        if !selectedMoves.isEmpty {
+            isFiltering = true
+            do {
+                let moveFilteredResults = try await filterPokemonByMovesUseCase.execute(
+                    pokemonList: filtered,
+                    selectedMoves: selectedMoves,
+                    versionGroup: selectedVersionGroup.id
+                )
+                // 技フィルター結果からポケモンのみを抽出
+                filtered = moveFilteredResults.map { $0.pokemon }
+            } catch {
+                // エラー時は技フィルターをスキップ
+            }
+            isFiltering = false
+        }
 
         // ソート適用
         filteredPokemons = sortPokemonUseCase.execute(
@@ -182,6 +218,7 @@ final class PokemonListViewModel: ObservableObject {
         searchText = ""
         selectedTypes.removeAll()
         selectedAbilities.removeAll()
+        selectedMoves.removeAll()
         applyFilters()
     }
 
