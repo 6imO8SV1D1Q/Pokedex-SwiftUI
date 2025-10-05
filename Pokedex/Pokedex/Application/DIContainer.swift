@@ -28,10 +28,15 @@ final class DIContainer: ObservableObject {
         FetchEvolutionChainUseCase(repository: pokemonRepository)
     }
 
+    func makeSortPokemonUseCase() -> SortPokemonUseCaseProtocol {
+        SortPokemonUseCase()
+    }
+
     // MARK: - ViewModels
     func makePokemonListViewModel() -> PokemonListViewModel {
         PokemonListViewModel(
-            fetchPokemonListUseCase: makeFetchPokemonListUseCase()
+            fetchPokemonListUseCase: makeFetchPokemonListUseCase(),
+            sortPokemonUseCase: makeSortPokemonUseCase()
         )
     }
 }

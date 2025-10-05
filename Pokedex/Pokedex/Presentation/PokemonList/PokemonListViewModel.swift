@@ -53,10 +53,18 @@ final class PokemonListViewModel: ObservableObject {
     /// 現在の表示形式
     @Published var displayMode: DisplayMode = .list
 
+    // MARK: - Sort Properties
+
+    /// 現在のソートオプション
+    @Published var currentSortOption: SortOption = .pokedexNumber
+
     // MARK: - Private Properties
 
     /// ポケモンリスト取得UseCase
     private let fetchPokemonListUseCase: FetchPokemonListUseCaseProtocol
+
+    /// ポケモンソートUseCase
+    private let sortPokemonUseCase: SortPokemonUseCaseProtocol
 
     /// 最大再試行回数
     private let maxRetries = 3
@@ -67,9 +75,15 @@ final class PokemonListViewModel: ObservableObject {
     // MARK: - Initialization
 
     /// イニシャライザ
-    /// - Parameter fetchPokemonListUseCase: ポケモンリスト取得UseCase
-    init(fetchPokemonListUseCase: FetchPokemonListUseCaseProtocol) {
+    /// - Parameters:
+    ///   - fetchPokemonListUseCase: ポケモンリスト取得UseCase
+    ///   - sortPokemonUseCase: ポケモンソートUseCase
+    init(
+        fetchPokemonListUseCase: FetchPokemonListUseCaseProtocol,
+        sortPokemonUseCase: SortPokemonUseCaseProtocol
+    ) {
         self.fetchPokemonListUseCase = fetchPokemonListUseCase
+        self.sortPokemonUseCase = sortPokemonUseCase
     }
 
     // MARK: - Public Methods
@@ -81,7 +95,8 @@ final class PokemonListViewModel: ObservableObject {
 
     /// フィルターを適用
     func applyFilters() {
-        filteredPokemons = pokemons.filter { pokemon in
+        // フィルタリング
+        let filtered = pokemons.filter { pokemon in
             // 名前検索（部分一致）
             let matchesSearch = searchText.isEmpty ||
                 pokemon.name.lowercased().contains(searchText.lowercased())
@@ -95,6 +110,19 @@ final class PokemonListViewModel: ObservableObject {
 
             return matchesSearch && matchesType && matchesGeneration
         }
+
+        // ソート適用
+        filteredPokemons = sortPokemonUseCase.execute(
+            pokemonList: filtered,
+            sortOption: currentSortOption
+        )
+    }
+
+    /// ソートオプションを変更
+    /// - Parameter option: 新しいソートオプション
+    func changeSortOption(_ option: SortOption) {
+        currentSortOption = option
+        applyFilters()
     }
 
     /// 表示形式を切り替え

@@ -10,6 +10,7 @@ import SwiftUI
 struct PokemonListView: View {
     @StateObject private var viewModel: PokemonListViewModel
     @State private var showingFilter = false
+    @State private var showingSortOptions = false
     @State private var scrollPosition: Int?
     @State private var hasLoaded = false
 
@@ -47,6 +48,19 @@ struct PokemonListView: View {
                     }
                 }
 
+                // ソートボタン
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingSortOptions = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.up.arrow.down")
+                            Text(viewModel.currentSortOption.displayName)
+                                .font(.caption)
+                        }
+                    }
+                }
+
                 // フィルターボタン
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -63,6 +77,14 @@ struct PokemonListView: View {
             }
             .sheet(isPresented: $showingFilter) {
                 SearchFilterView(viewModel: viewModel)
+            }
+            .sheet(isPresented: $showingSortOptions) {
+                SortOptionView(
+                    currentSortOption: $viewModel.currentSortOption,
+                    onSortChange: { option in
+                        viewModel.changeSortOption(option)
+                    }
+                )
             }
             .alert("エラー", isPresented: $viewModel.showError) {
                 Button("OK") {
