@@ -10,6 +10,8 @@ import SwiftUI
 struct PokemonListView: View {
     @StateObject private var viewModel: PokemonListViewModel
     @State private var showingFilter = false
+    @State private var scrollPosition: Int?
+    @State private var hasLoaded = false
 
     init(viewModel: PokemonListViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -54,6 +56,11 @@ struct PokemonListView: View {
                     }
                 }
             }
+            .navigationDestination(for: Pokemon.self) { pokemon in
+                PokemonDetailView(
+                    viewModel: PokemonDetailViewModel(pokemon: pokemon)
+                )
+            }
             .sheet(isPresented: $showingFilter) {
                 SearchFilterView(viewModel: viewModel)
             }
@@ -69,8 +76,13 @@ struct PokemonListView: View {
             } message: {
                 Text(viewModel.errorMessage ?? "不明なエラーが発生しました")
             }
-            .task {
-                await viewModel.loadPokemons()
+            .onAppear {
+                if !hasLoaded {
+                    Task {
+                        await viewModel.loadPokemons()
+                        hasLoaded = true
+                    }
+                }
             }
         }
     }
@@ -85,12 +97,8 @@ struct PokemonListView: View {
                         PokemonRow(pokemon: pokemon)
                     }
                 }
+                .scrollPosition(id: $scrollPosition)
             }
-        }
-        .navigationDestination(for: Pokemon.self) { pokemon in
-            PokemonDetailView(
-                viewModel: PokemonDetailViewModel(pokemon: pokemon)
-            )
         }
     }
 
@@ -113,12 +121,8 @@ struct PokemonListView: View {
                     }
                     .padding(DesignConstants.Spacing.medium)
                 }
+                .scrollPosition(id: $scrollPosition)
             }
-        }
-        .navigationDestination(for: Pokemon.self) { pokemon in
-            PokemonDetailView(
-                viewModel: PokemonDetailViewModel(pokemon: pokemon)
-            )
         }
     }
 

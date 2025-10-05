@@ -20,7 +20,7 @@ final class PokemonListViewModel: ObservableObject {
     @Published private(set) var pokemons: [Pokemon] = []
 
     /// フィルタリング後のポケモンリスト
-    @Published var filteredPokemons: [Pokemon] = []
+    @Published private(set) var filteredPokemons: [Pokemon] = []
 
     /// ローディング状態
     @Published private(set) var isLoading = false
