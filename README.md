@@ -145,10 +145,10 @@ open Pokedex/Pokedex.xcodeproj
 
 ## パフォーマンス
 
-- **初回ロード時間**: 約2〜3秒（全国図鑑モード）
-- **バージョングループ切り替え**: 約1〜2秒（キャッシュ済みの場合は即座）
-- **メモリ使用量**: 約150〜200MB（全ポケモンキャッシュ時）
-- **画像キャッシュ**: 最大500MB（ディスクキャッシュ、7日間保持）
+- **初回ロード**: 全ポケモンデータ取得のため時間がかかる（プログレスバー表示）
+- **バージョングループ切り替え**: キャッシュにより2回目以降は高速
+- **フィルター処理**: タイプ・特性は即座、技フィルターはAPI呼び出しのため時間がかかる
+- **画像キャッシュ**: Kingfisherによるメモリ・ディスクキャッシュ
 
 ## テスト
 
@@ -164,17 +164,30 @@ Cmd+U
 xcodebuild test -scheme Pokedex -destination 'platform=iOS Simulator,name=iPhone 15'
 ```
 
-### テストカバレッジ
-
-- **Domain層**: 85%+
-- **Data層**: 80%+
-- **Presentation層**: 75%+
-
 ### テスト構成
 
-- **ユニットテスト**: 85件（UseCases、ViewModels、Repositories）
-- **統合テスト**: 20件（バージョングループ切り替え、フィルター連携、ソート）
-- **パフォーマンステスト**: 8件（ロード時間、フィルター速度）
+- **ユニットテスト**: 基本的なUseCasesとViewModelsをカバー
+  - `FetchPokemonListUseCaseTests`
+  - `FilterPokemonByMovesUseCaseTests`
+  - `FetchAllMovesUseCaseTests`
+  - `FetchEvolutionChainUseCaseTests`
+  - `PokemonListViewModelTests`
+  - `PokemonDetailViewModelTests`
+  - `MoveCacheTests`
+- **統合テスト**: 4件
+  - バージョングループ切り替え
+  - フィルター連携
+  - ソート機能
+  - エラーハンドリング
+- **パフォーマンステスト**: 1件
+  - 初回ロード、キャッシュロード、フィルター処理速度
+
+### テストカバレッジの現状
+
+- **Domain層**: 主要UseCasesをカバー
+- **Data層**: 一部のキャッシュ機能のみ
+- **Presentation層**: 基本的なViewModelロジックのみ
+- **UIテスト**: 未実装
 
 ## トラブルシューティング
 
