@@ -77,6 +77,58 @@ struct Pokemon: Identifiable, Codable, Hashable {
     var displayName: String {
         name.capitalized
     }
+
+    /// 種族値の合計
+    /// - Returns: 全ステータスの種族値の合計
+    var totalBaseStat: Int {
+        stats.reduce(0) { $0 + $1.baseStat }
+    }
+
+    /// 種族値の表示文字列
+    /// - Returns: "HP-攻撃-防御-特攻-特防-素早さ (合計)" 形式の文字列
+    var baseStatsDisplay: String {
+        let hp = stats.first { $0.name == "hp" }?.baseStat ?? 0
+        let attack = stats.first { $0.name == "attack" }?.baseStat ?? 0
+        let defense = stats.first { $0.name == "defense" }?.baseStat ?? 0
+        let specialAttack = stats.first { $0.name == "special-attack" }?.baseStat ?? 0
+        let specialDefense = stats.first { $0.name == "special-defense" }?.baseStat ?? 0
+        let speed = stats.first { $0.name == "speed" }?.baseStat ?? 0
+
+        return "\(hp)-\(attack)-\(defense)-\(specialAttack)-\(specialDefense)-\(speed) (\(totalBaseStat))"
+    }
+
+    /// 特性の表示文字列
+    /// - Returns: 通常特性と隠れ特性を含む表示用文字列
+    var abilitiesDisplay: String {
+        if abilities.isEmpty {
+            return "-"
+        }
+
+        let normalAbilities = abilities.filter { !$0.isHidden }
+        let hiddenAbilities = abilities.filter { $0.isHidden }
+
+        var parts: [String] = []
+
+        if !normalAbilities.isEmpty {
+            parts.append(normalAbilities.map { $0.name.capitalized }.joined(separator: " "))
+        }
+
+        if !hiddenAbilities.isEmpty {
+            parts.append(hiddenAbilities.map { $0.name.capitalized }.joined(separator: " "))
+        }
+
+        return parts.isEmpty ? "-" : parts.joined(separator: " ")
+    }
+
+    /// 特性の表示文字列（グリッド用、改行区切り）
+    /// - Returns: 改行で区切られた特性の文字列
+    var abilitiesDisplayMultiline: String {
+        if abilities.isEmpty {
+            return "-"
+        }
+
+        return abilities.map { $0.name.capitalized }.joined(separator: "\n")
+    }
 }
 
 // MARK: - PokemonType

@@ -45,6 +45,8 @@ struct PokemonRow: View {
         VStack(alignment: .leading, spacing: DesignConstants.Spacing.xxSmall) {
             pokemonHeader
             typesBadges
+            abilitiesText
+            baseStatsText
         }
     }
 
@@ -66,5 +68,18 @@ struct PokemonRow: View {
                     .typeBadgeStyle(type)
             }
         }
+    }
+
+    private var abilitiesText: some View {
+        Text(pokemon.abilitiesDisplay)
+            .font(.caption)
+            .foregroundColor(.secondary)
+    }
+
+    private var baseStatsText: some View {
+        Text(pokemon.baseStatsDisplay)
+            .font(.caption)
+            .foregroundColor(.secondary)
+            .lineLimit(1)
     }
 }

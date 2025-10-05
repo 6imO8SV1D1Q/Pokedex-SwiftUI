@@ -16,7 +16,10 @@ struct PokemonGridItem: View {
             pokemonNumber
             pokemonName
             typesBadges
+            abilitiesText
+            baseStatsText
         }
+        .frame(height: 280)
         .padding(DesignConstants.Spacing.xSmall)
         .cardStyle()
     }
@@ -60,5 +63,21 @@ struct PokemonGridItem: View {
                     .typeBadgeStyle(type, fontSize: 9)
             }
         }
+    }
+
+    private var abilitiesText: some View {
+        Text(pokemon.abilitiesDisplayMultiline)
+            .font(.caption2)
+            .foregroundColor(.secondary)
+            .lineLimit(3)
+            .multilineTextAlignment(.center)
+    }
+
+    private var baseStatsText: some View {
+        Text(pokemon.baseStatsDisplay)
+            .font(.caption2)
+            .foregroundColor(.secondary)
+            .lineLimit(2)
+            .multilineTextAlignment(.center)
     }
 }
