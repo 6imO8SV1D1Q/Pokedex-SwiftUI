@@ -22,7 +22,15 @@ struct PokemonListView: View {
         NavigationStack {
             Group {
                 if viewModel.isLoading {
-                    LoadingView(message: "ポケモンを読み込んでいます...")
+                    VStack {
+                        Spacer()
+                        LoadingProgressView(
+                            progress: viewModel.loadingProgress,
+                            current: Int(viewModel.loadingProgress * 151),
+                            total: 151
+                        )
+                        Spacer()
+                    }
                 } else {
                     // 表示形式によって切り替え
                     switch viewModel.displayMode {

@@ -13,9 +13,10 @@ protocol FetchPokemonListUseCaseProtocol {
     /// - Parameters:
     ///   - limit: 取得する最大数
     ///   - offset: 取得開始位置のオフセット
+    ///   - progressHandler: 進捗通知ハンドラ（0.0〜1.0）
     /// - Returns: ポケモンの配列
     /// - Throws: ネットワークエラー、データ解析エラーなど
-    func execute(limit: Int, offset: Int) async throws -> [Pokemon]
+    func execute(limit: Int, offset: Int, progressHandler: ((Double) -> Void)?) async throws -> [Pokemon]
 }
 
 /// ポケモン一覧を取得するUseCase
@@ -46,9 +47,10 @@ final class FetchPokemonListUseCase: FetchPokemonListUseCaseProtocol {
     /// - Parameters:
     ///   - limit: 取得する最大数（デフォルト: 151）
     ///   - offset: 取得開始位置のオフセット（デフォルト: 0）
+    ///   - progressHandler: 進捗通知ハンドラ（0.0〜1.0）
     /// - Returns: ポケモンの配列
     /// - Throws: ネットワークエラー、データ解析エラーなど
-    func execute(limit: Int = 151, offset: Int = 0) async throws -> [Pokemon] {
-        return try await repository.fetchPokemonList(limit: limit, offset: offset)
+    func execute(limit: Int = 151, offset: Int = 0, progressHandler: ((Double) -> Void)? = nil) async throws -> [Pokemon] {
+        return try await repository.fetchPokemonList(limit: limit, offset: offset, progressHandler: progressHandler)
     }
 }

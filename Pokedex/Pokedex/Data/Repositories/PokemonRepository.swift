@@ -16,13 +16,19 @@ final class PokemonRepository: PokemonRepositoryProtocol {
         self.apiClient = apiClient
     }
 
-    func fetchPokemonList(limit: Int, offset: Int) async throws -> [Pokemon] {
+    func fetchPokemonList(limit: Int, offset: Int, progressHandler: ((Double) -> Void)?) async throws -> [Pokemon] {
         // リストキャッシュがあればそれを返す
         if let cached = listCache {
+            // キャッシュヒット時は即座に100%
+            progressHandler?(1.0)
             return cached
         }
 
-        let pokemons = try await apiClient.fetchPokemonList(limit: limit, offset: offset)
+        let pokemons = try await apiClient.fetchPokemonList(
+            limit: limit,
+            offset: offset,
+            progressHandler: progressHandler
+        )
 
         // リストキャッシュと個別キャッシュの両方に保存
         listCache = pokemons

@@ -25,6 +25,9 @@ final class PokemonListViewModel: ObservableObject {
     /// ローディング状態
     @Published private(set) var isLoading = false
 
+    /// ローディング進捗（0.0〜1.0）
+    @Published private(set) var loadingProgress: Double = 0.0
+
     /// エラーメッセージ
     @Published var errorMessage: String?
 
@@ -165,12 +168,21 @@ final class PokemonListViewModel: ObservableObject {
         }
 
         isLoading = true
+        loadingProgress = 0.0
         errorMessage = nil
         showError = false
 
         do {
             pokemons = try await fetchWithTimeout {
-                try await self.fetchPokemonListUseCase.execute(limit: 151, offset: 0)
+                try await self.fetchPokemonListUseCase.execute(
+                    limit: 151,
+                    offset: 0,
+                    progressHandler: { [weak self] progress in
+                        Task { @MainActor in
+                            self?.loadingProgress = progress
+                        }
+                    }
+                )
             }
             applyFilters()
             isLoading = false

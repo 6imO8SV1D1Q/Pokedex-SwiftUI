@@ -21,7 +21,7 @@ final class PokemonAPIClient {
         return PokemonMapper.map(from: pkm)
     }
 
-    func fetchPokemonList(limit: Int, offset: Int) async throws -> [Pokemon] {
+    func fetchPokemonList(limit: Int, offset: Int, progressHandler: ((Double) -> Void)?) async throws -> [Pokemon] {
         let pagedObject = try await pokemonAPI.pokemonService.fetchPokemonList(
             paginationState: .initial(pageLimit: limit)
         )
@@ -29,6 +29,8 @@ final class PokemonAPIClient {
         guard let results = pagedObject.results else {
             return []
         }
+
+        let totalCount = results.count
 
         // 並列取得でパフォーマンス向上（最大5個ずつ）
         var pokemons: [Pokemon] = []
@@ -53,6 +55,10 @@ final class PokemonAPIClient {
             }
 
             pokemons.append(contentsOf: chunkPokemons)
+
+            // 進捗通知
+            let progress = Double(pokemons.count) / Double(totalCount)
+            progressHandler?(progress)
         }
 
         return pokemons.sorted { $0.id < $1.id }
