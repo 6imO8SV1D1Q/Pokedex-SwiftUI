@@ -27,7 +27,6 @@ struct SearchFilterView: View {
             Form {
                 typeFilterSection
                 abilityFilterSection
-                generationFilterSection
             }
             .navigationTitle("フィルター")
             .navigationBarTitleDisplayMode(.inline)
@@ -96,22 +95,12 @@ struct SearchFilterView: View {
         .foregroundColor(.primary)
     }
 
-    private var generationFilterSection: some View {
-        Section("世代") {
-            Picker("世代", selection: $viewModel.selectedGeneration) {
-                Text("第1世代").tag(1)
-            }
-            .pickerStyle(.menu)
-        }
-    }
-
     private var clearButton: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
             Button("クリア") {
                 viewModel.selectedTypes.removeAll()
                 viewModel.selectedAbilities.removeAll()
                 viewModel.searchText = ""
-                viewModel.selectedGeneration = 1
                 viewModel.applyFilters()
             }
         }

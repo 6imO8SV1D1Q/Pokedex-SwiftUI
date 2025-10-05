@@ -45,8 +45,11 @@ final class PokemonListViewModel: ObservableObject {
     /// 選択された特性
     @Published var selectedAbilities: Set<String> = []
 
-    /// 選択された世代（現在は第1世代のみ）
-    @Published var selectedGeneration = 1
+    /// 選択された世代
+    @Published var selectedGeneration: Generation = .generation1
+
+    /// 全世代リスト
+    private(set) var allGenerations: [Generation] = []
 
     // MARK: - Display Mode
 
@@ -75,6 +78,12 @@ final class PokemonListViewModel: ObservableObject {
     /// 特性フィルタリングUseCase
     private let filterPokemonByAbilityUseCase: FilterPokemonByAbilityUseCaseProtocol
 
+    /// 世代情報取得UseCase
+    private let fetchGenerationsUseCase: FetchGenerationsUseCaseProtocol
+
+    /// ポケモンリポジトリ
+    private let pokemonRepository: PokemonRepositoryProtocol
+
     /// 最大再試行回数
     private let maxRetries = 3
 
@@ -88,14 +97,21 @@ final class PokemonListViewModel: ObservableObject {
     ///   - fetchPokemonListUseCase: ポケモンリスト取得UseCase
     ///   - sortPokemonUseCase: ポケモンソートUseCase
     ///   - filterPokemonByAbilityUseCase: 特性フィルタリングUseCase
+    ///   - fetchGenerationsUseCase: 世代情報取得UseCase
+    ///   - pokemonRepository: ポケモンリポジトリ
     init(
         fetchPokemonListUseCase: FetchPokemonListUseCaseProtocol,
         sortPokemonUseCase: SortPokemonUseCaseProtocol,
-        filterPokemonByAbilityUseCase: FilterPokemonByAbilityUseCaseProtocol
+        filterPokemonByAbilityUseCase: FilterPokemonByAbilityUseCaseProtocol,
+        fetchGenerationsUseCase: FetchGenerationsUseCaseProtocol,
+        pokemonRepository: PokemonRepositoryProtocol
     ) {
         self.fetchPokemonListUseCase = fetchPokemonListUseCase
         self.sortPokemonUseCase = sortPokemonUseCase
         self.filterPokemonByAbilityUseCase = filterPokemonByAbilityUseCase
+        self.fetchGenerationsUseCase = fetchGenerationsUseCase
+        self.pokemonRepository = pokemonRepository
+        self.allGenerations = fetchGenerationsUseCase.execute()
     }
 
     // MARK: - Public Methods
@@ -117,8 +133,8 @@ final class PokemonListViewModel: ObservableObject {
             let matchesType = selectedTypes.isEmpty ||
                 pokemon.types.contains { selectedTypes.contains($0.name) }
 
-            // 世代フィルター(今回は第1世代のみなので常にtrue)
-            let matchesGeneration = selectedGeneration == 1 && pokemon.id <= 151
+            // 世代フィルター（speciesIdで判定）
+            let matchesGeneration = selectedGeneration.pokemonRange.contains(pokemon.speciesId)
 
             return matchesSearch && matchesType && matchesGeneration
         }
@@ -148,12 +164,20 @@ final class PokemonListViewModel: ObservableObject {
         displayMode = displayMode == .list ? .grid : .list
     }
 
+    /// 世代を変更
+    /// - Parameter generation: 新しい世代
+    func changeGeneration(_ generation: Generation) {
+        selectedGeneration = generation
+        Task {
+            await loadPokemons()
+        }
+    }
+
     /// フィルターをクリア
     func clearFilters() {
         searchText = ""
         selectedTypes.removeAll()
         selectedAbilities.removeAll()
-        selectedGeneration = 1
         applyFilters()
     }
 
@@ -174,9 +198,8 @@ final class PokemonListViewModel: ObservableObject {
 
         do {
             pokemons = try await fetchWithTimeout {
-                try await self.fetchPokemonListUseCase.execute(
-                    limit: 151,
-                    offset: 0,
+                try await self.pokemonRepository.fetchPokemonList(
+                    generation: self.selectedGeneration,
                     progressHandler: { [weak self] progress in
                         Task { @MainActor in
                             self?.loadingProgress = progress

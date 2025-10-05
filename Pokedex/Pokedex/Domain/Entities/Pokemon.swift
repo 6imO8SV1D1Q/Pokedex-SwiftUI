@@ -18,6 +18,9 @@ struct Pokemon: Identifiable, Codable, Hashable {
     /// ポケモンの図鑑番号（一意の識別子）
     let id: Int
 
+    /// ポケモンの種族ID（リージョンフォームなどで共通）
+    let speciesId: Int
+
     /// ポケモンの名前（英語名、小文字）
     let name: String
 

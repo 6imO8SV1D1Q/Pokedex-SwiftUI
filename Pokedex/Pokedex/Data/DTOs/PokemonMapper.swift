@@ -10,8 +10,25 @@ import PokemonAPI
 
 enum PokemonMapper {
     nonisolated static func map(from pkm: PKMPokemon) -> Pokemon {
-        Pokemon(
+        // species.urlからIDを抽出（例: "https://pokeapi.co/api/v2/pokemon-species/25/" → 25）
+        let speciesId: Int = {
+            guard let urlString = pkm.species?.url else {
+                return pkm.id ?? 0
+            }
+
+            // URLの末尾の数字を抽出: "/pokemon-species/26/" → "26"
+            let components = urlString.split(separator: "/")
+            guard components.count >= 2,
+                  let id = Int(components[components.count - 1]) else {
+                return pkm.id ?? 0
+            }
+
+            return id
+        }()
+
+        return Pokemon(
             id: pkm.id ?? 0,
+            speciesId: speciesId,
             name: pkm.name ?? "",
             height: pkm.height ?? 0,
             weight: pkm.weight ?? 0,

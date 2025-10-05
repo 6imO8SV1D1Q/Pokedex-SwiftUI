@@ -26,8 +26,8 @@ struct PokemonListView: View {
                         Spacer()
                         LoadingProgressView(
                             progress: viewModel.loadingProgress,
-                            current: Int(viewModel.loadingProgress * 151),
-                            total: 151
+                            current: Int(viewModel.loadingProgress * Double(viewModel.selectedGeneration.pokemonRange.count)),
+                            total: viewModel.selectedGeneration.pokemonRange.count
                         )
                         Spacer()
                     }
@@ -47,6 +47,11 @@ struct PokemonListView: View {
                 viewModel.applyFilters()
             }
             .toolbar {
+                // 世代セレクター
+                ToolbarItem(placement: .navigationBarLeading) {
+                    GenerationSelectorView(viewModel: viewModel)
+                }
+
                 // 表示形式切り替えボタン
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {

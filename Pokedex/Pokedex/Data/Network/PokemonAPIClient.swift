@@ -111,4 +111,108 @@ final class PokemonAPIClient {
 
         return allAbilities.sorted()
     }
+
+    func fetchPokemonList(idRange: ClosedRange<Int>, progressHandler: ((Double) -> Void)?) async throws -> [Pokemon] {
+        let totalCount = idRange.count
+        var pokemons: [Pokemon] = []
+
+        // バッチサイズ: 50件
+        let batchSize = 50
+
+        for batchStart in stride(from: idRange.lowerBound, through: idRange.upperBound, by: batchSize) {
+            let batchEnd = min(batchStart + batchSize - 1, idRange.upperBound)
+            let batchRange = batchStart...batchEnd
+
+            let batch = try await withThrowingTaskGroup(of: Pokemon?.self) { group in
+                for id in batchRange {
+                    group.addTask {
+                        do {
+                            return try await self.fetchPokemon(id)
+                        } catch {
+                            // エラーが発生したポケモンはスキップ
+                            print("Failed to fetch Pokemon #\(id): \(error)")
+                            return nil
+                        }
+                    }
+                }
+
+                var results: [Pokemon] = []
+                for try await pokemon in group {
+                    if let pokemon = pokemon {
+                        results.append(pokemon)
+                    }
+                }
+                return results
+            }
+
+            pokemons.append(contentsOf: batch)
+
+            // 進捗通知
+            let progress = Double(pokemons.count) / Double(totalCount)
+            progressHandler?(progress)
+        }
+
+        return pokemons.sorted { $0.id < $1.id }
+    }
+
+    func fetchAllPokemon(progressHandler: ((Double) -> Void)?) async throws -> [Pokemon] {
+        // 全ポケモンリストを取得（limit=0で総数確認）
+        let pagedObject = try await pokemonAPI.pokemonService.fetchPokemonList(
+            paginationState: .initial(pageLimit: 1)
+        )
+
+        guard let count = pagedObject.count else {
+            return []
+        }
+
+        // 実際のポケモンリストを取得
+        let fullPagedObject = try await pokemonAPI.pokemonService.fetchPokemonList(
+            paginationState: .initial(pageLimit: count)
+        )
+
+        guard let results = fullPagedObject.results else {
+            return []
+        }
+
+        let totalCount = results.count
+        var pokemons: [Pokemon] = []
+
+        // バッチサイズ: 50件
+        let batchSize = 50
+
+        for batchStart in stride(from: 0, to: results.count, by: batchSize) {
+            let batchEnd = min(batchStart + batchSize, results.count)
+            let batch = Array(results[batchStart..<batchEnd])
+
+            let batchPokemons = try await withThrowingTaskGroup(of: Pokemon?.self) { group in
+                for resource in batch {
+                    group.addTask {
+                        do {
+                            let pkm = try await self.pokemonAPI.resourceService.fetch(resource)
+                            return PokemonMapper.map(from: pkm)
+                        } catch {
+                            print("Failed to fetch Pokemon: \(error)")
+                            return nil
+                        }
+                    }
+                }
+
+                var results: [Pokemon] = []
+                for try await pokemon in group {
+                    if let pokemon = pokemon {
+                        results.append(pokemon)
+                    }
+                }
+                return results
+            }
+
+            pokemons.append(contentsOf: batchPokemons)
+
+            // 進捗通知
+            let progress = Double(pokemons.count) / Double(totalCount)
+            progressHandler?(progress)
+        }
+
+        return pokemons.sorted { $0.id < $1.id }
+    }
 }

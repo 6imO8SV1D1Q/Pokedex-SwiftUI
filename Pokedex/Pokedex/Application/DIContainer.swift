@@ -44,12 +44,18 @@ final class DIContainer: ObservableObject {
         FetchAllAbilitiesUseCase(abilityRepository: abilityRepository)
     }
 
+    func makeFetchGenerationsUseCase() -> FetchGenerationsUseCaseProtocol {
+        FetchGenerationsUseCase()
+    }
+
     // MARK: - ViewModels
     func makePokemonListViewModel() -> PokemonListViewModel {
         PokemonListViewModel(
             fetchPokemonListUseCase: makeFetchPokemonListUseCase(),
             sortPokemonUseCase: makeSortPokemonUseCase(),
-            filterPokemonByAbilityUseCase: makeFilterPokemonByAbilityUseCase()
+            filterPokemonByAbilityUseCase: makeFilterPokemonByAbilityUseCase(),
+            fetchGenerationsUseCase: makeFetchGenerationsUseCase(),
+            pokemonRepository: pokemonRepository
         )
     }
 }
