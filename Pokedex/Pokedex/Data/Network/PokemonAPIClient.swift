@@ -116,8 +116,8 @@ final class PokemonAPIClient {
         let totalCount = idRange.count
         var pokemons: [Pokemon] = []
 
-        // バッチサイズ: 50件
-        let batchSize = 50
+        // バッチサイズ: 10件（並列度を下げて安定性向上）
+        let batchSize = 10
 
         for batchStart in stride(from: idRange.lowerBound, through: idRange.upperBound, by: batchSize) {
             let batchEnd = min(batchStart + batchSize - 1, idRange.upperBound)
@@ -129,8 +129,11 @@ final class PokemonAPIClient {
                         do {
                             return try await self.fetchPokemon(id)
                         } catch {
-                            // エラーが発生したポケモンはスキップ
-                            print("Failed to fetch Pokemon #\(id): \(error)")
+                            // キャンセルエラーは無視、その他のエラーはログ出力
+                            if let urlError = error as? URLError, urlError.code == .cancelled {
+                                return nil
+                            }
+                            print("⚠️ Failed to fetch Pokemon #\(id): \(error)")
                             return nil
                         }
                     }
@@ -177,8 +180,8 @@ final class PokemonAPIClient {
         let totalCount = results.count
         var pokemons: [Pokemon] = []
 
-        // バッチサイズ: 50件
-        let batchSize = 50
+        // バッチサイズ: 10件（並列度を下げて安定性向上）
+        let batchSize = 10
 
         for batchStart in stride(from: 0, to: results.count, by: batchSize) {
             let batchEnd = min(batchStart + batchSize, results.count)
@@ -191,7 +194,12 @@ final class PokemonAPIClient {
                             let pkm = try await self.pokemonAPI.resourceService.fetch(resource)
                             return PokemonMapper.map(from: pkm)
                         } catch {
-                            print("Failed to fetch Pokemon: \(error)")
+                            // キャンセルエラーは無視、その他のエラーはログ出力
+                            if let urlError = error as? URLError, urlError.code == .cancelled {
+                                // キャンセルは無視（タスクグループの正常な動作）
+                                return nil
+                            }
+                            print("⚠️ Failed to fetch Pokemon from \(resource.url ?? "unknown"): \(error)")
                             return nil
                         }
                     }
