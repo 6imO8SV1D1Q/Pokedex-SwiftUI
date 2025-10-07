@@ -233,10 +233,8 @@ final class PokemonRepository: PokemonRepositoryProtocol {
             )
         }
 
-        // 既存のEvolutionChainを取得し、EvolutionChainEntityに変換
-        let chain = try await fetchEvolutionChain(id: evolutionChainId)
-
         // TODO: Phase 2以降で完全な実装
+        // 既存のEvolutionChainを使用した完全な実装が必要
         // 現在は簡易的にEvolutionChainEntityを構築
         let pokemon = try await fetchPokemonDetail(id: speciesId)
         let rootNode = EvolutionNode(
