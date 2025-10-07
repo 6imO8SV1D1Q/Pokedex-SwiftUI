@@ -165,7 +165,7 @@ struct EvolutionChainEntity: Equatable {
 
     /// ツリーを平坦化してリストに変換
     private func flattenTree(node: EvolutionNode) -> [EvolutionNode] {
-        var result = [node]
+        let result = [node]
         // 再帰的に子ノードを追加
         // 注: この実装は簡略化されています。実際の実装時に詳細化が必要です。
         return result

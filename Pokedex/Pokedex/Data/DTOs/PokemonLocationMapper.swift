@@ -30,8 +30,8 @@ enum PokemonLocationMapper {
 
     // MARK: - Private Helpers
 
-    private static func extractVersionDetails(from encounters: [PKMLocationAreaEncounter]) -> [PokemonLocation.LocationVersionDetail] {
-        var versionMap: [String: [PKMEncounterDetail]] = [:]
+    nonisolated private static func extractVersionDetails(from encounters: [PKMLocationAreaEncounter]) -> [PokemonLocation.LocationVersionDetail] {
+        var versionMap: [String: [Any]] = [:]
 
         for encounter in encounters {
             guard let versionDetails = encounter.versionDetails else { continue }
@@ -46,12 +46,14 @@ enum PokemonLocationMapper {
 
         return versionMap.map { versionName, encounterDetails in
             let details = encounterDetails.compactMap { detail -> PokemonLocation.EncounterDetail? in
-                guard let minLevel = detail.minLevel,
-                      let maxLevel = detail.maxLevel,
-                      let method = detail.method?.name,
-                      let chance = detail.chance else {
+                let detailObj = detail as AnyObject
+                guard let minLevel = detailObj.value(forKey: "minLevel") as? Int,
+                      let maxLevel = detailObj.value(forKey: "maxLevel") as? Int,
+                      let chance = detailObj.value(forKey: "chance") as? Int else {
                     return nil
                 }
+
+                let method = (detailObj.value(forKey: "method") as AnyObject).value(forKey: "name") as? String ?? "unknown"
 
                 return PokemonLocation.EncounterDetail(
                     minLevel: minLevel,

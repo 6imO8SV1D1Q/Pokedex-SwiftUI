@@ -37,7 +37,7 @@ enum PokemonFormMapper {
 
     // MARK: - Private Helpers
 
-    private static func mapTypes(from types: [PKMPokemonType]?) -> [PokemonType] {
+    nonisolated private static func mapTypes(from types: [PKMPokemonType]?) -> [PokemonType] {
         guard let types = types else { return [] }
 
         return types.compactMap { type in
@@ -46,7 +46,7 @@ enum PokemonFormMapper {
         }
     }
 
-    private static func mapSprites(from sprites: PKMPokemonSprites?) -> PokemonSprites {
+    nonisolated private static func mapSprites(from sprites: PKMPokemonSprites?) -> PokemonSprites {
         PokemonSprites(
             frontDefault: sprites?.frontDefault,
             frontShiny: sprites?.frontShiny,
@@ -63,7 +63,7 @@ enum PokemonFormMapper {
         )
     }
 
-    private static func mapStats(from stats: [PKMPokemonStat]?) -> [PokemonStat] {
+    nonisolated private static func mapStats(from stats: [PKMPokemonStat]?) -> [PokemonStat] {
         guard let stats = stats else { return [] }
 
         return stats.compactMap { stat in
@@ -74,7 +74,7 @@ enum PokemonFormMapper {
         }
     }
 
-    private static func mapAbilities(from abilities: [PKMPokemonAbility]?) -> [PokemonAbility] {
+    nonisolated private static func mapAbilities(from abilities: [PKMPokemonAbility]?) -> [PokemonAbility] {
         guard let abilities = abilities else { return [] }
 
         return abilities.compactMap { ability in

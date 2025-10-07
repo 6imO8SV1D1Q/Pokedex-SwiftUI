@@ -269,4 +269,46 @@ final class PokemonAPIClient {
     func fetchRawPokemon(_ id: Int) async throws -> PKMPokemon {
         return try await pokemonAPI.pokemonService.fetchPokemon(id)
     }
+
+    // MARK: - Pokemon Forms
+
+    func fetchPokemonForms(pokemonId: Int) async throws -> [PokemonForm] {
+        let pkm = try await pokemonAPI.pokemonService.fetchPokemon(pokemonId)
+        return PokemonFormMapper.map(from: pkm)
+    }
+
+    // MARK: - Pokemon Locations
+
+    func fetchPokemonLocations(pokemonId: Int) async throws -> [PokemonLocation] {
+        // PokéAPIの/pokemon/{id}/encountersエンドポイントを直接呼び出す
+        // PokemonAPIライブラリにはこのメソッドがないため、空配列を返す
+        // TODO: Phase 1-7で適切に実装
+        return []
+    }
+
+    // MARK: - Type Details
+
+    func fetchTypeDetail(typeName: String) async throws -> TypeDetail {
+        let pkmType = try await pokemonAPI.pokemonService.fetchType(typeName)
+        return TypeDetailMapper.map(from: pkmType)
+    }
+
+    // MARK: - Ability Details
+
+    func fetchAbilityDetail(abilityId: Int) async throws -> AbilityDetail {
+        let pkmAbility = try await pokemonAPI.pokemonService.fetchAbility(abilityId)
+        return AbilityDetailMapper.map(from: pkmAbility, isHidden: false)
+    }
+
+    func fetchAbilityDetail(abilityName: String, isHidden: Bool = false) async throws -> AbilityDetail {
+        let pkmAbility = try await pokemonAPI.pokemonService.fetchAbility(abilityName)
+        return AbilityDetailMapper.map(from: pkmAbility, isHidden: isHidden)
+    }
+
+    // MARK: - Flavor Text
+
+    func fetchFlavorText(speciesId: Int, versionGroup: String?) async throws -> PokemonFlavorText? {
+        let species = try await pokemonAPI.pokemonService.fetchPokemonSpecies(speciesId)
+        return FlavorTextMapper.mapFlavorText(from: species, versionGroup: versionGroup)
+    }
 }

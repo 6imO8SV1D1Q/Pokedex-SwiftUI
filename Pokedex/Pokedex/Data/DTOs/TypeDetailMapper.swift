@@ -22,7 +22,7 @@ enum TypeDetailMapper {
 
     // MARK: - Private Helpers
 
-    private static func mapDamageRelations(from relations: PKMTypeRelations?) -> TypeDetail.DamageRelations {
+    nonisolated private static func mapDamageRelations(from relations: PKMTypeRelations?) -> TypeDetail.DamageRelations {
         TypeDetail.DamageRelations(
             doubleDamageTo: extractTypeNames(from: relations?.doubleDamageTo),
             halfDamageTo: extractTypeNames(from: relations?.halfDamageTo),
@@ -33,8 +33,15 @@ enum TypeDetailMapper {
         )
     }
 
-    private static func extractTypeNames(from types: [PKMNamedAPIResource<PKMType>]?) -> [String] {
+    nonisolated private static func extractTypeNames(from types: [Any]?) -> [String] {
         guard let types = types else { return [] }
-        return types.compactMap { $0.name }
+        return types.compactMap { type in
+            // PKMNamedAPIResourceから名前を抽出
+            let typeObj = type as AnyObject
+            if let name = typeObj.value(forKey: "name") as? String {
+                return name
+            }
+            return nil
+        }
     }
 }
