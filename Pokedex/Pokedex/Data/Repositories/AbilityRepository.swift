@@ -11,6 +11,7 @@ import Foundation
 final class AbilityRepository: AbilityRepositoryProtocol {
     private let apiClient: PokemonAPIClient
     private var cache: [String]?
+    private let abilityCache = AbilityCache()
 
     /// イニシャライザ
     /// - Parameter apiClient: PokemonAPIクライアント
@@ -30,5 +31,22 @@ final class AbilityRepository: AbilityRepositoryProtocol {
         let abilities = try await apiClient.fetchAllAbilities()
         cache = abilities
         return abilities
+    }
+
+    // MARK: - v3.0 新規メソッド
+
+    func fetchAbilityDetail(abilityId: Int) async throws -> AbilityDetail {
+        // キャッシュチェック
+        if let cached = await abilityCache.get(abilityId: abilityId) {
+            return cached
+        }
+
+        // API呼び出し
+        let detail = try await apiClient.fetchAbilityDetail(abilityId: abilityId)
+
+        // キャッシュに保存
+        await abilityCache.set(detail: detail)
+
+        return detail
     }
 }

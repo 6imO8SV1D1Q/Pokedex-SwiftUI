@@ -54,7 +54,11 @@ final class MoveRepository: MoveRepositoryProtocol {
             MoveEntity(
                 id: moveData.id,
                 name: moveData.name,
-                type: PokemonType(slot: 1, name: "normal") // 仮のタイプ（リスト表示では不要）
+                type: PokemonType(slot: 1, name: "normal"), // 仮のタイプ（リスト表示では不要）
+                power: nil,
+                accuracy: nil,
+                pp: nil,
+                damageClass: "status"
             )
         }
 
@@ -170,7 +174,11 @@ final class MoveRepository: MoveRepositoryProtocol {
             type: PokemonType(
                 slot: 1,
                 name: moveDetail.type?.name ?? "normal"
-            )
+            ),
+            power: moveDetail.power,
+            accuracy: moveDetail.accuracy,
+            pp: moveDetail.pp,
+            damageClass: moveDetail.damageClass?.name ?? "status"
         )
     }
 

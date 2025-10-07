@@ -3,13 +3,74 @@
 このドキュメントは、Pokédex SwiftUIアプリの既知の課題と、今後実装すべき改善点をまとめたものです。
 
 ## 📅 最終更新日
-2025-10-05
+2025-10-07
 
 ---
 
 ## 🔴 高優先度の課題
 
-### 1. 技フィルターのパフォーマンス問題
+### 1. 起動時の大量ネットワークエラー（URLError.cancelled）
+
+**現状の問題**:
+- アプリ起動時に`fetchAllPokemon`が呼ばれ、大量のネットワークリクエスト（1000件以上）が並列実行される
+- 並列度が高すぎるため、多くのリクエストがキャンセルされ、コンソールに大量のエラーログが出力される
+- 例: `Failed to fetch Pokemon: other(Error Domain=NSURLErrorDomain Code=-999 "cancelled")`
+
+**原因**:
+```swift
+// PokemonAPIClient.swift:187-197（修正前）
+let batchSize = 50  // 並列度が高すぎる
+let batchPokemons = try await withThrowingTaskGroup(of: Pokemon?.self) { group in
+    for resource in batch {
+        group.addTask {
+            // 50件同時にリクエスト → ネットワークがキャンセル
+            let pkm = try await self.pokemonAPI.resourceService.fetch(resource)
+            return PokemonMapper.map(from: pkm)
+        }
+    }
+}
+```
+
+**暫定対応（2025-10-07）**:
+1. **並列度の削減**
+   - バッチサイズを50 → 10に変更
+   - ネットワークの負荷を軽減
+
+2. **エラーハンドリングの改善**
+   ```swift
+   catch {
+       // キャンセルエラーは無視、その他のエラーのみログ出力
+       if let urlError = error as? URLError, urlError.code == .cancelled {
+           return nil
+       }
+       print("⚠️ Failed to fetch Pokemon from \(resource.url ?? "unknown"): \(error)")
+       return nil
+   }
+   ```
+
+**根本的な改善案**:
+1. **初回起動時の遅延読み込み**
+   - 起動時は必要最小限のデータのみ取得（例: 第1世代のみ）
+   - 残りはバックグラウンドで段階的に取得
+
+2. **永続的キャッシュの導入**
+   - ローカルDBに保存して2回目以降の起動を高速化
+   - 初回同期は時間がかかることをユーザーに明示
+
+3. **適応的並列度制御**
+   - ネットワーク状況に応じて動的にバッチサイズを調整
+   - エラー率が高い場合は自動的に並列度を下げる
+
+**実装の優先度**: 高（暫定対応済み、根本解決は中期的課題）
+**推定工数**: 大（1週間 - ローカルDB導入含む）
+
+**関連ファイル**:
+- `Pokedex/Data/Network/PokemonAPIClient.swift:115-222`
+- `Pokedex/Data/Repositories/PokemonRepository.swift:85, 109`
+
+---
+
+### 2. 技フィルターのパフォーマンス問題
 
 **現状の問題**:
 - 技フィルターを適用すると、選択されているポケモン全体（数百〜数千匹）に対してAPI呼び出しを行うため、処理に非常に時間がかかる

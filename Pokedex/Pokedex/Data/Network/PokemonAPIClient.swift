@@ -116,8 +116,8 @@ final class PokemonAPIClient {
         let totalCount = idRange.count
         var pokemons: [Pokemon] = []
 
-        // バッチサイズ: 50件
-        let batchSize = 50
+        // バッチサイズ: 10件（並列度を下げて安定性向上）
+        let batchSize = 10
 
         for batchStart in stride(from: idRange.lowerBound, through: idRange.upperBound, by: batchSize) {
             let batchEnd = min(batchStart + batchSize - 1, idRange.upperBound)
@@ -129,8 +129,11 @@ final class PokemonAPIClient {
                         do {
                             return try await self.fetchPokemon(id)
                         } catch {
-                            // エラーが発生したポケモンはスキップ
-                            print("Failed to fetch Pokemon #\(id): \(error)")
+                            // キャンセルエラーは無視、その他のエラーはログ出力
+                            if let urlError = error as? URLError, urlError.code == .cancelled {
+                                return nil
+                            }
+                            print("⚠️ Failed to fetch Pokemon #\(id): \(error)")
                             return nil
                         }
                     }
@@ -177,8 +180,8 @@ final class PokemonAPIClient {
         let totalCount = results.count
         var pokemons: [Pokemon] = []
 
-        // バッチサイズ: 50件
-        let batchSize = 50
+        // バッチサイズ: 10件（並列度を下げて安定性向上）
+        let batchSize = 10
 
         for batchStart in stride(from: 0, to: results.count, by: batchSize) {
             let batchEnd = min(batchStart + batchSize, results.count)
@@ -191,7 +194,12 @@ final class PokemonAPIClient {
                             let pkm = try await self.pokemonAPI.resourceService.fetch(resource)
                             return PokemonMapper.map(from: pkm)
                         } catch {
-                            print("Failed to fetch Pokemon: \(error)")
+                            // キャンセルエラーは無視、その他のエラーはログ出力
+                            if let urlError = error as? URLError, urlError.code == .cancelled {
+                                // キャンセルは無視（タスクグループの正常な動作）
+                                return nil
+                            }
+                            print("⚠️ Failed to fetch Pokemon from \(resource.url ?? "unknown"): \(error)")
                             return nil
                         }
                     }
@@ -268,5 +276,47 @@ final class PokemonAPIClient {
 
     func fetchRawPokemon(_ id: Int) async throws -> PKMPokemon {
         return try await pokemonAPI.pokemonService.fetchPokemon(id)
+    }
+
+    // MARK: - Pokemon Forms
+
+    func fetchPokemonForms(pokemonId: Int) async throws -> [PokemonForm] {
+        let pkm = try await pokemonAPI.pokemonService.fetchPokemon(pokemonId)
+        return PokemonFormMapper.map(from: pkm)
+    }
+
+    // MARK: - Pokemon Locations
+
+    func fetchPokemonLocations(pokemonId: Int) async throws -> [PokemonLocation] {
+        // PokéAPIの/pokemon/{id}/encountersエンドポイントを直接呼び出す
+        // PokemonAPIライブラリにはこのメソッドがないため、空配列を返す
+        // TODO: Phase 1-7で適切に実装
+        return []
+    }
+
+    // MARK: - Type Details
+
+    func fetchTypeDetail(typeName: String) async throws -> TypeDetail {
+        let pkmType = try await pokemonAPI.pokemonService.fetchType(typeName)
+        return TypeDetailMapper.map(from: pkmType)
+    }
+
+    // MARK: - Ability Details
+
+    func fetchAbilityDetail(abilityId: Int) async throws -> AbilityDetail {
+        let pkmAbility = try await pokemonAPI.pokemonService.fetchAbility(abilityId)
+        return AbilityDetailMapper.map(from: pkmAbility, isHidden: false)
+    }
+
+    func fetchAbilityDetail(abilityName: String, isHidden: Bool = false) async throws -> AbilityDetail {
+        let pkmAbility = try await pokemonAPI.pokemonService.fetchAbility(abilityName)
+        return AbilityDetailMapper.map(from: pkmAbility, isHidden: isHidden)
+    }
+
+    // MARK: - Flavor Text
+
+    func fetchFlavorText(speciesId: Int, versionGroup: String?) async throws -> PokemonFlavorText? {
+        let species = try await pokemonAPI.pokemonService.fetchPokemonSpecies(speciesId)
+        return FlavorTextMapper.mapFlavorText(from: species, versionGroup: versionGroup)
     }
 }
