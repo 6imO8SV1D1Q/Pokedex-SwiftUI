@@ -169,4 +169,26 @@ final class PokemonRepository: PokemonRepositoryProtocol {
 
         return versionGroupPokemons
     }
+
+    // MARK: - v3.0 新規メソッド（スタブ実装）
+
+    func fetchPokemonForms(pokemonId: Int) async throws -> [PokemonForm] {
+        // TODO: フェーズ1-7で実装
+        fatalError("Not implemented yet")
+    }
+
+    func fetchPokemonLocations(pokemonId: Int) async throws -> [PokemonLocation] {
+        // TODO: フェーズ1-7で実装
+        fatalError("Not implemented yet")
+    }
+
+    func fetchFlavorText(speciesId: Int, versionGroup: String?) async throws -> PokemonFlavorText? {
+        // TODO: フェーズ1-7で実装
+        fatalError("Not implemented yet")
+    }
+
+    func fetchEvolutionChainEntity(speciesId: Int) async throws -> EvolutionChainEntity {
+        // TODO: フェーズ1-7で実装
+        fatalError("Not implemented yet")
+    }
 }

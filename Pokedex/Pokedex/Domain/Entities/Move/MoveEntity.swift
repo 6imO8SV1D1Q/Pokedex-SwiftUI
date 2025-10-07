@@ -15,9 +15,62 @@ struct MoveEntity: Identifiable, Equatable {
     let name: String
     /// 技のタイプ
     let type: PokemonType
+    /// 威力（nilの場合は変化技）
+    let power: Int?
+    /// 命中率（nilの場合は必中）
+    let accuracy: Int?
+    /// PP
+    let pp: Int?
+    /// ダメージクラス（"physical", "special", "status"）
+    let damageClass: String
 
     /// IDで等価性を判定
     static func == (lhs: MoveEntity, rhs: MoveEntity) -> Bool {
         lhs.id == rhs.id
+    }
+
+    // MARK: - Computed Properties
+
+    /// 威力の表示用テキスト
+    var displayPower: String {
+        power.map(String.init) ?? "-"
+    }
+
+    /// 命中率の表示用テキスト
+    var displayAccuracy: String {
+        accuracy.map(String.init) ?? "-"
+    }
+
+    /// PPの表示用テキスト
+    var displayPP: String {
+        pp.map(String.init) ?? "-"
+    }
+
+    /// 分類アイコン
+    var categoryIcon: String {
+        switch damageClass {
+        case "physical":
+            return "💥"  // 物理
+        case "special":
+            return "✨"  // 特殊
+        case "status":
+            return "🔄"  // 変化
+        default:
+            return ""
+        }
+    }
+
+    /// 分類の表示名
+    var categoryDisplayName: String {
+        switch damageClass {
+        case "physical":
+            return "物理"
+        case "special":
+            return "特殊"
+        case "status":
+            return "変化"
+        default:
+            return damageClass
+        }
     }
 }

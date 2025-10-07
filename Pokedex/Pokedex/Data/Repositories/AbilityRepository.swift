@@ -31,4 +31,11 @@ final class AbilityRepository: AbilityRepositoryProtocol {
         cache = abilities
         return abilities
     }
+
+    // MARK: - v3.0 新規メソッド（スタブ実装）
+
+    func fetchAbilityDetail(abilityId: Int) async throws -> AbilityDetail {
+        // TODO: フェーズ1-7で実装
+        fatalError("Not implemented yet")
+    }
 }
