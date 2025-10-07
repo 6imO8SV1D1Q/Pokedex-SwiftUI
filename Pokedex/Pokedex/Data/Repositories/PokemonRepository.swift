@@ -13,6 +13,10 @@ final class PokemonRepository: PokemonRepositoryProtocol {
     private var listCache: [Pokemon]?
     private var versionGroupCaches: [String: [Pokemon]] = [:]
 
+    // v3.0 新規キャッシュ
+    private let formCache = FormCache()
+    private let locationCache = LocationCache()
+
     init(apiClient: PokemonAPIClient = PokemonAPIClient()) {
         self.apiClient = apiClient
     }
@@ -170,25 +174,84 @@ final class PokemonRepository: PokemonRepositoryProtocol {
         return versionGroupPokemons
     }
 
-    // MARK: - v3.0 新規メソッド（スタブ実装）
+    // MARK: - v3.0 新規メソッド
 
     func fetchPokemonForms(pokemonId: Int) async throws -> [PokemonForm] {
-        // TODO: フェーズ1-7で実装
-        fatalError("Not implemented yet")
+        // キャッシュチェック
+        if let cached = await formCache.get(pokemonId: pokemonId) {
+            return cached
+        }
+
+        // API呼び出し
+        let forms = try await apiClient.fetchPokemonForms(pokemonId: pokemonId)
+
+        // キャッシュに保存
+        await formCache.set(pokemonId: pokemonId, forms: forms)
+
+        return forms
     }
 
     func fetchPokemonLocations(pokemonId: Int) async throws -> [PokemonLocation] {
-        // TODO: フェーズ1-7で実装
-        fatalError("Not implemented yet")
+        // キャッシュチェック
+        if let cached = await locationCache.get(pokemonId: pokemonId) {
+            return cached
+        }
+
+        // API呼び出し
+        let locations = try await apiClient.fetchPokemonLocations(pokemonId: pokemonId)
+
+        // キャッシュに保存
+        await locationCache.set(pokemonId: pokemonId, locations: locations)
+
+        return locations
     }
 
     func fetchFlavorText(speciesId: Int, versionGroup: String?) async throws -> PokemonFlavorText? {
-        // TODO: フェーズ1-7で実装
-        fatalError("Not implemented yet")
+        // 図鑑テキストは頻繁に変わらないので、APIから直接取得
+        return try await apiClient.fetchFlavorText(speciesId: speciesId, versionGroup: versionGroup)
     }
 
     func fetchEvolutionChainEntity(speciesId: Int) async throws -> EvolutionChainEntity {
-        // TODO: フェーズ1-7で実装
-        fatalError("Not implemented yet")
+        // speciesIdから進化チェーンIDを取得
+        let species = try await apiClient.fetchPokemonSpecies(speciesId)
+
+        guard let evolutionChainId = species.evolutionChain.id else {
+            // 進化チェーンがない場合は、単体のノードを返す
+            let pokemon = try await fetchPokemonDetail(id: speciesId)
+            let singleNode = EvolutionNode(
+                id: speciesId,
+                speciesId: speciesId,
+                name: pokemon.name,
+                imageUrl: pokemon.sprites.other?.home?.frontDefault,
+                types: pokemon.types.map { $0.name },
+                evolvesTo: [],
+                evolvesFrom: nil
+            )
+            return EvolutionChainEntity(
+                id: speciesId,
+                rootNode: singleNode
+            )
+        }
+
+        // 既存のEvolutionChainを取得し、EvolutionChainEntityに変換
+        let chain = try await fetchEvolutionChain(id: evolutionChainId)
+
+        // TODO: Phase 2以降で完全な実装
+        // 現在は簡易的にEvolutionChainEntityを構築
+        let pokemon = try await fetchPokemonDetail(id: speciesId)
+        let rootNode = EvolutionNode(
+            id: evolutionChainId,
+            speciesId: speciesId,
+            name: pokemon.name,
+            imageUrl: pokemon.sprites.other?.home?.frontDefault,
+            types: pokemon.types.map { $0.name },
+            evolvesTo: [],
+            evolvesFrom: nil
+        )
+
+        return EvolutionChainEntity(
+            id: evolutionChainId,
+            rootNode: rootNode
+        )
     }
 }
