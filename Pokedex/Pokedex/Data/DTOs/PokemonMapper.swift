@@ -138,11 +138,17 @@ enum PokemonMapper {
             // 最新の習得方法を取得（versionGroupDetailsの最後の要素）
             guard let latestDetail = move.versionGroupDetails?.last else { return nil }
 
+            let learnMethod = latestDetail.moveLearnMethod?.name ?? "unknown"
+
+            // レベルアップ技の場合のみlevelを設定
+            let level: Int? = (learnMethod == "level-up") ? latestDetail.levelLearnedAt : nil
+
             return PokemonMove(
                 id: moveId,
                 name: moveName,
-                learnMethod: latestDetail.moveLearnMethod?.name ?? "unknown",
-                level: latestDetail.levelLearnedAt
+                learnMethod: learnMethod,
+                level: level,
+                machineNumber: nil  // マシン番号は技詳細取得時に設定
             )
         }
     }

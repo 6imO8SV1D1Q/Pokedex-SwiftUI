@@ -324,4 +324,13 @@ final class PokemonAPIClient {
         let species = try await pokemonAPI.pokemonService.fetchPokemonSpecies(speciesId)
         return FlavorTextMapper.mapFlavorText(from: species, versionGroup: versionGroup)
     }
+
+    // MARK: - Machine API
+
+    /// マシン情報を取得
+    /// - Parameter machineId: マシンID
+    /// - Returns: PKMMachine（マシン情報）
+    func fetchMachine(_ machineId: Int) async throws -> PKMMachine {
+        return try await pokemonAPI.machineService.fetchMachine(machineId)
+    }
 }

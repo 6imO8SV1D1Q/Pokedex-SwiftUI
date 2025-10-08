@@ -135,20 +135,41 @@ struct MoveRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center, spacing: 12) {
-                // レベル表示（レベルアップ技の場合）
-                if let level = move.level {
-                    Text("Lv.\(level)")
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .frame(width: 50)
-                        .padding(.vertical, 4)
-                        .background(Color.blue)
-                        .cornerRadius(4)
-                } else {
-                    // レベルなしの場合はスペーサー
-                    Color.clear
-                        .frame(width: 50)
+                // レベルまたはマシン番号表示
+                switch move.learnMethod {
+                case "level-up":
+                    if let level = move.level, level > 0 {
+                        // レベルアップ技の場合
+                        Text("Lv.\(level)")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            .frame(width: 50)
+                            .padding(.vertical, 4)
+                            .background(Color.blue)
+                            .cornerRadius(4)
+                    } else {
+                        Color.clear.frame(width: 50)
+                    }
+
+                case "machine":
+                    if let machineNumber = moveDetail?.machineNumber {
+                        // マシンで習得する場合
+                        Text(machineNumber)
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            .frame(width: 50)
+                            .padding(.vertical, 4)
+                            .background(Color.purple)
+                            .cornerRadius(4)
+                    } else {
+                        Color.clear.frame(width: 50)
+                    }
+
+                default:
+                    // タマゴわざ、教え技などはスペーサーのみ
+                    Color.clear.frame(width: 50)
                 }
 
                 // 技名
@@ -223,25 +244,29 @@ struct MoveRow: View {
                 id: 1,
                 name: "tackle",
                 learnMethod: "level-up",
-                level: 1
+                level: 1,
+                machineNumber: nil
             ),
             PokemonMove(
                 id: 2,
                 name: "vine-whip",
                 learnMethod: "level-up",
-                level: 9
+                level: 9,
+                machineNumber: nil
             ),
             PokemonMove(
                 id: 3,
                 name: "solar-beam",
                 learnMethod: "machine",
-                level: nil
+                level: nil,
+                machineNumber: "TM22"
             ),
             PokemonMove(
                 id: 4,
                 name: "leaf-storm",
                 learnMethod: "tutor",
-                level: nil
+                level: nil,
+                machineNumber: nil
             )
         ],
         moveDetails: [:],  // 空の辞書

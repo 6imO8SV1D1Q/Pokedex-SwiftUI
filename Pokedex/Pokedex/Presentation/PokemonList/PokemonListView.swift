@@ -80,14 +80,14 @@ struct PokemonListView: View {
             }
             .navigationDestination(for: Pokemon.self) { pokemon in
                 PokemonDetailView(
-                    viewModel: PokemonDetailViewModel(pokemon: pokemon)
+                    viewModel: PokemonDetailViewModel(pokemon: pokemon, versionGroup: "scarlet-violet")
                 )
             }
             .navigationDestination(for: Int.self) { pokemonId in
                 // まずキャッシュを確認
                 if let pokemon = pokemonById[pokemonId] {
                     PokemonDetailView(
-                        viewModel: PokemonDetailViewModel(pokemon: pokemon)
+                        viewModel: PokemonDetailViewModel(pokemon: pokemon, versionGroup: "scarlet-violet")
                     )
                 } else {
                     // キャッシュにない場合は非同期で取得
