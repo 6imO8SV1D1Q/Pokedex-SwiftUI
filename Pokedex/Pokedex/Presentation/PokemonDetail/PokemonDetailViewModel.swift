@@ -66,6 +66,9 @@ final class PokemonDetailViewModel: ObservableObject {
     /// 図鑑テキスト
     @Published var flavorText: PokemonFlavorText?
 
+    /// ポケモン種族情報（性別比・たまごグループなど）
+    @Published var pokemonSpecies: PokemonSpecies?
+
     /// セクションの展開状態
     @Published var isSectionExpanded: [String: Bool] = [:]
 
@@ -82,6 +85,7 @@ final class PokemonDetailViewModel: ObservableObject {
     private let fetchAbilityDetailUseCase: FetchAbilityDetailUseCaseProtocol
     private let fetchFlavorTextUseCase: FetchFlavorTextUseCaseProtocol
     private let moveRepository: MoveRepositoryProtocol
+    private let pokemonRepository: PokemonRepositoryProtocol
 
     /// バージョングループ
     private let versionGroup: String?
@@ -130,6 +134,7 @@ final class PokemonDetailViewModel: ObservableObject {
     ///   - fetchAbilityDetailUseCase: 特性詳細取得UseCase（省略時はDIContainerから取得）
     ///   - fetchFlavorTextUseCase: 図鑑テキスト取得UseCase（省略時はDIContainerから取得）
     ///   - moveRepository: 技リポジトリ（省略時はDIContainerから取得）
+    ///   - pokemonRepository: ポケモンリポジトリ（省略時はDIContainerから取得）
     init(
         pokemon: Pokemon,
         versionGroup: String? = nil,
@@ -140,7 +145,8 @@ final class PokemonDetailViewModel: ObservableObject {
         fetchPokemonLocationsUseCase: FetchPokemonLocationsUseCaseProtocol? = nil,
         fetchAbilityDetailUseCase: FetchAbilityDetailUseCaseProtocol? = nil,
         fetchFlavorTextUseCase: FetchFlavorTextUseCaseProtocol? = nil,
-        moveRepository: MoveRepositoryProtocol? = nil
+        moveRepository: MoveRepositoryProtocol? = nil,
+        pokemonRepository: PokemonRepositoryProtocol? = nil
     ) {
         self.pokemon = pokemon
         self.versionGroup = versionGroup
@@ -152,6 +158,7 @@ final class PokemonDetailViewModel: ObservableObject {
         self.fetchAbilityDetailUseCase = fetchAbilityDetailUseCase ?? DIContainer.shared.makeFetchAbilityDetailUseCase()
         self.fetchFlavorTextUseCase = fetchFlavorTextUseCase ?? DIContainer.shared.makeFetchFlavorTextUseCase()
         self.moveRepository = moveRepository ?? DIContainer.shared.makeMoveRepository()
+        self.pokemonRepository = pokemonRepository ?? DIContainer.shared.makePokemonRepository()
     }
 
     // MARK: - Public Methods
@@ -193,11 +200,13 @@ final class PokemonDetailViewModel: ObservableObject {
             async let formsTask = fetchPokemonFormsUseCase.execute(pokemonId: id, versionGroup: versionGroup)
             async let locationsTask = fetchPokemonLocationsUseCase.execute(pokemonId: id, versionGroup: versionGroup)
             async let flavorTextTask = fetchFlavorTextUseCase.execute(speciesId: id, versionGroup: versionGroup)
+            async let speciesTask = pokemonRepository.fetchPokemonSpecies(id: pokemon.speciesId)
 
             // 結果を待機
             availableForms = try await formsTask
             locations = try await locationsTask
             flavorText = try await flavorTextTask
+            pokemonSpecies = try await speciesTask
 
             // デフォルトフォームを選択
             selectedForm = availableForms.first(where: { $0.isDefault }) ?? availableForms.first
