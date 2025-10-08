@@ -104,8 +104,18 @@ struct PokemonDetailView: View {
                     )
                 }
 
-                // 進化チェーン（v2互換）
-                if !viewModel.evolutionChain.isEmpty {
+                // 進化チェーン
+                if let evolutionChainEntity = viewModel.evolutionChainEntity {
+                    // v3.0: ツリー構造の進化チェーン
+                    ExpandableSection(
+                        title: "進化",
+                        systemImage: "arrow.triangle.branch",
+                        isExpanded: sectionBinding("evolution")
+                    ) {
+                        EvolutionChainView(chain: evolutionChainEntity)
+                    }
+                } else if !viewModel.evolutionChain.isEmpty {
+                    // v2互換: 単純なIDリストの進化チェーン
                     ExpandableSection(
                         title: "進化",
                         systemImage: "arrow.triangle.branch",
@@ -116,6 +126,10 @@ struct PokemonDetailView: View {
                 }
             }
             .padding(DesignConstants.Spacing.medium)
+        }
+        .navigationDestination(for: Int.self) { pokemonId in
+            // 進化チェーンからのナビゲーション
+            PokemonLoadingView(pokemonId: pokemonId) { _ in }
         }
         .navigationTitle(viewModel.pokemon.displayName)
         .navigationBarTitleDisplayMode(.inline)
@@ -326,28 +340,31 @@ struct PokemonDetailView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: DesignConstants.Spacing.small) {
                 ForEach(Array(viewModel.evolutionChain.enumerated()), id: \.offset) { index, pokemonId in
-                    VStack(spacing: DesignConstants.Spacing.xxSmall) {
-                        AsyncImage(url: URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/\(pokemonId).png")) { phase in
-                            switch phase {
-                            case .empty:
-                                ProgressView()
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                            case .failure:
-                                Image(systemName: "questionmark.circle")
-                                    .foregroundColor(.gray)
-                            @unknown default:
-                                EmptyView()
+                    NavigationLink(value: pokemonId) {
+                        VStack(spacing: DesignConstants.Spacing.xxSmall) {
+                            AsyncImage(url: URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/\(pokemonId).png")) { phase in
+                                switch phase {
+                                case .empty:
+                                    ProgressView()
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                case .failure:
+                                    Image(systemName: "questionmark.circle")
+                                        .foregroundColor(.gray)
+                                @unknown default:
+                                    EmptyView()
+                                }
                             }
-                        }
-                        .frame(width: DesignConstants.ImageSize.small, height: DesignConstants.ImageSize.small)
+                            .frame(width: DesignConstants.ImageSize.small, height: DesignConstants.ImageSize.small)
 
-                        Text(String(format: "#%03d", pokemonId))
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
+                            Text(String(format: "#%03d", pokemonId))
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
                     }
+                    .buttonStyle(PlainButtonStyle())
 
                     if index < viewModel.evolutionChain.count - 1 {
                         Image(systemName: "arrow.right")

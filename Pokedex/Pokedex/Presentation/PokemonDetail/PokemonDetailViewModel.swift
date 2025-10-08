@@ -31,8 +31,11 @@ final class PokemonDetailViewModel: ObservableObject {
     /// エラー表示フラグ
     @Published var showError = false
 
-    /// 進化チェーン（ポケモンIDのリスト）
+    /// 進化チェーン（ポケモンIDのリスト）- v2互換
     @Published var evolutionChain: [Int] = []
+
+    /// 進化チェーン（ツリー構造）- v3.0
+    @Published var evolutionChainEntity: EvolutionChainEntity?
 
     /// 選択された技の習得方法
     @Published var selectedLearnMethod = "level-up"
@@ -153,7 +156,20 @@ final class PokemonDetailViewModel: ObservableObject {
 
     /// 進化チェーンを読み込む
     func loadEvolutionChain() async {
+        // v2互換とv3.0の両方を読み込む
         await loadEvolutionChainWithRetry()
+        await loadEvolutionChainV3()
+    }
+
+    /// v3.0進化チェーンを読み込む
+    private func loadEvolutionChainV3() async {
+        do {
+            evolutionChainEntity = try await fetchEvolutionChainUseCase.executeV3(pokemonId: pokemon.id)
+        } catch {
+            // v3.0進化チェーン取得失敗は致命的ではないため、ログのみ
+            print("Failed to load evolution chain v3: \(error)")
+            evolutionChainEntity = nil
+        }
     }
 
     // MARK: - v3.0 新規メソッド

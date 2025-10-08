@@ -158,16 +158,24 @@ struct EvolutionChainEntity: Equatable {
     /// ルートノード（進化前のポケモン）
     let rootNode: EvolutionNode
 
-    /// ツリー構造を平坦化したノードリスト（表示用）
-    var allNodes: [EvolutionNode] {
-        flattenTree(node: rootNode)
+    /// 種族IDからノードへのマップ（効率的な検索用）
+    let nodeMap: [Int: EvolutionNode]
+
+    nonisolated init(id: Int, rootNode: EvolutionNode, nodeMap: [Int: EvolutionNode] = [:]) {
+        self.id = id
+        self.rootNode = rootNode
+        self.nodeMap = nodeMap.isEmpty ? Self.buildNodeMap(from: rootNode) : nodeMap
     }
 
-    /// ツリーを平坦化してリストに変換
-    private func flattenTree(node: EvolutionNode) -> [EvolutionNode] {
-        let result = [node]
-        // 再帰的に子ノードを追加
-        // 注: この実装は簡略化されています。実際の実装時に詳細化が必要です。
-        return result
+    /// ノードマップを構築（再帰的）
+    private nonisolated static func buildNodeMap(from node: EvolutionNode) -> [Int: EvolutionNode] {
+        let map: [Int: EvolutionNode] = [node.speciesId: node]
+        // 注: 完全な実装はRepositoryレベルで行われるため、ここではルートノードのみ
+        return map
+    }
+
+    /// ツリー構造を平坦化したノードリスト（表示用）
+    var allNodes: [EvolutionNode] {
+        Array(nodeMap.values)
     }
 }

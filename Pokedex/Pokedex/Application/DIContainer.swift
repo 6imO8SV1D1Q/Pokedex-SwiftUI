@@ -38,6 +38,10 @@ final class DIContainer: ObservableObject {
         FetchPokemonListUseCase(repository: pokemonRepository)
     }
 
+    func makeFetchPokemonDetailUseCase() -> FetchPokemonDetailUseCaseProtocol {
+        FetchPokemonDetailUseCase(repository: pokemonRepository)
+    }
+
     func makeFetchEvolutionChainUseCase() -> FetchEvolutionChainUseCaseProtocol {
         FetchEvolutionChainUseCase(repository: pokemonRepository)
     }

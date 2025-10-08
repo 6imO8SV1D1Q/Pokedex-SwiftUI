@@ -14,6 +14,12 @@ protocol FetchEvolutionChainUseCaseProtocol {
     /// - Returns: 進化チェーンに含まれるポケモンIDの配列
     /// - Throws: ネットワークエラー、データ解析エラーなど
     func execute(pokemonId: Int) async throws -> [Int]
+
+    /// 指定されたポケモンの進化チェーンをツリー構造で取得（v3.0）
+    /// - Parameter pokemonId: ポケモンの図鑑番号
+    /// - Returns: 進化チェーンのツリー構造
+    /// - Throws: ネットワークエラー、データ解析エラーなど
+    func executeV3(pokemonId: Int) async throws -> EvolutionChainEntity
 }
 
 /// ポケモンの進化チェーンを取得するUseCase
@@ -77,5 +83,15 @@ final class FetchEvolutionChainUseCase: FetchEvolutionChainUseCaseProtocol {
         for evolvedForm in chainLink.evolvesTo {
             extractPokemonIds(from: evolvedForm, into: &ids)
         }
+    }
+
+    /// 指定されたポケモンの進化チェーンをツリー構造で取得（v3.0）
+    ///
+    /// - Parameter pokemonId: ポケモンの図鑑番号
+    /// - Returns: 進化チェーンのツリー構造
+    /// - Throws: ネットワークエラー、データ解析エラーなど
+    func executeV3(pokemonId: Int) async throws -> EvolutionChainEntity {
+        // repositoryのfetchEvolutionChainEntityメソッドを使用
+        return try await repository.fetchEvolutionChainEntity(speciesId: pokemonId)
     }
 }

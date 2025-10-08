@@ -74,6 +74,11 @@ final class PokemonAPIClient {
         return EvolutionChainMapper.map(from: chain)
     }
 
+    /// PKMEvolutionChainを直接取得（v3.0用）
+    func fetchPKMEvolutionChain(_ id: Int) async throws -> PKMEvolutionChain {
+        return try await pokemonAPI.evolutionService.fetchEvolutionChain(id)
+    }
+
     func fetchAllAbilities() async throws -> [String] {
         // 第1世代のポケモン（1-151）から全特性を収集
         let pagedObject = try await pokemonAPI.pokemonService.fetchPokemonList(
