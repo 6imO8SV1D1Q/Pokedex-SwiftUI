@@ -58,7 +58,8 @@ final class MoveRepository: MoveRepositoryProtocol {
                 power: nil,
                 accuracy: nil,
                 pp: nil,
-                damageClass: "status"
+                damageClass: "status",
+                effect: nil  // 説明文は個別取得時に設定
             )
         }
 
@@ -123,7 +124,7 @@ final class MoveRepository: MoveRepositoryProtocol {
             machine: nil  // TODO: TM/TR番号の取得
         )
 
-        let moveEntity = try await fetchMoveEntity(moveId: moveId)
+        let moveEntity = try await fetchMoveDetail(moveId: moveId)
 
         return MoveLearnMethod(
             move: moveEntity,
@@ -165,8 +166,11 @@ final class MoveRepository: MoveRepositoryProtocol {
     /// 技の詳細情報を取得してEntityに変換
     /// - Parameter moveId: 技ID
     /// - Returns: 技Entity
-    private func fetchMoveEntity(moveId: Int) async throws -> MoveEntity {
+    func fetchMoveDetail(moveId: Int) async throws -> MoveEntity {
         let moveDetail = try await apiClient.fetchMove(moveId)
+
+        // 説明文を取得（英語版のeffectを優先）
+        let effect = moveDetail.effectEntries?.first(where: { $0.language?.name == "en" })?.effect
 
         return MoveEntity(
             id: moveId,
@@ -178,7 +182,8 @@ final class MoveRepository: MoveRepositoryProtocol {
             power: moveDetail.power,
             accuracy: moveDetail.accuracy,
             pp: moveDetail.pp,
-            damageClass: moveDetail.damageClass?.name ?? "status"
+            damageClass: moveDetail.damageClass?.name ?? "status",
+            effect: effect
         )
     }
 

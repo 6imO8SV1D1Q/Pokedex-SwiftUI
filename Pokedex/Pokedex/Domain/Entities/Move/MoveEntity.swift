@@ -23,6 +23,8 @@ struct MoveEntity: Identifiable, Equatable {
     let pp: Int?
     /// ダメージクラス（"physical", "special", "status"）
     let damageClass: String
+    /// 技の説明文（effectテキスト）
+    let effect: String?
 
     /// IDで等価性を判定
     static func == (lhs: MoveEntity, rhs: MoveEntity) -> Bool {
@@ -72,5 +74,10 @@ struct MoveEntity: Identifiable, Equatable {
         default:
             return damageClass
         }
+    }
+
+    /// 説明文の表示用テキスト
+    var displayEffect: String {
+        effect ?? "説明なし"
     }
 }

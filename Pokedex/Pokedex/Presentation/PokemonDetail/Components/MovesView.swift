@@ -10,6 +10,7 @@ import SwiftUI
 /// 技リスト表示ビュー
 struct MovesView: View {
     let moves: [PokemonMove]
+    let moveDetails: [String: MoveEntity]  // 技詳細情報
     @Binding var selectedLearnMethod: String
 
     /// 利用可能な習得方法一覧
@@ -54,7 +55,10 @@ struct MovesView: View {
                 ScrollView {
                     LazyVStack(spacing: 8) {
                         ForEach(filteredMoves, id: \.name) { move in
-                            MoveRow(move: move)
+                            MoveRow(
+                                move: move,
+                                moveDetail: moveDetails[move.name]
+                            )
                         }
                     }
                 }
@@ -121,30 +125,89 @@ struct LearnMethodPicker: View {
 /// 個別技の行
 struct MoveRow: View {
     let move: PokemonMove
+    let moveDetail: MoveEntity?  // 技詳細情報（オプショナル）
+
+    init(move: PokemonMove, moveDetail: MoveEntity? = nil) {
+        self.move = move
+        self.moveDetail = moveDetail
+    }
 
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            // レベル表示（レベルアップ技の場合）
-            if let level = move.level {
-                Text("Lv.\(level)")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .frame(width: 50)
-                    .padding(.vertical, 4)
-                    .background(Color.blue)
-                    .cornerRadius(4)
-            } else {
-                // レベルなしの場合はスペーサー
-                Color.clear
-                    .frame(width: 50)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .center, spacing: 12) {
+                // レベル表示（レベルアップ技の場合）
+                if let level = move.level {
+                    Text("Lv.\(level)")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .frame(width: 50)
+                        .padding(.vertical, 4)
+                        .background(Color.blue)
+                        .cornerRadius(4)
+                } else {
+                    // レベルなしの場合はスペーサー
+                    Color.clear
+                        .frame(width: 50)
+                }
+
+                // 技名
+                Text(move.displayName)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+
+                Spacer()
+
+                // 技詳細情報（取得済みの場合）
+                if let detail = moveDetail {
+                    // タイプバッジ
+                    Text(detail.type.japaneseName)
+                        .typeBadgeStyle(detail.type)
+                        .font(.caption)
+                }
             }
 
-            // 技名
-            Text(move.displayName)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            // 詳細情報行
+            if let detail = moveDetail {
+                HStack(spacing: 16) {
+                    // 分類
+                    Text(detail.categoryDisplayName)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    // 威力
+                    HStack(spacing: 2) {
+                        Text("威力:")
+                        Text(detail.displayPower)
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                    // 命中率
+                    HStack(spacing: 2) {
+                        Text("命中:")
+                        Text(detail.displayAccuracy)
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                    // PP
+                    HStack(spacing: 2) {
+                        Text("PP:")
+                        Text(detail.displayPP)
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                }
+
+                // 説明文
+                if let effect = detail.effect {
+                    Text(effect)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
@@ -157,26 +220,31 @@ struct MoveRow: View {
     MovesView(
         moves: [
             PokemonMove(
+                id: 1,
                 name: "tackle",
                 learnMethod: "level-up",
                 level: 1
             ),
             PokemonMove(
+                id: 2,
                 name: "vine-whip",
                 learnMethod: "level-up",
                 level: 9
             ),
             PokemonMove(
+                id: 3,
                 name: "solar-beam",
                 learnMethod: "machine",
                 level: nil
             ),
             PokemonMove(
+                id: 4,
                 name: "leaf-storm",
                 learnMethod: "tutor",
                 level: nil
             )
         ],
+        moveDetails: [:],  // 空の辞書
         selectedLearnMethod: .constant("level-up")
     )
 }

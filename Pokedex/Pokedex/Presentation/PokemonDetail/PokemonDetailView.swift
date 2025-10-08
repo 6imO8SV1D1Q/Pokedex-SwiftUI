@@ -100,6 +100,7 @@ struct PokemonDetailView: View {
                 ) {
                     MovesView(
                         moves: viewModel.pokemon.moves,
+                        moveDetails: viewModel.moveDetails,
                         selectedLearnMethod: $viewModel.selectedLearnMethod
                     )
                 }

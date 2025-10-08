@@ -60,6 +60,9 @@ final class PokemonDetailViewModel: ObservableObject {
     /// 特性詳細（特性名 -> 詳細情報）
     @Published var abilityDetails: [String: AbilityDetail] = [:]
 
+    /// 技詳細（技名 -> 詳細情報）
+    @Published var moveDetails: [String: MoveEntity] = [:]
+
     /// 図鑑テキスト
     @Published var flavorText: PokemonFlavorText?
 
@@ -78,6 +81,7 @@ final class PokemonDetailViewModel: ObservableObject {
     private let fetchPokemonLocationsUseCase: FetchPokemonLocationsUseCaseProtocol
     private let fetchAbilityDetailUseCase: FetchAbilityDetailUseCaseProtocol
     private let fetchFlavorTextUseCase: FetchFlavorTextUseCaseProtocol
+    private let moveRepository: MoveRepositoryProtocol
 
     /// バージョングループ
     private let versionGroup: String?
@@ -125,6 +129,7 @@ final class PokemonDetailViewModel: ObservableObject {
     ///   - fetchPokemonLocationsUseCase: 出現場所取得UseCase（省略時はDIContainerから取得）
     ///   - fetchAbilityDetailUseCase: 特性詳細取得UseCase（省略時はDIContainerから取得）
     ///   - fetchFlavorTextUseCase: 図鑑テキスト取得UseCase（省略時はDIContainerから取得）
+    ///   - moveRepository: 技リポジトリ（省略時はDIContainerから取得）
     init(
         pokemon: Pokemon,
         versionGroup: String? = nil,
@@ -134,7 +139,8 @@ final class PokemonDetailViewModel: ObservableObject {
         calculateStatsUseCase: CalculateStatsUseCaseProtocol? = nil,
         fetchPokemonLocationsUseCase: FetchPokemonLocationsUseCaseProtocol? = nil,
         fetchAbilityDetailUseCase: FetchAbilityDetailUseCaseProtocol? = nil,
-        fetchFlavorTextUseCase: FetchFlavorTextUseCaseProtocol? = nil
+        fetchFlavorTextUseCase: FetchFlavorTextUseCaseProtocol? = nil,
+        moveRepository: MoveRepositoryProtocol? = nil
     ) {
         self.pokemon = pokemon
         self.versionGroup = versionGroup
@@ -145,6 +151,7 @@ final class PokemonDetailViewModel: ObservableObject {
         self.fetchPokemonLocationsUseCase = fetchPokemonLocationsUseCase ?? DIContainer.shared.makeFetchPokemonLocationsUseCase()
         self.fetchAbilityDetailUseCase = fetchAbilityDetailUseCase ?? DIContainer.shared.makeFetchAbilityDetailUseCase()
         self.fetchFlavorTextUseCase = fetchFlavorTextUseCase ?? DIContainer.shared.makeFetchFlavorTextUseCase()
+        self.moveRepository = moveRepository ?? DIContainer.shared.makeMoveRepository()
     }
 
     // MARK: - Public Methods
@@ -197,6 +204,9 @@ final class PokemonDetailViewModel: ObservableObject {
 
             // フォーム依存データを読み込む
             await loadFormDependentData()
+
+            // 技詳細を読み込む
+            await loadMoveDetails(moves: pokemon.moves)
 
             isLoading = false
         } catch {
@@ -251,6 +261,32 @@ final class PokemonDetailViewModel: ObservableObject {
             for await result in group {
                 if let (name, detail) = result {
                     abilityDetails[name] = detail
+                }
+            }
+        }
+    }
+
+    /// 技詳細を並列で読み込む
+    /// - Parameter moves: 技のリスト
+    func loadMoveDetails(moves: [PokemonMove]) async {
+        await withTaskGroup(of: (String, MoveEntity)?.self) { group in
+            for move in moves {
+                group.addTask {
+                    do {
+                        // 技IDから詳細を取得
+                        let detail = try await self.moveRepository.fetchMoveDetail(moveId: move.id)
+                        return (move.name, detail)
+                    } catch {
+                        // エラーの場合はnilを返す（個別の技取得失敗は無視）
+                        print("Failed to fetch move detail for \(move.name): \(error)")
+                        return nil
+                    }
+                }
+            }
+
+            for await result in group {
+                if let (name, detail) = result {
+                    moveDetails[name] = detail
                 }
             }
         }
