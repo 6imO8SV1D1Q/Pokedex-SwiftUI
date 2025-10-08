@@ -25,6 +25,8 @@ struct MoveEntity: Identifiable, Equatable {
     let damageClass: String
     /// 技の説明文（effectテキスト）
     let effect: String?
+    /// 技マシン番号（例: "TM24", "HM03", "TR12"）
+    let machineNumber: String?
 
     /// IDで等価性を判定
     static func == (lhs: MoveEntity, rhs: MoveEntity) -> Bool {

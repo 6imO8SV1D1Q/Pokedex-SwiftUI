@@ -282,8 +282,8 @@ final class PokemonDetailViewModel: ObservableObject {
             for move in moves {
                 group.addTask {
                     do {
-                        // 技IDから詳細を取得
-                        let detail = try await self.moveRepository.fetchMoveDetail(moveId: move.id)
+                        // 技IDから詳細を取得（バージョングループを渡してマシン番号も取得）
+                        let detail = try await self.moveRepository.fetchMoveDetail(moveId: move.id, versionGroup: self.versionGroup)
                         return (move.name, detail)
                     } catch {
                         // エラーの場合はnilを返す（個別の技取得失敗は無視）

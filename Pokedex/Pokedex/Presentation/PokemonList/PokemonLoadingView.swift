@@ -39,7 +39,7 @@ struct PokemonLoadingView: View {
                 }
             } else if let pokemon = pokemon {
                 PokemonDetailView(
-                    viewModel: PokemonDetailViewModel(pokemon: pokemon)
+                    viewModel: PokemonDetailViewModel(pokemon: pokemon, versionGroup: "scarlet-violet")
                 )
             } else if let errorMessage = errorMessage {
                 VStack {

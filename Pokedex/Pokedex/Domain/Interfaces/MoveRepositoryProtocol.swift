@@ -27,7 +27,9 @@ protocol MoveRepositoryProtocol {
     ) async throws -> [MoveLearnMethod]
 
     /// 技の詳細情報を取得
-    /// - Parameter moveId: 技ID
+    /// - Parameters:
+    ///   - moveId: 技ID
+    ///   - versionGroup: バージョングループ（マシン番号取得用、nilの場合は番号なし）
     /// - Returns: 技の詳細情報
-    func fetchMoveDetail(moveId: Int) async throws -> MoveEntity
+    func fetchMoveDetail(moveId: Int, versionGroup: String?) async throws -> MoveEntity
 }

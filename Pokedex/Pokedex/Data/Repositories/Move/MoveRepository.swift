@@ -59,7 +59,8 @@ final class MoveRepository: MoveRepositoryProtocol {
                 accuracy: nil,
                 pp: nil,
                 damageClass: "status",
-                effect: nil  // 説明文は個別取得時に設定
+                effect: nil,  // 説明文は個別取得時に設定
+                machineNumber: nil  // マシン番号は個別取得時に設定
             )
         }
 
@@ -121,10 +122,10 @@ final class MoveRepository: MoveRepositoryProtocol {
         let method = parseLearnMethod(
             methodName: versionGroupDetail.moveLearnMethod?.name ?? "",
             level: versionGroupDetail.levelLearnedAt,
-            machine: nil  // TODO: TM/TR番号の取得
+            machine: nil  // マシン番号はMoveEntityに含まれる
         )
 
-        let moveEntity = try await fetchMoveDetail(moveId: moveId)
+        let moveEntity = try await fetchMoveDetail(moveId: moveId, versionGroup: versionGroup)
 
         return MoveLearnMethod(
             move: moveEntity,
@@ -164,13 +165,18 @@ final class MoveRepository: MoveRepositoryProtocol {
     }
 
     /// 技の詳細情報を取得してEntityに変換
-    /// - Parameter moveId: 技ID
+    /// - Parameters:
+    ///   - moveId: 技ID
+    ///   - versionGroup: バージョングループ（マシン番号取得用）
     /// - Returns: 技Entity
-    func fetchMoveDetail(moveId: Int) async throws -> MoveEntity {
+    func fetchMoveDetail(moveId: Int, versionGroup: String?) async throws -> MoveEntity {
         let moveDetail = try await apiClient.fetchMove(moveId)
 
         // 説明文を取得（英語版のeffectを優先）
         let effect = moveDetail.effectEntries?.first(where: { $0.language?.name == "en" })?.effect
+
+        // マシン番号を取得（バージョングループが指定されている場合）
+        let machineNumber = await extractMachineNumber(from: moveDetail, versionGroup: versionGroup)
 
         return MoveEntity(
             id: moveId,
@@ -183,8 +189,51 @@ final class MoveRepository: MoveRepositoryProtocol {
             accuracy: moveDetail.accuracy,
             pp: moveDetail.pp,
             damageClass: moveDetail.damageClass?.name ?? "status",
-            effect: effect
+            effect: effect,
+            machineNumber: machineNumber
         )
+    }
+
+    /// マシン番号を抽出
+    /// - Parameters:
+    ///   - move: PKMMoveデータ
+    ///   - versionGroup: バージョングループ
+    /// - Returns: マシン番号（例: "TM24", "HM03", "TR12"）
+    private func extractMachineNumber(from move: PKMMove, versionGroup: String?) async -> String? {
+        guard let versionGroup = versionGroup,
+              let machines = move.machines else {
+            return nil
+        }
+
+        // バージョングループに対応するマシンを検索
+        for machine in machines {
+            if machine.versionGroup?.name == versionGroup,
+               let machineUrl = machine.machine?.url {
+                // URLからマシンIDを抽出（例: "https://pokeapi.co/api/v2/machine/1/" -> 1）
+                let components = machineUrl.split(separator: "/")
+                guard let machineIdString = components.last,
+                      let machineId = Int(machineIdString) else {
+                    continue
+                }
+
+                // Machine APIを呼び出してitem.nameを取得
+                do {
+                    let pkmMachine = try await apiClient.fetchMachine(machineId)
+                    guard let itemName = pkmMachine.item?.name else {
+                        continue
+                    }
+
+                    // item.nameを大文字化して返す（例: "tm24" -> "TM24", "hm03" -> "HM03", "tr11" -> "TR11"）
+                    return itemName.uppercased()
+                } catch {
+                    // Machine API取得失敗時はログ出力して次のマシンを試す
+                    print("Failed to fetch machine \(machineId): \(error)")
+                    continue
+                }
+            }
+        }
+
+        return nil
     }
 
     private func parseLearnMethod(
