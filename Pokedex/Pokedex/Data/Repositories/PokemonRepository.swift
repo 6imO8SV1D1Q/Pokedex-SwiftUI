@@ -233,23 +233,40 @@ final class PokemonRepository: PokemonRepositoryProtocol {
             )
         }
 
-        // TODO: Phase 2以降で完全な実装
-        // 既存のEvolutionChainを使用した完全な実装が必要
-        // 現在は簡易的にEvolutionChainEntityを構築
-        let pokemon = try await fetchPokemonDetail(id: speciesId)
-        let rootNode = EvolutionNode(
-            id: evolutionChainId,
-            speciesId: speciesId,
-            name: pokemon.name,
-            imageUrl: pokemon.sprites.other?.home?.frontDefault,
-            types: pokemon.types.map { $0.name },
-            evolvesTo: [],
-            evolvesFrom: nil
-        )
+        // PKMEvolutionChainを取得
+        let pkmChain = try await apiClient.fetchPKMEvolutionChain(evolutionChainId)
 
-        return EvolutionChainEntity(
-            id: evolutionChainId,
-            rootNode: rootNode
-        )
+        // 全てのspecies IDを抽出
+        let allSpeciesIds = EvolutionChainMapper.extractAllSpeciesIds(from: pkmChain)
+
+        // 各species IDからポケモン情報を取得してキャッシュを構築
+        var pokemonCache: [Int: (name: String, imageUrl: String?, types: [String])] = [:]
+
+        await withTaskGroup(of: (Int, (name: String, imageUrl: String?, types: [String])?)?.self) { group in
+            for id in allSpeciesIds {
+                group.addTask {
+                    do {
+                        let pokemon = try await self.fetchPokemonDetail(id: id)
+                        return (id, (
+                            name: pokemon.name,
+                            imageUrl: pokemon.sprites.other?.home?.frontDefault,
+                            types: pokemon.types.map { $0.name }
+                        ))
+                    } catch {
+                        print("Failed to fetch pokemon \(id): \(error)")
+                        return nil
+                    }
+                }
+            }
+
+            for await result in group {
+                if let (id, info) = result {
+                    pokemonCache[id] = info
+                }
+            }
+        }
+
+        // EvolutionChainEntityに変換
+        return EvolutionChainMapper.mapToEntity(from: pkmChain, pokemonCache: pokemonCache)
     }
 }

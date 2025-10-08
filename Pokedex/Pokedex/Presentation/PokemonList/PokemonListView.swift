@@ -11,6 +11,7 @@ struct PokemonListView: View {
     @StateObject private var viewModel: PokemonListViewModel
     @State private var scrollPosition: Int?
     @State private var hasLoaded = false
+    @State private var pokemonById: [Int: Pokemon] = [:] // IDからPokemonへのキャッシュ
 
     enum ActiveSheet: Identifiable {
         case filter
@@ -81,6 +82,19 @@ struct PokemonListView: View {
                 PokemonDetailView(
                     viewModel: PokemonDetailViewModel(pokemon: pokemon)
                 )
+            }
+            .navigationDestination(for: Int.self) { pokemonId in
+                // まずキャッシュを確認
+                if let pokemon = pokemonById[pokemonId] {
+                    PokemonDetailView(
+                        viewModel: PokemonDetailViewModel(pokemon: pokemon)
+                    )
+                } else {
+                    // キャッシュにない場合は非同期で取得
+                    PokemonLoadingView(pokemonId: pokemonId) { pokemon in
+                        pokemonById[pokemonId] = pokemon
+                    }
+                }
             }
             .sheet(item: $activeSheet) { sheet in
                 switch sheet {

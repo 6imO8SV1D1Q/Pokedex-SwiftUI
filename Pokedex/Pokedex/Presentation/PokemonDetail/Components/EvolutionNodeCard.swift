@@ -10,7 +10,12 @@ import SwiftUI
 /// 進化ツリーのノードカード
 struct EvolutionNodeCard: View {
     let node: EvolutionNode
-    let onTap: () -> Void
+    let onTap: (() -> Void)?
+
+    init(node: EvolutionNode, onTap: (() -> Void)? = nil) {
+        self.node = node
+        self.onTap = onTap
+    }
 
     var body: some View {
         VStack(spacing: 8) {
@@ -46,8 +51,18 @@ struct EvolutionNodeCard: View {
         .padding(8)
         .background(Color(.systemGray6))
         .cornerRadius(8)
-        .onTapGesture {
-            onTap()
+        .conditionalTapGesture(onTap: onTap)
+    }
+}
+
+// onTapがある場合のみonTapGestureを追加するヘルパー
+extension View {
+    @ViewBuilder
+    func conditionalTapGesture(onTap: (() -> Void)?) -> some View {
+        if let onTap = onTap {
+            self.onTapGesture(perform: onTap)
+        } else {
+            self
         }
     }
 }
@@ -62,7 +77,6 @@ struct EvolutionNodeCard: View {
             types: ["grass", "poison"],
             evolvesTo: [],
             evolvesFrom: nil
-        ),
-        onTap: {}
+        )
     )
 }
