@@ -36,10 +36,12 @@ enum TypeDetailMapper {
     nonisolated private static func extractTypeNames(from types: [Any]?) -> [String] {
         guard let types = types else { return [] }
         return types.compactMap { type in
-            // PKMNamedAPIResourceから名前を抽出
-            let typeObj = type as AnyObject
-            if let name = typeObj.value(forKey: "name") as? String {
-                return name
+            // Mirrorを使ってnameプロパティを安全に取得
+            let mirror = Mirror(reflecting: type)
+            for child in mirror.children {
+                if child.label == "name", let name = child.value as? String {
+                    return name
+                }
             }
             return nil
         }

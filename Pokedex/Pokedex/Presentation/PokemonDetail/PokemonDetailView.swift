@@ -55,7 +55,10 @@ struct PokemonDetailView: View {
                     isExpanded: sectionBinding("stats")
                 ) {
                     if let calculatedStats = viewModel.calculatedStats {
-                        CalculatedStatsView(stats: calculatedStats)
+                        CalculatedStatsView(
+                            stats: calculatedStats,
+                            baseStats: viewModel.pokemon.stats
+                        )
                     } else {
                         PokemonStatsView(stats: viewModel.pokemon.stats)
                             .padding()
@@ -251,11 +254,9 @@ struct PokemonDetailView: View {
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
 
-            if let version = flavorText.version {
-                Text("出典: \(version)")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-            }
+            Text("出典: \(flavorText.versionGroup)")
+                .font(.caption2)
+                .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -267,23 +268,32 @@ struct PokemonDetailView: View {
     private var locationsView: some View {
         VStack(alignment: .leading, spacing: 12) {
             ForEach(viewModel.locations, id: \.locationName) { location in
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 8) {
                     Text(location.locationName)
                         .font(.subheadline)
                         .fontWeight(.semibold)
 
                     ForEach(location.versionDetails, id: \.version) { detail in
-                        HStack {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(detail.version)
                                 .font(.caption)
                                 .foregroundColor(.secondary)
+                                .fontWeight(.medium)
 
-                            if let encounterDetails = detail.encounterDetails {
-                                Text("・")
-                                    .foregroundColor(.secondary)
-                                Text(encounterDetails)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                            if !detail.encounterDetails.isEmpty {
+                                ForEach(Array(detail.encounterDetails.enumerated()), id: \.offset) { _, encounter in
+                                    HStack {
+                                        Text("・\(encounter.displayMethod)")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                        Text("Lv.\(encounter.minLevel)-\(encounter.maxLevel)")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                        Text("\(encounter.chance)%")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
                             }
                         }
                     }

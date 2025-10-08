@@ -66,7 +66,8 @@ struct AbilityCard: View {
                 // 詳細データがない場合
                 Text("特性の詳細を読み込み中...")
                     .font(.caption)
-                    .foregroundColor(.tertiary)
+                    .foregroundColor(.secondary)
+                    .opacity(0.6)
                     .italic()
             }
         }

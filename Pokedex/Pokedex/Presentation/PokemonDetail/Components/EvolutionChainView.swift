@@ -48,54 +48,55 @@ struct EvolutionChainView: View {
     }
 
     /// 進化ツリーを再帰的に構築
-    @ViewBuilder
-    private func buildEvolutionTreeView(node: EvolutionNode) -> some View {
-        HStack(spacing: 0) {
-            // 現在のノード
-            EvolutionNodeCard(node: node) {
-                onPokemonTap(node.speciesId)
-            }
+    private func buildEvolutionTreeView(node: EvolutionNode) -> AnyView {
+        AnyView(
+            HStack(spacing: 0) {
+                // 現在のノード
+                EvolutionNodeCard(node: node) {
+                    onPokemonTap(node.speciesId)
+                }
 
-            // 進化先がある場合
-            if !node.evolvesTo.isEmpty {
-                // 分岐進化の場合（複数の進化先）
-                if node.evolvesTo.count > 1 {
-                    // 縦に並べる
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(Array(node.evolvesTo.enumerated()), id: \.offset) { index, edge in
-                            HStack(spacing: 0) {
-                                // 進化条件付き矢印
-                                EvolutionArrow(edge: edge)
+                // 進化先がある場合
+                if !node.evolvesTo.isEmpty {
+                    // 分岐進化の場合（複数の進化先）
+                    if node.evolvesTo.count > 1 {
+                        // 縦に並べる
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(Array(node.evolvesTo.enumerated()), id: \.offset) { index, edge in
+                                HStack(spacing: 0) {
+                                    // 進化条件付き矢印
+                                    EvolutionArrow(edge: edge)
 
-                                // 進化先ノード
-                                if let targetNode = nodeMap[edge.target] {
-                                    // 再帰的に進化先を表示
-                                    buildEvolutionTreeView(node: targetNode)
-                                } else {
-                                    // ノードデータがない場合はプレースホルダー
-                                    evolutionPlaceholder(speciesId: edge.target)
+                                    // 進化先ノード
+                                    if let targetNode = nodeMap[edge.target] {
+                                        // 再帰的に進化先を表示
+                                        buildEvolutionTreeView(node: targetNode)
+                                    } else {
+                                        // ノードデータがない場合はプレースホルダー
+                                        evolutionPlaceholder(speciesId: edge.target)
+                                    }
                                 }
                             }
                         }
-                    }
-                } else {
-                    // 単一進化（一直線）
-                    if let edge = node.evolvesTo.first {
-                        // 進化条件付き矢印
-                        EvolutionArrow(edge: edge)
+                    } else {
+                        // 単一進化（一直線）
+                        if let edge = node.evolvesTo.first {
+                            // 進化条件付き矢印
+                            EvolutionArrow(edge: edge)
 
-                        // 進化先ノード
-                        if let targetNode = nodeMap[edge.target] {
-                            // 再帰的に進化先を表示
-                            buildEvolutionTreeView(node: targetNode)
-                        } else {
-                            // ノードデータがない場合はプレースホルダー
-                            evolutionPlaceholder(speciesId: edge.target)
+                            // 進化先ノード
+                            if let targetNode = nodeMap[edge.target] {
+                                // 再帰的に進化先を表示
+                                buildEvolutionTreeView(node: targetNode)
+                            } else {
+                                // ノードデータがない場合はプレースホルダー
+                                evolutionPlaceholder(speciesId: edge.target)
+                            }
                         }
                     }
                 }
             }
-        }
+        )
     }
 
     /// 進化先ノードのプレースホルダー
@@ -107,7 +108,8 @@ struct EvolutionChainView: View {
                 .foregroundColor(.secondary)
             Text("データ読込中...")
                 .font(.caption2)
-                .foregroundColor(.tertiary)
+                .foregroundColor(.secondary)
+                .opacity(0.6)
         }
         .frame(width: 80, height: 80)
         .padding(8)
