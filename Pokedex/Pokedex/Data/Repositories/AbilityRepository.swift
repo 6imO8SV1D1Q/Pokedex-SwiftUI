@@ -49,4 +49,19 @@ final class AbilityRepository: AbilityRepositoryProtocol {
 
         return detail
     }
+
+    func fetchAbilityDetail(abilityName: String) async throws -> AbilityDetail {
+        // キャッシュチェック（名前をキーとして使用）
+        if let cached = await abilityCache.get(abilityName: abilityName) {
+            return cached
+        }
+
+        // API呼び出し（PokéAPIは名前でもアクセス可能）
+        let detail = try await apiClient.fetchAbilityDetail(abilityName: abilityName)
+
+        // キャッシュに保存
+        await abilityCache.set(detail: detail)
+
+        return detail
+    }
 }

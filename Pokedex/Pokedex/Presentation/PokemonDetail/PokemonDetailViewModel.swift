@@ -217,29 +217,27 @@ final class PokemonDetailViewModel: ObservableObject {
     /// 特性詳細を並列で読み込む
     /// - Parameter abilities: 特性のリスト
     func loadAbilityDetails(abilities: [PokemonAbility]) async {
-        // TODO: PokemonAbilityエンティティに数値IDが含まれていないため、実装保留
-        // 解決策:
-        // 1. PokemonAbilityにabilityId: Intプロパティを追加する（推奨）
-        // 2. または、AbilityRepositoryに名前からID変換メソッドを追加する
-        //
-        // 実装例（PokemonAbilityにIDがある場合）:
-        // await withTaskGroup(of: (String, AbilityDetail)?.self) { group in
-        //     for ability in abilities {
-        //         group.addTask {
-        //             do {
-        //                 let detail = try await self.fetchAbilityDetailUseCase.execute(abilityId: ability.abilityId)
-        //                 return (ability.name, detail)
-        //             } catch {
-        //                 return nil
-        //             }
-        //         }
-        //     }
-        //     for await result in group {
-        //         if let (name, detail) = result {
-        //             abilityDetails[name] = detail
-        //         }
-        //     }
-        // }
+        await withTaskGroup(of: (String, AbilityDetail)?.self) { group in
+            for ability in abilities {
+                group.addTask {
+                    do {
+                        // 特性名から詳細を取得
+                        let detail = try await self.fetchAbilityDetailUseCase.execute(abilityName: ability.name)
+                        return (ability.name, detail)
+                    } catch {
+                        // エラーの場合はnilを返す（個別の特性取得失敗は無視）
+                        print("Failed to fetch ability detail for \(ability.name): \(error)")
+                        return nil
+                    }
+                }
+            }
+
+            for await result in group {
+                if let (name, detail) = result {
+                    abilityDetails[name] = detail
+                }
+            }
+        }
     }
 
     /// セクションの展開/折りたたみを切り替え

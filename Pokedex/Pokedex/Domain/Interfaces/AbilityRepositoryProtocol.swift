@@ -23,4 +23,10 @@ protocol AbilityRepositoryProtocol {
     /// - Returns: 特性の詳細情報
     /// - Throws: データ取得時のエラー
     func fetchAbilityDetail(abilityId: Int) async throws -> AbilityDetail
+
+    /// 特性の詳細情報を名前から取得
+    /// - Parameter abilityName: 特性名（英語）
+    /// - Returns: 特性の詳細情報
+    /// - Throws: データ取得時のエラー
+    func fetchAbilityDetail(abilityName: String) async throws -> AbilityDetail
 }
