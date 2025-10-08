@@ -8,7 +8,7 @@
 import Foundation
 
 struct PokemonMove: Codable, Identifiable, Hashable {
-    let id = UUID()
+    let id: Int  // 技のID
     let name: String
     let learnMethod: String
     let level: Int?
@@ -20,6 +20,7 @@ struct PokemonMove: Codable, Identifiable, Hashable {
     }
 
     enum CodingKeys: String, CodingKey {
+        case id
         case name
         case learnMethod = "learn_method"
         case level
@@ -27,12 +28,13 @@ struct PokemonMove: Codable, Identifiable, Hashable {
 
     // Hashable conformance
     func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
         hasher.combine(name)
         hasher.combine(learnMethod)
         hasher.combine(level)
     }
 
     static func == (lhs: PokemonMove, rhs: PokemonMove) -> Bool {
-        lhs.name == rhs.name && lhs.learnMethod == rhs.learnMethod && lhs.level == rhs.level
+        lhs.id == rhs.id && lhs.name == rhs.name && lhs.learnMethod == rhs.learnMethod && lhs.level == rhs.level
     }
 }

@@ -125,10 +125,21 @@ enum PokemonMapper {
         return moves.compactMap { move in
             guard let moveName = move.move?.name else { return nil }
 
+            // URLから技IDを抽出
+            let moveId: Int
+            if let urlString = move.move?.url,
+               let urlComponents = urlString.split(separator: "/").last,
+               let id = Int(urlComponents) {
+                moveId = id
+            } else {
+                return nil  // IDが取得できない場合はスキップ
+            }
+
             // 最新の習得方法を取得（versionGroupDetailsの最後の要素）
             guard let latestDetail = move.versionGroupDetails?.last else { return nil }
 
             return PokemonMove(
+                id: moveId,
                 name: moveName,
                 learnMethod: latestDetail.moveLearnMethod?.name ?? "unknown",
                 level: latestDetail.levelLearnedAt

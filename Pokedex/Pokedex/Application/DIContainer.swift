@@ -96,6 +96,12 @@ final class DIContainer: ObservableObject {
         FetchFlavorTextUseCase(pokemonRepository: pokemonRepository)
     }
 
+    // MARK: - Repositories Factory Methods
+
+    func makeMoveRepository() -> MoveRepositoryProtocol {
+        return moveRepository
+    }
+
     // MARK: - ViewModels
     func makePokemonListViewModel() -> PokemonListViewModel {
         PokemonListViewModel(
