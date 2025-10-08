@@ -29,6 +29,10 @@ final class DIContainer: ObservableObject {
         return MoveRepository(apiClient: apiClient, cache: cache)
     }()
 
+    private lazy var typeRepository: TypeRepositoryProtocol = {
+        TypeRepository()
+    }()
+
     // MARK: - UseCases
     func makeFetchPokemonListUseCase() -> FetchPokemonListUseCaseProtocol {
         FetchPokemonListUseCase(repository: pokemonRepository)
@@ -60,6 +64,32 @@ final class DIContainer: ObservableObject {
 
     func makeFilterPokemonByMovesUseCase() -> FilterPokemonByMovesUseCaseProtocol {
         FilterPokemonByMovesUseCase(moveRepository: moveRepository)
+    }
+
+    // MARK: - v3.0 UseCases
+
+    func makeFetchPokemonFormsUseCase() -> FetchPokemonFormsUseCaseProtocol {
+        FetchPokemonFormsUseCase(pokemonRepository: pokemonRepository)
+    }
+
+    func makeFetchTypeMatchupUseCase() -> FetchTypeMatchupUseCaseProtocol {
+        FetchTypeMatchupUseCase(typeRepository: typeRepository)
+    }
+
+    func makeCalculateStatsUseCase() -> CalculateStatsUseCaseProtocol {
+        CalculateStatsUseCase()
+    }
+
+    func makeFetchPokemonLocationsUseCase() -> FetchPokemonLocationsUseCaseProtocol {
+        FetchPokemonLocationsUseCase(pokemonRepository: pokemonRepository)
+    }
+
+    func makeFetchAbilityDetailUseCase() -> FetchAbilityDetailUseCaseProtocol {
+        FetchAbilityDetailUseCase(abilityRepository: abilityRepository)
+    }
+
+    func makeFetchFlavorTextUseCase() -> FetchFlavorTextUseCaseProtocol {
+        FetchFlavorTextUseCase(pokemonRepository: pokemonRepository)
     }
 
     // MARK: - ViewModels
