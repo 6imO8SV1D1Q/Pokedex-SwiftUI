@@ -218,19 +218,28 @@ struct AbilityDetail: Equatable, Identifiable {
 #### 3.1.7 MoveDetail (既存の拡張)
 ```swift
 // 既存のMoveEntityを拡張
-extension MoveEntity {
+struct MoveEntity: Identifiable, Equatable {
+    let id: Int
+    let name: String
+    let type: PokemonType
+    let power: Int?
+    let accuracy: Int?
+    let pp: Int?
+    let damageClass: String
+    let effect: String?  // 新規追加: 説明文（effectテキスト）
+
     var displayPower: String {
         power.map(String.init) ?? "-"
     }
-    
+
     var displayAccuracy: String {
         accuracy.map(String.init) ?? "-"
     }
-    
+
     var displayPP: String {
         pp.map(String.init) ?? "-"
     }
-    
+
     var categoryIcon: String {
         switch damageClass {
         case "physical": return "💥"  // 物理
@@ -238,6 +247,10 @@ extension MoveEntity {
         case "status": return "🔄"    // 変化
         default: return ""
         }
+    }
+
+    var displayEffect: String {
+        effect ?? "説明なし"
     }
 }
 ```
@@ -1132,7 +1145,8 @@ final class PokemonDetailViewModel: ObservableObject {
 
 #### 5.2.7 MovesView
 - 習得方法別にセクション分け
-- 技の詳細情報を一覧表示
+- 技の詳細情報を一覧表示（名前、タイプ、分類、威力、命中率、PP、説明文）
+- 説明文はPokéAPIのeffectテキストを使用
 
 #### 5.2.8 共通コンポーネント
 - ExpandableSection: 折りたたみ可能なセクション
