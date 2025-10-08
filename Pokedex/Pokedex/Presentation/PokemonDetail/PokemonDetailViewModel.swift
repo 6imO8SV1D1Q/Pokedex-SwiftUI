@@ -37,10 +37,47 @@ final class PokemonDetailViewModel: ObservableObject {
     /// 選択された技の習得方法
     @Published var selectedLearnMethod = "level-up"
 
+    // MARK: - v3.0 新規プロパティ
+
+    /// 利用可能なフォーム一覧
+    @Published var availableForms: [PokemonForm] = []
+
+    /// 選択中のフォーム
+    @Published var selectedForm: PokemonForm?
+
+    /// タイプ相性
+    @Published var typeMatchup: TypeMatchup?
+
+    /// 計算された実数値
+    @Published var calculatedStats: CalculatedStats?
+
+    /// 出現場所
+    @Published var locations: [PokemonLocation] = []
+
+    /// 特性詳細（特性ID -> 詳細情報）
+    @Published var abilityDetails: [Int: AbilityDetail] = [:]
+
+    /// 図鑑テキスト
+    @Published var flavorText: PokemonFlavorText?
+
+    /// セクションの展開状態
+    @Published var isSectionExpanded: [String: Bool] = [:]
+
     // MARK: - Private Properties
 
     /// 進化チェーン取得UseCase
     private let fetchEvolutionChainUseCase: FetchEvolutionChainUseCaseProtocol
+
+    /// v3.0 UseCases
+    private let fetchPokemonFormsUseCase: FetchPokemonFormsUseCaseProtocol
+    private let fetchTypeMatchupUseCase: FetchTypeMatchupUseCaseProtocol
+    private let calculateStatsUseCase: CalculateStatsUseCaseProtocol
+    private let fetchPokemonLocationsUseCase: FetchPokemonLocationsUseCaseProtocol
+    private let fetchAbilityDetailUseCase: FetchAbilityDetailUseCaseProtocol
+    private let fetchFlavorTextUseCase: FetchFlavorTextUseCaseProtocol
+
+    /// バージョングループ
+    private let versionGroup: String?
 
     /// 最大再試行回数
     private let maxRetries = 3
@@ -77,13 +114,34 @@ final class PokemonDetailViewModel: ObservableObject {
     /// イニシャライザ
     /// - Parameters:
     ///   - pokemon: ポケモンデータ
+    ///   - versionGroup: バージョングループ
     ///   - fetchEvolutionChainUseCase: 進化チェーン取得UseCase（省略時はDIContainerから取得）
+    ///   - fetchPokemonFormsUseCase: フォーム取得UseCase（省略時はDIContainerから取得）
+    ///   - fetchTypeMatchupUseCase: タイプ相性取得UseCase（省略時はDIContainerから取得）
+    ///   - calculateStatsUseCase: 実数値計算UseCase（省略時はDIContainerから取得）
+    ///   - fetchPokemonLocationsUseCase: 出現場所取得UseCase（省略時はDIContainerから取得）
+    ///   - fetchAbilityDetailUseCase: 特性詳細取得UseCase（省略時はDIContainerから取得）
+    ///   - fetchFlavorTextUseCase: 図鑑テキスト取得UseCase（省略時はDIContainerから取得）
     init(
         pokemon: Pokemon,
-        fetchEvolutionChainUseCase: FetchEvolutionChainUseCaseProtocol? = nil
+        versionGroup: String? = nil,
+        fetchEvolutionChainUseCase: FetchEvolutionChainUseCaseProtocol? = nil,
+        fetchPokemonFormsUseCase: FetchPokemonFormsUseCaseProtocol? = nil,
+        fetchTypeMatchupUseCase: FetchTypeMatchupUseCaseProtocol? = nil,
+        calculateStatsUseCase: CalculateStatsUseCaseProtocol? = nil,
+        fetchPokemonLocationsUseCase: FetchPokemonLocationsUseCaseProtocol? = nil,
+        fetchAbilityDetailUseCase: FetchAbilityDetailUseCaseProtocol? = nil,
+        fetchFlavorTextUseCase: FetchFlavorTextUseCaseProtocol? = nil
     ) {
         self.pokemon = pokemon
+        self.versionGroup = versionGroup
         self.fetchEvolutionChainUseCase = fetchEvolutionChainUseCase ?? DIContainer.shared.makeFetchEvolutionChainUseCase()
+        self.fetchPokemonFormsUseCase = fetchPokemonFormsUseCase ?? DIContainer.shared.makeFetchPokemonFormsUseCase()
+        self.fetchTypeMatchupUseCase = fetchTypeMatchupUseCase ?? DIContainer.shared.makeFetchTypeMatchupUseCase()
+        self.calculateStatsUseCase = calculateStatsUseCase ?? DIContainer.shared.makeCalculateStatsUseCase()
+        self.fetchPokemonLocationsUseCase = fetchPokemonLocationsUseCase ?? DIContainer.shared.makeFetchPokemonLocationsUseCase()
+        self.fetchAbilityDetailUseCase = fetchAbilityDetailUseCase ?? DIContainer.shared.makeFetchAbilityDetailUseCase()
+        self.fetchFlavorTextUseCase = fetchFlavorTextUseCase ?? DIContainer.shared.makeFetchFlavorTextUseCase()
     }
 
     // MARK: - Public Methods
@@ -96,6 +154,87 @@ final class PokemonDetailViewModel: ObservableObject {
     /// 進化チェーンを読み込む
     func loadEvolutionChain() async {
         await loadEvolutionChainWithRetry()
+    }
+
+    // MARK: - v3.0 新規メソッド
+
+    /// ポケモン詳細データをすべて読み込む
+    /// - Parameter id: ポケモンID
+    func loadPokemonDetail(id: Int) async {
+        isLoading = true
+        errorMessage = nil
+        showError = false
+
+        do {
+            // 並列でデータ取得
+            async let formsTask = fetchPokemonFormsUseCase.execute(pokemonId: id, versionGroup: versionGroup)
+            async let locationsTask = fetchPokemonLocationsUseCase.execute(pokemonId: id, versionGroup: versionGroup)
+            async let flavorTextTask = fetchFlavorTextUseCase.execute(speciesId: id, versionGroup: versionGroup)
+
+            // 結果を待機
+            availableForms = try await formsTask
+            locations = try await locationsTask
+            flavorText = try await flavorTextTask
+
+            // デフォルトフォームを選択
+            selectedForm = availableForms.first(where: { $0.isDefault }) ?? availableForms.first
+
+            // フォーム依存データを読み込む
+            await loadFormDependentData()
+
+            isLoading = false
+        } catch {
+            isLoading = false
+            handleError(error)
+        }
+    }
+
+    /// フォームを選択
+    /// - Parameter form: 選択するフォーム
+    func selectForm(_ form: PokemonForm) async {
+        selectedForm = form
+        await loadFormDependentData()
+    }
+
+    /// フォーム依存のデータを読み込む
+    func loadFormDependentData() async {
+        guard let form = selectedForm else { return }
+
+        do {
+            // タイプ相性を取得
+            typeMatchup = try await fetchTypeMatchupUseCase.execute(types: form.types)
+
+            // 実数値を計算
+            calculatedStats = calculateStatsUseCase.execute(baseStats: form.stats)
+
+            // 特性詳細を取得
+            await loadAbilityDetails(abilities: form.abilities)
+        } catch {
+            handleError(error)
+        }
+    }
+
+    /// 特性詳細を並列で読み込む
+    /// - Parameter abilities: 特性のリスト
+    func loadAbilityDetails(abilities: [PokemonAbility]) async {
+        await withTaskGroup(of: (Int, AbilityDetail)?.self) { group in
+            for _ in abilities {
+                // 特性名からIDを取得する必要があるため、一旦スキップ
+                // TODO: 特性名からIDを取得する方法を実装
+            }
+
+            for await result in group {
+                if let (id, detail) = result {
+                    abilityDetails[id] = detail
+                }
+            }
+        }
+    }
+
+    /// セクションの展開/折りたたみを切り替え
+    /// - Parameter sectionId: セクションID
+    func toggleSection(_ sectionId: String) {
+        isSectionExpanded[sectionId, default: false].toggle()
     }
 
     // MARK: - Private Methods
