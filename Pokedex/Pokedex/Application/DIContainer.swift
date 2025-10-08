@@ -102,6 +102,10 @@ final class DIContainer: ObservableObject {
         return moveRepository
     }
 
+    func makePokemonRepository() -> PokemonRepositoryProtocol {
+        return pokemonRepository
+    }
+
     // MARK: - ViewModels
     func makePokemonListViewModel() -> PokemonListViewModel {
         PokemonListViewModel(

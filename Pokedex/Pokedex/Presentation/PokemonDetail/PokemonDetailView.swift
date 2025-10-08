@@ -19,6 +19,11 @@ struct PokemonDetailView: View {
                 // 基本情報(身長、体重)
                 basicInfoView
 
+                // 性別比・たまごグループ（v3.0新機能）
+                if let species = viewModel.pokemonSpecies {
+                    breedingInfoView(species: species)
+                }
+
                 // 図鑑テキスト（v3.0新機能）
                 if let flavorText = viewModel.flavorText {
                     flavorTextView(flavorText: flavorText)
@@ -259,6 +264,40 @@ struct PokemonDetailView: View {
     }
 
     // MARK: - v3.0 New Views
+
+    /// 性別比・たまごグループ表示
+    private func breedingInfoView(species: PokemonSpecies) -> some View {
+        VStack(spacing: DesignConstants.Spacing.small) {
+            // 性別比
+            HStack {
+                Text("性別比")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Spacer()
+                Text(species.genderRatioDisplay)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+            }
+            .padding(.horizontal, DesignConstants.Spacing.medium)
+
+            Divider()
+
+            // たまごグループ
+            HStack {
+                Text("たまごグループ")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Spacer()
+                Text(species.eggGroupsDisplay)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+            }
+            .padding(.horizontal, DesignConstants.Spacing.medium)
+        }
+        .padding(.vertical, DesignConstants.Spacing.medium)
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(DesignConstants.CornerRadius.large)
+    }
 
     /// 図鑑テキスト表示
     private func flavorTextView(flavorText: PokemonFlavorText) -> some View {
