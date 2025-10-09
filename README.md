@@ -4,6 +4,55 @@ SwiftUIで実装したポケモン図鑑アプリケーション。PokéAPI v2�
 
 ## 主な機能
 
+### v3.0の新機能（詳細画面の大幅拡充）
+
+#### 1. フォルム切り替え
+- **リージョンフォーム**: アローラ、ガラル、ヒスイ、パルデア
+- **メガシンカ**: X-Y以降のバージョンで表示
+- **フォルムチェンジ**: ロトム、デオキシスなど
+- フォーム変更時に画像、タイプ、種族値、実数値が自動更新
+
+#### 2. タイプ相性表示
+- **攻撃面**: このポケモンの技が効果ばつぐんになるタイプ
+- **防御面**: 受けるダメージの倍率別表示
+  - 効果ばつぐん（4倍/2倍）
+  - いまひとつ（1/2倍/1/4倍）
+  - 効果なし
+- 複合タイプの相性計算に対応
+
+#### 3. 実数値計算
+- **5パターン表示**（レベル50固定）:
+  - 理想個体（31IV/252EV/性格補正↑）
+  - 252振り（31IV/252EV）
+  - 無振り（31IV/0EV）
+  - 最低（0IV/0EV）
+  - 下降補正（0IV/0EV/性格補正↓）
+- フォーム切り替え時に自動再計算
+
+#### 4. 進化ルート表示
+- **ツリー形式**: 進化の流れを視覚的に表示
+- **進化条件**: レベル、進化石、通信交換、なつき度など
+- **分岐進化**: イーブイなど複数の進化先に対応
+- タップで進化先/進化前ポケモンの詳細画面に遷移
+
+#### 5. 追加情報
+- **図鑑説明**: バージョンごとのフレーバーテキスト
+- **生息地**: 選択中のバージョンでの出現場所
+- **性別比**: ♂/♀の出現比率（性別不明含む）
+- **たまごグループ**: 遺伝グループ表示
+
+#### 6. 特性詳細
+- **通常特性**: 最大2つ
+- **隠れ特性**: 第5世代以降
+- **詳細説明**: 英語の効果説明文
+- バージョングループによる表示制御（第1-2世代は非表示）
+
+#### 7. 技一覧の拡充
+- **TM/TR/HM番号**: バージョンごとの番号表示
+- **技詳細情報**: タイプ、分類、威力、命中、PP、効果説明
+- **習得方法別表示**: レベルアップ、TM、TR、HM、タマゴ、教え技
+- **ソート**: レベルアップは昇順、マシンは番号順
+
 ### v2.0の新機能
 
 #### 1. バージョングループ別表示
@@ -61,18 +110,29 @@ Clean Architecture + MVVMパターンを採用
 ### 主要コンポーネント
 
 **Domain層:**
-- `Pokemon` / `PokemonListItem`: ポケモンエンティティ
-- `VersionGroup`: バージョングループエンティティ
-- `MoveEntity`: 技エンティティ
-- `FetchPokemonListUseCase`: ポケモンリスト取得
-- `FilterPokemonByMovesUseCase`: 技フィルター
-- `SortPokemonUseCase`: ソート
+- **Entity**:
+  - `Pokemon` / `PokemonListItem`: ポケモンエンティティ
+  - `VersionGroup`: バージョングループエンティティ
+  - `MoveEntity`: 技エンティティ
+  - `PokemonForm`: フォームエンティティ（v3.0）
+  - `TypeMatchup`: タイプ相性エンティティ（v3.0）
+  - `CalculatedStats`: 実数値エンティティ（v3.0）
+- **UseCase**:
+  - `FetchPokemonListUseCase`: ポケモンリスト取得
+  - `FilterPokemonByMovesUseCase`: 技フィルター
+  - `SortPokemonUseCase`: ソート
+  - `FetchPokemonFormsUseCase`: フォーム取得（v3.0）
+  - `FetchTypeMatchupUseCase`: タイプ相性計算（v3.0）
+  - `CalculateStatsUseCase`: 実数値計算（v3.0）
 
 **Data層:**
-- `PokemonRepository`: ポケモンデータ取得
-- `MoveRepository`: 技データ取得
-- `PokemonAPIClient`: PokéAPI通信
-- 各種Cache: メモリキャッシュ
+- **Repository**:
+  - `PokemonRepository`: ポケモンデータ取得
+  - `MoveRepository`: 技データ取得
+  - `TypeRepository`: タイプデータ取得（v3.0）
+- **API**: `PokemonAPIClient` - PokéAPI通信
+- **Cache**: Actor-basedメモリキャッシュ
+  - `MoveCache`, `TypeCache`, `FormCache`, `AbilityCache`, `LocationCache`
 
 **Presentation層:**
 - `PokemonListViewModel`: 一覧画面のビジネスロジック
@@ -167,20 +227,25 @@ xcodebuild test -scheme Pokedex -destination 'platform=iOS Simulator,name=iPhone
 ### テスト構成
 
 - **ユニットテスト**: 基本的なUseCasesとViewModelsをカバー
-  - `FetchPokemonListUseCaseTests`
-  - `FilterPokemonByMovesUseCaseTests`
-  - `FetchAllMovesUseCaseTests`
-  - `FetchEvolutionChainUseCaseTests`
-  - `PokemonListViewModelTests`
-  - `PokemonDetailViewModelTests`
-  - `MoveCacheTests`
+  - **v2.0テスト**:
+    - `FetchPokemonListUseCaseTests`
+    - `FilterPokemonByMovesUseCaseTests`
+    - `FetchAllMovesUseCaseTests`
+    - `FetchEvolutionChainUseCaseTests`
+    - `PokemonListViewModelTests`
+    - `PokemonDetailViewModelTests`
+    - `MoveCacheTests`
+  - **v3.0テスト**:
+    - `CalculateStatsUseCaseTests`: 実数値計算
+    - `FetchTypeMatchupUseCaseTests`: タイプ相性計算
+    - `FetchPokemonFormsUseCaseTests`: フォルム取得
 - **統合テスト**: 4件
   - バージョングループ切り替え
   - フィルター連携
   - ソート機能
   - エラーハンドリング
-- **パフォーマンステスト**: 1件
-  - 初回ロード、キャッシュロード、フィルター処理速度
+- **パフォーマンステスト**: 7件
+  - 初回ロード、キャッシュロード、フィルター処理速度など
 
 ### テストカバレッジの現状
 
@@ -207,12 +272,14 @@ xcodebuild test -scheme Pokedex -destination 'platform=iOS Simulator,name=iPhone
 
 ## 今後の予定
 
+- [x] リージョンフォーム対応（v3.0で実装）
+- [x] タイプ相性表示（v3.0で実装）
 - [ ] お気に入り機能（永続化）
 - [ ] オフライン完全対応
-- [ ] リージョンフォーム対応
-- [ ] タイプ相性チェッカー
+- [ ] タイプ相性チェッカー（独立機能）
 - [ ] ポケモン比較機能
 - [ ] ダークモード対応
+- [ ] 特性・技説明文の日本語化
 
 ## ライセンス
 
@@ -232,11 +299,13 @@ MIT License
 
 - **作成者**: Yusuke Abe
 - **作成日**: 2025-10-04
-- **バージョン**: 2.0.0
+- **バージョン**: 3.0.0
 
 ---
 
 詳細なドキュメント:
+- [要件定義書 v3](docs/pokedex_requirements_v3.md)
+- [設計書 v3](docs/pokedex_design_v3.md)
 - [要件定義書 v2](docs/pokedex_requirements_v2.md)
 - [設計書 v2](docs/pokedex_design_v2.md)
 - [変更履歴](CHANGELOG.md)
