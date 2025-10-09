@@ -53,7 +53,7 @@ final class FilterPokemonByMovesUseCaseTests: XCTestCase {
             PokemonFixture.charizard
         ]
         let selectedMoves = [
-            MoveEntity(id: 1, name: "thunderbolt", type: PokemonType(slot: 1, name: "electric"))
+            MoveEntity.fixture(id: 1, name: "thunderbolt", type: PokemonType(slot: 1, name: "electric"))
         ]
 
         let learnMethod = MoveLearnMethod(
@@ -83,8 +83,8 @@ final class FilterPokemonByMovesUseCaseTests: XCTestCase {
             PokemonFixture.charizard
         ]
         let selectedMoves = [
-            MoveEntity(id: 1, name: "thunderbolt", type: PokemonType(slot: 1, name: "electric")),
-            MoveEntity(id: 2, name: "surf", type: PokemonType(slot: 1, name: "water"))
+            MoveEntity.fixture(id: 1, name: "thunderbolt", type: PokemonType(slot: 1, name: "electric")),
+            MoveEntity.fixture(id: 2, name: "surf", type: PokemonType(slot: 1, name: "water"))
         ]
 
         // Only 1 move can be learned (need 2, but only 1 is available)
@@ -110,7 +110,7 @@ final class FilterPokemonByMovesUseCaseTests: XCTestCase {
         // Given
         let pokemonList = [PokemonFixture.pikachu]
         let selectedMoves = [
-            MoveEntity(id: 1, name: "thunderbolt", type: PokemonType(slot: 1, name: "electric"))
+            MoveEntity.fixture(id: 1, name: "thunderbolt", type: PokemonType(slot: 1, name: "electric"))
         ]
         let expectedError = NSError(domain: "TestError", code: 1)
         mockRepository.fetchLearnMethodsResult = .failure(expectedError)
