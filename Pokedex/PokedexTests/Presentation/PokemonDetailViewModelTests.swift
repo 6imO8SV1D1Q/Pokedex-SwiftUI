@@ -233,6 +233,7 @@ final class PokemonDetailViewModelTests: XCTestCase {
 
 final class MockFetchEvolutionChainUseCase: FetchEvolutionChainUseCaseProtocol {
     var evolutionChainToReturn: [Int] = []
+    var evolutionChainEntityToReturn: EvolutionChainEntity?
     var shouldThrowError = false
     var failCount = 0
     private var callCount = 0
@@ -247,5 +248,21 @@ final class MockFetchEvolutionChainUseCase: FetchEvolutionChainUseCaseProtocol {
         }
 
         return evolutionChainToReturn
+    }
+
+    func executeV3(pokemonId: Int) async throws -> EvolutionChainEntity {
+        callCount += 1
+
+        if shouldThrowError {
+            if callCount <= failCount {
+                throw PokemonError.networkError(NSError(domain: "test", code: -1))
+            }
+        }
+
+        guard let entity = evolutionChainEntityToReturn else {
+            throw PokemonError.notFound
+        }
+
+        return entity
     }
 }

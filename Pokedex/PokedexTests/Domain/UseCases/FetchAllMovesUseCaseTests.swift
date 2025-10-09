@@ -28,8 +28,8 @@ final class FetchAllMovesUseCaseTests: XCTestCase {
     func test_execute_returnsAllMoves() async throws {
         // Given
         let expectedMoves = [
-            MoveEntity(id: 1, name: "thunderbolt", type: PokemonType(slot: 1, name: "electric")),
-            MoveEntity(id: 2, name: "surf", type: PokemonType(slot: 1, name: "water"))
+            MoveEntity.fixture(id: 1, name: "thunderbolt", type: PokemonType(slot: 1, name: "electric")),
+            MoveEntity.fixture(id: 2, name: "surf", type: PokemonType(slot: 1, name: "water"))
         ]
         mockRepository.fetchAllMovesResult = .success(expectedMoves)
 
@@ -47,7 +47,7 @@ final class FetchAllMovesUseCaseTests: XCTestCase {
     func test_execute_withNoVersionGroup_returnsAllMoves() async throws {
         // Given
         let expectedMoves = [
-            MoveEntity(id: 1, name: "tackle", type: PokemonType(slot: 1, name: "normal"))
+            MoveEntity.fixture(id: 1, name: "tackle", type: PokemonType(slot: 1, name: "normal"))
         ]
         mockRepository.fetchAllMovesResult = .success(expectedMoves)
 

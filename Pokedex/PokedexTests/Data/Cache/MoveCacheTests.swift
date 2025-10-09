@@ -104,7 +104,7 @@ final class MoveCacheTests: XCTestCase {
 
     private func createMockMoves(count: Int) -> [MoveEntity] {
         (1...count).map {
-            MoveEntity(id: $0, name: "Move\($0)", type: PokemonType(slot: 1, name: "normal"))
+            MoveEntity.fixture(id: $0, name: "Move\($0)", type: PokemonType(slot: 1, name: "normal"))
         }
     }
 }

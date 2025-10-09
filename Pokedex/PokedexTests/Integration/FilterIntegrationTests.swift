@@ -36,7 +36,7 @@ final class FilterIntegrationTests: XCTestCase {
         XCTAssertFalse(viewModel.pokemons.isEmpty, "Should have pokemon loaded")
 
         // When: Select a move
-        let thunderbolt = MoveEntity(id: 85, name: "thunderbolt", type: PokemonType(slot: 1, name: "electric"))
+        let thunderbolt = MoveEntity.fixture(id: 85, name: "thunderbolt", type: PokemonType(slot: 1, name: "electric"))
         viewModel.selectedMoves = [thunderbolt]
         viewModel.applyFilters()
 
@@ -56,7 +56,7 @@ final class FilterIntegrationTests: XCTestCase {
         viewModel.changeVersionGroup(.scarletViolet)
         await viewModel.loadPokemons()
 
-        let thunderbolt = MoveEntity(id: 85, name: "thunderbolt", type: PokemonType(slot: 1, name: "electric"))
+        let thunderbolt = MoveEntity.fixture(id: 85, name: "thunderbolt", type: PokemonType(slot: 1, name: "electric"))
         viewModel.selectedMoves = [thunderbolt]
         XCTAssertFalse(viewModel.selectedMoves.isEmpty)
 
@@ -74,11 +74,11 @@ final class FilterIntegrationTests: XCTestCase {
 
         // When: Try to add 5 moves
         let moves = [
-            MoveEntity(id: 1, name: "move1", type: PokemonType(slot: 1, name: "normal")),
-            MoveEntity(id: 2, name: "move2", type: PokemonType(slot: 1, name: "normal")),
-            MoveEntity(id: 3, name: "move3", type: PokemonType(slot: 1, name: "normal")),
-            MoveEntity(id: 4, name: "move4", type: PokemonType(slot: 1, name: "normal")),
-            MoveEntity(id: 5, name: "move5", type: PokemonType(slot: 1, name: "normal"))
+            MoveEntity.fixture(id: 1, name: "move1", type: PokemonType(slot: 1, name: "normal")),
+            MoveEntity.fixture(id: 2, name: "move2", type: PokemonType(slot: 1, name: "normal")),
+            MoveEntity.fixture(id: 3, name: "move3", type: PokemonType(slot: 1, name: "normal")),
+            MoveEntity.fixture(id: 4, name: "move4", type: PokemonType(slot: 1, name: "normal")),
+            MoveEntity.fixture(id: 5, name: "move5", type: PokemonType(slot: 1, name: "normal"))
         ]
 
         for move in moves {

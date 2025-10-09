@@ -97,14 +97,18 @@ extension PokemonSprites {
 
 extension PokemonMove {
     static func fixture(
+        id: Int = 1,
         name: String = "tackle",
         learnMethod: String = "level-up",
-        level: Int? = 1
+        level: Int? = 1,
+        machineNumber: String? = nil
     ) -> PokemonMove {
         PokemonMove(
+            id: id,
             name: name,
             learnMethod: learnMethod,
-            level: level
+            level: level,
+            machineNumber: machineNumber
         )
     }
 }
@@ -113,12 +117,16 @@ extension PokemonSpecies {
     static func fixture(
         id: Int = 1,
         name: String = "bulbasaur",
-        evolutionChain: EvolutionChainReference = .fixture()
+        evolutionChain: EvolutionChainReference = .fixture(),
+        genderRate: Int = 1,
+        eggGroups: [EggGroup] = [.fixture()]
     ) -> PokemonSpecies {
         PokemonSpecies(
             id: id,
             name: name,
-            evolutionChain: evolutionChain
+            evolutionChain: evolutionChain,
+            genderRate: genderRate,
+            eggGroups: eggGroups
         )
     }
 }
@@ -128,6 +136,14 @@ extension PokemonSpecies.EvolutionChainReference {
         url: String = "https://pokeapi.co/api/v2/evolution-chain/1/"
     ) -> PokemonSpecies.EvolutionChainReference {
         PokemonSpecies.EvolutionChainReference(url: url)
+    }
+}
+
+extension PokemonSpecies.EggGroup {
+    static func fixture(
+        name: String = "monster"
+    ) -> PokemonSpecies.EggGroup {
+        PokemonSpecies.EggGroup(name: name)
     }
 }
 
@@ -159,6 +175,32 @@ extension EvolutionChain.ChainLink.Species {
         EvolutionChain.ChainLink.Species(
             name: name,
             url: url
+        )
+    }
+}
+
+extension MoveEntity {
+    static func fixture(
+        id: Int = 1,
+        name: String = "tackle",
+        type: PokemonType = .fixture(name: "normal"),
+        power: Int? = 40,
+        accuracy: Int? = 100,
+        pp: Int? = 35,
+        damageClass: String = "physical",
+        effect: String? = "Inflicts regular damage with no additional effect.",
+        machineNumber: String? = nil
+    ) -> MoveEntity {
+        MoveEntity(
+            id: id,
+            name: name,
+            type: type,
+            power: power,
+            accuracy: accuracy,
+            pp: pp,
+            damageClass: damageClass,
+            effect: effect,
+            machineNumber: machineNumber
         )
     }
 }
