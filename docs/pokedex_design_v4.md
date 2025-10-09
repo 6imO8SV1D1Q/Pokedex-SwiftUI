@@ -1495,6 +1495,59 @@ struct ErrorBannerView: View {
 
 ---
 
+## テスト戦略
+
+### Phase 1: バックグラウンド段階的読み込み
+
+**BackgroundFetchServiceTests**
+- 優先度キューの動作確認
+- 進捗通知の正確性
+- キャンセル処理
+- エラーハンドリング
+
+**ProgressTrackerTests**
+- 進捗計算の精度
+- 状態遷移の検証
+- 通知タイミング
+
+### Phase 2: 永続的キャッシュ
+
+**PokemonDataStoreTests**
+- SwiftDataへの保存/読み込み
+- キャッシュ有効期限チェック
+- 差分更新ロジック
+- データマイグレーション
+
+**CacheManagerTests**
+- キャッシュクリア処理
+- バージョン管理
+- 容量管理
+
+### Phase 3: 技フィルター高速化
+
+**MoveDataStoreTests**
+- インデックス検索の性能
+- 技メタデータフィルタリング
+- learnablePokemonマッピング精度
+
+### Phase 4: 適応的並列度制御（オプション）
+
+**AdaptiveFetchStrategyTests**
+- ネットワーク状態検出
+- 並列度の動的調整
+- タイムアウト回避
+
+### テストカバレッジ目標
+
+| 層 | v4.0目標 |
+|----|---------|
+| Domain層 | 90%+ |
+| Data層 | 85%+ |
+| Presentation層 | 80%+ |
+| **全体** | **85%+** |
+
+---
+
 ## まとめ
 
 ### v4.0で追加される主要コンポーネント
