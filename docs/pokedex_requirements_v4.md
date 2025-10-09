@@ -577,6 +577,165 @@ func map(from species: PKMPokemonSpecies) -> PokemonSpecies {
 
 ---
 
+### Phase 6: UI/UX改善（1-2日）
+
+#### FR-4.6.1 特性フィルターの改善
+
+**現状の問題**:
+- 全特性（約300個）をリスト表示
+- スクロールして探すのが困難
+- 選びたい特性を見つけにくい
+
+**要件**:
+- 検索フィールドを追加
+- 前方一致で絞り込み
+- 検索結果のみを表示
+- リアルタイムで絞り込み
+
+**UI設計**:
+```swift
+Section("特性") {
+    // 検索フィールド
+    TextField("特性名で検索", text: $abilitySearchText)
+        .textFieldStyle(.roundedBorder)
+
+    // 選択中の特性
+    if !selectedAbilities.isEmpty {
+        ForEach(Array(selectedAbilities), id: \.self) { ability in
+            abilityChip(ability)
+        }
+    }
+
+    // 検索結果（前方一致）
+    ForEach(filteredAbilities, id: \.self) { ability in
+        abilitySelectionButton(ability)
+    }
+    .onChange(of: abilitySearchText) { _, newValue in
+        filterAbilities(query: newValue)
+    }
+}
+```
+
+**絞り込みロジック**:
+```swift
+var filteredAbilities: [String] {
+    guard !abilitySearchText.isEmpty else {
+        return [] // 検索テキストが空なら結果なし（全表示しない）
+    }
+
+    return allAbilities
+        .filter { $0.localizedStandardContains(abilitySearchText) } // 前方一致
+        .sorted()
+        .prefix(20) // 最大20件
+}
+```
+
+**受入基準**:
+- [ ] 検索フィールドが表示される
+- [ ] 入力に応じてリアルタイムで絞り込まれる
+- [ ] 前方一致で検索できる
+- [ ] 選択中の特性が上部に表示される
+- [ ] 最大20件まで表示
+
+#### FR-4.6.2 技フィルターの高度な絞り込み
+
+**現状の問題**:
+- 技名でしか検索できない
+- 「でんきタイプの威力100以上の技を覚えるポケモン」のような検索ができない
+
+**要件**:
+1. **技名検索**（特性と同様）
+   - 前方一致で絞り込み
+   - 最大20件表示
+
+2. **技のメタデータで絞り込み**
+   - タイプ：18タイプから選択
+   - ダメージクラス：物理/特殊/変化
+   - 威力：範囲指定（例：80-120）
+   - 命中率：範囲指定（例：90-100）
+   - PP：範囲指定
+
+**UI設計**:
+```swift
+Section("技フィルター") {
+    // 技名検索
+    TextField("技名で検索", text: $moveSearchText)
+
+    // メタデータ絞り込み
+    Picker("タイプ", selection: $selectedMoveType) {
+        Text("全て").tag(nil as String?)
+        ForEach(allTypes, id: \.self) { type in
+            Text(type).tag(type as String?)
+        }
+    }
+
+    Picker("分類", selection: $selectedDamageClass) {
+        Text("全て").tag(nil as String?)
+        Text("物理").tag("physical" as String?)
+        Text("特殊").tag("special" as String?)
+        Text("変化").tag("status" as String?)
+    }
+
+    // 威力範囲
+    HStack {
+        Text("威力")
+        Slider(value: $minPower, in: 0...200)
+        Text("\(Int(minPower))+")
+    }
+
+    // 選択中の技
+    ForEach(selectedMoves, id: \.id) { move in
+        moveChip(move)
+    }
+
+    // 検索結果
+    ForEach(filteredMoves, id: \.id) { move in
+        moveRow(move)
+    }
+}
+```
+
+**絞り込みロジック**:
+```swift
+var filteredMoves: [MoveEntity] {
+    var results = allMoves
+
+    // 技名検索
+    if !moveSearchText.isEmpty {
+        results = results.filter {
+            $0.name.localizedStandardContains(moveSearchText)
+        }
+    }
+
+    // タイプ絞り込み
+    if let type = selectedMoveType {
+        results = results.filter { $0.type == type }
+    }
+
+    // ダメージクラス絞り込み
+    if let damageClass = selectedDamageClass {
+        results = results.filter { $0.damageClass == damageClass }
+    }
+
+    // 威力絞り込み
+    if minPower > 0 {
+        results = results.filter { ($0.power ?? 0) >= Int(minPower) }
+    }
+
+    return results.sorted { $0.name < $1.name }.prefix(20)
+}
+```
+
+**受入基準**:
+- [ ] 技名で検索できる
+- [ ] タイプで絞り込める
+- [ ] ダメージクラスで絞り込める
+- [ ] 威力で絞り込める
+- [ ] 複数条件の組み合わせが動作する
+- [ ] 絞り込んだ技を覚えるポケモンを検索できる
+
+---
+
 ## 成功基準
 
 ### 定量的基準
