@@ -378,6 +378,75 @@ final class MoveDataModel {
 
 ---
 
+### Phase 5: 日本語対応（中優先度）
+
+#### FR-4.5.1 日本語名称の取得と表示
+
+**現状の問題**:
+- ポケモン名、タイプ名、技名、特性名などが全て英語表示
+- 日本語ユーザーにとって分かりにくい
+- 例：「pikachu」「electric」「thunderbolt」
+
+**要件**:
+- PokéAPIの`names`フィールドから日本語名を取得
+- 全ての名称を日本語で表示
+  - ポケモン名：「pikachu」→「ピカチュウ」
+  - タイプ名：「electric」→「でんき」
+  - 技名：「thunderbolt」→「10まんボルト」
+  - 特性名：「static」→「せいでんき」
+  - 分類：「mouse pokemon」→「ねずみポケモン」
+
+**受入基準**:
+- [ ] ポケモン名が日本語で表示される
+- [ ] タイプ名が日本語で表示される
+- [ ] 技名が日本語で表示される
+- [ ] 特性名が日本語で表示される
+- [ ] 進化条件が日本語で表示される
+
+#### FR-4.5.2 言語設定
+
+**要件**:
+- 設定画面から言語を切り替え可能
+- 英語/日本語の2言語対応
+- デフォルトは端末の言語設定に従う
+
+**受入基準**:
+- [ ] 設定画面に言語切り替え機能
+- [ ] 切り替え後、即座に全画面が更新される
+- [ ] 設定が永続化される
+
+#### FR-4.5.3 データベース設計
+
+**要件**:
+- SwiftDataモデルに日本語名フィールドを追加
+- 英語名も保持（APIとの整合性のため）
+
+**データモデル拡張**:
+```swift
+@Model
+final class PokemonDataModel {
+    var name: String        // 英語名（API互換用）
+    var nameJa: String?     // 日本語名
+    var genus: String?      // 分類（英語）
+    var genusJa: String?    // 分類（日本語）
+    // ...
+}
+
+@Model
+final class MoveDataModel {
+    var name: String        // 英語名
+    var nameJa: String?     // 日本語名
+    // ...
+}
+```
+
+**受入基準**:
+- [ ] 日本語名がDBに保存される
+- [ ] 英語名も保持される
+- [ ] 言語切り替え時にDBから適切な名前を取得
+
+---
+
 ## 実装フェーズ
 
 ### Phase 1: バックグラウンド段階的読み込み（1-2日）
@@ -463,6 +532,48 @@ final class MoveDataModel {
 - [ ] WiFi環境で高速化
 - [ ] 低速環境でもタイムアウトなし
 - [ ] 自動調整が機能
+
+---
+
+### Phase 5: 日本語対応（2-3日）
+
+**実装内容**:
+1. Entityに日本語名フィールド追加
+2. Mapperで日本語名を抽出
+3. DataModelに日本語名フィールド追加
+4. 言語設定の実装
+5. 表示ロジックの更新
+
+**成果物**:
+- [ ] Pokemon+Localization.swift（拡張）
+- [ ] LocalizationManager.swift（新規）
+- [ ] PokemonDataModel（拡張：nameJa, genusJa）
+- [ ] MoveDataModel（拡張：nameJa）
+- [ ] TypeEntity（拡張：nameJa）
+- [ ] AbilityEntity（拡張：nameJa）
+- [ ] SettingsView（言語切り替え）
+
+**マッピング例**:
+```swift
+// PokemonSpeciesMapper.swift
+func map(from species: PKMPokemonSpecies) -> PokemonSpecies {
+    let nameJa = species.names?.first(where: { $0.language?.name == "ja" })?.name
+    let genusJa = species.genera?.first(where: { $0.language?.name == "ja" })?.genus
+
+    return PokemonSpecies(
+        name: species.name ?? "",
+        nameJa: nameJa,
+        genus: genus,
+        genusJa: genusJa,
+        // ...
+    )
+}
+```
+
+**テスト**:
+- [ ] 全ての名称が日本語で表示される
+- [ ] 英語/日本語切り替えが動作する
+- [ ] 日本語データがDBに保存される
 
 ---
 
