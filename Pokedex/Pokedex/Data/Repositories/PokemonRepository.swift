@@ -114,11 +114,22 @@ final class PokemonRepository: PokemonRepositoryProtocol {
 
         var allPokemons: [Pokemon]
 
-        if !cachedModels.isEmpty {
-            // キャッシュヒット
-            print("✅ [SwiftData] Cache hit! Found \(cachedModels.count) pokemon")
+        // 開発中：1025未満のキャッシュは古いデータなので削除
+        if !cachedModels.isEmpty && cachedModels.count < 1025 {
+            print("🔄 [Repository] Detected old cache (\(cachedModels.count) pokemon), clearing...")
+            try modelContext.delete(model: PokemonModel.self)
+            try modelContext.save()
+            print("✅ [Repository] Old cache cleared")
+        }
+
+        // 再度キャッシュチェック
+        let freshModels = try modelContext.fetch(descriptor)
+
+        if !freshModels.isEmpty && freshModels.count >= 1025 {
+            // キャッシュヒット（1025匹以上）
+            print("✅ [SwiftData] Cache hit! Found \(freshModels.count) pokemon")
             progressHandler?(1.0)
-            allPokemons = cachedModels.map { PokemonModelMapper.toDomain($0) }
+            allPokemons = freshModels.map { PokemonModelMapper.toDomain($0) }
         } else {
             // STEP 2: プリバンドルデータをロード
             print("📦 [SwiftData] Cache miss, trying preloaded data...")
@@ -131,11 +142,11 @@ final class PokemonRepository: PokemonRepositoryProtocol {
                 progressHandler?(1.0)
                 allPokemons = loadedModels.map { PokemonModelMapper.toDomain($0) }
             } else {
-                // STEP 3: APIから取得（テスト用: 151匹のみ）
-                print("🌐 [API] Fetching from PokéAPI (maxId: 151)...")
+                // STEP 3: APIから取得（フォールバック）
+                print("🌐 [API] Fetching from PokéAPI...")
 
                 let fetchedPokemons = try await apiClient.fetchAllPokemon(
-                    maxId: 151,
+                    maxId: nil,  // 全ポケモン取得
                     progressHandler: progressHandler
                 )
 

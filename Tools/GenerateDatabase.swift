@@ -127,19 +127,50 @@ for id in 1...maxId {
             homeFrontShiny: homeFrontShiny
         )
 
-        // 技（IDのみ）
+        // 技（IDのみ）と登場世代の判定
         let movesJson = json["moves"] as! [[String: Any]]
-        let moveIds = movesJson.compactMap { moveData -> Int? in
+        var moveIds: [Int] = []
+        var generationSet: Set<Int> = []
+
+        for moveData in movesJson {
+            // 技IDを抽出
             if let move = moveData["move"] as? [String: Any],
                let url = move["url"] as? String,
                let idStr = url.split(separator: "/").last {
-                return Int(idStr)
+                moveIds.append(Int(idStr)!)
             }
-            return nil
+
+            // version_group_detailsから登場世代を抽出
+            if let versionDetails = moveData["version_group_details"] as? [[String: Any]] {
+                for detail in versionDetails {
+                    if let versionGroup = detail["version_group"] as? [String: Any],
+                       let vgUrl = versionGroup["url"] as? String,
+                       let vgIdStr = vgUrl.split(separator: "/").last,
+                       let vgId = Int(vgIdStr) {
+                        // version-group IDから世代を推測
+                        // 1-2: gen1, 3-4: gen2, 5-7: gen3, 8-10: gen4, 11-12: gen5
+                        // 13-14: gen6, 15-18: gen7, 19-21: gen8, 22-25: gen9
+                        let generation: Int
+                        switch vgId {
+                        case 1...2: generation = 1
+                        case 3...4: generation = 2
+                        case 5...7: generation = 3
+                        case 8...10: generation = 4
+                        case 11...12: generation = 5
+                        case 13...14: generation = 6
+                        case 15...18: generation = 7
+                        case 19...21: generation = 8
+                        case 22...25: generation = 9
+                        default: generation = 1
+                        }
+                        generationSet.insert(generation)
+                    }
+                }
+            }
         }
 
-        // 登場世代（第1世代は全て1）
-        let availableGenerations = [1]
+        // 登場世代リストをソート
+        let availableGenerations = Array(generationSet).sorted()
 
         let pokemon = PokemonData(
             id: id,
