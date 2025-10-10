@@ -6,66 +6,62 @@
 //
 
 import Foundation
+import SwiftData
 
 final class PokemonRepository: PokemonRepositoryProtocol {
     private let apiClient: PokemonAPIClient
-    private var cache: [Int: Pokemon] = [:]
-    private var listCache: [Pokemon]?
-    private var versionGroupCaches: [String: [Pokemon]] = [:]
+    private let modelContext: ModelContext
 
-    // v3.0 新規キャッシュ
+    // v3.0 詳細情報用キャッシュ（メモリキャッシュとして残す）
     private let formCache = FormCache()
     private let locationCache = LocationCache()
 
-    init(apiClient: PokemonAPIClient = PokemonAPIClient()) {
+    init(apiClient: PokemonAPIClient = PokemonAPIClient(), modelContext: ModelContext) {
         self.apiClient = apiClient
+        self.modelContext = modelContext
     }
 
-    /// キャッシュをクリア（デバッグ用）
+    /// SwiftDataキャッシュをクリア（デバッグ用）
     func clearCache() {
-        cache.removeAll()
-        listCache = nil
-        versionGroupCaches.removeAll()
-        print("🗑️ Cache cleared")
-    }
-
-    func fetchPokemonList(limit: Int, offset: Int, progressHandler: ((Double) -> Void)?) async throws -> [Pokemon] {
-        // リストキャッシュがあればそれを返す
-        if let cached = listCache {
-            // キャッシュヒット時は即座に100%
-            progressHandler?(1.0)
-            return cached
+        do {
+            try modelContext.delete(model: PokemonModel.self)
+            try modelContext.save()
+            print("🗑️ SwiftData cache cleared")
+        } catch {
+            print("⚠️ Failed to clear cache: \(error)")
         }
-
-        let pokemons = try await apiClient.fetchPokemonList(
-            limit: limit,
-            offset: offset,
-            progressHandler: progressHandler
-        )
-
-        // リストキャッシュと個別キャッシュの両方に保存
-        listCache = pokemons
-        for pokemon in pokemons {
-            cache[pokemon.id] = pokemon
-        }
-
-        return pokemons
     }
 
     func fetchPokemonDetail(id: Int) async throws -> Pokemon {
-        // キャッシュチェック
-        if let cached = cache[id] {
-            return cached
+        // SwiftDataキャッシュチェック
+        let descriptor = FetchDescriptor<PokemonModel>(
+            predicate: #Predicate { $0.id == id }
+        )
+
+        if let cached = try modelContext.fetch(descriptor).first {
+            return PokemonModelMapper.toDomain(cached)
         }
 
+        // APIから取得
         let pokemon = try await apiClient.fetchPokemon(id)
-        cache[id] = pokemon
+
+        // SwiftDataに保存
+        let model = PokemonModelMapper.toModel(pokemon)
+        modelContext.insert(model)
+        try modelContext.save()
+
         return pokemon
     }
 
     func fetchPokemonDetail(name: String) async throws -> Pokemon {
+        // APIから取得（nameでSwiftData検索は非効率なため）
         let pokemon = try await apiClient.fetchPokemon(name)
-        cache[pokemon.id] = pokemon
+
+        // SwiftDataに保存
+        let model = PokemonModelMapper.toModel(pokemon)
+        modelContext.insert(model)
+        try modelContext.save()
+
         return pokemon
     }
 
@@ -77,21 +73,93 @@ final class PokemonRepository: PokemonRepositoryProtocol {
         try await apiClient.fetchEvolutionChain(id)
     }
 
-    func fetchPokemonList(versionGroup: VersionGroup, progressHandler: ((Double) -> Void)?) async throws -> [Pokemon] {
-        // バージョングループ別キャッシュチェック
-        if let cached = versionGroupCaches[versionGroup.id] {
+    func fetchPokemonList(limit: Int, offset: Int, progressHandler: ((Double) -> Void)?) async throws -> [Pokemon] {
+        // v4.0: このメソッドは非推奨（versionGroup版を使用）
+        // 互換性のため、limitまでのポケモンを取得して返す
+        let descriptor = FetchDescriptor<PokemonModel>(
+            sortBy: [SortDescriptor(\.id)]
+        )
+        let allModels = try modelContext.fetch(descriptor)
+
+        if !allModels.isEmpty {
+            // キャッシュから取得
+            let limitedModels = Array(allModels.prefix(limit))
             progressHandler?(1.0)
-            return cached
+            return limitedModels.map { PokemonModelMapper.toDomain($0) }
         }
 
-        // 全国図鑑の場合は全ポケモン（フォルム含む）を取得
-        if versionGroup.id == "national" {
-            let pokemons = try await apiClient.fetchAllPokemon(progressHandler: progressHandler)
-            versionGroupCaches[versionGroup.id] = pokemons
-            for pokemon in pokemons {
-                cache[pokemon.id] = pokemon
+        // キャッシュがない場合はAPIから取得
+        let pokemons = try await apiClient.fetchPokemonList(
+            limit: limit,
+            offset: offset,
+            progressHandler: progressHandler
+        )
+
+        // SwiftDataに保存
+        for pokemon in pokemons {
+            let model = PokemonModelMapper.toModel(pokemon)
+            modelContext.insert(model)
+        }
+        try modelContext.save()
+
+        return pokemons
+    }
+
+    func fetchPokemonList(versionGroup: VersionGroup, progressHandler: ((Double) -> Void)?) async throws -> [Pokemon] {
+        // STEP 1: SwiftDataからポケモンを取得
+        print("📦 [Repository] Fetching pokemon for version group: \(versionGroup.id)")
+
+        let descriptor = FetchDescriptor<PokemonModel>(sortBy: [SortDescriptor(\.id)])
+        let cachedModels = try modelContext.fetch(descriptor)
+
+        var allPokemons: [Pokemon]
+
+        if !cachedModels.isEmpty {
+            // キャッシュヒット
+            print("✅ [SwiftData] Cache hit! Found \(cachedModels.count) pokemon")
+            progressHandler?(1.0)
+            allPokemons = cachedModels.map { PokemonModelMapper.toDomain($0) }
+        } else {
+            // STEP 2: プリバンドルデータをロード
+            print("📦 [SwiftData] Cache miss, trying preloaded data...")
+            let loaded = try PreloadedDataLoader.loadPreloadedDataIfNeeded(modelContext: modelContext)
+
+            if loaded {
+                // プリバンドルデータからロード成功
+                let loadedModels = try modelContext.fetch(descriptor)
+                print("✅ [Preloaded] Loaded \(loadedModels.count) pokemon from bundle")
+                progressHandler?(1.0)
+                allPokemons = loadedModels.map { PokemonModelMapper.toDomain($0) }
+            } else {
+                // STEP 3: APIから取得（テスト用: 151匹のみ）
+                print("🌐 [API] Fetching from PokéAPI (maxId: 151)...")
+
+                let fetchedPokemons = try await apiClient.fetchAllPokemon(
+                    maxId: 151,
+                    progressHandler: progressHandler
+                )
+
+                print("✅ [API] Fetched \(fetchedPokemons.count) pokemon")
+
+                // SwiftDataに保存
+                for pokemon in fetchedPokemons {
+                    let model = PokemonModelMapper.toModel(pokemon)
+                    modelContext.insert(model)
+                }
+                try modelContext.save()
+                print("💾 [SwiftData] Saved \(fetchedPokemons.count) pokemon to cache")
+
+                allPokemons = fetchedPokemons
             }
-            return pokemons
+        }
+
+        // STEP 4: バージョングループでフィルタリング
+        print("🔍 [Filter] Filtering for version group: \(versionGroup.id)")
+
+        // 全国図鑑の場合はフィルタリングせずに全て返す
+        if versionGroup.id == "national" {
+            print("✅ [Filter] National Dex: Returning all \(allPokemons.count) pokemon")
+            return allPokemons
         }
 
         // バージョングループ別の場合: pokedexから実際に登場するspeciesIdを取得
@@ -109,11 +177,8 @@ final class PokemonRepository: PokemonRepositoryProtocol {
             }
         }
 
-        // 全ポケモンリストから該当バージョングループのものをフィルタリング
-        let allPokemons = try await apiClient.fetchAllPokemon(progressHandler: progressHandler)
-
         print("📊 VersionGroup \(versionGroup.id) filtering:")
-        print("  Total pokemon fetched: \(allPokemons.count)")
+        print("  Total pokemon: \(allPokemons.count)")
         print("  Unique species IDs in pokedex: \(speciesIds.count)")
 
         let versionGroupPokemons: [Pokemon]
@@ -121,7 +186,6 @@ final class PokemonRepository: PokemonRepositoryProtocol {
             // Pokedex + 登場可能ポケモン（Pokemon Homeなど経由）
             versionGroupPokemons = allPokemons.filter { pokemon in
                 // 1. そのフォルムがこのバージョングループでまだ存在しているか（削除されていないか）
-                // これを最初にチェックすることで、キョダイマックスやメガシンカを除外
                 if let lastGen = pokemon.lastAvailableGeneration {
                     guard versionGroup.generation <= lastGen else {
                         return false
@@ -140,7 +204,6 @@ final class PokemonRepository: PokemonRepositoryProtocol {
                 }
 
                 // 3-2: Pokedexには載っていないが、movesから判定して登場可能
-                // （Pokemon Home連携など）
                 if pokemon.availableGenerations.contains(versionGroup.generation) {
                     return true
                 }
@@ -163,12 +226,6 @@ final class PokemonRepository: PokemonRepositoryProtocol {
 
                 return true
             }
-        }
-
-        // バージョングループ別キャッシュと個別キャッシュの両方に保存
-        versionGroupCaches[versionGroup.id] = versionGroupPokemons
-        for pokemon in versionGroupPokemons {
-            cache[pokemon.id] = pokemon
         }
 
         return versionGroupPokemons
