@@ -2,7 +2,7 @@
 //  SearchFilterView.swift
 //  Pokedex
 //
-//  Created on 2025-10-04.
+//  フィルター画面（UI改善版）
 //
 
 import SwiftUI
@@ -15,6 +15,10 @@ struct SearchFilterView: View {
     @State private var allMoves: [MoveEntity] = []
     @State private var isLoadingMoves = false
 
+    // 検索テキスト
+    @State private var abilitySearchText = ""
+    @State private var moveSearchText = ""
+
     let fetchAllAbilitiesUseCase: FetchAllAbilitiesUseCaseProtocol
     let fetchAllMovesUseCase: FetchAllMovesUseCaseProtocol
 
@@ -25,17 +29,14 @@ struct SearchFilterView: View {
         "rock", "ghost", "dragon", "dark", "steel", "fairy"
     ]
 
-    // 技カテゴリーのリスト
-    private let allMoveCategories: [(id: String, name: String)] = [
-        ("sound", "音技"),
-        ("punch", "パンチ技"),
-        ("dance", "踊り技"),
-        ("bite", "噛む技"),
-        ("powder", "粉技"),
-        ("pulse", "波動技"),
-        ("ball", "弾技"),
-        ("wind", "風技"),
-        ("slash", "切る技")
+    // 技カテゴリーのリスト（MoveCategory.swiftから取得）
+    private let allMoveCategories = MoveCategory.allCategories
+
+    // グリッドレイアウト（3列）
+    private let typeGridColumns = [
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+        GridItem(.flexible())
     ]
 
     var body: some View {
@@ -59,67 +60,79 @@ struct SearchFilterView: View {
         }
     }
 
+    // MARK: - Type Section (Grid Layout)
+
     private var typeFilterSection: some View {
         Section("タイプ") {
-            ForEach(allTypes, id: \.self) { typeName in
-                typeSelectionButton(typeName)
+            LazyVGrid(columns: typeGridColumns, spacing: 10) {
+                ForEach(allTypes, id: \.self) { typeName in
+                    typeGridButton(typeName)
+                }
             }
+            .padding(.vertical, 8)
         }
     }
 
-    private func typeSelectionButton(_ typeName: String) -> some View {
+    private func typeGridButton(_ typeName: String) -> some View {
         Button {
             toggleTypeSelection(typeName)
         } label: {
-            HStack {
-                Text(typeJapaneseName(typeName))
-                Spacer()
-                if viewModel.selectedTypes.contains(typeName) {
-                    checkmark
-                }
-            }
+            Text(typeJapaneseName(typeName))
+                .font(.caption)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .background(
+                    viewModel.selectedTypes.contains(typeName)
+                        ? Color.blue.opacity(0.2)
+                        : Color.secondary.opacity(0.1)
+                )
+                .cornerRadius(8)
         }
-        .foregroundColor(.primary)
+        .buttonStyle(.plain)
     }
 
-    private var checkmark: some View {
-        Image(systemName: "checkmark")
-            .foregroundColor(.blue)
-    }
+    // MARK: - Ability Section (with Search)
 
     private var abilityFilterSection: some View {
-        Section("特性") {
+        Section {
             if isLoadingAbilities {
                 ProgressView()
             } else {
-                ForEach(allAbilities, id: \.self) { abilityName in
+                // 検索バー
+                TextField("特性を検索", text: $abilitySearchText)
+                    .textFieldStyle(.roundedBorder)
+
+                // 選択済み特性の表示
+                if !viewModel.selectedAbilities.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(Array(viewModel.selectedAbilities), id: \.self) { abilityName in
+                                selectedAbilityChip(abilityName)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+
+                // 特性リスト
+                ForEach(filteredAbilities.prefix(50), id: \.self) { abilityName in
                     abilitySelectionButton(abilityName)
                 }
             }
+        } header: {
+            Text("特性")
         }
     }
 
-    private var moveCategoryFilterSection: some View {
-        Section("技カテゴリー") {
-            ForEach(allMoveCategories, id: \.id) { category in
-                moveCategorySelectionButton(category)
-            }
+    private var filteredAbilities: [String] {
+        // 検索テキストが空の場合は候補を表示しない
+        if abilitySearchText.isEmpty {
+            return []
         }
-    }
-
-    private func moveCategorySelectionButton(_ category: (id: String, name: String)) -> some View {
-        Button {
-            toggleMoveCategorySelection(category.id)
-        } label: {
-            HStack {
-                Text(category.name)
-                Spacer()
-                if viewModel.selectedMoveCategories.contains(category.id) {
-                    checkmark
-                }
-            }
+        // 前方一致で検索
+        return allAbilities.filter { ability in
+            ability.lowercased().hasPrefix(abilitySearchText.lowercased())
         }
-        .foregroundColor(.primary)
     }
 
     private func abilitySelectionButton(_ abilityName: String) -> some View {
@@ -129,16 +142,48 @@ struct SearchFilterView: View {
             HStack {
                 Text(abilityName.capitalized)
                 Spacer()
-                if viewModel.selectedAbilities.contains(abilityName) {
-                    checkmark
-                }
             }
         }
         .foregroundColor(.primary)
     }
 
+    // MARK: - Move Category Section
+
+    private var moveCategoryFilterSection: some View {
+        Section {
+            LazyVGrid(columns: typeGridColumns, spacing: 10) {
+                ForEach(allMoveCategories, id: \.id) { category in
+                    moveCategoryGridButton(category)
+                }
+            }
+            .padding(.vertical, 8)
+        } header: {
+            Text("技カテゴリー")
+        }
+    }
+
+    private func moveCategoryGridButton(_ category: (id: String, name: String)) -> some View {
+        Button {
+            toggleMoveCategorySelection(category.id)
+        } label: {
+            Text(category.name)
+                .font(.caption)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .background(
+                    viewModel.selectedMoveCategories.contains(category.id)
+                        ? Color.blue.opacity(0.2)
+                        : Color.secondary.opacity(0.1)
+                )
+                .cornerRadius(8)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Move Section (with Search)
+
     private var moveFilterSection: some View {
-        Section("技") {
+        Section {
             if !isMoveFilterEnabled {
                 Text("技フィルターはバージョングループを選択した場合のみ利用可能です。")
                     .font(.caption)
@@ -146,13 +191,58 @@ struct SearchFilterView: View {
             } else if isLoadingMoves {
                 ProgressView()
             } else {
-                ForEach(filteredMoves.prefix(100)) { move in // カテゴリーフィルタを適用
+                // 検索バー
+                TextField("技を検索", text: $moveSearchText)
+                    .textFieldStyle(.roundedBorder)
+
+                // 選択済み技の表示
+                if !viewModel.selectedMoves.isEmpty {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("選択中: \(viewModel.selectedMoves.count)件")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(viewModel.selectedMoves) { move in
+                                    selectedMoveChip(move)
+                                }
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+                }
+
+                // 技リスト
+                ForEach(searchFilteredMoves.prefix(50)) { move in
                     moveSelectionButton(move)
                 }
             }
+        } header: {
+            Text("技")
         }
     }
 
+    // カテゴリー + 検索でフィルタリング
+    private var searchFilteredMoves: [MoveEntity] {
+        // 検索テキストもカテゴリーも空の場合は候補を表示しない
+        if moveSearchText.isEmpty && viewModel.selectedMoveCategories.isEmpty {
+            return []
+        }
+
+        var moves = filteredMoves // カテゴリーフィルター適用済み
+
+        // 検索テキストがある場合は前方一致でフィルタ
+        if !moveSearchText.isEmpty {
+            moves = moves.filter { move in
+                move.name.lowercased().hasPrefix(moveSearchText.lowercased())
+            }
+        }
+
+        return moves
+    }
+
+    // カテゴリーでフィルタリング
     private var filteredMoves: [MoveEntity] {
         guard !viewModel.selectedMoveCategories.isEmpty else {
             return allMoves
@@ -169,13 +259,16 @@ struct SearchFilterView: View {
             HStack {
                 Text(move.name.capitalized)
                 Spacer()
-                if viewModel.selectedMoves.contains(where: { $0.id == move.id }) {
-                    checkmark
-                }
             }
         }
         .foregroundColor(.primary)
-        .disabled(viewModel.selectedMoves.count >= 4 && !viewModel.selectedMoves.contains(where: { $0.id == move.id }))
+    }
+
+    // MARK: - Helpers
+
+    private var checkmark: some View {
+        Image(systemName: "checkmark")
+            .foregroundColor(.blue)
     }
 
     private var isMoveFilterEnabled: Bool {
@@ -190,6 +283,8 @@ struct SearchFilterView: View {
                 viewModel.selectedMoveCategories.removeAll()
                 viewModel.selectedMoves.removeAll()
                 viewModel.searchText = ""
+                abilitySearchText = ""
+                moveSearchText = ""
                 viewModel.applyFilters()
             }
         }
@@ -204,6 +299,8 @@ struct SearchFilterView: View {
         }
     }
 
+    // MARK: - Actions
+
     private func toggleTypeSelection(_ typeName: String) {
         if viewModel.selectedTypes.contains(typeName) {
             viewModel.selectedTypes.remove(typeName)
@@ -217,6 +314,8 @@ struct SearchFilterView: View {
             viewModel.selectedAbilities.remove(abilityName)
         } else {
             viewModel.selectedAbilities.insert(abilityName)
+            // 選択したら検索バーをクリア
+            abilitySearchText = ""
         }
     }
 
@@ -231,10 +330,14 @@ struct SearchFilterView: View {
     private func toggleMoveSelection(_ move: MoveEntity) {
         if let index = viewModel.selectedMoves.firstIndex(where: { $0.id == move.id }) {
             viewModel.selectedMoves.remove(at: index)
-        } else if viewModel.selectedMoves.count < 4 {
+        } else {
             viewModel.selectedMoves.append(move)
+            // 選択したら検索バーをクリア
+            moveSearchText = ""
         }
     }
+
+    // MARK: - Data Loading
 
     private func loadAbilities() {
         guard allAbilities.isEmpty else { return }
@@ -277,8 +380,45 @@ struct SearchFilterView: View {
         }
     }
 
+    // MARK: - Selected Item Chips
+
+    private func selectedAbilityChip(_ abilityName: String) -> some View {
+        HStack(spacing: 4) {
+            Text(abilityName.capitalized)
+                .font(.caption)
+            Button {
+                toggleAbilitySelection(abilityName)
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.caption)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(Color.blue.opacity(0.2))
+        .cornerRadius(12)
+    }
+
+    private func selectedMoveChip(_ move: MoveEntity) -> some View {
+        HStack(spacing: 4) {
+            Text(move.name.capitalized)
+                .font(.caption)
+            Button {
+                toggleMoveSelection(move)
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.caption)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(Color.blue.opacity(0.2))
+        .cornerRadius(12)
+    }
+
+    // MARK: - Type Japanese Name
+
     private func typeJapaneseName(_ typeName: String) -> String {
-        // PokemonType.japaneseNameと同じマッピング
         switch typeName {
         case "normal": return "ノーマル"
         case "fire": return "ほのお"
