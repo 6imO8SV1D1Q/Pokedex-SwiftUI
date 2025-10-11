@@ -60,7 +60,8 @@ final class MoveRepository: MoveRepositoryProtocol {
                 pp: nil,
                 damageClass: "status",
                 effect: nil,  // 説明文は個別取得時に設定
-                machineNumber: nil  // マシン番号は個別取得時に設定
+                machineNumber: nil,  // マシン番号は個別取得時に設定
+                categories: []  // カテゴリーは個別取得時に設定
             )
         }
 
@@ -190,7 +191,8 @@ final class MoveRepository: MoveRepositoryProtocol {
             pp: moveDetail.pp,
             damageClass: moveDetail.damageClass?.name ?? "status",
             effect: effect,
-            machineNumber: machineNumber
+            machineNumber: machineNumber,
+            categories: []  // TODO: SwiftDataから取得する場合はcategoriesを含める
         )
     }
 

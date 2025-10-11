@@ -20,7 +20,10 @@ struct PokedexApp: App {
                 PokemonBaseStatsModel.self,
                 PokemonSpriteModel.self,
                 PokemonLearnedMoveModel.self,
-                PokemonEvolutionModel.self
+                PokemonEvolutionModel.self,
+                MoveModel.self,
+                MoveMetaModel.self,
+                AbilityModel.self
             ])
 
             // ModelConfiguration（ディスク永続化）

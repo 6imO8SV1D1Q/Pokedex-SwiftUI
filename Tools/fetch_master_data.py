@@ -6,6 +6,7 @@ import json
 import time
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from move_categories import detect_move_categories
 
 JSON_PATH = "../Pokedex/Pokedex/Resources/PreloadedData/scarlet_violet.json"
 
@@ -71,6 +72,9 @@ def fetch_move(move_id):
     meta = data.get("meta") or {}
     stat_changes = [{"stat": s["stat"]["name"], "change": s["change"]} for s in (meta.get("stat_changes") or [])]
 
+    # Categories (v4.0 Phase 3)
+    categories = detect_move_categories(name, effect or "")
+
     return {
         "id": move_id,
         "name": name,
@@ -84,6 +88,7 @@ def fetch_move(move_id):
         "effectChance": effect_chance,
         "effect": effect or "",
         "effectJa": effect_ja or "",
+        "categories": categories,
         "meta": {
             "ailment": (meta.get("ailment") or {}).get("name") or "none",
             "ailmentChance": meta.get("ailment_chance") or 0,

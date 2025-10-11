@@ -70,6 +70,9 @@ final class PokemonListViewModel: ObservableObject {
     /// 選択された特性
     @Published var selectedAbilities: Set<String> = []
 
+    /// 選択された技カテゴリー
+    @Published var selectedMoveCategories: Set<String> = []
+
     /// 選択された技
     @Published var selectedMoves: [MoveEntity] = []
 
@@ -264,6 +267,7 @@ final class PokemonListViewModel: ObservableObject {
         searchText = ""
         selectedTypes.removeAll()
         selectedAbilities.removeAll()
+        selectedMoveCategories.removeAll()
         selectedMoves.removeAll()
         applyFilters()
     }

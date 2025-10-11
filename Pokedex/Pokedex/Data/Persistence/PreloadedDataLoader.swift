@@ -61,6 +61,72 @@ enum PreloadedDataLoader {
             abilityMap[ability.id] = (name: name, nameJa: nameJa)
         }
 
+        // 特性データをSwiftDataに保存
+        print("💾 [Preloaded] Saving abilities to SwiftData...")
+        for (index, abilityData) in gameData.abilities.enumerated() {
+            let model = AbilityModel(
+                id: abilityData.id,
+                name: abilityData.name ?? "ability-\(abilityData.id)",
+                nameJa: abilityData.nameJa ?? "特性\(abilityData.id)",
+                effect: abilityData.effect ?? "",
+                effectJa: abilityData.effectJa ?? ""
+            )
+            modelContext.insert(model)
+
+            if (index + 1) % 50 == 0 {
+                try modelContext.save()
+                print("   Saved \(index + 1)/\(gameData.abilities.count) abilities...")
+            }
+        }
+        try modelContext.save()
+        print("✅ [Preloaded] Successfully loaded \(gameData.abilities.count) abilities")
+
+        // 技データをSwiftDataに保存
+        print("💾 [Preloaded] Saving moves to SwiftData...")
+        for (index, moveData) in gameData.moves.enumerated() {
+            // MoveMetaModelを作成
+            let metaModel: MoveMetaModel? = {
+                guard let meta = moveData.meta else { return nil }
+                return MoveMetaModel(
+                    ailment: meta.ailment ?? "none",
+                    ailmentChance: meta.ailmentChance ?? 0,
+                    category: meta.category ?? "damage",
+                    critRate: meta.critRate ?? 0,
+                    drain: meta.drain ?? 0,
+                    flinchChance: meta.flinchChance ?? 0,
+                    healing: meta.healing ?? 0,
+                    statChance: meta.statChance ?? 0,
+                    statChanges: meta.statChanges?.map { MoveStatChange(stat: $0.stat, change: $0.change) } ?? []
+                )
+            }()
+
+            // MoveModelを作成
+            let model = MoveModel(
+                id: moveData.id,
+                name: moveData.name ?? "move-\(moveData.id)",
+                nameJa: moveData.nameJa ?? "技\(moveData.id)",
+                type: moveData.type ?? "normal",
+                damageClass: moveData.damageClass ?? "status",
+                power: moveData.power,
+                accuracy: moveData.accuracy,
+                pp: moveData.pp ?? 0,
+                priority: moveData.priority ?? 0,
+                effectChance: moveData.effectChance,
+                effect: moveData.effect ?? "",
+                effectJa: moveData.effectJa ?? "",
+                categories: moveData.categories ?? [],
+                meta: metaModel
+            )
+            modelContext.insert(model)
+
+            if (index + 1) % 100 == 0 {
+                try modelContext.save()
+                print("   Saved \(index + 1)/\(gameData.moves.count) moves...")
+            }
+        }
+        try modelContext.save()
+        print("✅ [Preloaded] Successfully loaded \(gameData.moves.count) moves")
+
         // ポケモンデータをSwiftDataに変換して保存
         print("💾 [Preloaded] Saving pokemon to SwiftData...")
 

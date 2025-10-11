@@ -94,6 +94,7 @@ struct MoveData: Codable {
     let effectChance: Int?
     let effect: String?
     let effectJa: String?
+    let categories: [String]?
     let meta: MoveMeta?
 
     struct MoveMeta: Codable {

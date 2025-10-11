@@ -25,11 +25,25 @@ struct SearchFilterView: View {
         "rock", "ghost", "dragon", "dark", "steel", "fairy"
     ]
 
+    // 技カテゴリーのリスト
+    private let allMoveCategories: [(id: String, name: String)] = [
+        ("sound", "音技"),
+        ("punch", "パンチ技"),
+        ("dance", "踊り技"),
+        ("bite", "噛む技"),
+        ("powder", "粉技"),
+        ("pulse", "波動技"),
+        ("ball", "弾技"),
+        ("wind", "風技"),
+        ("slash", "切る技")
+    ]
+
     var body: some View {
         NavigationStack {
             Form {
                 typeFilterSection
                 abilityFilterSection
+                moveCategoryFilterSection
                 moveFilterSection
             }
             .navigationTitle("フィルター")
@@ -85,6 +99,29 @@ struct SearchFilterView: View {
         }
     }
 
+    private var moveCategoryFilterSection: some View {
+        Section("技カテゴリー") {
+            ForEach(allMoveCategories, id: \.id) { category in
+                moveCategorySelectionButton(category)
+            }
+        }
+    }
+
+    private func moveCategorySelectionButton(_ category: (id: String, name: String)) -> some View {
+        Button {
+            toggleMoveCategorySelection(category.id)
+        } label: {
+            HStack {
+                Text(category.name)
+                Spacer()
+                if viewModel.selectedMoveCategories.contains(category.id) {
+                    checkmark
+                }
+            }
+        }
+        .foregroundColor(.primary)
+    }
+
     private func abilitySelectionButton(_ abilityName: String) -> some View {
         Button {
             toggleAbilitySelection(abilityName)
@@ -109,10 +146,19 @@ struct SearchFilterView: View {
             } else if isLoadingMoves {
                 ProgressView()
             } else {
-                ForEach(allMoves.prefix(100)) { move in // 最初の100件のみ表示
+                ForEach(filteredMoves.prefix(100)) { move in // カテゴリーフィルタを適用
                     moveSelectionButton(move)
                 }
             }
+        }
+    }
+
+    private var filteredMoves: [MoveEntity] {
+        guard !viewModel.selectedMoveCategories.isEmpty else {
+            return allMoves
+        }
+        return allMoves.filter { move in
+            MoveCategory.moveMatchesAnyCategory(move.name, categories: viewModel.selectedMoveCategories)
         }
     }
 
@@ -141,6 +187,7 @@ struct SearchFilterView: View {
             Button("クリア") {
                 viewModel.selectedTypes.removeAll()
                 viewModel.selectedAbilities.removeAll()
+                viewModel.selectedMoveCategories.removeAll()
                 viewModel.selectedMoves.removeAll()
                 viewModel.searchText = ""
                 viewModel.applyFilters()
@@ -170,6 +217,14 @@ struct SearchFilterView: View {
             viewModel.selectedAbilities.remove(abilityName)
         } else {
             viewModel.selectedAbilities.insert(abilityName)
+        }
+    }
+
+    private func toggleMoveCategorySelection(_ categoryId: String) {
+        if viewModel.selectedMoveCategories.contains(categoryId) {
+            viewModel.selectedMoveCategories.remove(categoryId)
+        } else {
+            viewModel.selectedMoveCategories.insert(categoryId)
         }
     }
 

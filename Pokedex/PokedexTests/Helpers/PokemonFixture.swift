@@ -189,7 +189,8 @@ extension MoveEntity {
         pp: Int? = 35,
         damageClass: String = "physical",
         effect: String? = "Inflicts regular damage with no additional effect.",
-        machineNumber: String? = nil
+        machineNumber: String? = nil,
+        categories: [String] = []
     ) -> MoveEntity {
         MoveEntity(
             id: id,
@@ -200,7 +201,8 @@ extension MoveEntity {
             pp: pp,
             damageClass: damageClass,
             effect: effect,
-            machineNumber: machineNumber
+            machineNumber: machineNumber,
+            categories: categories
         )
     }
 }
