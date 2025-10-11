@@ -163,7 +163,7 @@ final class PokemonAPIClient {
         return pokemons.sorted { $0.id < $1.id }
     }
 
-    func fetchAllPokemon(progressHandler: ((Double) -> Void)?) async throws -> [Pokemon] {
+    func fetchAllPokemon(maxId: Int? = nil, progressHandler: ((Double) -> Void)?) async throws -> [Pokemon] {
         // 全ポケモンリストを取得（limit=0で総数確認）
         let pagedObject = try await pokemonAPI.pokemonService.fetchPokemonList(
             paginationState: .initial(pageLimit: 1)
@@ -173,9 +173,12 @@ final class PokemonAPIClient {
             return []
         }
 
+        // maxIdが指定されている場合は、それを上限とする
+        let targetCount = maxId ?? count
+
         // 実際のポケモンリストを取得
         let fullPagedObject = try await pokemonAPI.pokemonService.fetchPokemonList(
-            paginationState: .initial(pageLimit: count)
+            paginationState: .initial(pageLimit: targetCount)
         )
 
         guard let results = fullPagedObject.results else {

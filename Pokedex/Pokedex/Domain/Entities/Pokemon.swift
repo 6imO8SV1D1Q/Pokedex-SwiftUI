@@ -24,11 +24,23 @@ struct Pokemon: Identifiable, Codable, Hashable {
     /// ポケモンの名前（英語名、小文字）
     let name: String
 
+    /// ポケモンの日本語名（v4.0追加）
+    let nameJa: String?
+
+    /// 分類（英語、例: "Mouse Pokémon"）（v4.0追加）
+    let genus: String?
+
+    /// 分類（日本語、例: "ねずみポケモン"）（v4.0追加）
+    let genusJa: String?
+
     /// 身長（デシメートル単位）
     let height: Int
 
     /// 体重（ヘクトグラム単位）
     let weight: Int
+
+    /// ポケモン区分（v4.0追加: normal/legendary/mythical）
+    let category: String?
 
     /// タイプ（最大2つ）
     let types: [PokemonType]
@@ -47,6 +59,21 @@ struct Pokemon: Identifiable, Codable, Hashable {
 
     /// このポケモンが登場可能な世代リスト（movesから判定）
     let availableGenerations: [Int]
+
+    /// 全国図鑑番号（v4.0追加）
+    let nationalDexNumber: Int?
+
+    /// タマゴグループ（v4.0追加）
+    let eggGroups: [String]?
+
+    /// 性別比（v4.0追加: -1=性別なし、0=オスのみ、8=メスのみ）
+    let genderRate: Int?
+
+    /// 地方図鑑番号（v4.0追加: {"paldea": 25, "kitakami": 196}）
+    let pokedexNumbers: [String: Int]?
+
+    /// 関連フォームID配列（v4.0追加）
+    let varieties: [Int]?
 
     // MARK: - Hashable
 
@@ -75,13 +102,14 @@ struct Pokemon: Identifiable, Codable, Hashable {
     /// 図鑑番号の表示用フォーマット
     /// - Returns: 3桁0埋めされた図鑑番号（例: "#001"）
     var formattedId: String {
-        String(format: "#%03d", speciesId)
+        let dexNumber = nationalDexNumber ?? speciesId
+        return String(format: "#%03d", dexNumber)
     }
 
-    /// 表示用の名前（先頭大文字）
-    /// - Returns: 先頭が大文字の名前
+    /// 表示用の名前（日本語優先、なければ英語）
+    /// - Returns: 日本語名、または先頭が大文字の英語名
     var displayName: String {
-        name.capitalized
+        nameJa ?? name.capitalized
     }
 
     /// 種族値の合計

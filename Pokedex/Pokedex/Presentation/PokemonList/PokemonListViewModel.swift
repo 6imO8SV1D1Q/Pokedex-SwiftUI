@@ -74,7 +74,7 @@ final class PokemonListViewModel: ObservableObject {
     @Published var selectedMoves: [MoveEntity] = []
 
     /// 選択されたバージョングループ
-    @Published var selectedVersionGroup: VersionGroup = .nationalDex
+    @Published var selectedVersionGroup: VersionGroup = .scarletViolet
 
     /// 全バージョングループリスト
     private(set) var allVersionGroups: [VersionGroup] = []
@@ -119,7 +119,8 @@ final class PokemonListViewModel: ObservableObject {
     private let maxRetries = 3
 
     /// タイムアウト時間（秒）
-    private let timeoutSeconds: UInt64 = 10
+    /// v4.0: 151匹で約2分、全ポケモンで10分程度を想定
+    private let timeoutSeconds: UInt64 = 600
 
     // MARK: - Initialization
 
@@ -159,6 +160,12 @@ final class PokemonListViewModel: ObservableObject {
     ///         2回目以降はキャッシュが効くため高速に取得できます。
     ///         ネットワークエラー時は最大3回まで自動リトライします。
     func loadPokemons() async {
+        // 重複ロード防止
+        guard !isLoading else {
+            print("⚠️ [ViewModel] Load already in progress, skipping")
+            return
+        }
+
         await loadPokemonsWithRetry()
     }
 
@@ -276,6 +283,8 @@ final class PokemonListViewModel: ObservableObject {
         errorMessage = nil
         showError = false
 
+        print("📱 [ViewModel] Loading pokemons (attempt \(attempt + 1)/\(maxRetries))...")
+
         do {
             pokemons = try await fetchWithTimeout {
                 try await self.pokemonRepository.fetchPokemonList(
@@ -283,19 +292,33 @@ final class PokemonListViewModel: ObservableObject {
                     progressHandler: { [weak self] progress in
                         Task { @MainActor in
                             self?.loadingProgress = progress
+                            // 10%ごとに進捗ログ
+                            let percentage = Int(progress * 100)
+                            if percentage % 10 == 0 && percentage > 0 {
+                                print("📊 Progress: \(percentage)%")
+                            }
                         }
                     }
                 )
             }
+
+            print("✅ Load completed successfully: \(pokemons.count) pokemon")
             applyFilters()
             isLoading = false
+
         } catch {
+            print("⚠️ Load failed: \(error)")
+
+            // リトライ前に isLoading をリセット（重要！）
+            isLoading = false
+
             if attempt < maxRetries - 1 {
+                print("🔄 Retrying in 1 second...")
                 // 再試行前に少し待つ
                 try? await Task.sleep(nanoseconds: 1_000_000_000) // 1秒
                 await loadPokemonsWithRetry(attempt: attempt + 1)
             } else {
-                isLoading = false
+                print("❌ Max retries exceeded")
                 handleError(error)
             }
         }

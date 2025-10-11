@@ -1,0 +1,165 @@
+{
+  "dataVersion": "1.0.0",
+  "lastUpdated": "2025-10-10",
+  "versionGroup": "scarlet-violet",
+  "versionGroupId": 25,
+  "generation": 9,
+
+  "pokemon": [
+    {
+      "id": 25,
+      "nationalDexNumber": 25,
+      "name": "pikachu",
+      "nameJa": "ピカチュウ",
+      "genus": "Mouse Pokémon",
+      "genusJa": "ねずみポケモン",
+
+      "sprites": {
+        "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/25.png",
+        "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/25.png"
+      },
+
+      "types": ["electric"],
+
+      "abilities": {
+        "primary": [9],
+        "hidden": 31
+      },
+
+      "baseStats": {
+        "hp": 35,
+        "attack": 55,
+        "defense": 40,
+        "spAttack": 50,
+        "spDefense": 50,
+        "speed": 90,
+        "total": 320
+      },
+
+      "moves": [
+        {
+          "moveId": 98,
+          "learnMethod": "level-up",
+          "level": 1
+        },
+        {
+          "moveId": 39,
+          "learnMethod": "level-up",
+          "level": 5
+        },
+        {
+          "moveId": 86,
+          "learnMethod": "level-up",
+          "level": 10
+        },
+        {
+          "moveId": 85,
+          "learnMethod": "machine",
+          "machineNumber": "TM025"
+        }
+      ],
+
+      "eggGroups": ["ground", "fairy"],
+      "genderRate": 4,
+      "height": 4,
+      "weight": 60,
+
+      "evolutionChain": {
+        "chainId": 10,
+        "evolutionStage": 2,
+        "evolvesFrom": 172,
+        "evolvesTo": [26],
+        "canUseEviolite": true
+      },
+
+      "varieties": [25],
+
+      "pokedexNumbers": {
+        "paldea": 25,
+        "kitakami": 196
+      },
+
+      "category": "normal"
+    }
+  ],
+
+  "moves": [
+    {
+      "id": 85,
+      "name": "thunderbolt",
+      "nameJa": "10まんボルト",
+
+      "type": "electric",
+      "damageClass": "special",
+
+      "power": 90,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+
+      "effectChance": 10,
+      "effect": "Inflicts regular damage. Has a 10% chance to paralyze the target.",
+      "effectJa": "通常のダメージを与える。10%の確率で相手をまひ状態にする。",
+
+      "meta": {
+        "ailment": "paralysis",
+        "ailmentChance": 10,
+        "category": "damage+ailment",
+        "critRate": 0,
+        "drain": 0,
+        "flinchChance": 0,
+        "healing": 0,
+        "statChance": 0,
+        "statChanges": []
+      }
+    },
+    {
+      "id": 98,
+      "name": "quick-attack",
+      "nameJa": "でんこうせっか",
+
+      "type": "normal",
+      "damageClass": "physical",
+
+      "power": 40,
+      "accuracy": 100,
+      "pp": 30,
+      "priority": 1,
+
+      "effectChance": null,
+      "effect": "Inflicts regular damage with no additional effect.",
+      "effectJa": "通常のダメージを与える。先制技（優先度+1）。",
+
+      "meta": {
+        "ailment": "none",
+        "ailmentChance": 0,
+        "category": "damage",
+        "critRate": 0,
+        "drain": 0,
+        "flinchChance": 0,
+        "healing": 0,
+        "statChance": 0,
+        "statChanges": []
+      }
+    }
+  ],
+
+  "abilities": [
+    {
+      "id": 9,
+      "name": "static",
+      "nameJa": "せいでんき",
+
+      "effect": "Whenever a move makes contact with this Pokémon, the move's user has a 30% chance of being paralyzed.",
+      "effectJa": "接触技を受けたとき、30%の確率で相手をまひ状態にする。"
+    },
+    {
+      "id": 31,
+      "name": "lightning-rod",
+      "nameJa": "ひらいしん",
+
+      "effect": "Draws in all Electric-type moves. This Pokémon takes no damage from Electric-type moves and raises its Special Attack by one stage when hit by one.",
+      "effectJa": "でんきタイプの技を受けた時、ダメージを無効化し、特攻を1段階上げる。ダブルバトルでは味方へのでんきタイプの技も引き寄せる。"
+    }
+  ]
+}

@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import SwiftData
 
 final class DIContainer: ObservableObject {
     // Singleton
@@ -14,10 +15,30 @@ final class DIContainer: ObservableObject {
 
     private init() {}
 
+    // MARK: - ModelContext (v4.0 SwiftData)
+    private var modelContext: ModelContext?
+
+    func setModelContext(_ context: ModelContext) {
+        self.modelContext = context
+        // PokemonRepositoryをリセットして、新しいModelContextで再生成
+        _pokemonRepository = nil
+    }
+
     // MARK: - Repositories
-    private lazy var pokemonRepository: PokemonRepositoryProtocol = {
-        PokemonRepository()
-    }()
+    private var _pokemonRepository: PokemonRepositoryProtocol?
+    private var pokemonRepository: PokemonRepositoryProtocol {
+        if let repository = _pokemonRepository {
+            return repository
+        }
+
+        guard let modelContext = modelContext else {
+            fatalError("❌ ModelContext not set. Call setModelContext(_:) first.")
+        }
+
+        let repository = PokemonRepository(modelContext: modelContext)
+        _pokemonRepository = repository
+        return repository
+    }
 
     private lazy var abilityRepository: AbilityRepositoryProtocol = {
         AbilityRepository()
