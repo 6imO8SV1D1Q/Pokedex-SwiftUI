@@ -114,8 +114,12 @@ final class PokemonRepository: PokemonRepositoryProtocol {
 
         var allPokemons: [Pokemon]
 
-        // 開発中：1025未満のキャッシュは古いデータなので削除
-        if !cachedModels.isEmpty && cachedModels.count < 1025 {
+        // 開発中：古いキャッシュかどうかチェック
+        // - 正しいデータ: 866匹（Scarlet/Violet JSON）
+        // - 古いデータ: 1302匹（API全取得）、または1025未満
+        let isOldCache = !cachedModels.isEmpty && (cachedModels.count != 866)
+
+        if isOldCache {
             print("🔄 [Repository] Detected old cache (\(cachedModels.count) pokemon), clearing...")
             try modelContext.delete(model: PokemonModel.self)
             try modelContext.save()
@@ -125,8 +129,8 @@ final class PokemonRepository: PokemonRepositoryProtocol {
         // 再度キャッシュチェック
         let freshModels = try modelContext.fetch(descriptor)
 
-        if !freshModels.isEmpty && freshModels.count >= 1025 {
-            // キャッシュヒット（1025匹以上）
+        if !freshModels.isEmpty && freshModels.count == 866 {
+            // キャッシュヒット（正しいJSONデータ）
             print("✅ [SwiftData] Cache hit! Found \(freshModels.count) pokemon")
             progressHandler?(1.0)
             allPokemons = freshModels.map { PokemonModelMapper.toDomain($0) }

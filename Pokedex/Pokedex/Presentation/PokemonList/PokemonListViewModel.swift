@@ -74,7 +74,7 @@ final class PokemonListViewModel: ObservableObject {
     @Published var selectedMoves: [MoveEntity] = []
 
     /// 選択されたバージョングループ
-    @Published var selectedVersionGroup: VersionGroup = .nationalDex
+    @Published var selectedVersionGroup: VersionGroup = .scarletViolet
 
     /// 全バージョングループリスト
     private(set) var allVersionGroups: [VersionGroup] = []

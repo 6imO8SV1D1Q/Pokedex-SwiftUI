@@ -2,95 +2,229 @@
 //  PokemonModelMapper.swift
 //  Pokedex
 //
-//  Domain Entity ↔ SwiftData Model の変換
+//  Domain Entity ↔ SwiftData Model ↔ JSON の変換
 //
 
 import Foundation
 
 enum PokemonModelMapper {
+    // MARK: - JSON → SwiftData Model
+
+    /// JSON (Scarlet/Violet) → SwiftData Model
+    static func fromJSON(_ data: PokemonData, abilityMap: [Int: (name: String, nameJa: String)]) -> PokemonModel {
+        // Base Stats
+        let baseStats = PokemonBaseStatsModel(
+            hp: data.baseStats.hp,
+            attack: data.baseStats.attack,
+            defense: data.baseStats.defense,
+            spAttack: data.baseStats.spAttack,
+            spDefense: data.baseStats.spDefense,
+            speed: data.baseStats.speed,
+            total: data.baseStats.total
+        )
+
+        // Sprites
+        let sprites = PokemonSpriteModel(
+            normal: data.sprites.normal,
+            shiny: data.sprites.shiny
+        )
+
+        // Moves
+        let moves = data.moves.map { move in
+            PokemonLearnedMoveModel(
+                moveId: move.moveId,
+                learnMethod: move.learnMethod,
+                level: move.level,
+                machineNumber: move.machineNumber
+            )
+        }
+
+        // Evolution
+        let evolutionChain = PokemonEvolutionModel(
+            chainId: data.evolutionChain.chainId,
+            evolutionStage: data.evolutionChain.evolutionStage,
+            evolvesFrom: data.evolutionChain.evolvesFrom,
+            evolvesTo: data.evolutionChain.evolvesTo,
+            canUseEviolite: data.evolutionChain.canUseEviolite
+        )
+
+        // Abilities: IDから名前を引く
+        let primaryAbilityNames = data.abilities.primary.compactMap { abilityMap[$0]?.name }
+        let primaryAbilityNamesJa = data.abilities.primary.compactMap { abilityMap[$0]?.nameJa }
+        let hiddenAbilityName = data.abilities.hidden.flatMap { abilityMap[$0]?.name }
+        let hiddenAbilityNameJa = data.abilities.hidden.flatMap { abilityMap[$0]?.nameJa }
+
+        return PokemonModel(
+            id: data.id,
+            nationalDexNumber: data.nationalDexNumber,
+            name: data.name,
+            nameJa: data.nameJa,
+            genus: data.genus,
+            genusJa: data.genusJa,
+            height: data.height,
+            weight: data.weight,
+            category: data.category,
+            types: data.types,
+            eggGroups: data.eggGroups,
+            genderRate: data.genderRate,
+            primaryAbilities: data.abilities.primary,
+            primaryAbilityNames: primaryAbilityNames,
+            primaryAbilityNamesJa: primaryAbilityNamesJa,
+            hiddenAbility: data.abilities.hidden,
+            hiddenAbilityName: hiddenAbilityName,
+            hiddenAbilityNameJa: hiddenAbilityNameJa,
+            baseStats: baseStats,
+            sprites: sprites,
+            moves: moves,
+            evolutionChain: evolutionChain,
+            varieties: data.varieties,
+            pokedexNumbers: data.pokedexNumbers
+        )
+    }
+
+    // MARK: - Domain Entity → SwiftData Model
+
     /// Domain Entity → SwiftData Model
+    /// Note: API経由のデータはJSON構造と異なるため、デフォルト値で補完
     static func toModel(_ pokemon: Pokemon) -> PokemonModel {
-        let types = pokemon.types.map { type in
-            PokemonTypeModel(slot: type.slot, name: type.name)
-        }
+        // Types: [PokemonType] → [String]
+        let types = pokemon.types.map { $0.name }
 
-        let stats = pokemon.stats.map { stat in
-            PokemonStatModel(name: stat.name, baseStat: stat.baseStat)
-        }
+        // Stats: [PokemonStat] → PokemonBaseStatsModel
+        let baseStats = PokemonBaseStatsModel(
+            hp: pokemon.stats.first(where: { $0.name == "hp" })?.baseStat ?? 0,
+            attack: pokemon.stats.first(where: { $0.name == "attack" })?.baseStat ?? 0,
+            defense: pokemon.stats.first(where: { $0.name == "defense" })?.baseStat ?? 0,
+            spAttack: pokemon.stats.first(where: { $0.name == "special-attack" })?.baseStat ?? 0,
+            spDefense: pokemon.stats.first(where: { $0.name == "special-defense" })?.baseStat ?? 0,
+            speed: pokemon.stats.first(where: { $0.name == "speed" })?.baseStat ?? 0,
+            total: pokemon.stats.reduce(0) { $0 + $1.baseStat }
+        )
 
-        let abilities = pokemon.abilities.map { ability in
-            PokemonAbilityModel(name: ability.name, isHidden: ability.isHidden)
-        }
-
-        // moves → moveIds に変換
-        let moveIds = pokemon.moves.map { $0.id }
-
-        let sprites: PokemonSpriteModel?
+        // Sprites: PokemonSprites → PokemonSpriteModel
+        let sprites: PokemonSpriteModel
         if let other = pokemon.sprites.other, let home = other.home {
             sprites = PokemonSpriteModel(
-                frontDefault: pokemon.sprites.frontDefault,
-                frontShiny: pokemon.sprites.frontShiny,
-                homeFrontDefault: home.frontDefault,
-                homeFrontShiny: home.frontShiny
+                normal: home.frontDefault ?? "",
+                shiny: home.frontShiny ?? ""
             )
         } else {
             sprites = PokemonSpriteModel(
-                frontDefault: pokemon.sprites.frontDefault,
-                frontShiny: pokemon.sprites.frontShiny,
-                homeFrontDefault: nil,
-                homeFrontShiny: nil
+                normal: pokemon.sprites.frontDefault ?? "",
+                shiny: pokemon.sprites.frontShiny ?? ""
             )
         }
 
+        // Abilities: [PokemonAbility] → [Int] + Int?
+        // Note: APIはability nameしか返さないため、IDへの変換は不可能
+        // ダミー値として0を使用（実際の利用は推奨されない）
+        let primaryAbilities: [Int] = pokemon.abilities
+            .filter { !$0.isHidden }
+            .map { _ in 0 }  // ダミーID
+        let hiddenAbility: Int? = pokemon.abilities.first(where: { $0.isHidden }) != nil ? 0 : nil
+
+        // Moves: [PokemonMove] → [PokemonLearnedMoveModel]
+        let moves = pokemon.moves.map { move in
+            PokemonLearnedMoveModel(
+                moveId: move.id,
+                learnMethod: move.learnMethod,
+                level: move.level,
+                machineNumber: move.machineNumber
+            )
+        }
+
+        // Evolution: デフォルト値（API経由では取得不可）
+        let evolutionChain = PokemonEvolutionModel(
+            chainId: 0,
+            evolutionStage: 1,
+            evolvesFrom: nil,
+            evolvesTo: [],
+            canUseEviolite: false
+        )
+
         return PokemonModel(
             id: pokemon.id,
-            speciesId: pokemon.speciesId,
+            nationalDexNumber: pokemon.nationalDexNumber ?? pokemon.id,
             name: pokemon.name,
+            nameJa: pokemon.nameJa ?? "",
+            genus: pokemon.genus ?? "",
+            genusJa: pokemon.genusJa ?? "",
             height: pokemon.height,
             weight: pokemon.weight,
+            category: pokemon.category ?? "",
             types: types,
-            stats: stats,
-            abilities: abilities,
+            eggGroups: pokemon.eggGroups ?? [],
+            genderRate: pokemon.genderRate ?? -1,
+            primaryAbilities: primaryAbilities,
+            hiddenAbility: hiddenAbility,
+            baseStats: baseStats,
             sprites: sprites,
-            moveIds: moveIds,
-            availableGenerations: pokemon.availableGenerations
+            moves: moves,
+            evolutionChain: evolutionChain,
+            varieties: pokemon.varieties ?? [],
+            pokedexNumbers: pokemon.pokedexNumbers ?? [:]
         )
     }
 
     /// SwiftData Model → Domain Entity
     static func toDomain(_ model: PokemonModel) -> Pokemon {
-        let types = model.types.map { typeModel in
-            PokemonType(slot: typeModel.slot, name: typeModel.name)
+        // Types: [String] → [PokemonType]
+        let types = model.types.enumerated().map { (index, typeName) in
+            PokemonType(slot: index + 1, name: typeName)
         }
 
-        let stats = model.stats.map { statModel in
-            PokemonStat(name: statModel.name, baseStat: statModel.baseStat)
+        // Stats: PokemonBaseStatsModel → [PokemonStat]
+        var stats: [PokemonStat] = []
+        if let baseStats = model.baseStats {
+            stats = [
+                PokemonStat(name: "hp", baseStat: baseStats.hp),
+                PokemonStat(name: "attack", baseStat: baseStats.attack),
+                PokemonStat(name: "defense", baseStat: baseStats.defense),
+                PokemonStat(name: "special-attack", baseStat: baseStats.spAttack),
+                PokemonStat(name: "special-defense", baseStat: baseStats.spDefense),
+                PokemonStat(name: "speed", baseStat: baseStats.speed)
+            ]
         }
 
-        let abilities = model.abilities.map { abilityModel in
-            PokemonAbility(name: abilityModel.name, isHidden: abilityModel.isHidden)
+        // Abilities: 保存されている特性名を使用（日本語優先）
+        var abilities: [PokemonAbility] = []
+        for (index, abilityId) in model.primaryAbilities.enumerated() {
+            let name: String
+            if let namesJa = model.primaryAbilityNamesJa, index < namesJa.count {
+                name = namesJa[index]
+            } else if let names = model.primaryAbilityNames, index < names.count {
+                name = names[index]
+            } else {
+                name = "ability-\(abilityId)"  // フォールバック
+            }
+            abilities.append(PokemonAbility(name: name, isHidden: false))
+        }
+        if model.hiddenAbility != nil {
+            let name = model.hiddenAbilityNameJa ?? model.hiddenAbilityName ?? "hidden-ability"
+            abilities.append(PokemonAbility(name: name, isHidden: true))
         }
 
-        // moveIds → moves に変換（最小限の情報のみ）
-        let moves = model.moveIds.map { moveId in
+        // Moves: [PokemonLearnedMoveModel] → [PokemonMove]
+        let moves = model.moves.map { learnedMove in
             PokemonMove(
-                id: moveId,
-                name: "",  // プリバンドルデータには名前なし
-                learnMethod: "",
-                level: nil,
-                machineNumber: nil
+                id: learnedMove.moveId,
+                name: "move-\(learnedMove.moveId)",  // 実際の名前は別途取得が必要
+                learnMethod: learnedMove.learnMethod,
+                level: learnedMove.level,
+                machineNumber: learnedMove.machineNumber
             )
         }
 
+        // Sprites: PokemonSpriteModel → PokemonSprites
         let sprites: PokemonSprites
         if let spriteModel = model.sprites {
             sprites = PokemonSprites(
-                frontDefault: spriteModel.frontDefault,
-                frontShiny: spriteModel.frontShiny,
+                frontDefault: nil,
+                frontShiny: nil,
                 other: PokemonSprites.OtherSprites(
                     home: PokemonSprites.OtherSprites.HomeSprites(
-                        frontDefault: spriteModel.homeFrontDefault,
-                        frontShiny: spriteModel.homeFrontShiny
+                        frontDefault: spriteModel.normal,
+                        frontShiny: spriteModel.shiny
                     )
                 )
             )
@@ -102,18 +236,37 @@ enum PokemonModelMapper {
             )
         }
 
+        // availableGenerations: movesから判定（簡略版）
+        let availableGenerations = [model.nationalDexNumber <= 151 ? 1 :
+                                     model.nationalDexNumber <= 251 ? 2 :
+                                     model.nationalDexNumber <= 386 ? 3 :
+                                     model.nationalDexNumber <= 493 ? 4 :
+                                     model.nationalDexNumber <= 649 ? 5 :
+                                     model.nationalDexNumber <= 721 ? 6 :
+                                     model.nationalDexNumber <= 809 ? 7 :
+                                     model.nationalDexNumber <= 905 ? 8 : 9]
+
         return Pokemon(
             id: model.id,
-            speciesId: model.speciesId,
+            speciesId: model.nationalDexNumber,
             name: model.name,
+            nameJa: model.nameJa,
+            genus: model.genus,
+            genusJa: model.genusJa,
             height: model.height,
             weight: model.weight,
+            category: model.category,
             types: types,
             stats: stats,
             abilities: abilities,
             sprites: sprites,
             moves: moves,
-            availableGenerations: model.availableGenerations
+            availableGenerations: availableGenerations,
+            nationalDexNumber: model.nationalDexNumber,
+            eggGroups: model.eggGroups,
+            genderRate: model.genderRate,
+            pokedexNumbers: model.pokedexNumbers,
+            varieties: model.varieties
         )
     }
 }

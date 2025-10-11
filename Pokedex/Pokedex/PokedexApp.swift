@@ -14,13 +14,13 @@ struct PokedexApp: App {
 
     init() {
         do {
-            // SwiftData スキーマ定義
+            // SwiftData スキーマ定義 (Scarlet/Violet data structure)
             let schema = Schema([
                 PokemonModel.self,
-                PokemonTypeModel.self,
-                PokemonStatModel.self,
-                PokemonAbilityModel.self,
-                PokemonSpriteModel.self
+                PokemonBaseStatsModel.self,
+                PokemonSpriteModel.self,
+                PokemonLearnedMoveModel.self,
+                PokemonEvolutionModel.self
             ])
 
             // ModelConfiguration（ディスク永続化）

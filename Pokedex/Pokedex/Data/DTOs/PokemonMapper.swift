@@ -45,14 +45,23 @@ enum PokemonMapper {
             id: pkm.id ?? 0,
             speciesId: speciesId,
             name: pkm.name ?? "",
+            nameJa: nil,  // API経由では取得不可
+            genus: nil,  // API経由では取得不可
+            genusJa: nil,  // API経由では取得不可
             height: pkm.height ?? 0,
             weight: pkm.weight ?? 0,
+            category: nil,  // API経由では取得不可
             types: mapTypes(from: pkm.types),
             stats: mapStats(from: pkm.stats),
             abilities: mapAbilities(from: pkm.abilities),
             sprites: mapSprites(from: pkm.sprites),
             moves: mapMoves(from: pkm.moves),
-            availableGenerations: availableGenerations
+            availableGenerations: availableGenerations,
+            nationalDexNumber: nil,  // API経由では取得不可
+            eggGroups: nil,  // API経由では取得不可
+            genderRate: nil,  // API経由では取得不可
+            pokedexNumbers: nil,  // API経由では取得不可
+            varieties: nil  // API経由では取得不可
         )
     }
 

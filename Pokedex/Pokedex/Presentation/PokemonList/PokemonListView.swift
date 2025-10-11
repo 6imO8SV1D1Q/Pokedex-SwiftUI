@@ -42,15 +42,6 @@ struct PokemonListView: View {
                     viewModel.applyFilters()
                 }
                 .toolbar {
-                // バージョングループセレクター
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        activeSheet = .versionGroup
-                    } label: {
-                        Image(systemName: "globe")
-                    }
-                }
-
                 // 表示形式切り替え
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
