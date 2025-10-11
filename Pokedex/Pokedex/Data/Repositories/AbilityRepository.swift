@@ -8,9 +8,8 @@
 import Foundation
 import SwiftData
 
-/// 特性データを取得するリポジトリ
+/// 特性データを取得するリポジトリ（SwiftDataのみ使用）
 final class AbilityRepository: AbilityRepositoryProtocol {
-    private let apiClient: PokemonAPIClient
     private let modelContext: ModelContext
     private var cache: [AbilityEntity]?
     private let abilityCache = AbilityCache()
@@ -18,10 +17,8 @@ final class AbilityRepository: AbilityRepositoryProtocol {
     /// イニシャライザ
     /// - Parameters:
     ///   - modelContext: SwiftData ModelContext
-    ///   - apiClient: PokemonAPIクライアント（後方互換性のため保持）
-    init(modelContext: ModelContext, apiClient: PokemonAPIClient = PokemonAPIClient()) {
+    init(modelContext: ModelContext) {
         self.modelContext = modelContext
-        self.apiClient = apiClient
     }
 
     /// 全特性のリストを取得（SwiftDataから）
@@ -62,8 +59,21 @@ final class AbilityRepository: AbilityRepositoryProtocol {
             return cached
         }
 
-        // API呼び出し
-        let detail = try await apiClient.fetchAbilityDetail(abilityId: abilityId)
+        // SwiftDataから取得
+        let descriptor = FetchDescriptor<AbilityModel>(
+            predicate: #Predicate { $0.id == abilityId }
+        )
+        guard let model = try modelContext.fetch(descriptor).first else {
+            throw NSError(domain: "AbilityRepository", code: 404, userInfo: [NSLocalizedDescriptionKey: "Ability not found: \(abilityId)"])
+        }
+
+        let detail = AbilityDetail(
+            id: model.id,
+            name: model.name,
+            effect: model.effect,
+            flavorText: model.effectJa.isEmpty ? nil : model.effectJa,
+            isHidden: false  // isHiddenはポケモンとの関係性なのでここでは不明
+        )
 
         // キャッシュに保存
         await abilityCache.set(detail: detail)
@@ -77,8 +87,21 @@ final class AbilityRepository: AbilityRepositoryProtocol {
             return cached
         }
 
-        // API呼び出し（PokéAPIは名前でもアクセス可能）
-        let detail = try await apiClient.fetchAbilityDetail(abilityName: abilityName)
+        // SwiftDataから取得
+        let descriptor = FetchDescriptor<AbilityModel>(
+            predicate: #Predicate { $0.name == abilityName }
+        )
+        guard let model = try modelContext.fetch(descriptor).first else {
+            throw NSError(domain: "AbilityRepository", code: 404, userInfo: [NSLocalizedDescriptionKey: "Ability not found: \(abilityName)"])
+        }
+
+        let detail = AbilityDetail(
+            id: model.id,
+            name: model.name,
+            effect: model.effect,
+            flavorText: model.effectJa.isEmpty ? nil : model.effectJa,
+            isHidden: false  // isHiddenはポケモンとの関係性なのでここでは不明
+        )
 
         // キャッシュに保存
         await abilityCache.set(detail: detail)

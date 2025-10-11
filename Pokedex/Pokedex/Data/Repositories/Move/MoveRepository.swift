@@ -7,30 +7,25 @@
 
 import Foundation
 import SwiftData
-import PokemonAPI
 
 /// 技データを管理するリポジトリの実装
 ///
 /// SwiftDataから技情報を取得し、キャッシュを管理します。
-/// バージョングループごとに異なる技リストを返すことができます。
 ///
 /// ## 主な責務
 /// - 全技データの取得とキャッシュ
-/// - ポケモンの技習得方法の取得
-/// - バージョングループ別の技フィルタリング
+/// - ポケモンの技習得方法の取得（SwiftDataから）
 ///
 /// ## キャッシュ戦略
 /// - メモリキャッシュ（MoveCache）を使用
 /// - バージョングループごとにキャッシュキーを分離
 /// - MainActorで同期化
 final class MoveRepository: MoveRepositoryProtocol {
-    private let apiClient: PokemonAPIClient
     private let modelContext: ModelContext
     private let cache: MoveCache
 
-    init(modelContext: ModelContext, apiClient: PokemonAPIClient, cache: MoveCache) {
+    init(modelContext: ModelContext, cache: MoveCache) {
         self.modelContext = modelContext
-        self.apiClient = apiClient
         self.cache = cache
     }
 
@@ -78,98 +73,57 @@ final class MoveRepository: MoveRepositoryProtocol {
         return moves
     }
 
-    /// 指定されたポケモンが指定された技を習得できるか、習得方法とともに取得
+    /// 指定されたポケモンが指定された技を習得できるか、習得方法とともに取得（SwiftDataから）
     ///
     /// - Parameters:
     ///   - pokemonId: ポケモンのID
     ///   - moveIds: 技のIDリスト
-    ///   - versionGroup: 対象のバージョングループID（例: "red-blue", "scarlet-violet"）
+    ///   - versionGroup: 対象のバージョングループID（未使用、互換性のため保持）
     /// - Returns: 習得可能な技とその習得方法のリスト
-    /// - Throws: APIエラー、ネットワークエラー
+    /// - Throws: SwiftDataエラー
     ///
     /// - Note: moveIdsに含まれていても習得不可能な技は結果に含まれません。
-    ///         各技ごとにAPIリクエストが発生するため、多数の技を指定すると時間がかかります。
     func fetchLearnMethods(
         pokemonId: Int,
         moveIds: [Int],
         versionGroup: String
     ) async throws -> [MoveLearnMethod] {
-        let pkmPokemon = try await apiClient.fetchRawPokemon(pokemonId)
+        // SwiftDataからポケモンデータを取得
+        let descriptor = FetchDescriptor<PokemonModel>(
+            predicate: #Predicate { $0.id == pokemonId }
+        )
+        guard let pokemonModel = try modelContext.fetch(descriptor).first else {
+            return []
+        }
+
         var learnMethods: [MoveLearnMethod] = []
 
         for moveId in moveIds {
-            if let learnMethod = try await extractLearnMethod(
-                from: pkmPokemon,
-                moveId: moveId,
-                versionGroup: versionGroup
-            ) {
-                learnMethods.append(learnMethod)
+            // ポケモンの技リストから該当する技を検索
+            guard let learnedMove = pokemonModel.moves.first(where: { $0.moveId == moveId }) else {
+                continue
             }
+
+            // 技詳細を取得
+            let moveEntity = try await fetchMoveDetail(moveId: moveId, versionGroup: versionGroup)
+
+            // 習得方法を変換
+            let method = parseLearnMethod(
+                methodName: learnedMove.learnMethod,
+                level: learnedMove.level,
+                machine: learnedMove.machineNumber
+            )
+
+            learnMethods.append(MoveLearnMethod(
+                move: moveEntity,
+                method: method,
+                versionGroup: versionGroup
+            ))
         }
 
         return learnMethods
     }
 
-    /// ポケモンの技習得方法を抽出
-    /// - Parameters:
-    ///   - pkmPokemon: PokéAPIのポケモンデータ
-    ///   - moveId: 技ID
-    ///   - versionGroup: バージョングループ
-    /// - Returns: 習得方法、習得できない場合はnil
-    private func extractLearnMethod(
-        from pkmPokemon: PKMPokemon,
-        moveId: Int,
-        versionGroup: String
-    ) async throws -> MoveLearnMethod? {
-        guard let pkmMove = findPokemonMove(in: pkmPokemon, moveId: moveId),
-              let versionGroupDetail = findVersionGroupDetail(in: pkmMove, versionGroup: versionGroup) else {
-            return nil
-        }
-
-        let method = parseLearnMethod(
-            methodName: versionGroupDetail.moveLearnMethod?.name ?? "",
-            level: versionGroupDetail.levelLearnedAt,
-            machine: nil  // マシン番号はMoveEntityに含まれる
-        )
-
-        let moveEntity = try await fetchMoveDetail(moveId: moveId, versionGroup: versionGroup)
-
-        return MoveLearnMethod(
-            move: moveEntity,
-            method: method,
-            versionGroup: versionGroup
-        )
-    }
-
-    /// ポケモンが覚える技の中から指定IDの技を検索
-    /// - Parameters:
-    ///   - pkmPokemon: PokéAPIのポケモンデータ
-    ///   - moveId: 技ID
-    /// - Returns: 見つかった技データ、なければnil
-    private func findPokemonMove(in pkmPokemon: PKMPokemon, moveId: Int) -> PKMPokemonMove? {
-        pkmPokemon.moves?.first { move in
-            guard let urlString = move.move?.url,
-                  let urlComponents = urlString.split(separator: "/").last,
-                  let id = Int(urlComponents) else {
-                return false
-            }
-            return id == moveId
-        }
-    }
-
-    /// 技の習得方法からバージョングループに対応する詳細を検索
-    /// - Parameters:
-    ///   - pkmMove: ポケモンの技データ
-    ///   - versionGroup: バージョングループ
-    /// - Returns: バージョン別の習得詳細、なければnil
-    private func findVersionGroupDetail(
-        in pkmMove: PKMPokemonMove,
-        versionGroup: String
-    ) -> PKMPokemonMoveVersion? {
-        pkmMove.versionGroupDetails?.first { detail in
-            detail.versionGroup?.name == versionGroup
-        }
-    }
 
     /// 技の詳細情報を取得してEntityに変換（SwiftDataから）
     /// - Parameters:
@@ -203,47 +157,6 @@ final class MoveRepository: MoveRepositoryProtocol {
         )
     }
 
-    /// マシン番号を抽出
-    /// - Parameters:
-    ///   - move: PKMMoveデータ
-    ///   - versionGroup: バージョングループ
-    /// - Returns: マシン番号（例: "TM24", "HM03", "TR12"）
-    private func extractMachineNumber(from move: PKMMove, versionGroup: String?) async -> String? {
-        guard let versionGroup = versionGroup,
-              let machines = move.machines else {
-            return nil
-        }
-
-        // バージョングループに対応するマシンを検索
-        for machine in machines {
-            if machine.versionGroup?.name == versionGroup,
-               let machineUrl = machine.machine?.url {
-                // URLからマシンIDを抽出（例: "https://pokeapi.co/api/v2/machine/1/" -> 1）
-                let components = machineUrl.split(separator: "/")
-                guard let machineIdString = components.last,
-                      let machineId = Int(machineIdString) else {
-                    continue
-                }
-
-                // Machine APIを呼び出してitem.nameを取得
-                do {
-                    let pkmMachine = try await apiClient.fetchMachine(machineId)
-                    guard let itemName = pkmMachine.item?.name else {
-                        continue
-                    }
-
-                    // item.nameを大文字化して返す（例: "tm24" -> "TM24", "hm03" -> "HM03", "tr11" -> "TR11"）
-                    return itemName.uppercased()
-                } catch {
-                    // Machine API取得失敗時はログ出力して次のマシンを試す
-                    print("Failed to fetch machine \(machineId): \(error)")
-                    continue
-                }
-            }
-        }
-
-        return nil
-    }
 
     private func parseLearnMethod(
         methodName: String,

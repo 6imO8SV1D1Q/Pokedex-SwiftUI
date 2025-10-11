@@ -67,9 +67,8 @@ final class DIContainer: ObservableObject {
             fatalError("❌ ModelContext not set. Call setModelContext(_:) first.")
         }
 
-        let apiClient = PokemonAPIClient()
         let cache = MoveCache()
-        let repository = MoveRepository(modelContext: modelContext, apiClient: apiClient, cache: cache)
+        let repository = MoveRepository(modelContext: modelContext, cache: cache)
         _moveRepository = repository
         return repository
     }
