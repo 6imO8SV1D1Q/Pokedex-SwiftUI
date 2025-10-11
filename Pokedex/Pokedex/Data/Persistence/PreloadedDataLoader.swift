@@ -14,13 +14,18 @@ enum PreloadedDataLoader {
     /// - Returns: ロードした場合true、既存データがあればfalse
     static func loadPreloadedDataIfNeeded(modelContext: ModelContext) throws -> Bool {
         // 既存データチェック
-        let existingCount = try modelContext.fetchCount(FetchDescriptor<PokemonModel>())
-        if existingCount > 0 {
-            print("✅ [Preloaded] Skip loading: \(existingCount) pokemon already exist")
+        let existingPokemonCount = try modelContext.fetchCount(FetchDescriptor<PokemonModel>())
+        let existingAbilityCount = try modelContext.fetchCount(FetchDescriptor<AbilityModel>())
+        let existingMoveCount = try modelContext.fetchCount(FetchDescriptor<MoveModel>())
+
+        // Pokemonデータがあって、AbilityとMoveデータもある場合はスキップ
+        if existingPokemonCount > 0 && existingAbilityCount > 0 && existingMoveCount > 0 {
+            print("✅ [Preloaded] Skip loading: \(existingPokemonCount) pokemon, \(existingAbilityCount) abilities, \(existingMoveCount) moves already exist")
             return false
         }
 
         print("📦 [Preloaded] Loading Scarlet/Violet JSON from bundle...")
+        print("   Current: \(existingPokemonCount) pokemon, \(existingAbilityCount) abilities, \(existingMoveCount) moves")
 
         // バンドルからJSONを読み込み
         guard let bundleURL = Bundle.main.url(
@@ -127,24 +132,28 @@ enum PreloadedDataLoader {
         try modelContext.save()
         print("✅ [Preloaded] Successfully loaded \(gameData.moves.count) moves")
 
-        // ポケモンデータをSwiftDataに変換して保存
-        print("💾 [Preloaded] Saving pokemon to SwiftData...")
+        // ポケモンデータをSwiftDataに変換して保存（既存データがない場合のみ）
+        if existingPokemonCount == 0 {
+            print("💾 [Preloaded] Saving pokemon to SwiftData...")
 
-        for (index, pokemonData) in gameData.pokemon.enumerated() {
-            let model = PokemonModelMapper.fromJSON(pokemonData, abilityMap: abilityMap)
-            modelContext.insert(model)
+            for (index, pokemonData) in gameData.pokemon.enumerated() {
+                let model = PokemonModelMapper.fromJSON(pokemonData, abilityMap: abilityMap)
+                modelContext.insert(model)
 
-            // 100匹ごとに中間保存＆進捗表示
-            if (index + 1) % 100 == 0 {
-                try modelContext.save()
-                print("   Saved \(index + 1)/\(gameData.pokemon.count) pokemon...")
+                // 100匹ごとに中間保存＆進捗表示
+                if (index + 1) % 100 == 0 {
+                    try modelContext.save()
+                    print("   Saved \(index + 1)/\(gameData.pokemon.count) pokemon...")
+                }
             }
+
+            // 最終保存
+            try modelContext.save()
+
+            print("✅ [Preloaded] Successfully loaded \(gameData.pokemon.count) pokemon into SwiftData")
+        } else {
+            print("⏭️  [Preloaded] Skipping pokemon save: \(existingPokemonCount) already exist")
         }
-
-        // 最終保存
-        try modelContext.save()
-
-        print("✅ [Preloaded] Successfully loaded \(gameData.pokemon.count) pokemon into SwiftData")
 
         return true
     }

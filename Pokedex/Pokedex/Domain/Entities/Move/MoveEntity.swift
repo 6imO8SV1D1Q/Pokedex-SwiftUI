@@ -11,8 +11,10 @@ import Foundation
 struct MoveEntity: Identifiable, Equatable {
     /// 技のID
     let id: Int
-    /// 技の名前（英語）
+    /// 技の名前（英語、ケバブケース）
     let name: String
+    /// 技の名前（日本語）
+    let nameJa: String
     /// 技のタイプ
     let type: PokemonType
     /// 威力（nilの場合は変化技）

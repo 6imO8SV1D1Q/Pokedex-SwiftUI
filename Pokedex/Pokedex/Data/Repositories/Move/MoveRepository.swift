@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import SwiftData
 import PokemonAPI
 
 /// 技データを管理するリポジトリの実装
 ///
-/// PokéAPIから技情報を取得し、キャッシュを管理します。
+/// SwiftDataから技情報を取得し、キャッシュを管理します。
 /// バージョングループごとに異なる技リストを返すことができます。
 ///
 /// ## 主な責務
@@ -24,18 +25,20 @@ import PokemonAPI
 /// - MainActorで同期化
 final class MoveRepository: MoveRepositoryProtocol {
     private let apiClient: PokemonAPIClient
+    private let modelContext: ModelContext
     private let cache: MoveCache
 
-    init(apiClient: PokemonAPIClient, cache: MoveCache) {
+    init(modelContext: ModelContext, apiClient: PokemonAPIClient, cache: MoveCache) {
+        self.modelContext = modelContext
         self.apiClient = apiClient
         self.cache = cache
     }
 
-    /// 指定されたバージョングループで使用可能な全ての技を取得
+    /// 指定されたバージョングループで使用可能な全ての技を取得（SwiftDataから）
     ///
     /// - Parameter versionGroup: バージョングループID。nilの場合は全技を返す
     /// - Returns: 技のリスト（名前順にソート済み）
-    /// - Throws: APIエラー、ネットワークエラー
+    /// - Throws: SwiftDataエラー
     ///
     /// - Note: 結果はメモリキャッシュに保存されます。
     ///         2回目以降の呼び出しはキャッシュから即座に返されます。
@@ -43,30 +46,33 @@ final class MoveRepository: MoveRepositoryProtocol {
         let cacheKey = "moves_\(versionGroup ?? "all")"
 
         if let cached = cache.getMoves(key: cacheKey) {
+            print("🔍 [MoveRepository] Cache hit: \(cached.count) moves")
             return cached
         }
 
-        // PokéAPI: /api/v2/move?limit=1000
-        let movesData = try await apiClient.fetchAllMoves()
+        // SwiftDataから全技を取得
+        let descriptor = FetchDescriptor<MoveModel>(
+            sortBy: [SortDescriptor(\.name)]
+        )
+        let models = try modelContext.fetch(descriptor)
+        print("📦 [MoveRepository] Fetched from SwiftData: \(models.count) moves")
 
-        // データからEntityに変換（タイプ情報は後で必要な時に取得）
-        var moves: [MoveEntity] = movesData.map { moveData in
+        // MoveEntityに変換
+        let moves: [MoveEntity] = models.map { model in
             MoveEntity(
-                id: moveData.id,
-                name: moveData.name,
-                type: PokemonType(slot: 1, name: "normal"), // 仮のタイプ（リスト表示では不要）
-                power: nil,
-                accuracy: nil,
-                pp: nil,
-                damageClass: "status",
-                effect: nil,  // 説明文は個別取得時に設定
-                machineNumber: nil,  // マシン番号は個別取得時に設定
-                categories: []  // カテゴリーは個別取得時に設定
+                id: model.id,
+                name: model.name,
+                nameJa: model.nameJa,
+                type: PokemonType(slot: 1, name: model.type),
+                power: model.power,
+                accuracy: model.accuracy,
+                pp: model.pp,
+                damageClass: model.damageClass,
+                effect: model.effect,
+                machineNumber: nil,  // TODO: 技マシン番号は別途管理
+                categories: model.categories
             )
         }
-
-        // 名前順にソート
-        moves.sort { $0.name < $1.name }
 
         cache.setMoves(key: cacheKey, moves: moves)
         return moves
@@ -165,34 +171,35 @@ final class MoveRepository: MoveRepositoryProtocol {
         }
     }
 
-    /// 技の詳細情報を取得してEntityに変換
+    /// 技の詳細情報を取得してEntityに変換（SwiftDataから）
     /// - Parameters:
     ///   - moveId: 技ID
-    ///   - versionGroup: バージョングループ（マシン番号取得用）
+    ///   - versionGroup: バージョングループ（現在は未使用）
     /// - Returns: 技Entity
     func fetchMoveDetail(moveId: Int, versionGroup: String?) async throws -> MoveEntity {
-        let moveDetail = try await apiClient.fetchMove(moveId)
-
-        // 説明文を取得（英語版のeffectを優先）
-        let effect = moveDetail.effectEntries?.first(where: { $0.language?.name == "en" })?.effect
-
-        // マシン番号を取得（バージョングループが指定されている場合）
-        let machineNumber = await extractMachineNumber(from: moveDetail, versionGroup: versionGroup)
+        // SwiftDataから技情報を取得
+        let descriptor = FetchDescriptor<MoveModel>(
+            predicate: #Predicate { $0.id == moveId }
+        )
+        guard let model = try modelContext.fetch(descriptor).first else {
+            throw NSError(domain: "MoveRepository", code: 404, userInfo: [NSLocalizedDescriptionKey: "Move not found: \(moveId)"])
+        }
 
         return MoveEntity(
-            id: moveId,
-            name: moveDetail.name ?? "unknown",
+            id: model.id,
+            name: model.name,
+            nameJa: model.nameJa,
             type: PokemonType(
                 slot: 1,
-                name: moveDetail.type?.name ?? "normal"
+                name: model.type
             ),
-            power: moveDetail.power,
-            accuracy: moveDetail.accuracy,
-            pp: moveDetail.pp,
-            damageClass: moveDetail.damageClass?.name ?? "status",
-            effect: effect,
-            machineNumber: machineNumber,
-            categories: []  // TODO: SwiftDataから取得する場合はcategoriesを含める
+            power: model.power,
+            accuracy: model.accuracy,
+            pp: model.pp,
+            damageClass: model.damageClass,
+            effect: model.effect,
+            machineNumber: nil,  // TODO: 技マシン番号の管理
+            categories: model.categories
         )
     }
 

@@ -69,8 +69,18 @@ def fetch_move(move_id):
     effect_chance = data.get("effect_chance")
 
     # Meta
-    meta = data.get("meta") or {}
-    stat_changes = [{"stat": s["stat"]["name"], "change": s["change"]} for s in (meta.get("stat_changes") or [])]
+    meta = data.get("meta")
+    if meta is None:
+        meta = {}
+
+    # Stat changes with error handling
+    stat_changes = []
+    for s in meta.get("stat_changes") or []:
+        try:
+            if s and isinstance(s, dict) and "stat" in s and s["stat"] and "name" in s["stat"]:
+                stat_changes.append({"stat": s["stat"]["name"], "change": s["change"]})
+        except (TypeError, KeyError, AttributeError):
+            continue
 
     # Categories (v4.0 Phase 3 - v2 with 43 categories)
     # Prepare move_data dict for category detection

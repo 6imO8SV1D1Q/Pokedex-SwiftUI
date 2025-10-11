@@ -20,8 +20,10 @@ final class DIContainer: ObservableObject {
 
     func setModelContext(_ context: ModelContext) {
         self.modelContext = context
-        // PokemonRepositoryをリセットして、新しいModelContextで再生成
+        // Repositoryをリセットして、新しいModelContextで再生成
         _pokemonRepository = nil
+        _abilityRepository = nil
+        _moveRepository = nil
     }
 
     // MARK: - Repositories
@@ -40,15 +42,37 @@ final class DIContainer: ObservableObject {
         return repository
     }
 
-    private lazy var abilityRepository: AbilityRepositoryProtocol = {
-        AbilityRepository()
-    }()
+    private var _abilityRepository: AbilityRepositoryProtocol?
+    private var abilityRepository: AbilityRepositoryProtocol {
+        if let repository = _abilityRepository {
+            return repository
+        }
 
-    private lazy var moveRepository: MoveRepositoryProtocol = {
+        guard let modelContext = modelContext else {
+            fatalError("❌ ModelContext not set. Call setModelContext(_:) first.")
+        }
+
+        let repository = AbilityRepository(modelContext: modelContext)
+        _abilityRepository = repository
+        return repository
+    }
+
+    private var _moveRepository: MoveRepositoryProtocol?
+    private var moveRepository: MoveRepositoryProtocol {
+        if let repository = _moveRepository {
+            return repository
+        }
+
+        guard let modelContext = modelContext else {
+            fatalError("❌ ModelContext not set. Call setModelContext(_:) first.")
+        }
+
         let apiClient = PokemonAPIClient()
         let cache = MoveCache()
-        return MoveRepository(apiClient: apiClient, cache: cache)
-    }()
+        let repository = MoveRepository(modelContext: modelContext, apiClient: apiClient, cache: cache)
+        _moveRepository = repository
+        return repository
+    }
 
     private lazy var typeRepository: TypeRepositoryProtocol = {
         TypeRepository()

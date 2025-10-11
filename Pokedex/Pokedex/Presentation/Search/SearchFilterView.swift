@@ -10,7 +10,7 @@ import SwiftUI
 struct SearchFilterView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var viewModel: PokemonListViewModel
-    @State private var allAbilities: [String] = []
+    @State private var allAbilities: [AbilityEntity] = []
     @State private var isLoadingAbilities = false
     @State private var allMoves: [MoveEntity] = []
     @State private var isLoadingMoves = false
@@ -115,8 +115,8 @@ struct SearchFilterView: View {
                 }
 
                 // 特性リスト
-                ForEach(filteredAbilities.prefix(50), id: \.self) { abilityName in
-                    abilitySelectionButton(abilityName)
+                ForEach(filteredAbilities.prefix(50)) { ability in
+                    abilitySelectionButton(ability)
                 }
             }
         } header: {
@@ -124,24 +124,28 @@ struct SearchFilterView: View {
         }
     }
 
-    private var filteredAbilities: [String] {
+    private var filteredAbilities: [AbilityEntity] {
         // 検索テキストが空の場合は候補を表示しない
         if abilitySearchText.isEmpty {
             return []
         }
-        // 前方一致で検索
+        // 部分一致で検索（全角/半角を区別しない、日本語名と英語名両方で検索）
         return allAbilities.filter { ability in
-            ability.lowercased().hasPrefix(abilitySearchText.lowercased())
+            ability.nameJa.range(of: abilitySearchText, options: [.caseInsensitive, .widthInsensitive]) != nil ||
+            ability.name.range(of: abilitySearchText, options: [.caseInsensitive, .widthInsensitive]) != nil
         }
     }
 
-    private func abilitySelectionButton(_ abilityName: String) -> some View {
+    private func abilitySelectionButton(_ ability: AbilityEntity) -> some View {
         Button {
-            toggleAbilitySelection(abilityName)
+            toggleAbilitySelection(ability.name)
         } label: {
             HStack {
-                Text(abilityName.capitalized)
+                Text(ability.nameJa)
                 Spacer()
+                Text(ability.name)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
         }
         .foregroundColor(.primary)
@@ -232,10 +236,11 @@ struct SearchFilterView: View {
 
         var moves = filteredMoves // カテゴリーフィルター適用済み
 
-        // 検索テキストがある場合は前方一致でフィルタ
+        // 検索テキストがある場合は部分一致でフィルタ（全角/半角を区別しない、日本語名と英語名両方で検索）
         if !moveSearchText.isEmpty {
             moves = moves.filter { move in
-                move.name.lowercased().hasPrefix(moveSearchText.lowercased())
+                move.nameJa.range(of: moveSearchText, options: [.caseInsensitive, .widthInsensitive]) != nil ||
+                move.name.range(of: moveSearchText, options: [.caseInsensitive, .widthInsensitive]) != nil
             }
         }
 
@@ -257,8 +262,11 @@ struct SearchFilterView: View {
             toggleMoveSelection(move)
         } label: {
             HStack {
-                Text(move.name.capitalized)
+                Text(move.nameJa)
                 Spacer()
+                Text(move.name)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
         }
         .foregroundColor(.primary)
@@ -352,7 +360,6 @@ struct SearchFilterView: View {
 
     private func loadMoves() {
         guard allMoves.isEmpty else { return }
-        guard isMoveFilterEnabled else { return }
 
         loadData(
             isLoading: $isLoadingMoves,
@@ -369,11 +376,13 @@ struct SearchFilterView: View {
         onError: @escaping () -> Void
     ) {
         isLoading.wrappedValue = true
-        Task {
+        Task { @MainActor in
             do {
                 let result = try await fetch()
                 onSuccess(result)
+                print("✅ Loaded data successfully, count: \(result as? Array<Any> != nil ? (result as! Array<Any>).count : 0)")
             } catch {
+                print("❌ Failed to load data: \(error)")
                 onError()
             }
             isLoading.wrappedValue = false
@@ -383,8 +392,12 @@ struct SearchFilterView: View {
     // MARK: - Selected Item Chips
 
     private func selectedAbilityChip(_ abilityName: String) -> some View {
-        HStack(spacing: 4) {
-            Text(abilityName.capitalized)
+        // allAbilitiesから該当する特性を探して日本語名を取得
+        let ability = allAbilities.first { $0.name == abilityName }
+        let displayName = ability?.nameJa ?? abilityName
+
+        return HStack(spacing: 4) {
+            Text(displayName)
                 .font(.caption)
             Button {
                 toggleAbilitySelection(abilityName)
@@ -401,7 +414,7 @@ struct SearchFilterView: View {
 
     private func selectedMoveChip(_ move: MoveEntity) -> some View {
         HStack(spacing: 4) {
-            Text(move.name.capitalized)
+            Text(move.nameJa)
                 .font(.caption)
             Button {
                 toggleMoveSelection(move)

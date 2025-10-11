@@ -12,9 +12,9 @@ protocol AbilityRepositoryProtocol {
     // MARK: - 既存メソッド
 
     /// 全特性のリストを取得
-    /// - Returns: 特性名のリスト（ソート済み）
+    /// - Returns: 特性情報のリスト（名前でソート済み）
     /// - Throws: データ取得時のエラー
-    func fetchAllAbilities() async throws -> [String]
+    func fetchAllAbilities() async throws -> [AbilityEntity]
 
     // MARK: - v3.0 新規メソッド
 
