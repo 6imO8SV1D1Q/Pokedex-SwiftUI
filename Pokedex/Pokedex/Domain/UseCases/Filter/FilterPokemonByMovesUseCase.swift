@@ -67,14 +67,21 @@ final class FilterPokemonByMovesUseCase: FilterPokemonByMovesUseCaseProtocol {
             return pokemonList.map { ($0, []) }
         }
 
+        // 一括取得（1025回のクエリ → 2回のクエリに最適化）
+        let pokemonIds = pokemonList.map { $0.id }
+        let moveIds = selectedMoves.map { $0.id }
+        let bulkLearnMethods = try await moveRepository.fetchBulkLearnMethods(
+            pokemonIds: pokemonIds,
+            moveIds: moveIds,
+            versionGroup: versionGroup
+        )
+
         var results: [(Pokemon, [MoveLearnMethod])] = []
 
         for pokemon in pokemonList {
-            let learnMethods = try await moveRepository.fetchLearnMethods(
-                pokemonId: pokemon.id,
-                moveIds: selectedMoves.map { $0.id },
-                versionGroup: versionGroup
-            )
+            guard let learnMethods = bulkLearnMethods[pokemon.id] else {
+                continue
+            }
 
             // すべての技を習得できる場合のみ結果に含める
             if learnMethods.count == selectedMoves.count {

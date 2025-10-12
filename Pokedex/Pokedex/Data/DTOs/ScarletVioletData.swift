@@ -18,6 +18,20 @@ struct GameData: Codable {
     let pokemon: [PokemonData]
     let moves: [MoveData]
     let abilities: [AbilityData]
+    let types: [String: TypeData]
+    let pokedexes: [PokedexData]?
+}
+
+struct PokedexData: Codable {
+    let name: String
+    let speciesIds: [Int]
+}
+
+// MARK: - Type Data
+
+struct TypeData: Codable {
+    let name: String
+    let nameJa: String
 }
 
 // MARK: - Pokemon Data
@@ -94,6 +108,7 @@ struct MoveData: Codable {
     let effectChance: Int?
     let effect: String?
     let effectJa: String?
+    let categories: [String]?
     let meta: MoveMeta?
 
     struct MoveMeta: Codable {

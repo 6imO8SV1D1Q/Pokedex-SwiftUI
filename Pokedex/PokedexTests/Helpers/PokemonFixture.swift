@@ -57,9 +57,10 @@ extension Pokemon {
 extension PokemonType {
     static func fixture(
         slot: Int = 1,
-        name: String = "grass"
+        name: String = "grass",
+        nameJa: String? = nil
     ) -> PokemonType {
-        PokemonType(slot: slot, name: name)
+        PokemonType(slot: slot, name: name, nameJa: nameJa)
     }
 }
 
@@ -75,9 +76,10 @@ extension PokemonStat {
 extension PokemonAbility {
     static func fixture(
         name: String = "overgrow",
+        nameJa: String? = nil,
         isHidden: Bool = false
     ) -> PokemonAbility {
-        PokemonAbility(name: name, isHidden: isHidden)
+        PokemonAbility(name: name, nameJa: nameJa, isHidden: isHidden)
     }
 }
 
@@ -189,7 +191,8 @@ extension MoveEntity {
         pp: Int? = 35,
         damageClass: String = "physical",
         effect: String? = "Inflicts regular damage with no additional effect.",
-        machineNumber: String? = nil
+        machineNumber: String? = nil,
+        categories: [String] = []
     ) -> MoveEntity {
         MoveEntity(
             id: id,
@@ -200,7 +203,8 @@ extension MoveEntity {
             pp: pp,
             damageClass: damageClass,
             effect: effect,
-            machineNumber: machineNumber
+            machineNumber: machineNumber,
+            categories: categories
         )
     }
 }

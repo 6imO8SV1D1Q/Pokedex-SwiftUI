@@ -6,31 +6,49 @@
 //
 
 import Foundation
+import SwiftData
 
-/// 特性データを取得するリポジトリ
+/// 特性データを取得するリポジトリ（SwiftDataのみ使用）
 final class AbilityRepository: AbilityRepositoryProtocol {
-    private let apiClient: PokemonAPIClient
-    private var cache: [String]?
+    private let modelContext: ModelContext
+    private var cache: [AbilityEntity]?
     private let abilityCache = AbilityCache()
 
     /// イニシャライザ
-    /// - Parameter apiClient: PokemonAPIクライアント
-    init(apiClient: PokemonAPIClient = PokemonAPIClient()) {
-        self.apiClient = apiClient
+    /// - Parameters:
+    ///   - modelContext: SwiftData ModelContext
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
     }
 
-    /// 全特性のリストを取得
-    /// - Returns: 特性名のリスト（ソート済み）
+    /// 全特性のリストを取得（SwiftDataから）
+    /// - Returns: 特性情報のリスト（名前でソート済み）
     /// - Throws: データ取得時のエラー
-    func fetchAllAbilities() async throws -> [String] {
+    func fetchAllAbilities() async throws -> [AbilityEntity] {
         // キャッシュチェック
         if let cached = cache {
+            print("🔍 [AbilityRepository] Cache hit: \(cached.count) abilities")
             return cached
         }
 
-        let abilities = try await apiClient.fetchAllAbilities()
-        cache = abilities
-        return abilities
+        // SwiftDataから全特性を取得
+        let descriptor = FetchDescriptor<AbilityModel>(
+            sortBy: [SortDescriptor(\.name)]
+        )
+        let models = try modelContext.fetch(descriptor)
+        print("📦 [AbilityRepository] Fetched from SwiftData: \(models.count) abilities")
+
+        // AbilityEntityに変換
+        let entities = models.map { model in
+            AbilityEntity(
+                id: model.id,
+                name: model.name,
+                nameJa: model.nameJa
+            )
+        }
+
+        cache = entities
+        return entities
     }
 
     // MARK: - v3.0 新規メソッド
@@ -41,8 +59,21 @@ final class AbilityRepository: AbilityRepositoryProtocol {
             return cached
         }
 
-        // API呼び出し
-        let detail = try await apiClient.fetchAbilityDetail(abilityId: abilityId)
+        // SwiftDataから取得
+        let descriptor = FetchDescriptor<AbilityModel>(
+            predicate: #Predicate { $0.id == abilityId }
+        )
+        guard let model = try modelContext.fetch(descriptor).first else {
+            throw NSError(domain: "AbilityRepository", code: 404, userInfo: [NSLocalizedDescriptionKey: "Ability not found: \(abilityId)"])
+        }
+
+        let detail = AbilityDetail(
+            id: model.id,
+            name: model.name,
+            effect: model.effect,
+            flavorText: model.effectJa.isEmpty ? nil : model.effectJa,
+            isHidden: false  // isHiddenはポケモンとの関係性なのでここでは不明
+        )
 
         // キャッシュに保存
         await abilityCache.set(detail: detail)
@@ -56,8 +87,21 @@ final class AbilityRepository: AbilityRepositoryProtocol {
             return cached
         }
 
-        // API呼び出し（PokéAPIは名前でもアクセス可能）
-        let detail = try await apiClient.fetchAbilityDetail(abilityName: abilityName)
+        // SwiftDataから取得
+        let descriptor = FetchDescriptor<AbilityModel>(
+            predicate: #Predicate { $0.name == abilityName }
+        )
+        guard let model = try modelContext.fetch(descriptor).first else {
+            throw NSError(domain: "AbilityRepository", code: 404, userInfo: [NSLocalizedDescriptionKey: "Ability not found: \(abilityName)"])
+        }
+
+        let detail = AbilityDetail(
+            id: model.id,
+            name: model.name,
+            effect: model.effect,
+            flavorText: model.effectJa.isEmpty ? nil : model.effectJa,
+            isHidden: false  // isHiddenはポケモンとの関係性なのでここでは不明
+        )
 
         // キャッシュに保存
         await abilityCache.set(detail: detail)

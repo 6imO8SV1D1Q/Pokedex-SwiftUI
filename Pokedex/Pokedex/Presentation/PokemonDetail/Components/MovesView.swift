@@ -126,6 +126,7 @@ struct LearnMethodPicker: View {
 struct MoveRow: View {
     let move: PokemonMove
     let moveDetail: MoveEntity?  // 技詳細情報（オプショナル）
+    @EnvironmentObject private var localizationManager: LocalizationManager
 
     init(move: PokemonMove, moveDetail: MoveEntity? = nil) {
         self.move = move
@@ -182,7 +183,7 @@ struct MoveRow: View {
                 // 技詳細情報（取得済みの場合）
                 if let detail = moveDetail {
                     // タイプバッジ
-                    Text(detail.type.japaneseName)
+                    Text(localizationManager.displayName(for: detail.type))
                         .typeBadgeStyle(detail.type)
                         .font(.caption)
                 }
@@ -272,4 +273,5 @@ struct MoveRow: View {
         moveDetails: [:],  // 空の辞書
         selectedLearnMethod: .constant("level-up")
     )
+    .environmentObject(LocalizationManager.shared)
 }

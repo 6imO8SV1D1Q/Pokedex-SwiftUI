@@ -11,8 +11,10 @@ import Foundation
 struct MoveEntity: Identifiable, Equatable {
     /// 技のID
     let id: Int
-    /// 技の名前（英語）
+    /// 技の名前（英語、ケバブケース）
     let name: String
+    /// 技の名前（日本語）
+    let nameJa: String
     /// 技のタイプ
     let type: PokemonType
     /// 威力（nilの場合は変化技）
@@ -27,6 +29,8 @@ struct MoveEntity: Identifiable, Equatable {
     let effect: String?
     /// 技マシン番号（例: "TM24", "HM03", "TR12"）
     let machineNumber: String?
+    /// 技カテゴリー（例: ["sound", "punch"]）
+    let categories: [String]
 
     /// IDで等価性を判定
     static func == (lhs: MoveEntity, rhs: MoveEntity) -> Bool {

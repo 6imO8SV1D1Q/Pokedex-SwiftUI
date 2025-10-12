@@ -108,22 +108,34 @@ final class PokemonRepository: PokemonRepositoryProtocol {
     func fetchPokemonList(versionGroup: VersionGroup, progressHandler: ((Double) -> Void)?) async throws -> [Pokemon] {
         // STEP 1: SwiftDataからポケモンを取得
         print("📦 [Repository] Fetching pokemon for version group: \(versionGroup.id)")
+        progressHandler?(0.05) // 開始を報告（すぐに進捗表示）
 
         let descriptor = FetchDescriptor<PokemonModel>(sortBy: [SortDescriptor(\.id)])
         let cachedModels = try modelContext.fetch(descriptor)
 
         var allPokemons: [Pokemon]
 
-        // 開発中：古いキャッシュかどうかチェック
-        // - 正しいデータ: 866匹（Scarlet/Violet JSON）
-        // - 古いデータ: 1302匹（API全取得）、または1025未満
-        let isOldCache = !cachedModels.isEmpty && (cachedModels.count != 866)
+        // スキーマ変更検出: movesが埋め込み型になったため、必ず再ロード
+        // UserDefaultsでスキーマバージョンを管理
+        let currentSchemaVersion = "v4.1-embedded"
+        let savedSchemaVersion = UserDefaults.standard.string(forKey: "swiftdata_schema_version")
+        let isSchemaChanged = savedSchemaVersion != currentSchemaVersion
+
+        let pokedexCount = try modelContext.fetchCount(FetchDescriptor<PokedexModel>())
+        let isOldCache = !cachedModels.isEmpty && (cachedModels.count != 866 || pokedexCount == 0 || isSchemaChanged)
 
         if isOldCache {
-            print("🔄 [Repository] Detected old cache (\(cachedModels.count) pokemon), clearing...")
+            let reason = isSchemaChanged ? "schema changed to \(currentSchemaVersion)" : "\(cachedModels.count) pokemon, \(pokedexCount) pokedexes"
+            print("🔄 [Repository] Detected old/incomplete cache (\(reason)), clearing...")
             try modelContext.delete(model: PokemonModel.self)
+            try modelContext.delete(model: AbilityModel.self)
+            try modelContext.delete(model: MoveModel.self)
+            try modelContext.delete(model: PokedexModel.self)
             try modelContext.save()
             print("✅ [Repository] Old cache cleared")
+
+            // スキーマバージョンを更新
+            UserDefaults.standard.set(currentSchemaVersion, forKey: "swiftdata_schema_version")
         }
 
         // 再度キャッシュチェック
@@ -132,19 +144,32 @@ final class PokemonRepository: PokemonRepositoryProtocol {
         if !freshModels.isEmpty && freshModels.count == 866 {
             // キャッシュヒット（正しいJSONデータ）
             print("✅ [SwiftData] Cache hit! Found \(freshModels.count) pokemon")
+            // キャッシュヒット時は即座に100%
             progressHandler?(1.0)
-            allPokemons = freshModels.map { PokemonModelMapper.toDomain($0) }
+
+            allPokemons = freshModels.map { model in
+                PokemonModelMapper.toDomain(model)
+            }
         } else {
             // STEP 2: プリバンドルデータをロード
             print("📦 [SwiftData] Cache miss, trying preloaded data...")
-            let loaded = try PreloadedDataLoader.loadPreloadedDataIfNeeded(modelContext: modelContext)
+            let loaded = try PreloadedDataLoader.loadPreloadedDataIfNeeded(
+                modelContext: modelContext,
+                progressHandler: progressHandler
+            )
 
             if loaded {
                 // プリバンドルデータからロード成功
                 let loadedModels = try modelContext.fetch(descriptor)
                 print("✅ [Preloaded] Loaded \(loadedModels.count) pokemon from bundle")
                 progressHandler?(1.0)
-                allPokemons = loadedModels.map { PokemonModelMapper.toDomain($0) }
+
+                allPokemons = loadedModels.map { model in
+                    PokemonModelMapper.toDomain(model)
+                }
+
+                // スキーマバージョンを保存
+                UserDefaults.standard.set(currentSchemaVersion, forKey: "swiftdata_schema_version")
             } else {
                 // STEP 3: APIから取得（フォールバック）
                 print("🌐 [API] Fetching from PokéAPI...")
@@ -177,17 +202,29 @@ final class PokemonRepository: PokemonRepositoryProtocol {
             return allPokemons
         }
 
-        // バージョングループ別の場合: pokedexから実際に登場するspeciesIdを取得
+        // バージョングループ別の場合: SwiftDataのPokedexから登場するspeciesIdを取得
         var speciesIds: Set<Int> = []
 
         if let pokedexNames = versionGroup.pokedexNames {
             // 各pokedexから登場ポケモンを取得
             for pokedexName in pokedexNames {
-                do {
-                    let ids = try await apiClient.fetchPokedex(pokedexName)
-                    speciesIds.formUnion(ids)
-                } catch {
-                    print("⚠️ Failed to fetch pokedex \(pokedexName): \(error)")
+                // SwiftDataからPokedexを取得
+                let pokedexDescriptor = FetchDescriptor<PokedexModel>(
+                    predicate: #Predicate { $0.name == pokedexName }
+                )
+
+                if let pokedex = try modelContext.fetch(pokedexDescriptor).first {
+                    print("✅ [SwiftData Pokedex] Hit: \(pokedexName) (\(pokedex.speciesIds.count) species)")
+                    speciesIds.formUnion(pokedex.speciesIds)
+                } else {
+                    // SwiftDataになければAPIから取得（フォールバック）
+                    print("🌐 [Pokedex API] Fetching \(pokedexName)...")
+                    do {
+                        let ids = try await apiClient.fetchPokedex(pokedexName)
+                        speciesIds.formUnion(ids)
+                    } catch {
+                        print("⚠️ Failed to fetch pokedex \(pokedexName): \(error)")
+                    }
                 }
             }
         }

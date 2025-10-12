@@ -334,11 +334,11 @@ struct Pokemon: Identifiable, Codable, Hashable {
         var parts: [String] = []
 
         if !normalAbilities.isEmpty {
-            parts.append(normalAbilities.map { $0.name.capitalized }.joined(separator: " "))
+            parts.append(normalAbilities.map { $0.nameJa ?? $0.name.capitalized }.joined(separator: " "))
         }
 
         if !hiddenAbilities.isEmpty {
-            parts.append(hiddenAbilities.map { $0.name.capitalized }.joined(separator: " "))
+            parts.append(hiddenAbilities.map { $0.nameJa ?? $0.name.capitalized }.joined(separator: " "))
         }
 
         return parts.isEmpty ? "-" : parts.joined(separator: " ")
@@ -351,7 +351,7 @@ struct Pokemon: Identifiable, Codable, Hashable {
             return "-"
         }
 
-        return abilities.map { $0.name.capitalized }.joined(separator: "\n")
+        return abilities.map { $0.nameJa ?? $0.name.capitalized }.joined(separator: "\n")
     }
 }
 
@@ -370,8 +370,11 @@ struct PokemonType: Codable, Identifiable, Hashable {
     /// タイプ名（英語、小文字）
     let name: String
 
+    /// タイプ名（日本語）
+    let nameJa: String?
+
     enum CodingKeys: String, CodingKey {
-        case slot, name
+        case slot, name, nameJa
     }
 
     // Hashable conformance
@@ -384,7 +387,19 @@ struct PokemonType: Codable, Identifiable, Hashable {
         lhs.slot == rhs.slot && lhs.name == rhs.name
     }
 
-    /// タイプの日本語名
+    /// 言語に応じたタイプ名を取得
+    /// - Parameter language: 表示言語
+    /// - Returns: タイプ名
+    func displayName(language: AppLanguage) -> String {
+        switch language {
+        case .japanese:
+            return nameJa ?? japaneseName
+        case .english:
+            return name.capitalized
+        }
+    }
+
+    /// タイプの日本語名（フォールバック用）
     /// - Returns: 日本語のタイプ名（例: "ほのお", "みず"）
     var japaneseName: String {
         switch name.lowercased() {
@@ -524,18 +539,22 @@ struct PokemonAbility: Codable, Identifiable, Hashable {
     /// 特性名（英語）
     let name: String
 
+    /// 特性名（日本語）
+    let nameJa: String?
+
     /// 隠れ特性かどうか
     let isHidden: Bool
 
     enum CodingKeys: String, CodingKey {
         case name
+        case nameJa
         case isHidden = "is_hidden"
     }
 
     /// 表示用の名前（隠れ特性の場合は注釈付き）
     /// - Returns: 表示用の特性名
     var displayName: String {
-        let baseName = name.capitalized
+        let baseName = nameJa ?? name.capitalized
         return isHidden ? "\(baseName) (隠れ特性)" : baseName
     }
 

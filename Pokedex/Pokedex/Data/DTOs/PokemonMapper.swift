@@ -90,7 +90,7 @@ enum PokemonMapper {
         guard let types = types else { return [] }
         return types.compactMap { type in
             guard let slot = type.slot, let name = type.type?.name else { return nil }
-            return PokemonType(slot: slot, name: name)
+            return PokemonType(slot: slot, name: name, nameJa: nil)
         }
     }
 
@@ -106,7 +106,7 @@ enum PokemonMapper {
         guard let abilities = abilities else { return [] }
         return abilities.compactMap { ability in
             guard let name = ability.ability?.name else { return nil }
-            return PokemonAbility(name: name, isHidden: ability.isHidden ?? false)
+            return PokemonAbility(name: name, nameJa: nil, isHidden: ability.isHidden ?? false)
         }
     }
 

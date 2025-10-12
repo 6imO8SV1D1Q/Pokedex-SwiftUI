@@ -17,12 +17,14 @@ struct PokemonListView: View {
         case filter
         case sort
         case versionGroup
+        case settings
 
         var id: Int {
             switch self {
             case .filter: return 0
             case .sort: return 1
             case .versionGroup: return 2
+            case .settings: return 3
             }
         }
     }
@@ -48,6 +50,15 @@ struct PokemonListView: View {
                         viewModel.toggleDisplayMode()
                     } label: {
                         Image(systemName: viewModel.displayMode == .list ? "square.grid.2x2" : "list.bullet")
+                    }
+                }
+
+                // 設定ボタン
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        activeSheet = .settings
+                    } label: {
+                        Image(systemName: "gearshape")
                     }
                 }
 
@@ -133,6 +144,8 @@ struct PokemonListView: View {
                         }
                     }
                     .presentationDetents([.medium, .large])
+                case .settings:
+                    SettingsView()
                 }
             }
             .alert("エラー", isPresented: $viewModel.showError) {
@@ -164,15 +177,24 @@ struct PokemonListView: View {
                 VStack {
                     Spacer()
                     VStack(spacing: 16) {
-                        ProgressView(value: viewModel.loadingProgress)
-                            .progressViewStyle(.linear)
-                            .frame(width: 200)
-                        Text("読み込み中...")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
-                        Text("\(Int(viewModel.loadingProgress * 100))%")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                        if viewModel.loadingProgress >= 0.01 {
+                            // 進捗が1%以上の場合はプログレスバー表示
+                            ProgressView(value: viewModel.loadingProgress)
+                                .progressViewStyle(.linear)
+                                .frame(width: 200)
+                            Text(viewModel.loadingProgress > 0.1 ? "データ登録中..." : "読み込み中...")
+                                .font(.headline)
+                                .foregroundColor(.secondary)
+                            Text("\(Int(viewModel.loadingProgress * 100))%")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        } else {
+                            // 進捗が0の場合は不定形プログレス
+                            ProgressView()
+                            Text("読み込み中...")
+                                .font(.headline)
+                                .foregroundColor(.secondary)
+                        }
                     }
                     Spacer()
                 }
@@ -204,9 +226,10 @@ struct PokemonListView: View {
 
     private var pokemonList: some View {
         Group {
-            if viewModel.filteredPokemons.isEmpty {
+            if viewModel.filteredPokemons.isEmpty && !viewModel.isLoading && hasLoaded {
+                // ロード完了後にポケモンが0の場合のみ表示
                 emptyStateView
-            } else {
+            } else if !viewModel.filteredPokemons.isEmpty {
                 List(viewModel.filteredPokemons) { pokemon in
                     NavigationLink(value: pokemon) {
                         PokemonRow(pokemon: pokemon)
@@ -219,9 +242,10 @@ struct PokemonListView: View {
 
     private var pokemonGrid: some View {
         Group {
-            if viewModel.filteredPokemons.isEmpty {
+            if viewModel.filteredPokemons.isEmpty && !viewModel.isLoading && hasLoaded {
+                // ロード完了後にポケモンが0の場合のみ表示
                 emptyStateView
-            } else {
+            } else if !viewModel.filteredPokemons.isEmpty {
                 ScrollView {
                     LazyVGrid(
                         columns: Array(repeating: GridItem(.flexible()), count: DesignConstants.Grid.columns),

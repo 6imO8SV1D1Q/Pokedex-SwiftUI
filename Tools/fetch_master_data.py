@@ -6,6 +6,7 @@ import json
 import time
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from move_categories import detect_move_categories
 
 JSON_PATH = "../Pokedex/Pokedex/Resources/PreloadedData/scarlet_violet.json"
 
@@ -68,8 +69,43 @@ def fetch_move(move_id):
     effect_chance = data.get("effect_chance")
 
     # Meta
-    meta = data.get("meta") or {}
-    stat_changes = [{"stat": s["stat"]["name"], "change": s["change"]} for s in (meta.get("stat_changes") or [])]
+    meta = data.get("meta")
+    if meta is None:
+        meta = {}
+
+    # Stat changes with error handling
+    stat_changes = []
+    for s in meta.get("stat_changes") or []:
+        try:
+            if s and isinstance(s, dict) and "stat" in s and s["stat"] and "name" in s["stat"]:
+                stat_changes.append({"stat": s["stat"]["name"], "change": s["change"]})
+        except (TypeError, KeyError, AttributeError):
+            continue
+
+    # Categories (v4.0 Phase 3 - v2 with 43 categories)
+    # Prepare move_data dict for category detection
+    move_data_for_detection = {
+        "name": name,
+        "effect": effect or "",
+        "meta": {
+            "ailment": (meta.get("ailment") or {}).get("name") or "none",
+            "ailmentChance": meta.get("ailment_chance") or 0,
+            "category": (meta.get("category") or {}).get("name") or "damage",
+            "critRate": meta.get("crit_rate") or 0,
+            "drain": meta.get("drain") or 0,
+            "flinchChance": meta.get("flinch_chance") or 0,
+            "healing": meta.get("healing") or 0,
+            "statChance": meta.get("stat_chance") or 0,
+            "statChanges": stat_changes,
+            "maxHits": meta.get("max_hits"),
+            "minHits": meta.get("min_hits")
+        },
+        "priority": priority or 0,
+        "accuracy": accuracy,
+        "power": power,
+        "damageClass": damage_class or "status"
+    }
+    categories = detect_move_categories(move_data_for_detection)
 
     return {
         "id": move_id,
@@ -84,6 +120,7 @@ def fetch_move(move_id):
         "effectChance": effect_chance,
         "effect": effect or "",
         "effectJa": effect_ja or "",
+        "categories": categories,
         "meta": {
             "ailment": (meta.get("ailment") or {}).get("name") or "none",
             "ailmentChance": meta.get("ailment_chance") or 0,

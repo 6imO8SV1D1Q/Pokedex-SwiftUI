@@ -78,11 +78,17 @@ struct TypeBadgeStyle: ViewModifier {
         content
             .font(.system(size: fontSize))
             .fontWeight(.semibold)
+            .frame(minWidth: minWidth)
             .padding(.horizontal, DesignConstants.Spacing.xSmall)
             .padding(.vertical, DesignConstants.Spacing.xxSmall)
             .background(type.color)
             .foregroundColor(type.textColor)
             .cornerRadius(DesignConstants.CornerRadius.small)
+    }
+
+    /// フォントサイズに応じた最小幅
+    private var minWidth: CGFloat {
+        fontSize * 4.5  // 12pt → 54pt, 9pt → 40.5pt
     }
 }
 

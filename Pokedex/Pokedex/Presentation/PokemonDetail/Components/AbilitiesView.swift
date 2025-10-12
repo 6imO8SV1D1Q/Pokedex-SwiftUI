@@ -32,12 +32,13 @@ struct AbilitiesView: View {
 struct AbilityCard: View {
     let ability: PokemonAbility
     let detail: AbilityDetail?
+    @EnvironmentObject private var localizationManager: LocalizationManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 // 特性名
-                Text(displayAbilityName)
+                Text(abilityDisplayName)
                     .font(.subheadline)
                     .fontWeight(.semibold)
 
@@ -76,16 +77,24 @@ struct AbilityCard: View {
         .cornerRadius(8)
     }
 
-    /// 特性名を日本語で表示
-    private var displayAbilityName: String {
-        // 特性の日本語名があればそれを使用、なければ英語名
-        if let detail = detail, !detail.name.isEmpty {
-            return detail.name
+    /// 特性名を表示
+    private var abilityDisplayName: String {
+        switch localizationManager.currentLanguage {
+        case .japanese:
+            // 優先順位: ability.nameJa > detail.name > ability.name
+            if let nameJa = ability.nameJa {
+                return nameJa
+            }
+            if let detail = detail, !detail.name.isEmpty {
+                return detail.name
+            }
+            return ability.name.capitalized
+        case .english:
+            // 英語の場合は元の英語名を整形
+            return ability.name
+                .replacingOccurrences(of: "-", with: " ")
+                .capitalized
         }
-        // フォールバック: 英語名を整形
-        return ability.name
-            .replacingOccurrences(of: "-", with: " ")
-            .capitalized
     }
 }
 
@@ -94,10 +103,12 @@ struct AbilityCard: View {
         abilities: [
             PokemonAbility(
                 name: "overgrow",
+                nameJa: "しんりょく",
                 isHidden: false
             ),
             PokemonAbility(
                 name: "chlorophyll",
+                nameJa: "ようりょくそ",
                 isHidden: true
             )
         ],
@@ -118,6 +129,7 @@ struct AbilityCard: View {
             )
         ]
     )
+    .environmentObject(LocalizationManager.shared)
 }
 
 #Preview("詳細なし") {
@@ -125,9 +137,11 @@ struct AbilityCard: View {
         abilities: [
             PokemonAbility(
                 name: "overgrow",
+                nameJa: "しんりょく",
                 isHidden: false
             )
         ],
         abilityDetails: [:]
     )
+    .environmentObject(LocalizationManager.shared)
 }
