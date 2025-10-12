@@ -77,21 +77,33 @@ final class PokemonListViewModel: ObservableObject {
     @Published var selectedMoves: [MoveEntity] = []
 
     /// 選択されたバージョングループ
-    @Published var selectedVersionGroup: VersionGroup = .scarletViolet
+    @Published var selectedVersionGroup: VersionGroup = .nationalDex
 
     /// 全バージョングループリスト
     private(set) var allVersionGroups: [VersionGroup] = []
 
-    // MARK: - Display Mode
+    /// 選択された図鑑区分
+    @Published var selectedPokedex: PokedexType = .national
 
-    /// 表示形式
-    enum DisplayMode {
-        case list
-        case grid
-    }
+    // MARK: - Filter Mode Properties
 
-    /// 現在の表示形式
-    @Published var displayMode: DisplayMode = .list
+    /// タイプフィルターの検索モード
+    @Published var typeFilterMode: FilterMode = .or
+
+    /// 特性フィルターの検索モード
+    @Published var abilityFilterMode: FilterMode = .or
+
+    /// 技フィルターの検索モード
+    @Published var moveFilterMode: FilterMode = .and
+
+    /// 選択されたポケモン区分
+    @Published var selectedCategories: Set<PokemonCategory> = []
+
+    /// 最終進化のみ表示フラグ
+    @Published var filterFinalEvolutionOnly: Bool = false
+
+    /// 進化のきせき適用可フラグ
+    @Published var filterEvioliteOnly: Bool = false
 
     // MARK: - Sort Properties
 
@@ -169,6 +181,11 @@ final class PokemonListViewModel: ObservableObject {
             return
         }
 
+        // 全国図鑑の場合は、VersionGroupをnationalDexにする
+        if selectedPokedex == .national && selectedVersionGroup != .nationalDex {
+            selectedVersionGroup = .nationalDex
+        }
+
         await loadPokemonsWithRetry()
     }
 
@@ -196,21 +213,43 @@ final class PokemonListViewModel: ObservableObject {
         // フィルタリング
         // 注: 世代フィルターはRepositoryで既に適用済みなので、ここでは検索とタイプのみ
         var filtered = pokemons.filter { pokemon in
-            // 名前検索（部分一致）
+            // 図鑑フィルター
+            let matchesPokedex: Bool
+            if selectedPokedex == .national {
+                // 全国図鑑の場合は全て表示
+                matchesPokedex = true
+            } else {
+                // 選択された図鑑に含まれるかチェック
+                matchesPokedex = pokemon.pokedexNumbers?[selectedPokedex.rawValue] != nil
+            }
+
+            // 名前検索（部分一致、英語名と日本語名の両方）
             let matchesSearch = searchText.isEmpty ||
-                pokemon.name.lowercased().contains(searchText.lowercased())
+                pokemon.name.lowercased().contains(searchText.lowercased()) ||
+                (pokemon.nameJa?.contains(searchText) ?? false)
 
             // タイプフィルター
-            let matchesType = selectedTypes.isEmpty ||
-                pokemon.types.contains { selectedTypes.contains($0.name) }
+            let matchesType: Bool
+            if selectedTypes.isEmpty {
+                matchesType = true
+            } else if typeFilterMode == .or {
+                // OR: いずれかのタイプを持つ
+                matchesType = pokemon.types.contains { selectedTypes.contains($0.name) }
+            } else {
+                // AND: 全てのタイプを持つ
+                matchesType = selectedTypes.allSatisfy { selectedType in
+                    pokemon.types.contains { $0.name == selectedType }
+                }
+            }
 
-            return matchesSearch && matchesType
+            return matchesPokedex && matchesSearch && matchesType
         }
 
         // 特性フィルター適用
         filtered = filterPokemonByAbilityUseCase.execute(
             pokemonList: filtered,
-            selectedAbilities: selectedAbilities
+            selectedAbilities: selectedAbilities,
+            mode: abilityFilterMode
         )
 
         // 技フィルター適用
@@ -220,7 +259,8 @@ final class PokemonListViewModel: ObservableObject {
                 let moveFilteredResults = try await filterPokemonByMovesUseCase.execute(
                     pokemonList: filtered,
                     selectedMoves: selectedMoves,
-                    versionGroup: selectedVersionGroup.id
+                    versionGroup: selectedVersionGroup.id,
+                    mode: moveFilterMode
                 )
                 // 技フィルター結果からポケモンのみを抽出
                 filtered = moveFilteredResults.map { $0.pokemon }
@@ -231,10 +271,21 @@ final class PokemonListViewModel: ObservableObject {
         }
 
         // ソート適用
-        filteredPokemons = sortPokemonUseCase.execute(
+        var sorted = sortPokemonUseCase.execute(
             pokemonList: filtered,
             sortOption: currentSortOption
         )
+
+        // 図鑑番号ソートの場合、選択された図鑑の番号でソート
+        if currentSortOption == .pokedexNumber && selectedPokedex != .national {
+            sorted = sorted.sorted { pokemon1, pokemon2 in
+                let num1 = pokemon1.pokedexNumbers?[selectedPokedex.rawValue] ?? Int.max
+                let num2 = pokemon2.pokedexNumbers?[selectedPokedex.rawValue] ?? Int.max
+                return num1 < num2
+            }
+        }
+
+        filteredPokemons = sorted
     }
 
     /// ソートオプションを変更
@@ -242,11 +293,6 @@ final class PokemonListViewModel: ObservableObject {
     func changeSortOption(_ option: SortOption) {
         currentSortOption = option
         applyFilters()
-    }
-
-    /// 表示形式を切り替え
-    func toggleDisplayMode() {
-        displayMode = displayMode == .list ? .grid : .list
     }
 
     /// バージョングループを変更
@@ -259,6 +305,43 @@ final class PokemonListViewModel: ObservableObject {
         selectedVersionGroup = versionGroup
         Task {
             await loadPokemons()
+        }
+    }
+
+    /// 図鑑区分を変更
+    ///
+    /// - Parameter pokedex: 新しい図鑑区分
+    ///
+    /// - Note: 図鑑区分変更時はフィルターが再適用されます。
+    ///         全国図鑑選択時は全ポケモンをロードし直します。
+    func changePokedex(_ pokedex: PokedexType) {
+        let previousPokedex = selectedPokedex
+        selectedPokedex = pokedex
+
+        // 全国図鑑の場合は全ポケモンをロード
+        if pokedex == .national {
+            if selectedVersionGroup != .nationalDex {
+                // 地域図鑑から全国図鑑に切り替えた場合のみ再ロード
+                selectedVersionGroup = .nationalDex
+                Task {
+                    await loadPokemons()
+                }
+            } else {
+                // 既に全国図鑑の場合はフィルターのみ
+                applyFilters()
+            }
+        } else {
+            // 地域図鑑の場合
+            if selectedVersionGroup == .nationalDex {
+                // 全国図鑑から地域図鑑に切り替えた場合は、scarlet-violetに戻して再ロード
+                selectedVersionGroup = .scarletViolet
+                Task {
+                    await loadPokemons()
+                }
+            } else {
+                // 同じバージョングループ内の地域図鑑切り替えはフィルターのみ
+                applyFilters()
+            }
         }
     }
 

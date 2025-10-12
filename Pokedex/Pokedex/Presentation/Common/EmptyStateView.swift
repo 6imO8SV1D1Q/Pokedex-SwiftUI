@@ -40,6 +40,7 @@ struct EmptyStateView: View {
         }
         .padding(DesignConstants.Spacing.xLarge)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(uiColor: .systemGroupedBackground))
     }
 }
 

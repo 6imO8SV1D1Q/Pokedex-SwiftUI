@@ -111,4 +111,14 @@ class LocalizationManager: ObservableObject {
         }
         return ability.isHidden ? "\(baseName) (隠れ特性)" : baseName
     }
+
+    /// 図鑑名の表示
+    func displayName(for pokedex: PokedexType) -> String {
+        switch currentLanguage {
+        case .japanese:
+            return pokedex.nameJa
+        case .english:
+            return pokedex.nameEn
+        }
+    }
 }
