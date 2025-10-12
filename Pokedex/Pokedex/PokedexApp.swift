@@ -76,6 +76,7 @@ struct ContentView: View {
         Group {
             if let viewModel = viewModel {
                 PokemonListView(viewModel: viewModel)
+                    .environmentObject(LocalizationManager.shared)
             } else {
                 ProgressView("初期化中...")
                     .onAppear {

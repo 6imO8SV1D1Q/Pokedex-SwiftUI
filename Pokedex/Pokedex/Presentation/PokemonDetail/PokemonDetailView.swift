@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PokemonDetailView: View {
     @ObservedObject var viewModel: PokemonDetailViewModel
+    @EnvironmentObject private var localizationManager: LocalizationManager
 
     var body: some View {
         ScrollView {
@@ -137,7 +138,7 @@ struct PokemonDetailView: View {
             // 進化チェーンからのナビゲーション
             PokemonLoadingView(pokemonId: pokemonId) { _ in }
         }
-        .navigationTitle(viewModel.pokemon.displayName)
+        .navigationTitle(localizationManager.displayName(for: viewModel.pokemon))
         .navigationBarTitleDisplayMode(.inline)
         .alert("エラー", isPresented: $viewModel.showError) {
             Button("OK") {
@@ -215,7 +216,7 @@ struct PokemonDetailView: View {
     }
 
     private var pokemonName: some View {
-        Text(viewModel.pokemon.displayName)
+        Text(localizationManager.displayName(for: viewModel.pokemon))
             .font(.title)
             .fontWeight(.bold)
     }
@@ -223,7 +224,7 @@ struct PokemonDetailView: View {
     private var typesBadges: some View {
         HStack(spacing: DesignConstants.Spacing.xSmall) {
             ForEach(viewModel.pokemon.types.sorted(by: { $0.slot < $1.slot }), id: \.slot) { type in
-                Text(type.japaneseName)
+                Text(localizationManager.displayName(for: type))
                     .typeBadgeStyle(type)
             }
         }
@@ -366,7 +367,7 @@ struct PokemonDetailView: View {
     private var abilitiesViewLegacy: some View {
         VStack(alignment: .leading, spacing: DesignConstants.Spacing.xSmall) {
             ForEach(viewModel.pokemon.abilities, id: \.name) { ability in
-                Text(ability.displayName)
+                Text(localizationManager.displayName(for: ability))
                     .font(.body)
                     .foregroundColor(.primary)
             }

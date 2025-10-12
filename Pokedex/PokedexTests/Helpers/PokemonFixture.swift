@@ -57,9 +57,10 @@ extension Pokemon {
 extension PokemonType {
     static func fixture(
         slot: Int = 1,
-        name: String = "grass"
+        name: String = "grass",
+        nameJa: String? = nil
     ) -> PokemonType {
-        PokemonType(slot: slot, name: name)
+        PokemonType(slot: slot, name: name, nameJa: nameJa)
     }
 }
 

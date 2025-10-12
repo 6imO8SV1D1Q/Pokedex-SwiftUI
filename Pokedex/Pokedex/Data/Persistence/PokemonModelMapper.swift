@@ -11,7 +11,11 @@ enum PokemonModelMapper {
     // MARK: - JSON → SwiftData Model
 
     /// JSON (Scarlet/Violet) → SwiftData Model
-    static func fromJSON(_ data: PokemonData, abilityMap: [Int: (name: String, nameJa: String)]) -> PokemonModel {
+    static func fromJSON(
+        _ data: PokemonData,
+        abilityMap: [Int: (name: String, nameJa: String)],
+        typeMap: [String: TypeData]
+    ) -> PokemonModel {
         // Base Stats
         let baseStats = PokemonBaseStatsModel(
             hp: data.baseStats.hp,
@@ -55,6 +59,9 @@ enum PokemonModelMapper {
         let hiddenAbilityName = data.abilities.hidden.flatMap { abilityMap[$0]?.name }
         let hiddenAbilityNameJa = data.abilities.hidden.flatMap { abilityMap[$0]?.nameJa }
 
+        // Types: 英語名から日本語名を引く
+        let typeNamesJa = data.types.compactMap { typeMap[$0]?.nameJa }
+
         return PokemonModel(
             id: data.id,
             nationalDexNumber: data.nationalDexNumber,
@@ -66,6 +73,7 @@ enum PokemonModelMapper {
             weight: data.weight,
             category: data.category,
             types: data.types,
+            typeNamesJa: typeNamesJa,
             eggGroups: data.eggGroups,
             genderRate: data.genderRate,
             primaryAbilities: data.abilities.primary,
@@ -172,7 +180,8 @@ enum PokemonModelMapper {
     static func toDomain(_ model: PokemonModel) -> Pokemon {
         // Types: [String] → [PokemonType]
         let types = model.types.enumerated().map { (index, typeName) in
-            PokemonType(slot: index + 1, name: typeName)
+            let nameJa = model.typeNamesJa?[safe: index]
+            return PokemonType(slot: index + 1, name: typeName, nameJa: nameJa)
         }
 
         // Stats: PokemonBaseStatsModel → [PokemonStat]

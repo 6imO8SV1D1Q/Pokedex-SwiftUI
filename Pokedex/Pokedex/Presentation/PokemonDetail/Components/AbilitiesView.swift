@@ -32,12 +32,13 @@ struct AbilitiesView: View {
 struct AbilityCard: View {
     let ability: PokemonAbility
     let detail: AbilityDetail?
+    @EnvironmentObject private var localizationManager: LocalizationManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 // 特性名
-                Text(displayAbilityName)
+                Text(abilityDisplayName)
                     .font(.subheadline)
                     .fontWeight(.semibold)
 
@@ -76,16 +77,27 @@ struct AbilityCard: View {
         .cornerRadius(8)
     }
 
-    /// 特性名を日本語で表示
-    private var displayAbilityName: String {
-        // 特性の日本語名があればそれを使用、なければ英語名
-        if let detail = detail, !detail.name.isEmpty {
-            return detail.name
+    /// 特性名を表示
+    private var abilityDisplayName: String {
+        let result: String
+        switch localizationManager.currentLanguage {
+        case .japanese:
+            // 優先順位: ability.nameJa > detail.name > ability.name
+            if let nameJa = ability.nameJa {
+                result = nameJa
+            } else if let detail = detail, !detail.name.isEmpty {
+                result = detail.name
+            } else {
+                result = ability.name.capitalized
+            }
+        case .english:
+            // 英語の場合は元の英語名を整形
+            result = ability.name
+                .replacingOccurrences(of: "-", with: " ")
+                .capitalized
         }
-        // フォールバック: 英語名を整形
-        return ability.name
-            .replacingOccurrences(of: "-", with: " ")
-            .capitalized
+        print("🔤 Ability display: lang=\(localizationManager.currentLanguage), name=\(ability.name), result=\(result)")
+        return result
     }
 }
 
@@ -120,6 +132,7 @@ struct AbilityCard: View {
             )
         ]
     )
+    .environmentObject(LocalizationManager.shared)
 }
 
 #Preview("詳細なし") {
@@ -133,4 +146,5 @@ struct AbilityCard: View {
         ],
         abilityDetails: [:]
     )
+    .environmentObject(LocalizationManager.shared)
 }

@@ -81,9 +81,10 @@ struct FlowLayout: Layout {
 /// タイプバッジ
 struct TypeBadge: View {
     let typeName: String
+    @EnvironmentObject private var localizationManager: LocalizationManager
 
     var body: some View {
-        Text(typeDisplayName(typeName))
+        Text(localizationManager.displayName(forTypeName: typeName))
             .font(.caption)
             .fontWeight(.medium)
             .foregroundColor(.white)
@@ -91,18 +92,6 @@ struct TypeBadge: View {
             .padding(.vertical, 4)
             .background(typeColor(typeName))
             .cornerRadius(4)
-    }
-
-    private func typeDisplayName(_ typeName: String) -> String {
-        let typeMap: [String: String] = [
-            "normal": "ノーマル", "fire": "ほのお", "water": "みず",
-            "electric": "でんき", "grass": "くさ", "ice": "こおり",
-            "fighting": "かくとう", "poison": "どく", "ground": "じめん",
-            "flying": "ひこう", "psychic": "エスパー", "bug": "むし",
-            "rock": "いわ", "ghost": "ゴースト", "dragon": "ドラゴン",
-            "dark": "あく", "steel": "はがね", "fairy": "フェアリー"
-        ]
-        return typeMap[typeName] ?? typeName
     }
 
     private func typeColor(_ typeName: String) -> Color {
@@ -137,4 +126,5 @@ struct TypeBadge: View {
         TypeListView(types: [])
     }
     .padding()
+    .environmentObject(LocalizationManager.shared)
 }

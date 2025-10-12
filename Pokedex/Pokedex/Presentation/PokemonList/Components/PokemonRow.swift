@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PokemonRow: View {
     let pokemon: Pokemon
+    @EnvironmentObject private var localizationManager: LocalizationManager
 
     var body: some View {
         HStack(spacing: DesignConstants.Spacing.small) {
@@ -56,7 +57,7 @@ struct PokemonRow: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
 
-            Text(pokemon.displayName)
+            Text(localizationManager.displayName(for: pokemon))
                 .font(.headline)
         }
     }
@@ -64,16 +65,38 @@ struct PokemonRow: View {
     private var typesBadges: some View {
         HStack(spacing: DesignConstants.Spacing.xxSmall) {
             ForEach(pokemon.types.sorted(by: { $0.slot < $1.slot })) { type in
-                Text(type.japaneseName)
+                Text(localizationManager.displayName(for: type))
                     .typeBadgeStyle(type)
             }
         }
     }
 
     private var abilitiesText: some View {
-        Text(pokemon.abilitiesDisplay)
+        Text(abilitiesDisplay)
             .font(.caption)
             .foregroundColor(.secondary)
+    }
+
+    /// 特性の表示文字列（言語対応）
+    private var abilitiesDisplay: String {
+        if pokemon.abilities.isEmpty {
+            return "-"
+        }
+
+        let normalAbilities = pokemon.abilities.filter { !$0.isHidden }
+        let hiddenAbilities = pokemon.abilities.filter { $0.isHidden }
+
+        var parts: [String] = []
+
+        if !normalAbilities.isEmpty {
+            parts.append(normalAbilities.map { localizationManager.displayName(for: $0).replacingOccurrences(of: " (隠れ特性)", with: "") }.joined(separator: " "))
+        }
+
+        if !hiddenAbilities.isEmpty {
+            parts.append(hiddenAbilities.map { localizationManager.displayName(for: $0).replacingOccurrences(of: " (隠れ特性)", with: "") }.joined(separator: " "))
+        }
+
+        return parts.isEmpty ? "-" : parts.joined(separator: " ")
     }
 
     private var baseStatsText: some View {

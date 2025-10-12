@@ -137,7 +137,11 @@ enum PreloadedDataLoader {
             print("💾 [Preloaded] Saving pokemon to SwiftData...")
 
             for (index, pokemonData) in gameData.pokemon.enumerated() {
-                let model = PokemonModelMapper.fromJSON(pokemonData, abilityMap: abilityMap)
+                let model = PokemonModelMapper.fromJSON(
+                    pokemonData,
+                    abilityMap: abilityMap,
+                    typeMap: gameData.types
+                )
                 modelContext.insert(model)
 
                 // 100匹ごとに中間保存＆進捗表示

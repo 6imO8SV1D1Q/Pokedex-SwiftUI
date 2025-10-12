@@ -17,12 +17,14 @@ struct PokemonListView: View {
         case filter
         case sort
         case versionGroup
+        case settings
 
         var id: Int {
             switch self {
             case .filter: return 0
             case .sort: return 1
             case .versionGroup: return 2
+            case .settings: return 3
             }
         }
     }
@@ -48,6 +50,15 @@ struct PokemonListView: View {
                         viewModel.toggleDisplayMode()
                     } label: {
                         Image(systemName: viewModel.displayMode == .list ? "square.grid.2x2" : "list.bullet")
+                    }
+                }
+
+                // 設定ボタン
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        activeSheet = .settings
+                    } label: {
+                        Image(systemName: "gearshape")
                     }
                 }
 
@@ -133,6 +144,8 @@ struct PokemonListView: View {
                         }
                     }
                     .presentationDetents([.medium, .large])
+                case .settings:
+                    SettingsView()
                 }
             }
             .alert("エラー", isPresented: $viewModel.showError) {

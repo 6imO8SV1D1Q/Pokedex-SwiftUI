@@ -42,7 +42,7 @@ enum PokemonFormMapper {
 
         return types.compactMap { type in
             guard let typeName = type.type?.name else { return nil }
-            return PokemonType(slot: type.slot ?? 1, name: typeName)
+            return PokemonType(slot: type.slot ?? 1, name: typeName, nameJa: nil)
         }
     }
 

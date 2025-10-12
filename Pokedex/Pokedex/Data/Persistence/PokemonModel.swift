@@ -28,6 +28,7 @@ final class PokemonModel {
     // MARK: - Game Data
 
     var types: [String]
+    var typeNamesJa: [String]?  // 日本語名
     var eggGroups: [String]
     var genderRate: Int
 
@@ -76,6 +77,7 @@ final class PokemonModel {
         weight: Int,
         category: String,
         types: [String],
+        typeNamesJa: [String]? = nil,
         eggGroups: [String],
         genderRate: Int,
         primaryAbilities: [Int],
@@ -102,6 +104,7 @@ final class PokemonModel {
         self.weight = weight
         self.category = category
         self.types = types
+        self.typeNamesJa = typeNamesJa
         self.eggGroups = eggGroups
         self.genderRate = genderRate
         self.primaryAbilities = primaryAbilities

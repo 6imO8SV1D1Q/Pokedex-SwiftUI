@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PokemonGridItem: View {
     let pokemon: Pokemon
+    @EnvironmentObject private var localizationManager: LocalizationManager
 
     var body: some View {
         VStack(spacing: DesignConstants.Spacing.xSmall) {
@@ -50,7 +51,7 @@ struct PokemonGridItem: View {
     }
 
     private var pokemonName: some View {
-        Text(pokemon.displayName)
+        Text(localizationManager.displayName(for: pokemon))
             .font(.caption)
             .fontWeight(.medium)
             .lineLimit(1)
@@ -59,18 +60,29 @@ struct PokemonGridItem: View {
     private var typesBadges: some View {
         HStack(spacing: DesignConstants.Spacing.xxSmall) {
             ForEach(pokemon.types, id: \.slot) { type in
-                Text(type.japaneseName)
+                Text(localizationManager.displayName(for: type))
                     .typeBadgeStyle(type, fontSize: 9)
             }
         }
     }
 
     private var abilitiesText: some View {
-        Text(pokemon.abilitiesDisplayMultiline)
+        Text(abilitiesDisplay)
             .font(.caption2)
             .foregroundColor(.secondary)
             .lineLimit(3)
             .multilineTextAlignment(.center)
+    }
+
+    /// 特性の表示文字列（改行区切り、言語対応）
+    private var abilitiesDisplay: String {
+        if pokemon.abilities.isEmpty {
+            return "-"
+        }
+
+        return pokemon.abilities.map {
+            localizationManager.displayName(for: $0).replacingOccurrences(of: " (隠れ特性)", with: "")
+        }.joined(separator: "\n")
     }
 
     private var baseStatsText: some View {

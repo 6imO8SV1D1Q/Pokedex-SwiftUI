@@ -370,8 +370,11 @@ struct PokemonType: Codable, Identifiable, Hashable {
     /// タイプ名（英語、小文字）
     let name: String
 
+    /// タイプ名（日本語）
+    let nameJa: String?
+
     enum CodingKeys: String, CodingKey {
-        case slot, name
+        case slot, name, nameJa
     }
 
     // Hashable conformance
@@ -384,7 +387,19 @@ struct PokemonType: Codable, Identifiable, Hashable {
         lhs.slot == rhs.slot && lhs.name == rhs.name
     }
 
-    /// タイプの日本語名
+    /// 言語に応じたタイプ名を取得
+    /// - Parameter language: 表示言語
+    /// - Returns: タイプ名
+    func displayName(language: AppLanguage) -> String {
+        switch language {
+        case .japanese:
+            return nameJa ?? japaneseName
+        case .english:
+            return name.capitalized
+        }
+    }
+
+    /// タイプの日本語名（フォールバック用）
     /// - Returns: 日本語のタイプ名（例: "ほのお", "みず"）
     var japaneseName: String {
         switch name.lowercased() {

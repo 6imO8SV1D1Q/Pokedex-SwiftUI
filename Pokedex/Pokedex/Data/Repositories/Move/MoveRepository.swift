@@ -58,7 +58,7 @@ final class MoveRepository: MoveRepositoryProtocol {
                 id: model.id,
                 name: model.name,
                 nameJa: model.nameJa,
-                type: PokemonType(slot: 1, name: model.type),
+                type: PokemonType(slot: 1, name: model.type, nameJa: nil),
                 power: model.power,
                 accuracy: model.accuracy,
                 pp: model.pp,
@@ -168,7 +168,7 @@ final class MoveRepository: MoveRepositoryProtocol {
                     id: moveModel.id,
                     name: moveModel.name,
                     nameJa: moveModel.nameJa,
-                    type: PokemonType(slot: 1, name: moveModel.type),
+                    type: PokemonType(slot: 1, name: moveModel.type, nameJa: nil),
                     power: moveModel.power,
                     accuracy: moveModel.accuracy,
                     pp: moveModel.pp,
@@ -218,7 +218,8 @@ final class MoveRepository: MoveRepositoryProtocol {
             nameJa: model.nameJa,
             type: PokemonType(
                 slot: 1,
-                name: model.type
+                name: model.type,
+                nameJa: nil
             ),
             power: model.power,
             accuracy: model.accuracy,
