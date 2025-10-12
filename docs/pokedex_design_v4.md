@@ -3,7 +3,7 @@
 **プロジェクト名**: Pokédex SwiftUI
 **バージョン**: 4.0
 **作成日**: 2025-10-09
-**最終更新**: 2025-10-11
+**最終更新**: 2025-10-12
 
 ---
 
@@ -76,45 +76,53 @@
 └─────────────────────────────────────────────────────────┘
 ```
 
-### v4.0の設計方針
+### v4.0の設計方針（実装完了）
 
-1. **SwiftData中心の永続化**: インメモリキャッシュを廃止し、全てSwiftDataで永続化
-2. **プリバンドルDB**: 初回起動から全データ利用可能
-3. **シンプルな構成**: 複雑なバックグラウンド取得ロジックを削除し、順次取得に統一
-4. **モジュール化準備**: UIKit版を見据えたData/Domain層の分離
+1. **SwiftData中心の永続化**: インメモリキャッシュを廃止し、全てSwiftDataで永続化 ✅
+2. **プリバンドルJSON**: 初回起動から全データ利用可能（約7.4MB） ✅
+3. **埋め込みモデル**: `@Relationship`を避け、`Codable` structで埋め込み（18秒 → 1秒以内） ✅
+4. **図鑑データ永続化**: PokedexModelでAPI呼び出しを削減 ✅
+5. **スキーマバージョン管理**: 自動マイグレーション機能（`v4.1-embedded`） ✅
 
 ### 新規追加コンポーネント
 
-| コンポーネント | 責務 | Phase |
-|--------------|------|-------|
-| PokemonModel | SwiftDataモデル（永続化） | 1 |
-| PokemonModelMapper | Domain ↔ SwiftData変換 | 1 |
-| MoveModel | 技データのSwiftDataモデル | 3 |
-| GenerateDatabaseScript | プリバンドルDB生成ツール | 2 |
-| SettingsViewModel | キャッシュ管理UI | 1 |
-| LocalizationManager | 日本語対応 | 4 |
-| PokemonVersionVariant | バージョン固有データ | 5 |
-| PokedexCore Package | モジュール化 | 6 |
+| コンポーネント | 責務 | Phase | 状態 |
+|--------------|------|-------|------|
+| PokemonModel | SwiftDataモデル（埋め込み型） | 1 | ✅ |
+| PokemonModelMapper | Domain ↔ SwiftData変換 | 1 | ✅ |
+| PokedexModel | 図鑑データのSwiftDataモデル | 2 | ✅ |
+| MoveModel | 技データのSwiftDataモデル | 3 | ✅ |
+| AbilityModel | 特性データのSwiftDataモデル | 3 | ✅ |
+| GenerateScarletVioletData | プリバンドルJSON生成ツール | 2 | ✅ |
+| PreloadedDataLoader | JSON読み込み処理 | 2 | ✅ |
+| LocalizationManager | 日本語対応 | 3 | ✅ |
+| SettingsView | 言語設定UI | 3 | ✅ |
 
 ---
 
-## Phase 1: SwiftData永続化
+## Phase 1: SwiftData永続化 ✅ 完了
 
 ### 目標
 
-- 取得したポケモンデータをディスクに永続化
-- アプリ再起動後もデータを保持
-- 2回目以降の起動を1秒以内に短縮
+- 取得したポケモンデータをディスクに永続化 ✅
+- アプリ再起動後もデータを保持 ✅
+- 2回目以降の起動を1秒以内に短縮 ✅
+- **追加達成**: データ変換時間を18秒から1秒以内に短縮 ✅
 
-### 1.1 SwiftDataモデル設計
+### 1.1 SwiftDataモデル設計（埋め込み型）
 
-**設計方針**:
-1. Domain層のPokemonエンティティと1:1対応するSwiftDataモデルを作成
-2. リレーションシップを活用して正規化
-3. `@Attribute(.unique)`で一意制約を設定
-4. `@Relationship(deleteRule: .cascade)`で親子関係を管理
+**設計方針の変更**:
+1. Domain層のPokemonエンティティと1:1対応するSwiftDataモデルを作成 ✅
+2. ~~リレーションシップを活用して正規化~~ → **埋め込み型に変更**
+3. `@Attribute(.unique)`で一意制約を設定 ✅
+4. ~~`@Relationship(deleteRule: .cascade)`で親子関係を管理~~ → **`Codable` structで埋め込み**
 
-**PokemonModel**:
+**変更理由**:
+- `@Relationship`による遅延ロードで86,600+の技習得データ取得に18秒かかっていた
+- `Codable` structで直接埋め込むことで、遅延ロードを回避
+- 結果: データ変換時間が18秒から1秒以内に改善
+
+**PokemonModel（埋め込み型）**:
 
 ```swift
 @Model
@@ -143,21 +151,12 @@ final class PokemonModel {
     var primaryAbilities: [Int]               // 通常特性IDリスト
     var hiddenAbility: Int?                   // 隠れ特性ID（nullable）
 
-    // MARK: - Stats
+    // MARK: - Embedded Models (Codable struct - @Relationshipなし)
 
-    @Relationship(deleteRule: .cascade) var baseStats: PokemonBaseStatsModel?
-
-    // MARK: - Sprites
-
-    @Relationship(deleteRule: .cascade) var sprites: PokemonSpriteModel?
-
-    // MARK: - Moves
-
-    @Relationship(deleteRule: .cascade) var moves: [PokemonLearnedMoveModel]
-
-    // MARK: - Evolution
-
-    @Relationship(deleteRule: .cascade) var evolutionChain: PokemonEvolutionModel?
+    var baseStats: PokemonBaseStatsModel?     // 種族値（埋め込み）
+    var sprites: PokemonSpriteModel?          // 画像URL（埋め込み）
+    var moves: [PokemonLearnedMoveModel]      // 技習得情報（埋め込み、86,600+レコード）
+    var evolutionChain: PokemonEvolutionModel? // 進化情報（埋め込み）
 
     // MARK: - Varieties & Pokedex
 
@@ -167,45 +166,14 @@ final class PokemonModel {
     // MARK: - Cache
 
     var fetchedAt: Date                       // キャッシュ日時
-
-    init(id: Int, nationalDexNumber: Int, name: String, nameJa: String,
-         genus: String, genusJa: String, height: Int, weight: Int,
-         category: String, types: [String], eggGroups: [String], genderRate: Int,
-         primaryAbilities: [Int], hiddenAbility: Int? = nil,
-         baseStats: PokemonBaseStatsModel? = nil, sprites: PokemonSpriteModel? = nil,
-         moves: [PokemonLearnedMoveModel] = [], evolutionChain: PokemonEvolutionModel? = nil,
-         varieties: [Int] = [], pokedexNumbers: [String: Int] = [:],
-         fetchedAt: Date = Date()) {
-        self.id = id
-        self.nationalDexNumber = nationalDexNumber
-        self.name = name
-        self.nameJa = nameJa
-        self.genus = genus
-        self.genusJa = genusJa
-        self.height = height
-        self.weight = weight
-        self.category = category
-        self.types = types
-        self.eggGroups = eggGroups
-        self.genderRate = genderRate
-        self.primaryAbilities = primaryAbilities
-        self.hiddenAbility = hiddenAbility
-        self.baseStats = baseStats
-        self.sprites = sprites
-        self.moves = moves
-        self.evolutionChain = evolutionChain
-        self.varieties = varieties
-        self.pokedexNumbers = pokedexNumbers
-        self.fetchedAt = fetchedAt
-    }
 }
 ```
 
-**関連モデル**:
+**埋め込みモデル（Codable struct）**:
 
 ```swift
-@Model
-final class PokemonBaseStatsModel {
+// 種族値（埋め込み型）
+struct PokemonBaseStatsModel: Codable {
     var hp: Int                               // HP種族値
     var attack: Int                           // 攻撃種族値
     var defense: Int                          // 防御種族値
@@ -213,76 +181,52 @@ final class PokemonBaseStatsModel {
     var spDefense: Int                        // 特防種族値
     var speed: Int                            // 素早さ種族値
     var total: Int                            // 合計種族値
-    var pokemon: PokemonModel?                // 親ポケモン
-
-    init(hp: Int, attack: Int, defense: Int, spAttack: Int,
-         spDefense: Int, speed: Int, total: Int) {
-        self.hp = hp
-        self.attack = attack
-        self.defense = defense
-        self.spAttack = spAttack
-        self.spDefense = spDefense
-        self.speed = speed
-        self.total = total
-    }
 }
 
-@Model
-final class PokemonSpriteModel {
+// 画像URL（埋め込み型）
+struct PokemonSpriteModel: Codable {
     var normal: String                        // 通常画像URL
     var shiny: String                         // 色違い画像URL
-    var pokemon: PokemonModel?                // 親ポケモン
-
-    init(normal: String, shiny: String) {
-        self.normal = normal
-        self.shiny = shiny
-    }
 }
 
-@Model
-final class PokemonLearnedMoveModel {
+// 技習得情報（埋め込み型）
+// 重要: これを@Relationshipにすると18秒のボトルネックになる
+struct PokemonLearnedMoveModel: Codable {
+    var pokemonId: Int                        // ポケモンID
     var moveId: Int                           // 技ID
     var learnMethod: String                   // 習得方法: level-up/machine/egg/tutor
     var level: Int?                           // 習得レベル（level-upの場合）
     var machineNumber: String?                // わざマシン番号（machineの場合、例: "TM126"）
-    var pokemon: PokemonModel?                // 親ポケモン
-
-    init(moveId: Int, learnMethod: String, level: Int? = nil, machineNumber: String? = nil) {
-        self.moveId = moveId
-        self.learnMethod = learnMethod
-        self.level = level
-        self.machineNumber = machineNumber
-    }
 }
 
-@Model
-final class PokemonEvolutionModel {
+// 進化情報（埋め込み型）
+struct PokemonEvolutionModel: Codable {
     var chainId: Int                          // 進化チェーンID
     var evolutionStage: Int                   // 進化段階（1=初期、2=第1進化、3=第2進化）
     var evolvesFrom: Int?                     // 進化前のポケモンID
     var evolvesTo: [Int]                      // 進化先のポケモンID配列
     var canUseEviolite: Bool                  // しんかのきせき適用可能フラグ
-    var pokemon: PokemonModel?                // 親ポケモン
-
-    init(chainId: Int, evolutionStage: Int, evolvesFrom: Int? = nil,
-         evolvesTo: [Int] = [], canUseEviolite: Bool) {
-        self.chainId = chainId
-        self.evolutionStage = evolutionStage
-        self.evolvesFrom = evolvesFrom
-        self.evolvesTo = evolvesTo
-        self.canUseEviolite = canUseEviolite
-    }
 }
 ```
 
-**ER図**:
+**データ構造**:
 
 ```
-PokemonModel (1) ──┬── (1) PokemonBaseStatsModel
-                   ├── (1) PokemonSpriteModel
-                   ├── (N) PokemonLearnedMoveModel
-                   └── (1) PokemonEvolutionModel
+PokemonModel (1つのモデル内に全データ埋め込み)
+├── baseStats: PokemonBaseStatsModel? (struct、埋め込み)
+├── sprites: PokemonSpriteModel? (struct、埋め込み)
+├── moves: [PokemonLearnedMoveModel] (struct配列、埋め込み、100件/匹)
+└── evolutionChain: PokemonEvolutionModel? (struct、埋め込み)
 ```
+
+**パフォーマンス比較**:
+
+| 項目 | @Relationship | 埋め込み型 |
+|------|--------------|----------|
+| データ取得 | 遅延ロード（86,600+クエリ） | 一括取得 |
+| 変換時間 | 18秒 | 1秒以内 |
+| 構造 | 正規化（5テーブル） | 非正規化（1テーブル） |
+| クエリ | 複数JOINが必要 | 単一SELECT |
 
 ### 1.2 PokemonModelMapper
 
@@ -470,9 +414,9 @@ final class PokemonRepository: PokemonRepositoryProtocol {
 }
 ```
 
-### 1.4 ModelContainer セットアップ
+### 1.4 ModelContainer セットアップと自動マイグレーション
 
-**PokedexApp.swift**:
+**PokedexApp.swift**（実装版）:
 
 ```swift
 import SwiftUI
@@ -483,29 +427,71 @@ struct PokedexApp: App {
     let modelContainer: ModelContainer
 
     init() {
+        // スキーマ定義（埋め込みモデルのstructは含まない）
+        let schema = Schema([
+            PokemonModel.self,      // メインモデルのみ
+            MoveModel.self,
+            MoveMetaModel.self,
+            AbilityModel.self,
+            PokedexModel.self       // 図鑑データ
+        ])
+
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false
+        )
+
         do {
+            // 通常の初期化
             modelContainer = try ModelContainer(
-                for: PokemonModel.self,
-                     PokemonBaseStatsModel.self,
-                     PokemonSpriteModel.self,
-                     PokemonLearnedMoveModel.self,
-                     PokemonEvolutionModel.self,
-                     MoveModel.self,
-                     MoveMetaModel.self,
-                     AbilityModel.self,
-                configurations: ModelConfiguration(isStoredInMemoryOnly: false)
+                for: schema,
+                configurations: [modelConfiguration]
             )
         } catch {
-            fatalError("Failed to initialize ModelContainer: \(error)")
+            // マイグレーション失敗時の自動クリーンアップ
+            print("⚠️ ModelContainer initialization failed: \(error)")
+            print("🔄 Deleting old store and retrying...")
+
+            let storeURL = modelConfiguration.url
+            try? FileManager.default.removeItem(at: storeURL)
+            try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+            try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+
+            // 再試行
+            do {
+                modelContainer = try ModelContainer(
+                    for: schema,
+                    configurations: [modelConfiguration]
+                )
+                print("✅ ModelContainer recreated successfully")
+            } catch {
+                fatalError("Failed to initialize ModelContainer: \(error)")
+            }
         }
     }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .modelContainer(modelContainer)  // ← 追加
+                .modelContainer(modelContainer)
+                .environmentObject(LocalizationManager.shared)
         }
     }
+}
+```
+
+**スキーマバージョン管理**:
+
+```swift
+// PokemonRepository.swift
+let currentSchemaVersion = "v4.1-embedded"
+let savedSchemaVersion = UserDefaults.standard.string(forKey: "swiftdata_schema_version")
+let isSchemaChanged = savedSchemaVersion != currentSchemaVersion
+
+if isSchemaChanged {
+    print("📦 Schema changed: \(savedSchemaVersion ?? "nil") → \(currentSchemaVersion)")
+    // スキーマ変更を記録
+    UserDefaults.standard.set(currentSchemaVersion, forKey: "swiftdata_schema_version")
 }
 ```
 
@@ -563,14 +549,19 @@ PokemonListViewModel.loadPokemons()
     ↓
 PokemonRepository.fetchPokemonList()
     ├→ 1. SwiftData確認 → 空
-    ├→ 2. PokéAPI取得（60-90秒）
-    │     - 順次取得（50ms間隔）
-    │     - 進捗通知
-    ├→ 3. PokemonModelMapper.toModel()
-    ├→ 4. modelContext.insert()
-    └→ 5. modelContext.save() → ディスクに永続化
+    ├→ 2. プリバンドルJSON読み込み（scarlet_violet.json）
+    │     - 866ポケモン、680技、269特性、3図鑑
+    │     - PreloadedDataLoader.loadPreloadedDataIfNeeded()
+    ├→ 3. SwiftDataに保存（進捗表示付き）
+    │     ├→ 0%: JSONパース開始
+    │     ├→ 10%: ポケモンデータ保存開始
+    │     ├→ 45%: 図鑑データ保存完了
+    │     ├→ 80%: 技・特性データ保存完了
+    │     └→ 100%: 完了
+    ├→ 4. PokemonModelMapper.toDomain()（1秒以内）
+    └→ 5. 即座に返却
     ↓
-User: ポケモンリスト表示（60-90秒後）
+User: ポケモンリスト表示（1秒以内）
 ```
 
 **2回目以降（キャッシュあり）**:
@@ -584,21 +575,22 @@ PokemonListViewModel.loadPokemons()
     ↓
 PokemonRepository.fetchPokemonList()
     ├→ 1. SwiftData確認 → あり！
-    ├→ 2. PokemonModelMapper.toDomain()
-    └→ 3. 即座に返却（1秒以内）
+    ├→ 2. PokemonModelMapper.toDomain()（1秒以内、埋め込み型で高速）
+    └→ 3. 即座に返却
     ↓
 User: ポケモンリスト表示（1秒以内）
 ```
 
 ---
 
-## Phase 2: プリバンドルデータベース
+## Phase 2: プリバンドルJSON ✅ 完了
 
 ### 目標
 
-- 全1025匹のデータを事前に生成してアプリに同梱
-- 初回起動から1秒以内でデータ表示
-- 完全オフライン対応
+- Scarlet/Violet対象の866ポケモンのデータを事前生成してアプリに同梱 ✅
+- 初回起動から1秒以内でデータ表示 ✅
+- 完全オフライン対応 ✅
+- **追加達成**: 図鑑データの永続化でAPI呼び出しを削減 ✅
 
 ### 2.1 データ生成アプローチ
 
@@ -769,64 +761,105 @@ extension PokemonRepository {
 }
 ```
 
-### 2.3 差分更新
+### 2.3 PokedexModelの追加
 
-**アプリバージョンアップ時の処理**:
+**目的**: 図鑑データ（paldea, kitakami, blueberry）をSwiftDataで永続化し、API呼び出しを削減
+
+**PokedexModel**:
 
 ```swift
-extension PokemonRepository {
-    func updateDatabaseIfNeeded() async throws {
-        // 1. PokéAPIから最新のポケモン総数を取得
-        let latestCount = try await apiClient.fetchTotalPokemonCount()
+@Model
+final class PokedexModel {
+    @Attribute(.unique) var name: String      // 図鑑名（paldea, kitakami, blueberry）
+    var speciesIds: [Int]                     // 含まれるポケモンのspecies ID配列
 
-        // 2. SwiftDataの最大IDを確認
-        let descriptor = FetchDescriptor<PokemonModel>(
-            sortBy: [SortDescriptor(\.id, order: .reverse)]
-        )
-        descriptor.fetchLimit = 1
-        let maxModel = try modelContext.fetch(descriptor).first
-        let currentMaxId = maxModel?.id ?? 0
-
-        // 3. 差分がある場合のみ取得
-        guard latestCount > currentMaxId else {
-            print("Database is up to date")
-            return
-        }
-
-        print("Updating database: \(currentMaxId + 1)...\(latestCount)")
-
-        // 4. 新しいポケモンのみ取得
-        for id in (currentMaxId + 1)...latestCount {
-            do {
-                let pokemon = try await apiClient.fetchPokemon(id)
-                let model = PokemonModelMapper.toModel(pokemon)
-                modelContext.insert(model)
-
-                if id % 10 == 0 {
-                    try modelContext.save()
-                }
-
-                try await Task.sleep(nanoseconds: 50_000_000)
-            } catch {
-                print("⚠️ Failed to fetch Pokemon #\(id): \(error)")
-            }
-        }
-
-        try modelContext.save()
-        print("✅ Database updated: \(latestCount - currentMaxId) new Pokemon")
+    init(name: String, speciesIds: [Int]) {
+        self.name = name
+        self.speciesIds = speciesIds
     }
 }
 ```
 
+**データ生成ツール**:
+
+```python
+# Tools/add_pokedex_data.py
+import json
+import requests
+
+POKEDEX_NAMES = ["paldea", "kitakami", "blueberry"]
+
+def fetch_pokedex(pokedex_name):
+    url = f"https://pokeapi.co/api/v2/pokedex/{pokedex_name}"
+    response = requests.get(url)
+    data = response.json()
+
+    species_ids = [int(entry["pokemon_species"]["url"].rstrip("/").split("/")[-1])
+                   for entry in data["pokemon_entries"]]
+
+    return {
+        "name": pokedex_name,
+        "speciesIds": sorted(species_ids)
+    }
+
+# JSONに追加
+pokedexes = [fetch_pokedex(name) for name in POKEDEX_NAMES]
+data["pokedexes"] = pokedexes
+```
+
+**実行結果**:
+
+```json
+{
+  "pokedexes": [
+    {
+      "name": "paldea",
+      "speciesIds": [1, 2, 3, ..., 1010]  // 400種
+    },
+    {
+      "name": "kitakami",
+      "speciesIds": [10, 16, 19, ..., 1017]  // 200種
+    },
+    {
+      "name": "blueberry",
+      "speciesIds": [1, 4, 7, ..., 1025]  // 243種
+    }
+  ]
+}
+```
+
+**PokemonRepositoryでの利用**:
+
+```swift
+// 図鑑データをSwiftDataから取得
+for pokedexName in pokedexNames {
+    let pokedexDescriptor = FetchDescriptor<PokedexModel>(
+        predicate: #Predicate { $0.name == pokedexName }
+    )
+
+    if let pokedex = try modelContext.fetch(pokedexDescriptor).first {
+        print("✅ [SwiftData Pokedex] Hit: \(pokedexName) (\(pokedex.speciesIds.count) species)")
+        speciesIds.formUnion(pokedex.speciesIds)
+    }
+}
+
+// API呼び出しが不要になった
+```
+
+**効果**:
+- API呼び出し削減: 起動時3回 → 0回
+- オフライン対応: バージョングループ切り替えもオフラインで動作
+
 ---
 
-## Phase 3: 技・特性データモデル
+## Phase 3: 技・特性データモデルと日本語対応 ✅ 完了
 
 ### 目標
 
-- 技データ・特性データを永続化
-- 日本語対応完了
-- 技フィルターの高速化
+- 技データ・特性データを永続化 ✅
+- 日本語対応完了 ✅
+- 技フィルターの高速化 ✅
+- 技カテゴリーフィルター実装（43種類） ✅
 
 ### 3.1 MoveModel
 
@@ -946,6 +979,112 @@ final class AbilityModel {
 }
 ```
 
+### 3.3 LocalizationManager（日本語対応）
+
+**目的**: ポケモン名、タイプ名、技名、特性名の言語切り替え機能
+
+**LocalizationManager.swift**:
+
+```swift
+@MainActor
+final class LocalizationManager: ObservableObject {
+    static let shared = LocalizationManager()
+
+    @Published var currentLanguage: AppLanguage = .japanese
+
+    // ポケモンの表示名を取得
+    func displayName(for pokemon: Pokemon) -> String {
+        switch currentLanguage {
+        case .japanese:
+            return pokemon.nameJa.isEmpty ? pokemon.name : pokemon.nameJa
+        case .english:
+            return pokemon.name
+        }
+    }
+
+    // タイプの表示名を取得
+    func displayName(for type: PokemonType) -> String {
+        switch currentLanguage {
+        case .japanese:
+            return TypeNames.japanese[type.name] ?? type.name
+        case .english:
+            return TypeNames.english[type.name] ?? type.name
+        }
+    }
+
+    // 技の表示名を取得
+    func displayName(for move: MoveEntity) -> String {
+        switch currentLanguage {
+        case .japanese:
+            return move.nameJa.isEmpty ? move.name : move.nameJa
+        case .english:
+            return move.name
+        }
+    }
+
+    // 特性の表示名を取得
+    func displayName(for ability: PokemonAbility) -> String {
+        switch currentLanguage {
+        case .japanese:
+            return ability.nameJa.isEmpty ? ability.name : ability.name
+        case .english:
+            return ability.name
+        }
+    }
+}
+
+enum AppLanguage: String, CaseIterable, Identifiable, Codable {
+    case japanese = "ja"
+    case english = "en"
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .japanese: return "日本語"
+        case .english: return "English"
+        }
+    }
+}
+```
+
+**SettingsView.swift**:
+
+```swift
+struct SettingsView: View {
+    @EnvironmentObject private var localizationManager: LocalizationManager
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Picker("言語", selection: $localizationManager.currentLanguage) {
+                        ForEach(AppLanguage.allCases) { language in
+                            Text(language.displayName).tag(language)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                } header: {
+                    Text("表示設定")
+                } footer: {
+                    Text("アプリの表示言語を変更できます。タイプ名などが選択した言語で表示されます。")
+                }
+            }
+            .navigationTitle("設定")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("完了") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
 ---
 
 ## Phase 4以降
@@ -962,31 +1101,41 @@ final class AbilityModel {
 
 ## データフロー（Phase 2完了後）
 
-**初回起動**:
+**バージョングループ切り替え**:
 
 ```
-User: アプリ起動
+User: バージョングループ選択（scarlet-violet）
+    ↓
+PokemonListViewModel.changeVersionGroup()
     ↓
 PokemonRepository.fetchPokemonList()
-    ├→ 1. SwiftData確認 → 空
-    ├→ 2. プリバンドルDB確認 → あり！
-    ├→ 3. Documents/にコピー
-    ├→ 4. SwiftDataから読み込み
-    └→ 5. Domain変換して返却（1秒以内）
+    ├→ 1. 図鑑データ取得（PokedexModel）
+    │     - paldea: 400種
+    │     - kitakami: 200種
+    │     - blueberry: 243種
+    │     - SwiftDataから即座に取得（API不要）
+    ├→ 2. 該当ポケモンをSwiftDataから取得
+    │     - speciesIds に基づいてフィルタリング
+    └→ 3. Domain変換して返却（1秒以内）
     ↓
-User: ポケモンリスト表示（1秒以内）
+User: フィルタリングされたリスト表示（1秒以内）
 ```
 
-**2回目以降**:
+**技フィルター**:
 
 ```
-User: アプリ起動
+User: 技フィルター選択（「10まんボルト」「かみなり」）
     ↓
-PokemonRepository.fetchPokemonList()
-    ├→ 1. SwiftData確認 → あり！
-    └→ 2. Domain変換して返却（1秒以内）
+FilterPokemonByMovesUseCase.execute()
     ↓
-User: ポケモンリスト表示（1秒以内）
+MoveRepository.fetchBulkLearnMethods()
+    ├→ 1. PokemonModelをSwiftDataから取得
+    ├→ 2. 埋め込みmoves配列をフィルタリング
+    │     - pokemon.moves.filter { moveIds.contains($0.moveId) }
+    │     - メモリ内処理のため高速（API不要）
+    └→ 3. 結果を返却（3秒以内）
+    ↓
+User: フィルタリングされたリスト表示（3秒以内）
 ```
 
 ---
@@ -995,18 +1144,25 @@ User: ポケモンリスト表示（1秒以内）
 
 ### SwiftDataエラー
 
-| エラー | 原因 | 対処 |
-|--------|------|------|
-| ModelContainer初期化失敗 | スキーマ不整合 | アプリ再インストール推奨 |
-| fetch失敗 | データ破損 | キャッシュクリア → 再取得 |
-| save失敗 | ディスク容量不足 | ユーザーに通知 |
+| エラー | 原因 | 対処 | 実装状況 |
+|--------|------|------|------|
+| ModelContainer初期化失敗 | スキーマ不整合 | 自動クリーンアップ → 再作成 | ✅ 実装済み |
+| fetch失敗 | データ破損 | エラー表示 → 再インストール推奨 | ✅ 実装済み |
+| save失敗 | ディスク容量不足 | ユーザーに通知 | ✅ 実装済み |
 
-### プリバンドルDBエラー
+### プリバンドルJSONエラー
 
-| エラー | 原因 | 対処 |
-|--------|------|------|
-| バンドルにDBなし | ビルド設定ミス | APIからフォールバック取得 |
-| コピー失敗 | 権限エラー | APIからフォールバック取得 |
+| エラー | 原因 | 対処 | 実装状況 |
+|--------|------|------|------|
+| バンドルにJSONなし | ビルド設定ミス | エラー表示 | ✅ 実装済み |
+| JSON解析失敗 | フォーマットエラー | エラー表示 | ✅ 実装済み |
+
+### マイグレーションエラー
+
+| エラー | 原因 | 対処 | 実装状況 |
+|--------|------|------|------|
+| スキーマバージョン不一致 | @Relationship → 埋め込み型変更 | 自動削除 → 再作成 | ✅ 実装済み |
+| データ破損 | 不完全な保存 | 自動削除 → 再作成 | ✅ 実装済み |
 
 ---
 
@@ -1017,3 +1173,4 @@ User: ポケモンリスト表示（1秒以内）
 | 2025-10-09 | 1.0 | 初版作成 |
 | 2025-10-10 | 2.0 | Phase 1をSwiftData永続化に変更、Phase 2をプリバンドルDBに変更、Phase 3以降を簡略化 |
 | 2025-10-11 | 3.0 | JSONベースのアプローチに変更、全モデルをJSONデータ構造に合わせて更新、日本語フィールド追加、技・特性モデル追加 |
+| 2025-10-12 | 4.0 | Phase 1-3完了を反映、埋め込みモデル採用、PokedexModel追加、スキーマバージョン管理追加、パフォーマンス実測値更新、LocalizationManager追加 |
