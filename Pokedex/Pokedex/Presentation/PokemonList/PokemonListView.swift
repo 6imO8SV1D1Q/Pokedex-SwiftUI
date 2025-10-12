@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PokemonListView: View {
     @StateObject private var viewModel: PokemonListViewModel
+    @ObservedObject private var localizationManager = LocalizationManager.shared
     @State private var scrollPosition: Int?
     @State private var hasLoaded = false
     @State private var pokemonById: [Int: Pokemon] = [:] // IDからPokemonへのキャッシュ
@@ -37,13 +38,34 @@ struct PokemonListView: View {
 
     var body: some View {
         NavigationStack {
-            contentView
-                .navigationTitle("Pokédex")
-                .searchable(text: $viewModel.searchText, prompt: "ポケモンを検索")
-                .onChange(of: viewModel.searchText) { _, _ in
-                    viewModel.applyFilters()
+            VStack(spacing: 0) {
+                // 図鑑切り替えSegmented Control
+                Picker("図鑑", selection: $viewModel.selectedPokedex) {
+                    ForEach(PokedexType.allCases) { pokedex in
+                        Text(localizationManager.displayName(for: pokedex))
+                            .tag(pokedex)
+                    }
                 }
-                .toolbar {
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+                .padding(.bottom, 8)
+                .background(Color(uiColor: .systemGroupedBackground))
+                .onChange(of: viewModel.selectedPokedex) { oldValue, newValue in
+                    if oldValue != newValue {
+                        viewModel.changePokedex(newValue)
+                    }
+                }
+
+                contentView
+            }
+            .frame(maxHeight: .infinity, alignment: .top)
+            .navigationTitle("Pokédex")
+            .searchable(text: $viewModel.searchText, prompt: "ポケモンを検索")
+            .onChange(of: viewModel.searchText) { _, _ in
+                viewModel.applyFilters()
+            }
+            .toolbar {
                 // 表示形式切り替え
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -198,6 +220,8 @@ struct PokemonListView: View {
                     }
                     Spacer()
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(uiColor: .systemGroupedBackground))
             } else if viewModel.isFiltering {
                 VStack {
                     Spacer()
@@ -212,6 +236,8 @@ struct PokemonListView: View {
                     }
                     Spacer()
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(uiColor: .systemGroupedBackground))
             } else {
                 // 表示形式によって切り替え
                 switch viewModel.displayMode {
@@ -232,9 +258,12 @@ struct PokemonListView: View {
             } else if !viewModel.filteredPokemons.isEmpty {
                 List(viewModel.filteredPokemons) { pokemon in
                     NavigationLink(value: pokemon) {
-                        PokemonRow(pokemon: pokemon)
+                        PokemonRow(pokemon: pokemon, selectedPokedex: viewModel.selectedPokedex)
                     }
                 }
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.visible)
+                .contentMargins(.top, 8, for: .scrollContent)
                 .scrollPosition(id: $scrollPosition)
             }
         }
@@ -253,7 +282,7 @@ struct PokemonListView: View {
                     ) {
                         ForEach(viewModel.filteredPokemons) { pokemon in
                             NavigationLink(value: pokemon) {
-                                PokemonGridItem(pokemon: pokemon)
+                                PokemonGridItem(pokemon: pokemon, selectedPokedex: viewModel.selectedPokedex)
                             }
                             .buttonStyle(GridItemButtonStyle())
                         }

@@ -77,10 +77,13 @@ final class PokemonListViewModel: ObservableObject {
     @Published var selectedMoves: [MoveEntity] = []
 
     /// 選択されたバージョングループ
-    @Published var selectedVersionGroup: VersionGroup = .scarletViolet
+    @Published var selectedVersionGroup: VersionGroup = .nationalDex
 
     /// 全バージョングループリスト
     private(set) var allVersionGroups: [VersionGroup] = []
+
+    /// 選択された図鑑区分
+    @Published var selectedPokedex: PokedexType = .national
 
     // MARK: - Filter Mode Properties
 
@@ -189,6 +192,11 @@ final class PokemonListViewModel: ObservableObject {
             return
         }
 
+        // 全国図鑑の場合は、VersionGroupをnationalDexにする
+        if selectedPokedex == .national && selectedVersionGroup != .nationalDex {
+            selectedVersionGroup = .nationalDex
+        }
+
         await loadPokemonsWithRetry()
     }
 
@@ -216,9 +224,20 @@ final class PokemonListViewModel: ObservableObject {
         // フィルタリング
         // 注: 世代フィルターはRepositoryで既に適用済みなので、ここでは検索とタイプのみ
         var filtered = pokemons.filter { pokemon in
-            // 名前検索（部分一致）
+            // 図鑑フィルター
+            let matchesPokedex: Bool
+            if selectedPokedex == .national {
+                // 全国図鑑の場合は全て表示
+                matchesPokedex = true
+            } else {
+                // 選択された図鑑に含まれるかチェック
+                matchesPokedex = pokemon.pokedexNumbers?[selectedPokedex.rawValue] != nil
+            }
+
+            // 名前検索（部分一致、英語名と日本語名の両方）
             let matchesSearch = searchText.isEmpty ||
-                pokemon.name.lowercased().contains(searchText.lowercased())
+                pokemon.name.lowercased().contains(searchText.lowercased()) ||
+                (pokemon.nameJa?.contains(searchText) ?? false)
 
             // タイプフィルター
             let matchesType: Bool
@@ -234,7 +253,7 @@ final class PokemonListViewModel: ObservableObject {
                 }
             }
 
-            return matchesSearch && matchesType
+            return matchesPokedex && matchesSearch && matchesType
         }
 
         // 特性フィルター適用
@@ -263,10 +282,21 @@ final class PokemonListViewModel: ObservableObject {
         }
 
         // ソート適用
-        filteredPokemons = sortPokemonUseCase.execute(
+        var sorted = sortPokemonUseCase.execute(
             pokemonList: filtered,
             sortOption: currentSortOption
         )
+
+        // 図鑑番号ソートの場合、選択された図鑑の番号でソート
+        if currentSortOption == .pokedexNumber && selectedPokedex != .national {
+            sorted = sorted.sorted { pokemon1, pokemon2 in
+                let num1 = pokemon1.pokedexNumbers?[selectedPokedex.rawValue] ?? Int.max
+                let num2 = pokemon2.pokedexNumbers?[selectedPokedex.rawValue] ?? Int.max
+                return num1 < num2
+            }
+        }
+
+        filteredPokemons = sorted
     }
 
     /// ソートオプションを変更
@@ -291,6 +321,43 @@ final class PokemonListViewModel: ObservableObject {
         selectedVersionGroup = versionGroup
         Task {
             await loadPokemons()
+        }
+    }
+
+    /// 図鑑区分を変更
+    ///
+    /// - Parameter pokedex: 新しい図鑑区分
+    ///
+    /// - Note: 図鑑区分変更時はフィルターが再適用されます。
+    ///         全国図鑑選択時は全ポケモンをロードし直します。
+    func changePokedex(_ pokedex: PokedexType) {
+        let previousPokedex = selectedPokedex
+        selectedPokedex = pokedex
+
+        // 全国図鑑の場合は全ポケモンをロード
+        if pokedex == .national {
+            if selectedVersionGroup != .nationalDex {
+                // 地域図鑑から全国図鑑に切り替えた場合のみ再ロード
+                selectedVersionGroup = .nationalDex
+                Task {
+                    await loadPokemons()
+                }
+            } else {
+                // 既に全国図鑑の場合はフィルターのみ
+                applyFilters()
+            }
+        } else {
+            // 地域図鑑の場合
+            if selectedVersionGroup == .nationalDex {
+                // 全国図鑑から地域図鑑に切り替えた場合は、scarlet-violetに戻して再ロード
+                selectedVersionGroup = .scarletViolet
+                Task {
+                    await loadPokemons()
+                }
+            } else {
+                // 同じバージョングループ内の地域図鑑切り替えはフィルターのみ
+                applyFilters()
+            }
         }
     }
 

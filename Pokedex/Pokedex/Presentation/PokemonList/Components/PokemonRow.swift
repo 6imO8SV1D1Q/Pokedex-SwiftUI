@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PokemonRow: View {
     let pokemon: Pokemon
+    let selectedPokedex: PokedexType
     @EnvironmentObject private var localizationManager: LocalizationManager
 
     var body: some View {
@@ -53,12 +54,25 @@ struct PokemonRow: View {
 
     private var pokemonHeader: some View {
         HStack(spacing: DesignConstants.Spacing.xSmall) {
-            Text(pokemon.formattedId)
+            Text(pokedexNumber)
                 .font(.caption)
                 .foregroundColor(.secondary)
 
             Text(localizationManager.displayName(for: pokemon))
                 .font(.headline)
+        }
+    }
+
+    /// 選択された図鑑の番号を表示
+    private var pokedexNumber: String {
+        if selectedPokedex == .national {
+            return pokemon.formattedId
+        } else {
+            if let number = pokemon.pokedexNumbers?[selectedPokedex.rawValue] {
+                return String(format: "#%03d", number)
+            } else {
+                return pokemon.formattedId
+            }
         }
     }
 

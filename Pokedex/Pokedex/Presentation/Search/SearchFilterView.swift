@@ -212,11 +212,7 @@ struct SearchFilterView: View {
 
     private var moveFilterSection: some View {
         Section {
-            if !isMoveFilterEnabled {
-                Text("技フィルターはバージョングループを選択した場合のみ利用可能です。")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            } else if isLoadingMoves {
+            if isLoadingMoves {
                 ProgressView()
             } else {
                 // OR/AND切り替え
@@ -256,11 +252,9 @@ struct SearchFilterView: View {
         } header: {
             Text("技")
         } footer: {
-            if isMoveFilterEnabled {
-                Text(viewModel.moveFilterMode == .or
-                     ? "選択した技のいずれかを覚えられるポケモンを表示"
-                     : "選択した技を全て覚えられるポケモンを表示")
-            }
+            Text(viewModel.moveFilterMode == .or
+                 ? "選択した技のいずれかを覚えられるポケモンを表示"
+                 : "選択した技を全て覚えられるポケモンを表示")
         }
     }
 
@@ -314,10 +308,6 @@ struct SearchFilterView: View {
     private var checkmark: some View {
         Image(systemName: "checkmark")
             .foregroundColor(.blue)
-    }
-
-    private var isMoveFilterEnabled: Bool {
-        viewModel.selectedVersionGroup.id != "national"
     }
 
     private var clearButton: some ToolbarContent {

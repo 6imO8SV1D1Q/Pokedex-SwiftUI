@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PokemonGridItem: View {
     let pokemon: Pokemon
+    let selectedPokedex: PokedexType
     @EnvironmentObject private var localizationManager: LocalizationManager
 
     var body: some View {
@@ -45,9 +46,22 @@ struct PokemonGridItem: View {
     }
 
     private var pokemonNumber: some View {
-        Text(pokemon.formattedId)
+        Text(pokedexNumber)
             .font(.caption2)
             .foregroundColor(.secondary)
+    }
+
+    /// 選択された図鑑の番号を表示
+    private var pokedexNumber: String {
+        if selectedPokedex == .national {
+            return pokemon.formattedId
+        } else {
+            if let number = pokemon.pokedexNumbers?[selectedPokedex.rawValue] {
+                return String(format: "#%03d", number)
+            } else {
+                return pokemon.formattedId
+            }
+        }
     }
 
     private var pokemonName: some View {
