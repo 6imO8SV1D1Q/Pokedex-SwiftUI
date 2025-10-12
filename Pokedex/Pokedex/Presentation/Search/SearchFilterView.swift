@@ -63,13 +63,26 @@ struct SearchFilterView: View {
     // MARK: - Type Section (Grid Layout)
 
     private var typeFilterSection: some View {
-        Section("タイプ") {
+        Section {
+            // OR/AND切り替え
+            Picker("検索モード", selection: $viewModel.typeFilterMode) {
+                Text("OR（いずれか）").tag(FilterMode.or)
+                Text("AND（全て）").tag(FilterMode.and)
+            }
+            .pickerStyle(.segmented)
+
             LazyVGrid(columns: typeGridColumns, spacing: 10) {
                 ForEach(allTypes, id: \.self) { typeName in
                     typeGridButton(typeName)
                 }
             }
             .padding(.vertical, 8)
+        } header: {
+            Text("タイプ")
+        } footer: {
+            Text(viewModel.typeFilterMode == .or
+                 ? "選択したタイプのいずれかを持つポケモンを表示"
+                 : "選択したタイプを全て持つポケモンを表示")
         }
     }
 
@@ -98,6 +111,13 @@ struct SearchFilterView: View {
             if isLoadingAbilities {
                 ProgressView()
             } else {
+                // OR/AND切り替え
+                Picker("検索モード", selection: $viewModel.abilityFilterMode) {
+                    Text("OR（いずれか）").tag(FilterMode.or)
+                    Text("AND（全て）").tag(FilterMode.and)
+                }
+                .pickerStyle(.segmented)
+
                 // 検索バー
                 TextField("特性を検索", text: $abilitySearchText)
                     .textFieldStyle(.roundedBorder)
@@ -121,6 +141,10 @@ struct SearchFilterView: View {
             }
         } header: {
             Text("特性")
+        } footer: {
+            Text(viewModel.abilityFilterMode == .or
+                 ? "選択した特性のいずれかを持つポケモンを表示"
+                 : "選択した特性を全て持つポケモンを表示")
         }
     }
 
@@ -195,6 +219,13 @@ struct SearchFilterView: View {
             } else if isLoadingMoves {
                 ProgressView()
             } else {
+                // OR/AND切り替え
+                Picker("検索モード", selection: $viewModel.moveFilterMode) {
+                    Text("OR（いずれか）").tag(FilterMode.or)
+                    Text("AND（全て）").tag(FilterMode.and)
+                }
+                .pickerStyle(.segmented)
+
                 // 検索バー
                 TextField("技を検索", text: $moveSearchText)
                     .textFieldStyle(.roundedBorder)
@@ -224,6 +255,12 @@ struct SearchFilterView: View {
             }
         } header: {
             Text("技")
+        } footer: {
+            if isMoveFilterEnabled {
+                Text(viewModel.moveFilterMode == .or
+                     ? "選択した技のいずれかを覚えられるポケモンを表示"
+                     : "選択した技を全て覚えられるポケモンを表示")
+            }
         }
     }
 

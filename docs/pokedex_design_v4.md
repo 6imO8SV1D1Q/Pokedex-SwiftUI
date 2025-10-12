@@ -1087,13 +1087,833 @@ struct SettingsView: View {
 
 ---
 
-## Phase 4以降
+## Phase 4: 高度なフィルタリング機能
 
-**Phase 4: バージョン固有データ対応** - PokemonVersionVariantモデル追加、地方図鑑対応
+### 目標
 
-**Phase 5: モジュール化** - PokedexCoreパッケージ作成、Domain/Data/Presentation層の分離
+- タイプ/特性/技フィルターのOR/AND切り替え
+- 技のメタデータによる絞り込み
+- 特性のメタデータによる絞り込み
+- ポケモン区分フィルター（一般/準伝説/伝説/幻）
+- 進化のきせきフィルター
+- 最終進化フィルター
+- 実数値絞り込みフィルター
+- Chip UIでフィルター条件を可視化
 
-**Phase 6: UI/UX改善** - アニメーション、詳細画面拡充
+### 4.0 基本フィルターのOR/AND切り替え
+
+**設計方針**:
+- タイプ、特性、技の各フィルターにOR/AND検索モードを追加
+- SearchFilterViewにトグルボタンを配置
+- ViewModelで検索ロジックを切り替え
+
+```swift
+/// フィルターの検索モード
+enum FilterMode {
+    case or   // いずれかに該当（現在のタイプ・特性）
+    case and  // 全てに該当（現在の技名）
+}
+
+// PokemonListViewModelに追加
+@Published var typeFilterMode: FilterMode = .or
+@Published var abilityFilterMode: FilterMode = .or
+@Published var moveFilterMode: FilterMode = .and
+```
+
+**検索ロジックの変更**:
+
+```swift
+// タイプフィルター
+let matchesType: Bool
+if selectedTypes.isEmpty {
+    matchesType = true
+} else if typeFilterMode == .or {
+    // OR: いずれかのタイプを持つ
+    matchesType = pokemon.types.contains { selectedTypes.contains($0.name) }
+} else {
+    // AND: 全てのタイプを持つ
+    matchesType = selectedTypes.allSatisfy { selectedType in
+        pokemon.types.contains { $0.name == selectedType }
+    }
+}
+
+// 特性フィルター（FilterPokemonByAbilityUseCaseを拡張）
+func execute(
+    pokemonList: [Pokemon],
+    selectedAbilities: Set<String>,
+    mode: FilterMode
+) -> [Pokemon] {
+    guard !selectedAbilities.isEmpty else {
+        return pokemonList
+    }
+
+    return pokemonList.filter { pokemon in
+        if mode == .or {
+            // OR: いずれかの特性を持つ
+            pokemon.abilities.contains { selectedAbilities.contains($0.name) }
+        } else {
+            // AND: 全ての特性を持つ
+            selectedAbilities.allSatisfy { selectedAbility in
+                pokemon.abilities.contains { $0.name == selectedAbility }
+            }
+        }
+    }
+}
+
+// 技フィルター（FilterPokemonByMovesUseCaseを拡張）
+func execute(
+    pokemonList: [Pokemon],
+    selectedMoves: [MoveEntity],
+    versionGroup: String,
+    mode: FilterMode
+) async throws -> [(pokemon: Pokemon, learnMethods: [MoveLearnMethod])] {
+    // ... 既存のbulkLearnMethods取得 ...
+
+    if mode == .and {
+        // AND: 全ての技を覚えられる（既存ロジック）
+        if learnMethods.count == selectedMoves.count {
+            results.append((pokemon, learnMethods))
+        }
+    } else {
+        // OR: いずれかの技を覚えられる
+        if !learnMethods.isEmpty {
+            results.append((pokemon, learnMethods))
+        }
+    }
+}
+```
+
+**UI実装（SearchFilterView）**:
+
+```swift
+Section("タイプ") {
+    Picker("検索モード", selection: $viewModel.typeFilterMode) {
+        Text("OR（いずれか）").tag(FilterMode.or)
+        Text("AND（全て）").tag(FilterMode.and)
+    }
+    .pickerStyle(.segmented)
+
+    // 既存のタイプ選択UI
+}
+
+Section("特性") {
+    Picker("検索モード", selection: $viewModel.abilityFilterMode) {
+        Text("OR（いずれか）").tag(FilterMode.or)
+        Text("AND（全て）").tag(FilterMode.and)
+    }
+    .pickerStyle(.segmented)
+
+    // 既存の特性選択UI
+}
+
+Section("技") {
+    Picker("検索モード", selection: $viewModel.moveFilterMode) {
+        Text("OR（いずれか）").tag(FilterMode.or)
+        Text("AND（全て）").tag(FilterMode.and)
+    }
+    .pickerStyle(.segmented)
+
+    // 既存の技選択UI
+}
+```
+
+### 4.1 MoveFilterCondition（技のメタデータ条件）
+
+**設計方針**:
+- MoveModelとMoveMetaModelの全フィールドを条件として利用可能
+- 複数条件のAND検索（1つの技で全ての条件を満たす）
+
+```swift
+/// 技のフィルター条件
+struct MoveFilterCondition {
+    // 基本情報
+    var types: Set<String>               // タイプ（複数選択可、OR）
+    var damageClasses: Set<String>       // physical/special/status
+    var powerRange: ClosedRange<Int>?    // 威力範囲（0-250）
+    var accuracyRange: ClosedRange<Int>? // 命中率範囲（50-100、nilは必中）
+    var ppRange: ClosedRange<Int>?       // PP範囲（5-40）
+    var priorityRange: ClosedRange<Int>? // 優先度範囲（-7〜+5）
+    var targets: Set<String>             // 技範囲（単体/全体/自分/味方など）
+
+    // 効果（MoveMetaModel）
+    var ailments: Set<String>            // まひ、やけど、どく等（OR）
+    var categories: Set<String>          // 43種類のカテゴリー（OR）
+
+    // 能力変化（AND条件：全て満たす技を探す）
+    var statChanges: [StatChangeCondition]
+
+    // その他
+    var hasCritRateBoost: Bool?          // 急所率アップ
+    var hasDrain: Bool?                  // HP吸収
+    var hasHealing: Bool?                // HP回復
+    var hasFlinch: Bool?                 // ひるみ
+}
+
+/// 能力変化条件
+struct StatChangeCondition {
+    var stat: String                     // "attack", "defense", "special-attack"等
+    var changeAmount: Int?               // +1, +2, -1, -2等（nilは任意）
+}
+
+/// 技範囲（target）
+enum MoveTarget: String, CaseIterable {
+    case specificMove = "specific-move"              // 単体対象（相手1体）
+    case selectedPokemon = "selected-pokemon"        // 選択した対象1体
+    case allOtherPokemon = "all-other-pokemon"       // 自分以外の全て
+    case allOpponents = "all-opponents"              // 相手全体
+    case user = "user"                               // 自分
+    case userOrAlly = "user-or-ally"                 // 自分または味方
+    case ally = "ally"                               // 味方
+    case allAllies = "all-allies"                    // 味方全体
+    case allPokemon = "all-pokemon"                  // 全員（フィールド全体）
+    case userAndAllies = "user-and-allies"           // 自分と味方全体
+    case entireField = "entire-field"                // フィールド全体
+
+    var displayName: String {
+        switch self {
+        case .specificMove, .selectedPokemon:
+            return "単体"
+        case .allOpponents:
+            return "相手全体"
+        case .allOtherPokemon:
+            return "自分以外全員"
+        case .user:
+            return "自分"
+        case .userOrAlly:
+            return "自分または味方"
+        case .ally:
+            return "味方単体"
+        case .allAllies:
+            return "味方全体"
+        case .allPokemon:
+            return "全員"
+        case .userAndAllies:
+            return "自分と味方"
+        case .entireField:
+            return "フィールド"
+        }
+    }
+}
+```
+
+### 4.2 AbilityCategory（特性のメタデータ）
+
+**設計方針**（検討中）:
+- AbilityModelに `categories: [String]` フィールドを追加
+- 自動判定 or 手動分類
+
+```swift
+/// 特性のカテゴリー
+enum AbilityCategory: String, CaseIterable {
+    case weather = "weather"                // 天候変化
+    case terrain = "terrain"                // フィールド変化
+    case statBoost = "stat-boost"           // 能力上昇
+    case statDrop = "stat-drop"             // 能力下降
+    case typeChange = "type-change"         // タイプ変更
+    case immunity = "immunity"              // 無効化
+    case statusEffect = "status-effect"     // 状態異常付与
+    case statusCure = "status-cure"         // 状態異常回復
+    case healing = "healing"                // HP回復
+    case damageBoost = "damage-boost"       // 技威力上昇
+    case damageReduction = "damage-reduction" // ダメージ軽減
+    case priority = "priority"              // 優先度変化
+    case accuracy = "accuracy"              // 命中率変化
+    case other = "other"                    // その他
+
+    var displayName: String {
+        switch self {
+        case .weather: return "天候変化"
+        case .terrain: return "フィールド変化"
+        case .statBoost: return "能力上昇"
+        case .statDrop: return "能力下降"
+        case .typeChange: return "タイプ変更"
+        case .immunity: return "無効化"
+        case .statusEffect: return "状態異常付与"
+        case .statusCure: return "状態異常回復"
+        case .healing: return "HP回復"
+        case .damageBoost: return "技威力上昇"
+        case .damageReduction: return "ダメージ軽減"
+        case .priority: return "優先度変化"
+        case .accuracy: return "命中率変化"
+        case .other: return "その他"
+        }
+    }
+}
+```
+
+### 4.2.1 AbilityDetailFilterView（特性の詳細フィルター画面）
+
+**画面構成**:
+
+```swift
+NavigationStack {
+    Form {
+        // 特性名検索（既存）
+        Section("特性名で検索") {
+            TextField("特性名を入力", text: $searchText)
+            // 選択済み特性を表示（Chip UI）
+            FlowLayout {
+                ForEach(selectedAbilities, id: \.self) { ability in
+                    AbilityChip(name: ability) {
+                        // 削除
+                        selectedAbilities.remove(ability)
+                    }
+                }
+            }
+        }
+
+        // OR/AND切り替え
+        Section {
+            Picker("検索モード", selection: $abilityFilterMode) {
+                Text("OR（いずれか）").tag(FilterMode.or)
+                Text("AND（全て）").tag(FilterMode.and)
+            }
+            .pickerStyle(.segmented)
+        } header: {
+            Text("検索モード")
+        } footer: {
+            Text(abilityFilterMode == .or
+                ? "選択した特性のいずれかを持つポケモンを表示"
+                : "選択した特性を全て持つポケモンを表示")
+        }
+
+        // 効果カテゴリーフィルター
+        Section("効果で絞り込む") {
+            ForEach(AbilityCategory.allCases, id: \.self) { category in
+                Button(action: {
+                    selectedAbilityCategories.toggle(category)
+                }) {
+                    HStack {
+                        Text(category.displayName)
+                        Spacer()
+                        if selectedAbilityCategories.contains(category) {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .navigationTitle("特性の詳細フィルター")
+    .toolbar {
+        ToolbarItem(placement: .cancellationAction) {
+            Button("キャンセル") { dismiss() }
+        }
+        ToolbarItem(placement: .confirmationAction) {
+            Button("適用") { applyFilter() }
+        }
+    }
+}
+```
+
+### 4.3 MoveDetailFilterView（技の詳細フィルター画面）
+
+**画面構成**:
+
+```
+NavigationStack {
+    Form {
+        // 技名検索（既存）
+        Section("技名で検索") {
+            TextField("技名を入力", text: $searchText)
+            // 選択済み技を表示（Chip UI）
+            FlowLayout {
+                ForEach(selectedMoves) { move in
+                    MoveChip(move: move) {
+                        // 削除
+                    }
+                }
+            }
+        }
+
+        // 基本情報フィルター
+        Section("基本情報") {
+            // タイプ選択（複数）
+            MultiSelectPicker("タイプ", selection: $selectedTypes) {
+                ForEach(allTypes) { type in
+                    TypeBadge(type)
+                }
+            }
+
+            // 分類選択
+            Picker("分類", selection: $selectedDamageClasses) {
+                Text("物理").tag("physical")
+                Text("特殊").tag("special")
+                Text("変化").tag("status")
+            }
+
+            // 威力範囲
+            HStack {
+                TextField("最小", value: $minPower, format: .number)
+                Text("〜")
+                TextField("最大", value: $maxPower, format: .number)
+            }
+        }
+
+        // 効果フィルター
+        Section("効果") {
+            // 状態異常
+            MultiSelectPicker("状態異常", selection: $selectedAilments) {
+                Text("まひ").tag("paralysis")
+                Text("やけど").tag("burn")
+                // ...
+            }
+
+            // 能力変化
+            Section("能力変化") {
+                ForEach($statChangeConditions) { $condition in
+                    HStack {
+                        Picker("能力", selection: $condition.stat) {
+                            Text("攻撃").tag("attack")
+                            Text("防御").tag("defense")
+                            Text("特攻").tag("special-attack")
+                            Text("特防").tag("special-defense")
+                            Text("素早さ").tag("speed")
+                        }
+
+                        Picker("変化量", selection: $condition.changeAmount) {
+                            Text("任意").tag(nil as Int?)
+                            Text("+1").tag(1)
+                            Text("+2").tag(2)
+                            Text("-1").tag(-1)
+                            Text("-2").tag(-2)
+                        }
+
+                        Button(action: { removeStatChange(condition) }) {
+                            Image(systemName: "minus.circle.fill")
+                        }
+                    }
+                }
+                Button("能力変化を追加") {
+                    addStatChange()
+                }
+            }
+        }
+    }
+    .navigationTitle("技の詳細フィルター")
+    .toolbar {
+        ToolbarItem(placement: .cancellationAction) {
+            Button("キャンセル") { dismiss() }
+        }
+        ToolbarItem(placement: .confirmationAction) {
+            Button("適用") { applyFilter() }
+        }
+    }
+}
+```
+
+### 4.4 FilterConditionChipView（選択条件の表示）
+
+**Chip UI実装**:
+
+```swift
+struct FilterConditionChipView: View {
+    let condition: FilterCondition
+    let onRemove: () -> Void
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Text(condition.displayText)
+                .font(.caption)
+                .foregroundColor(.white)
+
+            Button(action: onRemove) {
+                Image(systemName: "xmark")
+                    .font(.caption)
+                    .foregroundColor(.white)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(condition.categoryColor)
+        .cornerRadius(8)
+    }
+}
+
+enum FilterCondition {
+    case moveName(MoveEntity)
+    case moveMetadata(String)  // "特攻上昇 AND 特防上昇"
+    case abilityName(AbilityEntity)
+    case abilityCategory(AbilityCategory)
+    case pokemonCategory(PokemonCategory)
+    case canUseEviolite
+    case isFinalEvolution
+    case statFilter(StatFilterCondition)
+
+    var displayText: String {
+        switch self {
+        case .moveName(let move):
+            return move.nameJa
+        case .moveMetadata(let description):
+            return description
+        case .abilityName(let ability):
+            return ability.nameJa ?? ability.name
+        case .abilityCategory(let category):
+            return category.displayName
+        case .pokemonCategory(let category):
+            return category.displayName
+        case .canUseEviolite:
+            return "進化のきせき適用可"
+        case .isFinalEvolution:
+            return "最終進化のみ"
+        case .statFilter(let condition):
+            return condition.displayText
+        }
+    }
+
+    var categoryColor: Color {
+        switch self {
+        case .moveName, .moveMetadata:
+            return .blue
+        case .abilityName, .abilityCategory:
+            return .green
+        case .pokemonCategory:
+            return .purple
+        case .canUseEviolite, .isFinalEvolution:
+            return .orange
+        case .statFilter:
+            return .red
+        }
+    }
+}
+```
+
+### 4.5 最終進化フィルター
+
+**設計方針**:
+- PokemonEvolutionModel.evolvesToで最終進化を判定
+- SearchFilterViewにトグルを追加
+
+```swift
+// PokemonListViewModelに追加
+@Published var filterFinalEvolutionOnly: Bool = false
+
+// フィルタリングロジック
+func applyFiltersAsync() async {
+    var filtered = pokemons.filter { pokemon in
+        // 既存のフィルター条件...
+
+        // 最終進化フィルター
+        let matchesFinalEvolution = !filterFinalEvolutionOnly ||
+            pokemon.evolution?.evolvesTo.isEmpty == true
+
+        return matchesSearch && matchesType && matchesFinalEvolution
+    }
+    // ...
+}
+```
+
+**UI実装（SearchFilterView）**:
+
+```swift
+Section("進化段階") {
+    Toggle("最終進化のみ", isOn: $viewModel.filterFinalEvolutionOnly)
+    Toggle("進化のきせき適用可", isOn: $viewModel.filterEvioliteOnly)
+}
+```
+
+**注意事項**:
+- Pokemonエンティティに進化情報（evolution）を追加する必要がある
+- または、別途進化情報を取得して判定する
+
+### 4.6 StatFilterCondition（実数値フィルター）
+
+**設計方針**:
+- 既存の`CalculateStatsUseCase`を利用
+- レベル50固定、個体値31
+- ユーザーが実数値を直接入力（努力値・性格補正は自分で計算）
+- StatDetailFilterView（専用画面）で条件を設定
+
+```swift
+/// 実数値フィルター条件
+struct StatFilterCondition {
+    var stat: StatType                   // HP/攻撃/防御/特攻/特防/素早さ
+    var comparison: ComparisonType       // 以上/以下/範囲
+    var minValue: Int?                   // 最小値
+    var maxValue: Int?                   // 最大値（範囲指定の場合）
+}
+
+enum StatType: String, CaseIterable {
+    case hp = "hp"
+    case attack = "attack"
+    case defense = "defense"
+    case specialAttack = "special-attack"
+    case specialDefense = "special-defense"
+    case speed = "speed"
+
+    var displayName: String {
+        switch self {
+        case .hp: return "HP"
+        case .attack: return "こうげき"
+        case .defense: return "ぼうぎょ"
+        case .specialAttack: return "とくこう"
+        case .specialDefense: return "とくぼう"
+        case .speed: return "すばやさ"
+        }
+    }
+}
+
+enum ComparisonType: String, CaseIterable {
+    case greaterThanOrEqual = ">="
+    case lessThanOrEqual = "<="
+    case range = "range"
+
+    var displayName: String {
+        switch self {
+        case .greaterThanOrEqual: return "以上"
+        case .lessThanOrEqual: return "以下"
+        case .range: return "範囲"
+        }
+    }
+}
+```
+
+**実装例**:
+
+```swift
+// すばやさ180以上の条件
+let condition = StatFilterCondition(
+    stat: .speed,
+    comparison: .greaterThanOrEqual,
+    minValue: 180,
+    maxValue: nil
+)
+
+// フィルタリング処理
+func filterByStats(_ pokemons: [Pokemon], condition: StatFilterCondition) -> [Pokemon] {
+    return pokemons.filter { pokemon in
+        // CalculateStatsUseCaseを使用して最大実数値を計算
+        // (Lv50, 個体値31, 努力値252, 性格補正1.1)
+        let maxActualStat = calculateStatsUseCase.execute(
+            baseStat: pokemon.baseStat(for: condition.stat),
+            level: 50,
+            iv: 31,
+            ev: 252,
+            natureModifier: 1.1
+        )
+
+        switch condition.comparison {
+        case .greaterThanOrEqual:
+            return maxActualStat >= condition.minValue!
+        case .lessThanOrEqual:
+            return maxActualStat <= condition.minValue!
+        case .range:
+            return maxActualStat >= condition.minValue! && maxActualStat <= condition.maxValue!
+        }
+    }
+}
+```
+
+### 4.6.1 StatDetailFilterView（実数値詳細フィルター画面）
+
+**画面構成**:
+
+```swift
+NavigationStack {
+    Form {
+        // 条件追加セクション
+        Section {
+            Picker("ステータス", selection: $selectedStat) {
+                ForEach(StatType.allCases, id: \.self) { stat in
+                    Text(stat.displayName).tag(stat)
+                }
+            }
+
+            Picker("条件", selection: $comparisonType) {
+                ForEach(ComparisonType.allCases, id: \.self) { type in
+                    Text(type.displayName).tag(type)
+                }
+            }
+
+            if comparisonType == .range {
+                HStack {
+                    TextField("最小値", value: $minValue, format: .number)
+                        .keyboardType(.numberPad)
+                    Text("〜")
+                    TextField("最大値", value: $maxValue, format: .number)
+                        .keyboardType(.numberPad)
+                }
+            } else {
+                TextField("値", value: $minValue, format: .number)
+                    .keyboardType(.numberPad)
+            }
+
+            Button("条件を追加") {
+                addCondition()
+            }
+            .disabled(!canAddCondition)
+        } header: {
+            Text("条件を追加")
+        } footer: {
+            Text("レベル50、個体値31での最大実数値（努力値252、性格補正1.1）で判定します")
+        }
+
+        // 選択中の条件
+        if !statConditions.isEmpty {
+            Section("選択中の条件") {
+                ForEach(statConditions) { condition in
+                    HStack {
+                        Text(condition.displayText)
+                        Spacer()
+                        Button(action: {
+                            removeCondition(condition)
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.red)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .navigationTitle("実数値フィルター")
+    .toolbar {
+        ToolbarItem(placement: .cancellationAction) {
+            Button("キャンセル") { dismiss() }
+        }
+        ToolbarItem(placement: .confirmationAction) {
+            Button("適用") { applyFilter() }
+        }
+    }
+}
+
+// 表示テキスト例
+extension StatFilterCondition {
+    var displayText: String {
+        let statName = stat.displayName
+        switch comparison {
+        case .greaterThanOrEqual:
+            return "\(statName) ≥ \(minValue ?? 0)"
+        case .lessThanOrEqual:
+            return "\(statName) ≤ \(minValue ?? 0)"
+        case .range:
+            return "\(statName) \(minValue ?? 0)〜\(maxValue ?? 0)"
+        }
+    }
+}
+```
+
+### 4.7 SearchFilterView拡張
+
+**変更箇所**:
+
+```swift
+struct SearchFilterView: View {
+    // 既存のプロパティ
+    @ObservedObject var viewModel: PokemonListViewModel
+
+    // 新規追加
+    @State private var selectedCategories: Set<PokemonCategory> = []
+    @State private var showMoveDetailFilter: Bool = false
+    @State private var showAbilityDetailFilter: Bool = false
+    @State private var showStatDetailFilter: Bool = false
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                // 選択中の条件を表示（Chip UI）
+                if hasAnyFilter {
+                    Section("選択中の条件") {
+                        FlowLayout(spacing: 8) {
+                            ForEach(allFilterConditions, id: \.self) { condition in
+                                FilterConditionChipView(condition: condition) {
+                                    removeCondition(condition)
+                                }
+                            }
+                        }
+
+                        Button("全てクリア") {
+                            clearAllFilters()
+                        }
+                        .foregroundColor(.red)
+                    }
+                }
+
+                // タイプフィルター（OR/AND追加）
+                Section("タイプ") {
+                    Picker("検索モード", selection: $viewModel.typeFilterMode) {
+                        Text("OR（いずれか）").tag(FilterMode.or)
+                        Text("AND（全て）").tag(FilterMode.and)
+                    }
+                    .pickerStyle(.segmented)
+
+                    // 既存のタイプ選択UI
+                    // ...
+                }
+
+                // 特性フィルター（OR/AND追加）
+                Section("特性") {
+                    Picker("検索モード", selection: $viewModel.abilityFilterMode) {
+                        Text("OR（いずれか）").tag(FilterMode.or)
+                        Text("AND（全て）").tag(FilterMode.and)
+                    }
+                    .pickerStyle(.segmented)
+
+                    // 既存の特性選択UI + 詳細フィルターボタン
+                    Button("特性の効果で絞り込む") {
+                        showAbilityDetailFilter = true
+                    }
+                }
+
+                // 技フィルター（OR/AND追加）
+                Section("技") {
+                    Picker("検索モード", selection: $viewModel.moveFilterMode) {
+                        Text("OR（いずれか）").tag(FilterMode.or)
+                        Text("AND（全て）").tag(FilterMode.and)
+                    }
+                    .pickerStyle(.segmented)
+
+                    // 既存の技選択UI + 詳細フィルターボタン
+                    Button("技の詳細で絞り込む") {
+                        showMoveDetailFilter = true
+                    }
+                }
+
+                // ポケモン区分フィルター（新規）
+                Section("ポケモン区分") {
+                    MultiSelectPicker(selection: $selectedCategories) {
+                        ForEach(PokemonCategory.allCases) { category in
+                            Text(category.displayName).tag(category)
+                        }
+                    }
+                }
+
+                // 進化段階フィルター（新規）
+                Section("進化段階") {
+                    Toggle("最終進化のみ", isOn: $viewModel.filterFinalEvolutionOnly)
+                    Toggle("進化のきせき適用可", isOn: $viewModel.filterEvioliteOnly)
+                }
+
+                // 実数値フィルター（専用画面へ遷移）
+                Section("実数値") {
+                    Button("実数値で絞り込む") {
+                        showStatDetailFilter = true
+                    }
+                }
+            }
+            .sheet(isPresented: $showMoveDetailFilter) {
+                MoveDetailFilterView(...)
+            }
+            .sheet(isPresented: $showAbilityDetailFilter) {
+                AbilityDetailFilterView(...)
+            }
+            .sheet(isPresented: $showStatDetailFilter) {
+                StatDetailFilterView(...)
+            }
+        }
+    }
+}
+```
+
+---
+
+## Phase 5以降
+
+**Phase 5: バージョン固有データ対応** - PokemonVersionVariantモデル追加、地方図鑑対応
+
+**Phase 6: モジュール化** - PokedexCoreパッケージ作成、Domain/Data/Presentation層の分離
+
+**Phase 7: UI/UX改善** - アニメーション、詳細画面拡充
 
 詳細は `docs/pokedex_prompts_v4.md` および `docs/pokedex_requirements_v4.md` を参照してください。
 
@@ -1174,3 +1994,5 @@ User: フィルタリングされたリスト表示（3秒以内）
 | 2025-10-10 | 2.0 | Phase 1をSwiftData永続化に変更、Phase 2をプリバンドルDBに変更、Phase 3以降を簡略化 |
 | 2025-10-11 | 3.0 | JSONベースのアプローチに変更、全モデルをJSONデータ構造に合わせて更新、日本語フィールド追加、技・特性モデル追加 |
 | 2025-10-12 | 4.0 | Phase 1-3完了を反映、埋め込みモデル採用、PokedexModel追加、スキーマバージョン管理追加、パフォーマンス実測値更新、LocalizationManager追加 |
+| 2025-10-12 | 4.1 | Phase 4追加：高度なフィルタリング機能の設計（MoveFilterCondition、AbilityCategory、Chip UI、MoveDetailFilterView） |
+| 2025-10-12 | 4.2 | Phase 4拡張：OR/AND切り替え設計、AbilityDetailFilterView追加、最終進化フィルター追加、StatDetailFilterView設計（UI簡素化・画面分離） |

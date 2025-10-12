@@ -82,6 +82,26 @@ final class PokemonListViewModel: ObservableObject {
     /// 全バージョングループリスト
     private(set) var allVersionGroups: [VersionGroup] = []
 
+    // MARK: - Filter Mode Properties
+
+    /// タイプフィルターの検索モード
+    @Published var typeFilterMode: FilterMode = .or
+
+    /// 特性フィルターの検索モード
+    @Published var abilityFilterMode: FilterMode = .or
+
+    /// 技フィルターの検索モード
+    @Published var moveFilterMode: FilterMode = .and
+
+    /// 選択されたポケモン区分
+    @Published var selectedCategories: Set<PokemonCategory> = []
+
+    /// 最終進化のみ表示フラグ
+    @Published var filterFinalEvolutionOnly: Bool = false
+
+    /// 進化のきせき適用可フラグ
+    @Published var filterEvioliteOnly: Bool = false
+
     // MARK: - Display Mode
 
     /// 表示形式
@@ -201,8 +221,18 @@ final class PokemonListViewModel: ObservableObject {
                 pokemon.name.lowercased().contains(searchText.lowercased())
 
             // タイプフィルター
-            let matchesType = selectedTypes.isEmpty ||
-                pokemon.types.contains { selectedTypes.contains($0.name) }
+            let matchesType: Bool
+            if selectedTypes.isEmpty {
+                matchesType = true
+            } else if typeFilterMode == .or {
+                // OR: いずれかのタイプを持つ
+                matchesType = pokemon.types.contains { selectedTypes.contains($0.name) }
+            } else {
+                // AND: 全てのタイプを持つ
+                matchesType = selectedTypes.allSatisfy { selectedType in
+                    pokemon.types.contains { $0.name == selectedType }
+                }
+            }
 
             return matchesSearch && matchesType
         }
@@ -210,7 +240,8 @@ final class PokemonListViewModel: ObservableObject {
         // 特性フィルター適用
         filtered = filterPokemonByAbilityUseCase.execute(
             pokemonList: filtered,
-            selectedAbilities: selectedAbilities
+            selectedAbilities: selectedAbilities,
+            mode: abilityFilterMode
         )
 
         // 技フィルター適用
@@ -220,7 +251,8 @@ final class PokemonListViewModel: ObservableObject {
                 let moveFilteredResults = try await filterPokemonByMovesUseCase.execute(
                     pokemonList: filtered,
                     selectedMoves: selectedMoves,
-                    versionGroup: selectedVersionGroup.id
+                    versionGroup: selectedVersionGroup.id,
+                    mode: moveFilterMode
                 )
                 // 技フィルター結果からポケモンのみを抽出
                 filtered = moveFilteredResults.map { $0.pokemon }
