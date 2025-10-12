@@ -3,7 +3,7 @@
 **プロジェクト名**: Pokédex SwiftUI
 **バージョン**: 4.0
 **作成日**: 2025-10-09
-**最終更新**: 2025-10-12
+**最終更新**: 2025-01-13
 
 ---
 
@@ -97,6 +97,8 @@
 | PreloadedDataLoader | JSON読み込み処理 | 2 | ✅ |
 | LocalizationManager | 日本語対応 | 3 | ✅ |
 | SettingsView | 言語設定UI | 3 | ✅ |
+| FilterMode | OR/AND切り替えenum | 4 | ✅ |
+| PokedexType | 図鑑区分enum | 4 | ✅ |
 
 ---
 
@@ -1100,12 +1102,14 @@ struct SettingsView: View {
 - 実数値絞り込みフィルター
 - Chip UIでフィルター条件を可視化
 
-### 4.0 基本フィルターのOR/AND切り替え
+### 4.0 基本フィルターのOR/AND切り替え ✅
 
 **設計方針**:
 - タイプ、特性、技の各フィルターにOR/AND検索モードを追加
-- SearchFilterViewにトグルボタンを配置
+- SearchFilterViewにSegmented Controlを配置
 - ViewModelで検索ロジックを切り替え
+
+**実装状況**: ✅ 完了
 
 ```swift
 /// フィルターの検索モード
@@ -1958,6 +1962,231 @@ MoveRepository.fetchBulkLearnMethods()
 User: フィルタリングされたリスト表示（3秒以内）
 ```
 
+### 4.8 図鑑区分セレクター機能 ✅
+
+**設計方針**:
+- ポケモン一覧画面で図鑑区分を切り替えて表示
+- 全国図鑑、パルデア図鑑、キタカミ図鑑、ブルーベリー図鑑の4種類
+- 各図鑑に登録されているポケモンのみを表示
+- 図鑑番号も選択された図鑑の番号で表示
+
+**実装状況**: ✅ 完了
+
+#### Domain層: PokedexType.swift
+
+```swift
+/// 図鑑の種類
+enum PokedexType: String, CaseIterable, Identifiable, Codable {
+    case national    // 全国図鑑
+    case paldea      // パルデア図鑑
+    case kitakami    // キタカミ図鑑
+    case blueberry   // ブルーベリー図鑑
+
+    var id: String { rawValue }
+
+    /// 日本語名
+    var nameJa: String {
+        switch self {
+        case .national: return "全国"
+        case .paldea: return "パルデア"
+        case .kitakami: return "キタカミ"
+        case .blueberry: return "ブルーベリー"
+        }
+    }
+
+    /// 英語名
+    var nameEn: String {
+        switch self {
+        case .national: return "National"
+        case .paldea: return "Paldea"
+        case .kitakami: return "Kitakami"
+        case .blueberry: return "Blueberry"
+        }
+    }
+}
+```
+
+#### Presentation層: LocalizationManager拡張
+
+```swift
+extension LocalizationManager {
+    /// 図鑑名の表示
+    func displayName(for pokedex: PokedexType) -> String {
+        switch currentLanguage {
+        case .japanese:
+            return pokedex.nameJa
+        case .english:
+            return pokedex.nameEn
+        }
+    }
+}
+```
+
+#### ViewModel: PokemonListViewModel拡張
+
+```swift
+/// 選択された図鑑区分
+@Published var selectedPokedex: PokedexType = .national
+
+/// 図鑑区分を変更
+func changePokedex(_ pokedex: PokedexType) {
+    selectedPokedex = pokedex
+
+    // 全国図鑑の場合は全ポケモンをロード
+    if pokedex == .national {
+        if selectedVersionGroup != .nationalDex {
+            selectedVersionGroup = .nationalDex
+            Task {
+                await loadPokemons()
+            }
+        } else {
+            applyFilters()
+        }
+    } else {
+        // 地域図鑑の場合
+        if selectedVersionGroup == .nationalDex {
+            selectedVersionGroup = .scarletViolet
+            Task {
+                await loadPokemons()
+            }
+        } else {
+            applyFilters()
+        }
+    }
+}
+
+/// フィルタリング処理（図鑑フィルター追加）
+private func applyFiltersAsync() async {
+    var filtered = pokemons.filter { pokemon in
+        // 図鑑フィルター
+        let matchesPokedex: Bool
+        if selectedPokedex == .national {
+            matchesPokedex = true
+        } else {
+            matchesPokedex = pokemon.pokedexNumbers?[selectedPokedex.rawValue] != nil
+        }
+
+        // ... 他のフィルター条件 ...
+
+        return matchesPokedex && matchesSearch && matchesType
+    }
+
+    // 図鑑番号ソート
+    if currentSortOption == .pokedexNumber && selectedPokedex != .national {
+        sorted = sorted.sorted { pokemon1, pokemon2 in
+            let num1 = pokemon1.pokedexNumbers?[selectedPokedex.rawValue] ?? Int.max
+            let num2 = pokemon2.pokedexNumbers?[selectedPokedex.rawValue] ?? Int.max
+            return num1 < num2
+        }
+    }
+}
+```
+
+#### View: PokemonListView拡張
+
+```swift
+VStack(spacing: 0) {
+    // 図鑑切り替えSegmented Control
+    Picker("図鑑", selection: $viewModel.selectedPokedex) {
+        ForEach(PokedexType.allCases) { pokedex in
+            Text(localizationManager.displayName(for: pokedex))
+                .tag(pokedex)
+        }
+    }
+    .pickerStyle(.segmented)
+    .padding(.horizontal, 20)
+    .padding(.top, 8)
+    .padding(.bottom, 16)
+    .background(Color(uiColor: .systemGroupedBackground))
+    .onChange(of: viewModel.selectedPokedex) { oldValue, newValue in
+        if oldValue != newValue {
+            viewModel.changePokedex(newValue)
+        }
+    }
+
+    contentView
+}
+```
+
+#### View: PokemonRow拡張（図鑑番号表示）
+
+```swift
+struct PokemonRow: View {
+    let pokemon: Pokemon
+    let selectedPokedex: PokedexType
+
+    private var pokedexNumber: String {
+        if selectedPokedex == .national {
+            return pokemon.formattedId
+        } else {
+            if let number = pokemon.pokedexNumbers?[selectedPokedex.rawValue] {
+                return String(format: "#%03d", number)
+            } else {
+                return pokemon.formattedId
+            }
+        }
+    }
+}
+```
+
+### 4.9 表示形式の統一（グリッド表示削除） ✅
+
+**設計方針**:
+- ポケモン一覧の表示形式をリスト表示のみに統一
+- グリッド表示機能を削除してUIをシンプルに
+- メンテナンスコストの削減
+
+**実装状況**: ✅ 完了
+
+#### 削除されたコンポーネント
+
+- `PokemonGridItem.swift`: グリッド表示用コンポーネント
+- `DisplayMode` enum: 表示形式の切り替え用enum
+- `toggleDisplayMode()`: 表示形式切り替えメソッド
+
+#### ViewModel: PokemonListViewModel変更
+
+```swift
+// 削除
+- enum DisplayMode { case list, case grid }
+- @Published var displayMode: DisplayMode = .list
+- func toggleDisplayMode() { ... }
+```
+
+#### View: PokemonListView変更
+
+```swift
+// 削除: 表示形式切り替えボタン
+- ToolbarItem(placement: .topBarLeading) {
+-     Button {
+-         viewModel.toggleDisplayMode()
+-     } label: {
+-         Image(systemName: viewModel.displayMode == .list ? "square.grid.2x2" : "list.bullet")
+-     }
+- }
+
+// 削除: グリッド表示分岐
+- switch viewModel.displayMode {
+- case .list:
+-     pokemonList
+- case .grid:
+-     pokemonGrid
+- }
+
+// 変更後: リスト表示のみ
+pokemonList
+```
+
+#### UI調整
+
+```swift
+// Picker下の余白: 8px → 16px
+.padding(.bottom, 16)
+
+// List上の余白: 8px → 0px
+.contentMargins(.top, 0, for: .scrollContent)
+```
+
 ---
 
 ## エラーハンドリング
@@ -1996,3 +2225,4 @@ User: フィルタリングされたリスト表示（3秒以内）
 | 2025-10-12 | 4.0 | Phase 1-3完了を反映、埋め込みモデル採用、PokedexModel追加、スキーマバージョン管理追加、パフォーマンス実測値更新、LocalizationManager追加 |
 | 2025-10-12 | 4.1 | Phase 4追加：高度なフィルタリング機能の設計（MoveFilterCondition、AbilityCategory、Chip UI、MoveDetailFilterView） |
 | 2025-10-12 | 4.2 | Phase 4拡張：OR/AND切り替え設計、AbilityDetailFilterView追加、最終進化フィルター追加、StatDetailFilterView設計（UI簡素化・画面分離） |
+| 2025-01-13 | 4.3 | Phase 4完了：OR/AND切り替え実装完了（4.0）、図鑑区分セレクター追加（4.8）、グリッド表示削除（4.9）、FilterMode/PokedexType追加 |
