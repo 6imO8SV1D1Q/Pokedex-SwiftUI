@@ -75,9 +75,10 @@ extension PokemonStat {
 extension PokemonAbility {
     static func fixture(
         name: String = "overgrow",
+        nameJa: String? = nil,
         isHidden: Bool = false
     ) -> PokemonAbility {
-        PokemonAbility(name: name, isHidden: isHidden)
+        PokemonAbility(name: name, nameJa: nameJa, isHidden: isHidden)
     }
 }
 

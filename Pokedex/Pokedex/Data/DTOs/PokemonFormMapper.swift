@@ -81,6 +81,7 @@ enum PokemonFormMapper {
             guard let abilityName = ability.ability?.name else { return nil }
             return PokemonAbility(
                 name: abilityName,
+                nameJa: nil,
                 isHidden: ability.isHidden ?? false
             )
         }

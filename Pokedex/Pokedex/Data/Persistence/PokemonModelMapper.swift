@@ -32,6 +32,7 @@ enum PokemonModelMapper {
         // Moves
         let moves = data.moves.map { move in
             PokemonLearnedMoveModel(
+                pokemonId: data.id,
                 moveId: move.moveId,
                 learnMethod: move.learnMethod,
                 level: move.level,
@@ -126,6 +127,7 @@ enum PokemonModelMapper {
         // Moves: [PokemonMove] → [PokemonLearnedMoveModel]
         let moves = pokemon.moves.map { move in
             PokemonLearnedMoveModel(
+                pokemonId: pokemon.id,
                 moveId: move.id,
                 learnMethod: move.learnMethod,
                 level: move.level,
@@ -186,22 +188,32 @@ enum PokemonModelMapper {
             ]
         }
 
-        // Abilities: 保存されている特性名を使用（日本語優先）
+        // Abilities: 保存されている特性名を使用（英語名を使用、フィルタリング用）
         var abilities: [PokemonAbility] = []
         for (index, abilityId) in model.primaryAbilities.enumerated() {
             let name: String
-            if let namesJa = model.primaryAbilityNamesJa, index < namesJa.count {
-                name = namesJa[index]
-            } else if let names = model.primaryAbilityNames, index < names.count {
-                name = names[index]
+            let nameJa: String?
+
+            if let names = model.primaryAbilityNames, index < names.count {
+                name = names[index]  // 英語名を使用
+            } else if let namesJa = model.primaryAbilityNamesJa, index < namesJa.count {
+                name = namesJa[index]  // 日本語名はフォールバック
             } else {
                 name = "ability-\(abilityId)"  // フォールバック
             }
-            abilities.append(PokemonAbility(name: name, isHidden: false))
+
+            if let namesJa = model.primaryAbilityNamesJa, index < namesJa.count {
+                nameJa = namesJa[index]
+            } else {
+                nameJa = nil
+            }
+
+            abilities.append(PokemonAbility(name: name, nameJa: nameJa, isHidden: false))
         }
         if model.hiddenAbility != nil {
-            let name = model.hiddenAbilityNameJa ?? model.hiddenAbilityName ?? "hidden-ability"
-            abilities.append(PokemonAbility(name: name, isHidden: true))
+            let name = model.hiddenAbilityName ?? model.hiddenAbilityNameJa ?? "hidden-ability"
+            let nameJa = model.hiddenAbilityNameJa
+            abilities.append(PokemonAbility(name: name, nameJa: nameJa, isHidden: true))
         }
 
         // Moves: [PokemonLearnedMoveModel] → [PokemonMove]

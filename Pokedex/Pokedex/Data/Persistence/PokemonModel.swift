@@ -160,12 +160,14 @@ final class PokemonSpriteModel {
 
 @Model
 final class PokemonLearnedMoveModel {
+    var pokemonId: Int
     var moveId: Int
     var learnMethod: String
     var level: Int?
     var machineNumber: String?
 
-    init(moveId: Int, learnMethod: String, level: Int? = nil, machineNumber: String? = nil) {
+    init(pokemonId: Int, moveId: Int, learnMethod: String, level: Int? = nil, machineNumber: String? = nil) {
+        self.pokemonId = pokemonId
         self.moveId = moveId
         self.learnMethod = learnMethod
         self.level = level

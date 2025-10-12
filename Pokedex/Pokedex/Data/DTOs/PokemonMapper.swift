@@ -106,7 +106,7 @@ enum PokemonMapper {
         guard let abilities = abilities else { return [] }
         return abilities.compactMap { ability in
             guard let name = ability.ability?.name else { return nil }
-            return PokemonAbility(name: name, isHidden: ability.isHidden ?? false)
+            return PokemonAbility(name: name, nameJa: nil, isHidden: ability.isHidden ?? false)
         }
     }
 

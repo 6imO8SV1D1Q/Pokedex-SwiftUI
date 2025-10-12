@@ -94,10 +94,12 @@ struct AbilityCard: View {
         abilities: [
             PokemonAbility(
                 name: "overgrow",
+                nameJa: "しんりょく",
                 isHidden: false
             ),
             PokemonAbility(
                 name: "chlorophyll",
+                nameJa: "ようりょくそ",
                 isHidden: true
             )
         ],
@@ -125,6 +127,7 @@ struct AbilityCard: View {
         abilities: [
             PokemonAbility(
                 name: "overgrow",
+                nameJa: "しんりょく",
                 isHidden: false
             )
         ],

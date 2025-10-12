@@ -32,4 +32,16 @@ protocol MoveRepositoryProtocol {
     ///   - versionGroup: バージョングループ（マシン番号取得用、nilの場合は番号なし）
     /// - Returns: 技の詳細情報
     func fetchMoveDetail(moveId: Int, versionGroup: String?) async throws -> MoveEntity
+
+    /// 複数ポケモンの技習得方法を一括取得（パフォーマンス最適化版）
+    /// - Parameters:
+    ///   - pokemonIds: ポケモンIDのリスト
+    ///   - moveIds: 技IDのリスト
+    ///   - versionGroup: バージョングループID
+    /// - Returns: ポケモンIDをキーとした習得方法の辞書
+    func fetchBulkLearnMethods(
+        pokemonIds: [Int],
+        moveIds: [Int],
+        versionGroup: String
+    ) async throws -> [Int: [MoveLearnMethod]]
 }

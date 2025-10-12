@@ -124,6 +124,79 @@ final class MoveRepository: MoveRepositoryProtocol {
         return learnMethods
     }
 
+    /// 複数ポケモンの技習得方法を一括取得（パフォーマンス最適化版）
+    /// - Parameters:
+    ///   - pokemonIds: ポケモンIDのリスト
+    ///   - moveIds: 技IDのリスト
+    ///   - versionGroup: バージョングループID（未使用、互換性のため保持）
+    /// - Returns: ポケモンIDをキーとした習得方法の辞書
+    func fetchBulkLearnMethods(
+        pokemonIds: [Int],
+        moveIds: [Int],
+        versionGroup: String
+    ) async throws -> [Int: [MoveLearnMethod]] {
+        // PokemonLearnedMoveModelを直接クエリ（pokemonModel.movesへのアクセスを回避）
+        let learnedMoveDescriptor = FetchDescriptor<PokemonLearnedMoveModel>(
+            predicate: #Predicate { model in
+                pokemonIds.contains(model.pokemonId) && moveIds.contains(model.moveId)
+            }
+        )
+        let learnedMoves = try modelContext.fetch(learnedMoveDescriptor)
+
+        // 技詳細を一度に取得してマップ化（1回のクエリ）
+        let moveDescriptor = FetchDescriptor<MoveModel>(
+            predicate: #Predicate { moveIds.contains($0.id) }
+        )
+        let moveModels = try modelContext.fetch(moveDescriptor)
+        let moveMap = Dictionary(uniqueKeysWithValues: moveModels.map { ($0.id, $0) })
+
+        // pokemonIdでグループ化
+        let learnedMovesByPokemon = Dictionary(grouping: learnedMoves, by: { $0.pokemonId })
+
+        var result: [Int: [MoveLearnMethod]] = [:]
+
+        for (pokemonId, moves) in learnedMovesByPokemon {
+            var learnMethods: [MoveLearnMethod] = []
+
+            for learnedMove in moves {
+                guard let moveModel = moveMap[learnedMove.moveId] else {
+                    continue
+                }
+
+                // MoveEntityに変換
+                let moveEntity = MoveEntity(
+                    id: moveModel.id,
+                    name: moveModel.name,
+                    nameJa: moveModel.nameJa,
+                    type: PokemonType(slot: 1, name: moveModel.type),
+                    power: moveModel.power,
+                    accuracy: moveModel.accuracy,
+                    pp: moveModel.pp,
+                    damageClass: moveModel.damageClass,
+                    effect: moveModel.effect,
+                    machineNumber: learnedMove.machineNumber,
+                    categories: moveModel.categories
+                )
+
+                // 習得方法を変換
+                let method = parseLearnMethod(
+                    methodName: learnedMove.learnMethod,
+                    level: learnedMove.level,
+                    machine: learnedMove.machineNumber
+                )
+
+                learnMethods.append(MoveLearnMethod(
+                    move: moveEntity,
+                    method: method,
+                    versionGroup: versionGroup
+                ))
+            }
+
+            result[pokemonId] = learnMethods
+        }
+
+        return result
+    }
 
     /// 技の詳細情報を取得してEntityに変換（SwiftDataから）
     /// - Parameters:
