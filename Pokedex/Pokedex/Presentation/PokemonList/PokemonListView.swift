@@ -49,7 +49,7 @@ struct PokemonListView: View {
                 .pickerStyle(.segmented)
                 .padding(.horizontal, 20)
                 .padding(.top, 8)
-                .padding(.bottom, 8)
+                .padding(.bottom, 16)
                 .background(Color(uiColor: .systemGroupedBackground))
                 .onChange(of: viewModel.selectedPokedex) { oldValue, newValue in
                     if oldValue != newValue {
@@ -66,15 +66,6 @@ struct PokemonListView: View {
                 viewModel.applyFilters()
             }
             .toolbar {
-                // 表示形式切り替え
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        viewModel.toggleDisplayMode()
-                    } label: {
-                        Image(systemName: viewModel.displayMode == .list ? "square.grid.2x2" : "list.bullet")
-                    }
-                }
-
                 // 設定ボタン
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -239,13 +230,7 @@ struct PokemonListView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color(uiColor: .systemGroupedBackground))
             } else {
-                // 表示形式によって切り替え
-                switch viewModel.displayMode {
-                case .list:
-                    pokemonList
-                case .grid:
-                    pokemonGrid
-                }
+                pokemonList
             }
         }
     }
@@ -263,32 +248,7 @@ struct PokemonListView: View {
                 }
                 .listStyle(.insetGrouped)
                 .scrollContentBackground(.visible)
-                .contentMargins(.top, 8, for: .scrollContent)
-                .scrollPosition(id: $scrollPosition)
-            }
-        }
-    }
-
-    private var pokemonGrid: some View {
-        Group {
-            if viewModel.filteredPokemons.isEmpty && !viewModel.isLoading && hasLoaded {
-                // ロード完了後にポケモンが0の場合のみ表示
-                emptyStateView
-            } else if !viewModel.filteredPokemons.isEmpty {
-                ScrollView {
-                    LazyVGrid(
-                        columns: Array(repeating: GridItem(.flexible()), count: DesignConstants.Grid.columns),
-                        spacing: DesignConstants.Grid.spacing
-                    ) {
-                        ForEach(viewModel.filteredPokemons) { pokemon in
-                            NavigationLink(value: pokemon) {
-                                PokemonGridItem(pokemon: pokemon, selectedPokedex: viewModel.selectedPokedex)
-                            }
-                            .buttonStyle(GridItemButtonStyle())
-                        }
-                    }
-                    .padding(DesignConstants.Spacing.medium)
-                }
+                .contentMargins(.top, 0, for: .scrollContent)
                 .scrollPosition(id: $scrollPosition)
             }
         }

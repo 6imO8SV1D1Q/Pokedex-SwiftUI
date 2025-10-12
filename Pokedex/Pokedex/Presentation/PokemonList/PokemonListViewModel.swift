@@ -105,17 +105,6 @@ final class PokemonListViewModel: ObservableObject {
     /// 進化のきせき適用可フラグ
     @Published var filterEvioliteOnly: Bool = false
 
-    // MARK: - Display Mode
-
-    /// 表示形式
-    enum DisplayMode {
-        case list
-        case grid
-    }
-
-    /// 現在の表示形式
-    @Published var displayMode: DisplayMode = .list
-
     // MARK: - Sort Properties
 
     /// 現在のソートオプション
@@ -304,11 +293,6 @@ final class PokemonListViewModel: ObservableObject {
     func changeSortOption(_ option: SortOption) {
         currentSortOption = option
         applyFilters()
-    }
-
-    /// 表示形式を切り替え
-    func toggleDisplayMode() {
-        displayMode = displayMode == .list ? .grid : .list
     }
 
     /// バージョングループを変更
