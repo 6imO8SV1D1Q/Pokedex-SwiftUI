@@ -135,13 +135,16 @@ final class MoveRepository: MoveRepositoryProtocol {
         moveIds: [Int],
         versionGroup: String
     ) async throws -> [Int: [MoveLearnMethod]] {
-        // PokemonLearnedMoveModelを直接クエリ（pokemonModel.movesへのアクセスを回避）
-        let learnedMoveDescriptor = FetchDescriptor<PokemonLearnedMoveModel>(
-            predicate: #Predicate { model in
-                pokemonIds.contains(model.pokemonId) && moveIds.contains(model.moveId)
-            }
+        // 埋め込み型なので、PokemonModelから技を取得
+        let pokemonDescriptor = FetchDescriptor<PokemonModel>(
+            predicate: #Predicate { pokemonIds.contains($0.id) }
         )
-        let learnedMoves = try modelContext.fetch(learnedMoveDescriptor)
+        let pokemonModels = try modelContext.fetch(pokemonDescriptor)
+
+        // 各ポケモンの技をフラット化
+        let learnedMoves = pokemonModels.flatMap { pokemon in
+            pokemon.moves.filter { moveIds.contains($0.moveId) }
+        }
 
         // 技詳細を一度に取得してマップ化（1回のクエリ）
         let moveDescriptor = FetchDescriptor<MoveModel>(

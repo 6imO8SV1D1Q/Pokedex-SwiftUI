@@ -43,19 +43,19 @@ final class PokemonModel {
 
     // MARK: - Stats
 
-    @Relationship(deleteRule: .cascade) var baseStats: PokemonBaseStatsModel?
+    var baseStats: PokemonBaseStatsModel?
 
     // MARK: - Sprites
 
-    @Relationship(deleteRule: .cascade) var sprites: PokemonSpriteModel?
+    var sprites: PokemonSpriteModel?
 
     // MARK: - Moves
 
-    @Relationship(deleteRule: .cascade) var moves: [PokemonLearnedMoveModel]
+    var moves: [PokemonLearnedMoveModel]
 
     // MARK: - Evolution
 
-    @Relationship(deleteRule: .cascade) var evolutionChain: PokemonEvolutionModel?
+    var evolutionChain: PokemonEvolutionModel?
 
     // MARK: - Varieties & Pokedex
 
@@ -125,8 +125,7 @@ final class PokemonModel {
 
 // MARK: - Base Stats Model
 
-@Model
-final class PokemonBaseStatsModel {
+struct PokemonBaseStatsModel: Codable {
     var hp: Int
     var attack: Int
     var defense: Int
@@ -134,65 +133,31 @@ final class PokemonBaseStatsModel {
     var spDefense: Int
     var speed: Int
     var total: Int
-
-    init(hp: Int, attack: Int, defense: Int, spAttack: Int, spDefense: Int, speed: Int, total: Int) {
-        self.hp = hp
-        self.attack = attack
-        self.defense = defense
-        self.spAttack = spAttack
-        self.spDefense = spDefense
-        self.speed = speed
-        self.total = total
-    }
 }
 
 // MARK: - Sprite Model
 
-@Model
-final class PokemonSpriteModel {
+struct PokemonSpriteModel: Codable {
     var normal: String
     var shiny: String
-
-    init(normal: String, shiny: String) {
-        self.normal = normal
-        self.shiny = shiny
-    }
 }
 
 // MARK: - Learned Move Model
 
-@Model
-final class PokemonLearnedMoveModel {
+struct PokemonLearnedMoveModel: Codable {
     var pokemonId: Int
     var moveId: Int
     var learnMethod: String
     var level: Int?
     var machineNumber: String?
-
-    init(pokemonId: Int, moveId: Int, learnMethod: String, level: Int? = nil, machineNumber: String? = nil) {
-        self.pokemonId = pokemonId
-        self.moveId = moveId
-        self.learnMethod = learnMethod
-        self.level = level
-        self.machineNumber = machineNumber
-    }
 }
 
 // MARK: - Evolution Model
 
-@Model
-final class PokemonEvolutionModel {
+struct PokemonEvolutionModel: Codable {
     var chainId: Int
     var evolutionStage: Int
     var evolvesFrom: Int?
     var evolvesTo: [Int]
     var canUseEviolite: Bool
-
-    init(chainId: Int, evolutionStage: Int, evolvesFrom: Int? = nil, evolvesTo: [Int] = [], canUseEviolite: Bool) {
-        self.chainId = chainId
-        self.evolutionStage = evolutionStage
-        self.evolvesFrom = evolvesFrom
-        self.evolvesTo = evolvesTo
-        self.canUseEviolite = canUseEviolite
-    }
 }

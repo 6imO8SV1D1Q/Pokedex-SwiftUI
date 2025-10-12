@@ -11,18 +11,28 @@ import SwiftData
 enum PreloadedDataLoader {
 
     /// プリバンドルデータをSwiftDataにロード（必要な場合のみ）
+    /// - Parameters:
+    ///   - modelContext: SwiftData ModelContext
+    ///   - progressHandler: 進捗ハンドラー（0.0〜1.0）
     /// - Returns: ロードした場合true、既存データがあればfalse
-    static func loadPreloadedDataIfNeeded(modelContext: ModelContext) throws -> Bool {
+    static func loadPreloadedDataIfNeeded(
+        modelContext: ModelContext,
+        progressHandler: ((Double) -> Void)? = nil
+    ) throws -> Bool {
         // 既存データチェック
         let existingPokemonCount = try modelContext.fetchCount(FetchDescriptor<PokemonModel>())
         let existingAbilityCount = try modelContext.fetchCount(FetchDescriptor<AbilityModel>())
         let existingMoveCount = try modelContext.fetchCount(FetchDescriptor<MoveModel>())
+        let existingPokedexCount = try modelContext.fetchCount(FetchDescriptor<PokedexModel>())
 
-        // Pokemonデータがあって、AbilityとMoveデータもある場合はスキップ
-        if existingPokemonCount > 0 && existingAbilityCount > 0 && existingMoveCount > 0 {
-            print("✅ [Preloaded] Skip loading: \(existingPokemonCount) pokemon, \(existingAbilityCount) abilities, \(existingMoveCount) moves already exist")
+        // 全てのデータが揃っている場合はスキップ
+        if existingPokemonCount > 0 && existingAbilityCount > 0 && existingMoveCount > 0 && existingPokedexCount > 0 {
+            print("✅ [Preloaded] Skip loading: \(existingPokemonCount) pokemon, \(existingAbilityCount) abilities, \(existingMoveCount) moves, \(existingPokedexCount) pokedexes already exist")
             return false
         }
+
+        // 初期進捗報告
+        progressHandler?(0.01)
 
         print("📦 [Preloaded] Loading Scarlet/Violet JSON from bundle...")
         print("   Current: \(existingPokemonCount) pokemon, \(existingAbilityCount) abilities, \(existingMoveCount) moves")
@@ -58,6 +68,8 @@ enum PreloadedDataLoader {
         print("   - Moves: \(gameData.moves.count)")
         print("   - Abilities: \(gameData.abilities.count)")
 
+        progressHandler?(0.1) // JSON読み込み完了
+
         // 特性マスタを辞書に変換（名前がない場合はID文字列を使用）
         var abilityMap: [Int: (name: String, nameJa: String)] = [:]
         for ability in gameData.abilities {
@@ -85,6 +97,7 @@ enum PreloadedDataLoader {
         }
         try modelContext.save()
         print("✅ [Preloaded] Successfully loaded \(gameData.abilities.count) abilities")
+        progressHandler?(0.2) // Abilities保存完了
 
         // 技データをSwiftDataに保存
         print("💾 [Preloaded] Saving moves to SwiftData...")
@@ -131,11 +144,28 @@ enum PreloadedDataLoader {
         }
         try modelContext.save()
         print("✅ [Preloaded] Successfully loaded \(gameData.moves.count) moves")
+        progressHandler?(0.4) // Moves保存完了
+
+        // PokedexデータをSwiftDataに保存
+        if let pokedexes = gameData.pokedexes {
+            print("💾 [Preloaded] Saving pokedexes to SwiftData...")
+            for pokedexData in pokedexes {
+                let model = PokedexModel(
+                    name: pokedexData.name,
+                    speciesIds: pokedexData.speciesIds
+                )
+                modelContext.insert(model)
+            }
+            try modelContext.save()
+            print("✅ [Preloaded] Successfully loaded \(pokedexes.count) pokedexes")
+        }
+        progressHandler?(0.45) // Pokedex保存完了
 
         // ポケモンデータをSwiftDataに変換して保存（既存データがない場合のみ）
         if existingPokemonCount == 0 {
             print("💾 [Preloaded] Saving pokemon to SwiftData...")
 
+            let totalCount = gameData.pokemon.count
             for (index, pokemonData) in gameData.pokemon.enumerated() {
                 let model = PokemonModelMapper.fromJSON(
                     pokemonData,
@@ -147,16 +177,20 @@ enum PreloadedDataLoader {
                 // 100匹ごとに中間保存＆進捗表示
                 if (index + 1) % 100 == 0 {
                     try modelContext.save()
-                    print("   Saved \(index + 1)/\(gameData.pokemon.count) pokemon...")
+                    let progress = 0.45 + 0.55 * Double(index + 1) / Double(totalCount)
+                    progressHandler?(progress)
+                    print("   Saved \(index + 1)/\(totalCount) pokemon... (\(Int(progress * 100))%)")
                 }
             }
 
             // 最終保存
             try modelContext.save()
+            progressHandler?(1.0) // 完了
 
             print("✅ [Preloaded] Successfully loaded \(gameData.pokemon.count) pokemon into SwiftData")
         } else {
             print("⏭️  [Preloaded] Skipping pokemon save: \(existingPokemonCount) already exist")
+            progressHandler?(1.0) // スキップの場合も完了を報告
         }
 
         return true

@@ -17,13 +17,10 @@ struct PokedexApp: App {
             // SwiftData スキーマ定義 (Scarlet/Violet data structure)
             let schema = Schema([
                 PokemonModel.self,
-                PokemonBaseStatsModel.self,
-                PokemonSpriteModel.self,
-                PokemonLearnedMoveModel.self,
-                PokemonEvolutionModel.self,
                 MoveModel.self,
                 MoveMetaModel.self,
-                AbilityModel.self
+                AbilityModel.self,
+                PokedexModel.self
             ])
 
             // ModelConfiguration（ディスク永続化）
@@ -44,17 +41,37 @@ struct PokedexApp: App {
                 print("📁 Created storage directory: \(storageDir.path)")
             }
 
-            // ModelContainer作成
-            modelContainer = try ModelContainer(
-                for: schema,
-                configurations: [modelConfiguration]
-            )
+            // ModelContainer作成（マイグレーション失敗時は古いファイルを削除）
+            do {
+                modelContainer = try ModelContainer(
+                    for: schema,
+                    configurations: [modelConfiguration]
+                )
 
-            print("✅ ModelContainer initialized successfully")
-            print("📂 Storage path: \(modelConfiguration.url.path)")
+                print("✅ ModelContainer initialized successfully")
+                print("📂 Storage path: \(modelConfiguration.url.path)")
+            } catch {
+                // スキーマ変更によるマイグレーション失敗の場合、古いストアを削除
+                print("⚠️ ModelContainer initialization failed: \(error)")
+                print("🔄 Deleting old store and retrying...")
+
+                let storeURL = modelConfiguration.url
+                try? FileManager.default.removeItem(at: storeURL)
+                try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+                try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+
+                // 再試行
+                modelContainer = try ModelContainer(
+                    for: schema,
+                    configurations: [modelConfiguration]
+                )
+
+                print("✅ ModelContainer re-initialized successfully after cleanup")
+                print("📂 Storage path: \(modelConfiguration.url.path)")
+            }
 
         } catch {
-            fatalError("❌ Failed to initialize ModelContainer: \(error)")
+            fatalError("❌ Failed to initialize ModelContainer even after cleanup: \(error)")
         }
     }
 
