@@ -79,25 +79,22 @@ struct AbilityCard: View {
 
     /// 特性名を表示
     private var abilityDisplayName: String {
-        let result: String
         switch localizationManager.currentLanguage {
         case .japanese:
             // 優先順位: ability.nameJa > detail.name > ability.name
             if let nameJa = ability.nameJa {
-                result = nameJa
-            } else if let detail = detail, !detail.name.isEmpty {
-                result = detail.name
-            } else {
-                result = ability.name.capitalized
+                return nameJa
             }
+            if let detail = detail, !detail.name.isEmpty {
+                return detail.name
+            }
+            return ability.name.capitalized
         case .english:
             // 英語の場合は元の英語名を整形
-            result = ability.name
+            return ability.name
                 .replacingOccurrences(of: "-", with: " ")
                 .capitalized
         }
-        print("🔤 Ability display: lang=\(localizationManager.currentLanguage), name=\(ability.name), result=\(result)")
-        return result
     }
 }
 
