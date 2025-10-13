@@ -421,20 +421,26 @@ final class PokemonListViewModel: ObservableObject {
                 print("🎯 [MetadataFilter] Final matching move IDs: \(matchingMoveIds?.count ?? 0)")
 
                 // 3. 条件に合致する技を習得できるポケモンを絞り込み
-                if let finalMatchingMoveIds = matchingMoveIds, !finalMatchingMoveIds.isEmpty {
-                    let pokemonIds = filtered.map { $0.id }
-                    let bulkLearnMethods = try await moveRepository.fetchBulkLearnMethods(
-                        pokemonIds: pokemonIds,
-                        moveIds: Array(finalMatchingMoveIds),
-                        versionGroup: selectedVersionGroup.id
-                    )
+                if let finalMatchingMoveIds = matchingMoveIds {
+                    if finalMatchingMoveIds.isEmpty {
+                        // 条件に合致する技が0件の場合は結果も0件
+                        print("🎯 [MetadataFilter] No matching moves found, clearing results")
+                        filtered = []
+                    } else {
+                        let pokemonIds = filtered.map { $0.id }
+                        let bulkLearnMethods = try await moveRepository.fetchBulkLearnMethods(
+                            pokemonIds: pokemonIds,
+                            moveIds: Array(finalMatchingMoveIds),
+                            versionGroup: selectedVersionGroup.id
+                        )
 
-                    let beforeCount = filtered.count
-                    // 条件に合致する技を少なくとも1つ習得できるポケモンのみを残す
-                    filtered = filtered.filter { pokemon in
-                        bulkLearnMethods[pokemon.id]?.isEmpty == false
+                        let beforeCount = filtered.count
+                        // 条件に合致する技を少なくとも1つ習得できるポケモンのみを残す
+                        filtered = filtered.filter { pokemon in
+                            bulkLearnMethods[pokemon.id]?.isEmpty == false
+                        }
+                        print("🎯 [MetadataFilter] Filtered pokemon: \(beforeCount) → \(filtered.count)")
                     }
-                    print("🎯 [MetadataFilter] Filtered pokemon: \(beforeCount) → \(filtered.count)")
                 }
             } catch {
                 // エラー時は技メタデータフィルターをスキップ
