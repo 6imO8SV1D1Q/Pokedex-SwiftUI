@@ -58,27 +58,6 @@ final class SortIntegrationTests: XCTestCase {
         }
     }
 
-    func test_sortByName_ascendingOrder() async throws {
-        // When
-        viewModel.changeSortOption(.name(ascending: true))
-
-        // Wait for sorting to apply
-        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 sec
-
-        // Then: Names are in alphabetical order
-        guard viewModel.filteredPokemons.count >= 2 else {
-            XCTFail("Not enough pokemon to test sorting")
-            return
-        }
-
-        for i in 0..<min(10, viewModel.filteredPokemons.count - 1) {
-            let current = viewModel.filteredPokemons[i]
-            let next = viewModel.filteredPokemons[i + 1]
-            XCTAssertLessThanOrEqual(current.name, next.name,
-                                    "Pokemon '\(current.name)' should come before '\(next.name)'")
-        }
-    }
-
     func test_sortByHP_descendingOrder() async throws {
         // When
         viewModel.changeSortOption(.hp(ascending: false))
@@ -104,7 +83,7 @@ final class SortIntegrationTests: XCTestCase {
 
     func test_defaultSort_isPokedexNumber() async throws {
         // Then: Default sort is by pokedex number
-        XCTAssertEqual(viewModel.currentSortOption, .pokedexNumber)
+        XCTAssertEqual(viewModel.currentSortOption, .pokedexNumber(ascending: true))
 
         // And: Pokemon are in ID order
         if viewModel.filteredPokemons.count >= 2 {
@@ -138,8 +117,8 @@ final class SortIntegrationTests: XCTestCase {
     }
 
     func test_sortPersists_afterFiltering() async throws {
-        // Given: Sort by name
-        viewModel.changeSortOption(.name(ascending: true))
+        // Given: Sort by attack
+        viewModel.changeSortOption(.attack(ascending: false))
 
         // Wait for sorting to apply
         try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 sec
@@ -151,15 +130,17 @@ final class SortIntegrationTests: XCTestCase {
         // Wait for filtering to apply
         try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 sec
 
-        // Then: Sort is still by name
-        XCTAssertEqual(viewModel.currentSortOption, .name(ascending: true))
+        // Then: Sort is still by attack
+        XCTAssertEqual(viewModel.currentSortOption, .attack(ascending: false))
 
         // And: Filtered results are sorted
         if viewModel.filteredPokemons.count >= 2 {
             for i in 0..<viewModel.filteredPokemons.count - 1 {
                 let current = viewModel.filteredPokemons[i]
                 let next = viewModel.filteredPokemons[i + 1]
-                XCTAssertLessThanOrEqual(current.name, next.name,
+                let currentAttack = current.stats.first { $0.name == "attack" }?.baseStat ?? 0
+                let nextAttack = next.stats.first { $0.name == "attack" }?.baseStat ?? 0
+                XCTAssertGreaterThanOrEqual(currentAttack, nextAttack,
                                         "Filtered pokemon should maintain sort order")
             }
         }

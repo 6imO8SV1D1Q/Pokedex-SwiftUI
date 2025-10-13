@@ -154,10 +154,9 @@ final class PerformanceTests: XCTestCase {
         // Measure sort on large list
         measure {
             viewModel.changeSortOption(.totalStats(ascending: false))
-            viewModel.changeSortOption(.name(ascending: true))
             viewModel.changeSortOption(.hp(ascending: false))
             viewModel.changeSortOption(.attack(ascending: false))
-            viewModel.changeSortOption(.pokedexNumber)
+            viewModel.changeSortOption(.pokedexNumber(ascending: true))
         }
     }
 }

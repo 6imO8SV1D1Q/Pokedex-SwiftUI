@@ -276,13 +276,12 @@ struct PokemonListView: View {
     }
 
     private var pokemonCountView: some View {
-        HStack {
+        HStack(spacing: 0) {
             if hasActiveFilters {
                 // フィルターがある場合
                 Text("絞り込み結果: \(viewModel.filteredPokemons.count)匹")
                     .font(.caption)
                     .foregroundColor(.primary)
-                +
                 Text(" / 全\(viewModel.pokemons.count)匹")
                     .font(.caption)
                     .foregroundColor(.secondary)
