@@ -114,9 +114,9 @@ final class PokemonDetailViewModel: ObservableObject {
     /// 表示する画像URL
     var displayImageURL: String? {
         if isShiny {
-            return pokemon.sprites.shinyImageURL ?? pokemon.sprites.preferredImageURL
+            return pokemon.sprites.shinyImageURL ?? pokemon.displayImageURL
         } else {
-            return pokemon.sprites.preferredImageURL
+            return pokemon.displayImageURL
         }
     }
 

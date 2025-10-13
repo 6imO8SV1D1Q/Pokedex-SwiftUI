@@ -118,6 +118,23 @@ struct Pokemon: Identifiable, Codable, Hashable {
         stats.reduce(0) { $0 + $1.baseStat }
     }
 
+    /// 表示用の画像URL（フォールバック処理付き）
+    /// 一部のフォームは専用画像がないため、nationalDexNumberを使用してフォールバック
+    /// - Returns: 表示に使用する画像URL
+    var displayImageURL: String? {
+        // 専用画像がないフォーム（nationalDexNumberの画像を使用）
+        let fallbackForms = [
+            "rockruff-own-tempo",  // やる気のイワンコ → 通常のイワンコの画像
+        ]
+
+        if fallbackForms.contains(name), let natDexNum = nationalDexNumber {
+            // PokeAPIの公式アートワークURLを使用
+            return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/\(natDexNum).png"
+        }
+
+        return sprites.preferredImageURL
+    }
+
     /// このフォルムが登場可能な最後の世代番号（nilの場合は制限なし）
     /// - Returns: 最終登場世代、制限がない場合はnil。バトル専用フォームは0（表示しない）
     var lastAvailableGeneration: Int? {

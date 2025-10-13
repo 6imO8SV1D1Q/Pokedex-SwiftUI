@@ -177,7 +177,6 @@ final class PokemonListViewModel: ObservableObject {
     func loadPokemons() async {
         // 重複ロード防止
         guard !isLoading else {
-            print("⚠️ [ViewModel] Load already in progress, skipping")
             return
         }
 
@@ -329,7 +328,6 @@ final class PokemonListViewModel: ObservableObject {
     /// - Note: 図鑑区分変更時はフィルターが再適用されます。
     ///         全国図鑑選択時は全ポケモンをロードし直します。
     func changePokedex(_ pokedex: PokedexType) {
-        let previousPokedex = selectedPokedex
         selectedPokedex = pokedex
 
         // 全国図鑑の場合は全ポケモンをロード
@@ -384,8 +382,6 @@ final class PokemonListViewModel: ObservableObject {
         errorMessage = nil
         showError = false
 
-        print("📱 [ViewModel] Loading pokemons (attempt \(attempt + 1)/\(maxRetries))...")
-
         do {
             pokemons = try await fetchWithTimeout {
                 try await self.pokemonRepository.fetchPokemonList(
@@ -393,33 +389,23 @@ final class PokemonListViewModel: ObservableObject {
                     progressHandler: { [weak self] progress in
                         Task { @MainActor in
                             self?.loadingProgress = progress
-                            // 10%ごとに進捗ログ
-                            let percentage = Int(progress * 100)
-                            if percentage % 10 == 0 && percentage > 0 {
-                                print("📊 Progress: \(percentage)%")
-                            }
                         }
                     }
                 )
             }
 
-            print("✅ Load completed successfully: \(pokemons.count) pokemon")
             applyFilters()
             isLoading = false
 
         } catch {
-            print("⚠️ Load failed: \(error)")
-
             // リトライ前に isLoading をリセット（重要！）
             isLoading = false
 
             if attempt < maxRetries - 1 {
-                print("🔄 Retrying in 1 second...")
                 // 再試行前に少し待つ
                 try? await Task.sleep(nanoseconds: 1_000_000_000) // 1秒
                 await loadPokemonsWithRetry(attempt: attempt + 1)
             } else {
-                print("❌ Max retries exceeded")
                 handleError(error)
             }
         }

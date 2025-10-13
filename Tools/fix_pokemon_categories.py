@@ -46,10 +46,17 @@ SUB_LEGENDARY = {
     "kartana", "guzzlord", "poipole", "naganadel", "stakataka", "blacephalon",
     # 四災
     "wo-chien", "chien-pao", "ting-lu", "chi-yu",
+    # ともっこ（キタカミの伝説）
+    "okidogi", "munkidori", "fezandipiti",
+    # オーガポン
+    "ogerpon", "ogerpon-wellspring-mask", "ogerpon-hearthflame-mask", "ogerpon-cornerstone-mask",
     # その他準伝説
     "heatran", "cresselia", "phione",
     "kubfu", "urshifu", "urshifu-rapid-strike",
     "glastrier", "spectrier", "calyrex",
+    # パラドックスポケモン（追加の伝説）
+    "walking-wake", "raging-bolt", "gouging-fire",  # 古代のパラドックス
+    "iron-leaves", "iron-boulder", "iron-crown",  # 未来のパラドックス
 }
 
 def fix_categories(input_file, output_file):
@@ -84,7 +91,7 @@ def fix_categories(input_file, output_file):
     print(f"\n修正完了: {fixed_count}件")
 
 if __name__ == '__main__':
-    input_file = 'Pokedex/Pokedex/Resources/PreloadedData/scarlet_violet.json'
+    input_file = '/Users/yusuke/Development/Pokedex-SwiftUI/Pokedex/Pokedex/Resources/PreloadedData/scarlet_violet.json'
     output_file = input_file  # 上書き
 
     fix_categories(input_file, output_file)
