@@ -13,7 +13,7 @@ enum PokemonCategory: String, CaseIterable, Identifiable, Codable {
     case normal
 
     /// 準伝説ポケモン
-    case subLegendary = "sub-legendary"
+    case subLegendary
 
     /// 伝説ポケモン
     case legendary

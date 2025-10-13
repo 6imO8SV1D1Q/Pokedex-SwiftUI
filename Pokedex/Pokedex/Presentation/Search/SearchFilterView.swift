@@ -43,6 +43,7 @@ struct SearchFilterView: View {
         NavigationStack {
             Form {
                 typeFilterSection
+                categoryFilterSection
                 abilityFilterSection
                 moveCategoryFilterSection
                 moveFilterSection
@@ -97,6 +98,41 @@ struct SearchFilterView: View {
                 .background(
                     viewModel.selectedTypes.contains(typeName)
                         ? Color.blue.opacity(0.2)
+                        : Color.secondary.opacity(0.1)
+                )
+                .cornerRadius(8)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Category Section (Grid Layout)
+
+    private var categoryFilterSection: some View {
+        Section {
+            LazyVGrid(columns: typeGridColumns, spacing: 10) {
+                ForEach(PokemonCategory.allCases) { category in
+                    categoryGridButton(category)
+                }
+            }
+            .padding(.vertical, 8)
+        } header: {
+            Text("区分")
+        } footer: {
+            Text("選択した区分のいずれかに該当するポケモンを表示")
+        }
+    }
+
+    private func categoryGridButton(_ category: PokemonCategory) -> some View {
+        Button {
+            toggleCategorySelection(category)
+        } label: {
+            Text(category.displayName)
+                .font(.caption)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .background(
+                    viewModel.selectedCategories.contains(category)
+                        ? Color.purple.opacity(0.2)
                         : Color.secondary.opacity(0.1)
                 )
                 .cornerRadius(8)
@@ -359,6 +395,14 @@ struct SearchFilterView: View {
             viewModel.selectedMoveCategories.remove(categoryId)
         } else {
             viewModel.selectedMoveCategories.insert(categoryId)
+        }
+    }
+
+    private func toggleCategorySelection(_ category: PokemonCategory) {
+        if viewModel.selectedCategories.contains(category) {
+            viewModel.selectedCategories.remove(category)
+        } else {
+            viewModel.selectedCategories.insert(category)
         }
     }
 

@@ -242,7 +242,21 @@ final class PokemonListViewModel: ObservableObject {
                 }
             }
 
-            return matchesPokedex && matchesSearch && matchesType
+            // 区分フィルター
+            let matchesCategory: Bool
+            if selectedCategories.isEmpty {
+                matchesCategory = true
+            } else {
+                // 選択された区分のいずれかに該当するか（OR条件）
+                if let categoryString = pokemon.category,
+                   let category = PokemonCategory(rawValue: categoryString) {
+                    matchesCategory = selectedCategories.contains(category)
+                } else {
+                    matchesCategory = false
+                }
+            }
+
+            return matchesPokedex && matchesSearch && matchesType && matchesCategory
         }
 
         // 特性フィルター適用
