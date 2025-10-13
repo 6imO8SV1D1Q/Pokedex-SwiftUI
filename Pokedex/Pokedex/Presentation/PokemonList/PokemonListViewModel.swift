@@ -121,7 +121,7 @@ final class PokemonListViewModel: ObservableObject {
     // MARK: - Sort Properties
 
     /// 現在のソートオプション
-    @Published var currentSortOption: SortOption = .pokedexNumber
+    @Published var currentSortOption: SortOption = .pokedexNumber(ascending: true)
 
     // MARK: - Private Properties
 
@@ -415,11 +415,11 @@ final class PokemonListViewModel: ObservableObject {
         )
 
         // 図鑑番号ソートの場合、選択された図鑑の番号でソート
-        if currentSortOption == .pokedexNumber && selectedPokedex != .national {
+        if case .pokedexNumber(let ascending) = currentSortOption, selectedPokedex != .national {
             sorted = sorted.sorted { pokemon1, pokemon2 in
                 let num1 = pokemon1.pokedexNumbers?[selectedPokedex.rawValue] ?? Int.max
                 let num2 = pokemon2.pokedexNumbers?[selectedPokedex.rawValue] ?? Int.max
-                return num1 < num2
+                return ascending ? num1 < num2 : num1 > num2
             }
         }
 

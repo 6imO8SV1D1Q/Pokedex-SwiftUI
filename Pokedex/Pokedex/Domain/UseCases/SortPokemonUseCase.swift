@@ -14,18 +14,13 @@ final class SortPokemonUseCase: SortPokemonUseCaseProtocol {
         sortOption: SortOption
     ) -> [Pokemon] {
         switch sortOption {
-        case .pokedexNumber:
+        case .pokedexNumber(let ascending):
             // 図鑑番号(speciesId)でソート、同じ種族の場合はid(フォーム)でソート
             return pokemonList.sorted {
                 if $0.speciesId == $1.speciesId {
-                    return $0.id < $1.id
+                    return ascending ? $0.id < $1.id : $0.id > $1.id
                 }
-                return $0.speciesId < $1.speciesId
-            }
-
-        case .name(let ascending):
-            return pokemonList.sorted {
-                ascending ? $0.name < $1.name : $0.name > $1.name
+                return ascending ? $0.speciesId < $1.speciesId : $0.speciesId > $1.speciesId
             }
 
         case .totalStats(let ascending):

@@ -9,10 +9,9 @@ import Foundation
 
 /// ポケモンリストのソートオプション
 ///
-/// 図鑑番号、名前、種族値などでソート可能
+/// 図鑑番号、種族値などでソート可能
 enum SortOption: Equatable {
-    case pokedexNumber
-    case name(ascending: Bool)
+    case pokedexNumber(ascending: Bool)
     case totalStats(ascending: Bool)
     case hp(ascending: Bool)
     case attack(ascending: Bool)
@@ -24,10 +23,8 @@ enum SortOption: Equatable {
     /// 表示名
     var displayName: String {
         switch self {
-        case .pokedexNumber:
-            return "図鑑番号"
-        case .name(let ascending):
-            return "名前\(ascending ? "↑" : "↓")"
+        case .pokedexNumber(let ascending):
+            return "図鑑番号\(ascending ? "↑" : "↓")"
         case .totalStats(let ascending):
             return "種族値合計\(ascending ? "↑" : "↓")"
         case .hp(let ascending):
