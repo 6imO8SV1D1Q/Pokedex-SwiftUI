@@ -43,8 +43,8 @@ struct MoveMetadataFilter: Equatable {
     /// PP条件
     var ppCondition: MoveNumericCondition?
 
-    /// 優先度フィルター
-    var priorities: Set<Int> = []
+    /// 優先度
+    var priority: Int?
 
     // MARK: - 対象
 
@@ -58,17 +58,11 @@ struct MoveMetadataFilter: Equatable {
 
     // MARK: - 効果
 
-    /// 急所率アップ（critRate > 0）
-    var hasHighCritRate: Bool = false
-
     /// HP吸収（drain > 0）
     var hasDrain: Bool = false
 
     /// HP回復（healing > 0）
     var hasHealing: Bool = false
-
-    /// ひるみ（flinchChance > 0）
-    var hasFlinch: Bool = false
 
     // MARK: - 能力変化
 
@@ -87,13 +81,11 @@ struct MoveMetadataFilter: Equatable {
         powerCondition == nil &&
         accuracyCondition == nil &&
         ppCondition == nil &&
-        priorities.isEmpty &&
+        priority == nil &&
         targets.isEmpty &&
         ailments.isEmpty &&
-        !hasHighCritRate &&
         !hasDrain &&
         !hasHealing &&
-        !hasFlinch &&
         statChanges.isEmpty &&
         categories.isEmpty
     }
@@ -137,6 +129,7 @@ enum StatChangeFilter: String, CaseIterable, Identifiable {
     case userSpeedUp = "自分すばやさ↑"
     case userAccuracyUp = "自分命中↑"
     case userEvasionUp = "自分回避↑"
+    case userCritRateUp = "自分急所ランク↑"
 
     // 相手の能力下降
     case opponentAttackDown = "相手こうげき↓"
@@ -159,6 +152,7 @@ enum StatChangeFilter: String, CaseIterable, Identifiable {
         case .userSpeedUp: return ("speed", 1, true)
         case .userAccuracyUp: return ("accuracy", 1, true)
         case .userEvasionUp: return ("evasion", 1, true)
+        case .userCritRateUp: return ("critical-hit", 1, true)
         case .opponentAttackDown: return ("attack", -1, false)
         case .opponentDefenseDown: return ("defense", -1, false)
         case .opponentSpAttackDown: return ("special-attack", -1, false)

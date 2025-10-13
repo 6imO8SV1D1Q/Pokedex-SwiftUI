@@ -692,8 +692,8 @@ struct SearchFilterView: View {
                     Text(condition.displayText(label: "PP"))
                         .font(.caption)
                 }
-                if !filter.priorities.isEmpty {
-                    Text("優先度: \(filter.priorities.sorted().map { $0 >= 0 ? "+\($0)" : "\($0)" }.joined(separator: ", "))")
+                if let priority = filter.priority {
+                    Text("優先度: \(priority >= 0 ? "+\(priority)" : "\(priority)")")
                         .font(.caption)
                 }
                 if !filter.targets.isEmpty {
@@ -704,8 +704,8 @@ struct SearchFilterView: View {
                     Text("状態異常: \(filter.ailments.map { $0.rawValue }.joined(separator: ", "))")
                         .font(.caption)
                 }
-                if filter.hasHighCritRate || filter.hasDrain || filter.hasHealing || filter.hasFlinch {
-                    Text("特殊効果: \(specialEffectsText(filter: filter))")
+                if filter.hasDrain || filter.hasHealing {
+                    Text("回復: \(healingEffectsText(filter: filter))")
                         .font(.caption)
                 }
                 if !filter.statChanges.isEmpty {
@@ -745,12 +745,10 @@ struct SearchFilterView: View {
         }
     }
 
-    private func specialEffectsText(filter: MoveMetadataFilter) -> String {
+    private func healingEffectsText(filter: MoveMetadataFilter) -> String {
         var effects: [String] = []
-        if filter.hasHighCritRate { effects.append("急所率アップ") }
         if filter.hasDrain { effects.append("HP吸収") }
         if filter.hasHealing { effects.append("HP回復") }
-        if filter.hasFlinch { effects.append("ひるみ") }
         return effects.joined(separator: ", ")
     }
 }

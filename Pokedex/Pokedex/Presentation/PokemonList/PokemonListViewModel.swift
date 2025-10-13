@@ -613,8 +613,10 @@ final class PokemonListViewModel: ObservableObject {
         }
 
         // 優先度フィルター
-        if !filter.priorities.isEmpty && !filter.priorities.contains(move.priority) {
-            return false
+        if let priority = filter.priority {
+            guard move.priority == priority else {
+                return false
+            }
         }
 
         // 対象フィルター
@@ -625,8 +627,8 @@ final class PokemonListViewModel: ObservableObject {
         // メタデータが必要な条件
         guard let meta = move.meta else {
             // メタデータがない場合、メタデータ関連の条件があればfalse
-            if !filter.ailments.isEmpty || filter.hasHighCritRate || filter.hasDrain ||
-               filter.hasHealing || filter.hasFlinch || !filter.statChanges.isEmpty {
+            if !filter.ailments.isEmpty || filter.hasDrain ||
+               filter.hasHealing || !filter.statChanges.isEmpty {
                 return false
             }
             // メタデータ不要な条件のみならtrue（ここまで到達していれば他の条件は満たしている）
@@ -643,11 +645,6 @@ final class PokemonListViewModel: ObservableObject {
             }
         }
 
-        // 急所率アップ
-        if filter.hasHighCritRate && meta.critRate <= 0 {
-            return false
-        }
-
         // HP吸収
         if filter.hasDrain && meta.drain <= 0 {
             return false
@@ -655,11 +652,6 @@ final class PokemonListViewModel: ObservableObject {
 
         // HP回復
         if filter.hasHealing && meta.healing <= 0 {
-            return false
-        }
-
-        // ひるみ
-        if filter.hasFlinch && meta.flinchChance <= 0 {
             return false
         }
 

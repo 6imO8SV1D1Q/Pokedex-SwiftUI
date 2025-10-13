@@ -33,6 +33,7 @@ enum StatType: String, CaseIterable, Identifiable {
 
 /// 比較演算子
 enum ComparisonOperator: String, CaseIterable, Identifiable {
+    case equal = "="
     case greaterThan = ">"
     case greaterThanOrEqual = "≥"
     case lessThan = "<"
@@ -47,6 +48,7 @@ enum ComparisonOperator: String, CaseIterable, Identifiable {
     /// - Returns: 条件を満たす場合true
     func evaluate(_ actual: Int, _ target: Int) -> Bool {
         switch self {
+        case .equal: return actual == target
         case .greaterThan: return actual > target
         case .greaterThanOrEqual: return actual >= target
         case .lessThan: return actual < target

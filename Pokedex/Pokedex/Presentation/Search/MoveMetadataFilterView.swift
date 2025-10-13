@@ -22,6 +22,9 @@ struct MoveMetadataFilterView: View {
     @State private var inputPPOperator: ComparisonOperator = .greaterThanOrEqual
     @State private var inputPPValue: String = ""
 
+    // 優先度入力用
+    @State private var selectedPriority: Double = 0
+
     // 全18タイプのリスト
     private let allTypes = [
         "normal", "fire", "water", "grass", "electric", "ice",
@@ -44,11 +47,9 @@ struct MoveMetadataFilterView: View {
                 powerAccuracyPPSection
                 prioritySection
                 targetSection
-                ailmentSection
-                specialEffectSection
+                categorySection
                 userStatChangeSection
                 opponentStatChangeSection
-                categorySection
             }
             .navigationTitle("技の条件")
             .navigationBarTitleDisplayMode(.inline)
@@ -226,38 +227,48 @@ struct MoveMetadataFilterView: View {
 
     private var prioritySection: some View {
         Section {
-            LazyVGrid(columns: gridColumns, spacing: 10) {
-                ForEach(Array((-7...5).reversed()), id: \.self) { priority in
-                    priorityGridButton(priority)
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("優先度:")
+                    Spacer()
+                    if tempFilter.priority != nil {
+                        Text(tempFilter.priority! >= 0 ? "+\(tempFilter.priority!)" : "\(tempFilter.priority!)")
+                            .fontWeight(.semibold)
+                            .foregroundColor(.blue)
+                    } else {
+                        Text("指定なし")
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                Slider(
+                    value: Binding(
+                        get: { tempFilter.priority.map(Double.init) ?? 0 },
+                        set: { tempFilter.priority = Int($0) }
+                    ),
+                    in: -7...5,
+                    step: 1
+                )
+
+                if tempFilter.priority != nil {
+                    Button {
+                        tempFilter.priority = nil
+                        selectedPriority = 0
+                    } label: {
+                        Text("解除")
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(Color.secondary.opacity(0.2))
+                            .foregroundColor(.primary)
+                            .cornerRadius(8)
+                    }
                 }
             }
             .padding(.vertical, 8)
         } header: {
             Text("優先度")
-        }
-    }
-
-    private var ailmentSection: some View {
-        Section {
-            LazyVGrid(columns: gridColumns, spacing: 10) {
-                ForEach(Ailment.allCases) { ailment in
-                    ailmentGridButton(ailment)
-                }
-            }
-            .padding(.vertical, 8)
-        } header: {
-            Text("状態異常")
-        }
-    }
-
-    private var specialEffectSection: some View {
-        Section {
-            Toggle("急所率アップ", isOn: $tempFilter.hasHighCritRate)
-            Toggle("HP吸収", isOn: $tempFilter.hasDrain)
-            Toggle("HP回復", isOn: $tempFilter.hasHealing)
-            Toggle("ひるみ", isOn: $tempFilter.hasFlinch)
-        } header: {
-            Text("特殊効果")
+        } footer: {
+            Text("スライダーを動かすと即座に優先度が設定されます。")
         }
     }
 
@@ -307,19 +318,26 @@ struct MoveMetadataFilterView: View {
         Section {
             ForEach(0..<MoveCategory.categoryGroups.count, id: \.self) { groupIndex in
                 let group = MoveCategory.categoryGroups[groupIndex]
-                DisclosureGroup(group.name) {
+                VStack(alignment: .leading, spacing: 8) {
+                    // グループ名
+                    Text(group.name)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                        .padding(.top, groupIndex > 0 ? 8 : 0)
+
+                    // カテゴリーボタン
                     LazyVGrid(columns: gridColumns, spacing: 10) {
                         ForEach(group.categories, id: \.id) { category in
                             moveCategoryGridButton(category)
                         }
                     }
-                    .padding(.vertical, 8)
                 }
             }
         } header: {
             Text("技カテゴリー")
         } footer: {
-            Text("グループを展開して個別にカテゴリーを選択できます。")
+            Text("各カテゴリーを個別に選択できます。")
         }
     }
 
@@ -332,6 +350,7 @@ struct MoveMetadataFilterView: View {
                 inputPowerValue = ""
                 inputAccuracyValue = ""
                 inputPPValue = ""
+                selectedPriority = 0
             }
         }
     }
@@ -410,28 +429,6 @@ struct MoveMetadataFilterView: View {
         inputPPValue = ""
     }
 
-    private func priorityGridButton(_ priority: Int) -> some View {
-        Button {
-            if tempFilter.priorities.contains(priority) {
-                tempFilter.priorities.remove(priority)
-            } else {
-                tempFilter.priorities.insert(priority)
-            }
-        } label: {
-            Text(priority >= 0 ? "+\(priority)" : "\(priority)")
-                .font(.caption)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .background(
-                    tempFilter.priorities.contains(priority)
-                        ? Color.blue.opacity(0.2)
-                        : Color.secondary.opacity(0.1)
-                )
-                .cornerRadius(8)
-        }
-        .buttonStyle(.plain)
-    }
-
     private func targetGridButton(_ target: String, label: String) -> some View {
         Button {
             if tempFilter.targets.contains(target) {
@@ -446,28 +443,6 @@ struct MoveMetadataFilterView: View {
                 .padding(.vertical, 8)
                 .background(
                     tempFilter.targets.contains(target)
-                        ? Color.blue.opacity(0.2)
-                        : Color.secondary.opacity(0.1)
-                )
-                .cornerRadius(8)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func ailmentGridButton(_ ailment: Ailment) -> some View {
-        Button {
-            if tempFilter.ailments.contains(ailment) {
-                tempFilter.ailments.remove(ailment)
-            } else {
-                tempFilter.ailments.insert(ailment)
-            }
-        } label: {
-            Text(ailment.rawValue)
-                .font(.caption)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .background(
-                    tempFilter.ailments.contains(ailment)
                         ? Color.blue.opacity(0.2)
                         : Color.secondary.opacity(0.1)
                 )
