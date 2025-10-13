@@ -106,6 +106,9 @@ final class PokemonListViewModel: ObservableObject {
     /// 進化のきせき適用可フラグ
     @Published var filterEvioliteOnly: Bool = false
 
+    /// 実数値フィルター条件
+    @Published var statFilterConditions: [StatFilterCondition] = []
+
     // MARK: - Sort Properties
 
     /// 現在のソートオプション
@@ -128,6 +131,9 @@ final class PokemonListViewModel: ObservableObject {
     /// 世代情報取得UseCase
     private let fetchVersionGroupsUseCase: FetchVersionGroupsUseCaseProtocol
 
+    /// 実数値計算UseCase
+    private let calculateStatsUseCase: CalculateStatsUseCaseProtocol
+
     /// ポケモンリポジトリ
     private let pokemonRepository: PokemonRepositoryProtocol
 
@@ -147,6 +153,7 @@ final class PokemonListViewModel: ObservableObject {
     ///   - filterPokemonByAbilityUseCase: 特性フィルタリングUseCase
     ///   - filterPokemonByMovesUseCase: 技フィルタリングUseCase
     ///   - fetchVersionGroupsUseCase: バージョングループ情報取得UseCase
+    ///   - calculateStatsUseCase: 実数値計算UseCase
     ///   - pokemonRepository: ポケモンリポジトリ
     init(
         fetchPokemonListUseCase: FetchPokemonListUseCaseProtocol,
@@ -154,6 +161,7 @@ final class PokemonListViewModel: ObservableObject {
         filterPokemonByAbilityUseCase: FilterPokemonByAbilityUseCaseProtocol,
         filterPokemonByMovesUseCase: FilterPokemonByMovesUseCaseProtocol,
         fetchVersionGroupsUseCase: FetchVersionGroupsUseCaseProtocol,
+        calculateStatsUseCase: CalculateStatsUseCaseProtocol,
         pokemonRepository: PokemonRepositoryProtocol
     ) {
         self.fetchPokemonListUseCase = fetchPokemonListUseCase
@@ -161,6 +169,7 @@ final class PokemonListViewModel: ObservableObject {
         self.filterPokemonByAbilityUseCase = filterPokemonByAbilityUseCase
         self.filterPokemonByMovesUseCase = filterPokemonByMovesUseCase
         self.fetchVersionGroupsUseCase = fetchVersionGroupsUseCase
+        self.calculateStatsUseCase = calculateStatsUseCase
         self.pokemonRepository = pokemonRepository
         self.allVersionGroups = fetchVersionGroupsUseCase.execute()
     }
@@ -285,7 +294,43 @@ final class PokemonListViewModel: ObservableObject {
                 matchesEvolution = true
             }
 
-            return matchesPokedex && matchesSearch && matchesType && matchesCategory && matchesEvolution
+            // 実数値フィルター
+            let matchesStatFilter: Bool
+            if !statFilterConditions.isEmpty {
+                let calculatedStats = calculateStatsUseCase.execute(baseStats: pokemon.stats)
+
+                // 全ての条件を満たすか確認
+                matchesStatFilter = statFilterConditions.allSatisfy { condition in
+                    // 「<」「≤」の場合は最小実数値、それ以外は最大実数値で判定
+                    let pattern: CalculatedStats.StatsPattern?
+                    if condition.operator == .lessThan || condition.operator == .lessThanOrEqual {
+                        // 個体値0、努力値0、性格補正0.9（最小値）
+                        pattern = calculatedStats.patterns.first { $0.id == "hindered" }
+                    } else {
+                        // 個体値31、努力値252、性格補正1.1（最大値）
+                        pattern = calculatedStats.patterns.first { $0.id == "ideal" }
+                    }
+
+                    guard let pattern = pattern else {
+                        return false
+                    }
+
+                    let actualValue: Int
+                    switch condition.statType {
+                    case .hp: actualValue = pattern.hp
+                    case .attack: actualValue = pattern.attack
+                    case .defense: actualValue = pattern.defense
+                    case .specialAttack: actualValue = pattern.specialAttack
+                    case .specialDefense: actualValue = pattern.specialDefense
+                    case .speed: actualValue = pattern.speed
+                    }
+                    return condition.matches(actualValue)
+                }
+            } else {
+                matchesStatFilter = true
+            }
+
+            return matchesPokedex && matchesSearch && matchesType && matchesCategory && matchesEvolution && matchesStatFilter
         }
 
         // 特性フィルター適用
@@ -397,6 +442,7 @@ final class PokemonListViewModel: ObservableObject {
         selectedMoves.removeAll()
         filterFinalEvolutionOnly = false
         filterEvioliteOnly = false
+        statFilterConditions.removeAll()
         applyFilters()
     }
 

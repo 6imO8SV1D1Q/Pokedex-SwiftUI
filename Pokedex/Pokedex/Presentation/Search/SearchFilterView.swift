@@ -19,6 +19,11 @@ struct SearchFilterView: View {
     @State private var abilitySearchText = ""
     @State private var moveSearchText = ""
 
+    // 実数値フィルター入力用
+    @State private var inputStatType: StatType = .hp
+    @State private var inputOperator: ComparisonOperator = .greaterThanOrEqual
+    @State private var inputStatValue: String = ""
+
     let fetchAllAbilitiesUseCase: FetchAllAbilitiesUseCaseProtocol
     let fetchAllMovesUseCase: FetchAllMovesUseCaseProtocol
 
@@ -45,6 +50,7 @@ struct SearchFilterView: View {
                 typeFilterSection
                 categoryFilterSection
                 evolutionFilterSection
+                statFilterSection
                 abilityFilterSection
                 moveCategoryFilterSection
                 moveFilterSection
@@ -171,6 +177,86 @@ struct SearchFilterView: View {
                 Text("全ての進化段階のポケモンを表示します")
             }
         }
+    }
+
+    // MARK: - Stat Filter Section
+
+    private var statFilterSection: some View {
+        Section {
+            // 条件入力エリア
+            HStack(spacing: 6) {
+                // ステータス種類
+                Picker("ステータス", selection: $inputStatType) {
+                    ForEach(StatType.allCases) { statType in
+                        Text(statType.rawValue).tag(statType)
+                    }
+                }
+                .pickerStyle(.menu)
+                .labelsHidden()
+                .frame(width: 110)
+
+                // 比較演算子
+                Picker("条件", selection: $inputOperator) {
+                    ForEach(ComparisonOperator.allCases) { op in
+                        Text(op.rawValue).tag(op)
+                    }
+                }
+                .pickerStyle(.menu)
+                .labelsHidden()
+                .fixedSize()
+
+                // 数値入力
+                TextField("値", text: $inputStatValue)
+                    .keyboardType(.numberPad)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 90)
+
+                // 追加ボタン
+                Button {
+                    addStatCondition()
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundColor(inputStatValue.isEmpty || Int(inputStatValue) == nil ? .gray : .blue)
+                        .imageScale(.large)
+                }
+                .disabled(inputStatValue.isEmpty || Int(inputStatValue) == nil)
+            }
+            .padding(.vertical, 4)
+
+            // 選択済み条件の表示
+            if !viewModel.statFilterConditions.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("設定中の条件")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    ForEach(viewModel.statFilterConditions) { condition in
+                        statConditionRow(condition)
+                    }
+                }
+            }
+        } header: {
+            Text("実数値")
+        } footer: {
+            Text("レベル50、個体値31、努力値252、性格補正1.1での実数値で絞り込みます")
+        }
+    }
+
+    private func statConditionRow(_ condition: StatFilterCondition) -> some View {
+        HStack {
+            Text(condition.displayText)
+                .font(.body)
+
+            Spacer()
+
+            Button {
+                removeStatCondition(condition)
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundColor(.red)
+            }
+        }
+        .padding(.vertical, 4)
     }
 
     // MARK: - Ability Section (with Search)
@@ -389,9 +475,11 @@ struct SearchFilterView: View {
                 viewModel.selectedMoves.removeAll()
                 viewModel.filterFinalEvolutionOnly = false
                 viewModel.filterEvioliteOnly = false
+                viewModel.statFilterConditions.removeAll()
                 viewModel.searchText = ""
                 abilitySearchText = ""
                 moveSearchText = ""
+                inputStatValue = ""
                 viewModel.applyFilters()
             }
         }
@@ -407,6 +495,25 @@ struct SearchFilterView: View {
     }
 
     // MARK: - Actions
+
+    private func addStatCondition() {
+        guard let value = Int(inputStatValue), value > 0 else { return }
+
+        let condition = StatFilterCondition(
+            statType: inputStatType,
+            operator: inputOperator,
+            value: value
+        )
+
+        viewModel.statFilterConditions.append(condition)
+
+        // 入力をリセット
+        inputStatValue = ""
+    }
+
+    private func removeStatCondition(_ condition: StatFilterCondition) {
+        viewModel.statFilterConditions.removeAll { $0.id == condition.id }
+    }
 
     private func toggleTypeSelection(_ typeName: String) {
         if viewModel.selectedTypes.contains(typeName) {

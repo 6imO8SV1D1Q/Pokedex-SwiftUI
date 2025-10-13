@@ -158,6 +158,7 @@ final class DIContainer: ObservableObject {
             filterPokemonByAbilityUseCase: makeFilterPokemonByAbilityUseCase(),
             filterPokemonByMovesUseCase: makeFilterPokemonByMovesUseCase(),
             fetchVersionGroupsUseCase: makeFetchVersionGroupsUseCase(),
+            calculateStatsUseCase: makeCalculateStatsUseCase(),
             pokemonRepository: pokemonRepository
         )
     }
