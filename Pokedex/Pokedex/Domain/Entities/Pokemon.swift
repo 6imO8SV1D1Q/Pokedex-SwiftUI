@@ -123,9 +123,8 @@ struct Pokemon: Identifiable, Codable, Hashable {
     /// - Returns: 表示に使用する画像URL
     var displayImageURL: String? {
         // 専用画像がないフォーム（nationalDexNumberの画像を使用）
-        let fallbackForms = [
-            "rockruff-own-tempo",  // やる気のイワンコ → 通常のイワンコの画像
-        ]
+        // 注: rockruff-own-tempoはJSONで正しいスプライトを設定済みのため除外
+        let fallbackForms: [String] = []
 
         if fallbackForms.contains(name), let natDexNum = nationalDexNumber {
             // PokeAPIの公式アートワークURLを使用
