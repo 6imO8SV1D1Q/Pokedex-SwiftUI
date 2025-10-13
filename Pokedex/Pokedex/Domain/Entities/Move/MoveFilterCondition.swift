@@ -25,7 +25,7 @@ struct MoveNumericCondition: Equatable {
 }
 
 /// 技のメタデータフィルター条件
-struct MoveMetadataFilter: Identifiable, Equatable {
+struct MoveMetadataFilter: Identifiable {
     var id = UUID()
 
     // MARK: - 基本情報
@@ -90,24 +90,6 @@ struct MoveMetadataFilter: Identifiable, Equatable {
         !hasHealing &&
         statChanges.isEmpty &&
         categories.isEmpty
-    }
-
-    // MARK: - Equatable
-
-    /// Equatable実装（idを除外して比較）
-    static func == (lhs: MoveMetadataFilter, rhs: MoveMetadataFilter) -> Bool {
-        lhs.types == rhs.types &&
-        lhs.damageClasses == rhs.damageClasses &&
-        lhs.powerCondition == rhs.powerCondition &&
-        lhs.accuracyCondition == rhs.accuracyCondition &&
-        lhs.ppCondition == rhs.ppCondition &&
-        lhs.priority == rhs.priority &&
-        lhs.targets == rhs.targets &&
-        lhs.ailments == rhs.ailments &&
-        lhs.hasDrain == rhs.hasDrain &&
-        lhs.hasHealing == rhs.hasHealing &&
-        lhs.statChanges == rhs.statChanges &&
-        lhs.categories == rhs.categories
     }
 }
 
