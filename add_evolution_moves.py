@@ -55,7 +55,10 @@ for pokemon in data['pokemon']:
     for pre_evo in pre_evolutions:
         for move in pre_evo.get('moves', []):
             if move['moveId'] not in current_move_ids:
-                pokemon['moves'].append(move)
+                # 継承された技にフラグを追加
+                inherited_move = move.copy()
+                inherited_move['isFromPreEvolution'] = True
+                pokemon['moves'].append(inherited_move)
                 current_move_ids.add(move['moveId'])
                 moves_added_count += 1
 
