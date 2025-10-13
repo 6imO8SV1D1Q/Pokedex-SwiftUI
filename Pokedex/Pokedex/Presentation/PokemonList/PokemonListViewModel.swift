@@ -109,6 +109,9 @@ final class PokemonListViewModel: ObservableObject {
     /// 実数値フィルター条件
     @Published var statFilterConditions: [StatFilterCondition] = []
 
+    /// 技のメタデータフィルター条件
+    @Published var moveMetadataFilter: MoveMetadataFilter = MoveMetadataFilter()
+
     // MARK: - Sort Properties
 
     /// 現在のソートオプション
@@ -443,6 +446,7 @@ final class PokemonListViewModel: ObservableObject {
         filterFinalEvolutionOnly = false
         filterEvioliteOnly = false
         statFilterConditions.removeAll()
+        moveMetadataFilter = MoveMetadataFilter()
         applyFilters()
     }
 

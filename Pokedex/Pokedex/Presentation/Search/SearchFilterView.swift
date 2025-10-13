@@ -334,14 +334,21 @@ struct SearchFilterView: View {
 
     private var moveCategoryFilterSection: some View {
         Section {
-            LazyVGrid(columns: typeGridColumns, spacing: 10) {
-                ForEach(allMoveCategories, id: \.id) { category in
-                    moveCategoryGridButton(category)
+            ForEach(0..<MoveCategory.categoryGroups.count, id: \.self) { groupIndex in
+                let group = MoveCategory.categoryGroups[groupIndex]
+                DisclosureGroup(group.name) {
+                    LazyVGrid(columns: typeGridColumns, spacing: 10) {
+                        ForEach(group.categories, id: \.id) { category in
+                            moveCategoryGridButton(category)
+                        }
+                    }
+                    .padding(.vertical, 8)
                 }
             }
-            .padding(.vertical, 8)
         } header: {
             Text("技カテゴリー")
+        } footer: {
+            Text("グループを展開してカテゴリーを選択できます")
         }
     }
 
@@ -476,6 +483,7 @@ struct SearchFilterView: View {
                 viewModel.filterFinalEvolutionOnly = false
                 viewModel.filterEvioliteOnly = false
                 viewModel.statFilterConditions.removeAll()
+                viewModel.moveMetadataFilter = MoveMetadataFilter()
                 viewModel.searchText = ""
                 abilitySearchText = ""
                 moveSearchText = ""

@@ -9,6 +9,81 @@ import Foundation
 
 /// 技カテゴリーの定義
 enum MoveCategory {
+    /// カテゴリーグループの定義
+    struct CategoryGroup {
+        let name: String
+        let categories: [(id: String, name: String)]
+    }
+
+    /// グループ分けされたカテゴリー
+    static let categoryGroups: [CategoryGroup] = [
+        CategoryGroup(name: "状態異常", categories: [
+            ("poison", "どく"),
+            ("paralyze", "まひ"),
+            ("burn", "やけど"),
+            ("freeze", "こおり"),
+            ("sleep", "ねむり")
+        ]),
+        CategoryGroup(name: "妨害効果", categories: [
+            ("confusion", "こんらん"),
+            ("flinch", "ひるみ"),
+            ("bind", "バインド技"),
+            ("never-miss", "必中技"),
+            ("fixed-damage", "固定ダメ技")
+        ]),
+        CategoryGroup(name: "攻撃タイミング", categories: [
+            ("priority", "先制技"),
+            ("delayed", "後攻技"),
+            ("switch", "交代技")
+        ]),
+        CategoryGroup(name: "ダメージ増強", categories: [
+            ("power-boost", "威力上昇"),
+            ("multi-hit", "連続攻撃"),
+            ("high-crit", "急所"),
+            ("recoil", "反動ダメ")
+        ]),
+        CategoryGroup(name: "リスク技", categories: [
+            ("recharge", "反動ターン"),
+            ("charge", "ターン技"),
+            ("ohko", "一撃必殺")
+        ]),
+        CategoryGroup(name: "能力変化", categories: [
+            ("stat-change", "ランク変化"),
+            ("setup", "積み技"),
+            ("type-change", "タイプ変化"),
+            ("ability-change", "特性変化")
+        ]),
+        CategoryGroup(name: "防御・カウンター", categories: [
+            ("counter", "カウンター"),
+            ("protect", "まもる")
+        ]),
+        CategoryGroup(name: "回復・補助", categories: [
+            ("healing", "回復"),
+            ("drain", "HP吸収"),
+            ("revival", "蘇生"),
+            ("hazard", "設置技")
+        ]),
+        CategoryGroup(name: "フィールド操作", categories: [
+            ("weather", "天候"),
+            ("terrain", "フィールド")
+        ]),
+        CategoryGroup(name: "技の系統", categories: [
+            ("sound", "音系"),
+            ("punch", "パンチ系"),
+            ("powder", "粉/胞子"),
+            ("pulse", "波動技"),
+            ("bite", "あご系"),
+            ("ball", "弾"),
+            ("dance", "踊り"),
+            ("wind", "風技"),
+            ("slash", "切る技")
+        ]),
+        CategoryGroup(name: "その他", categories: [
+            ("contact", "接触技"),
+            ("defrost", "こおり解除")
+        ])
+    ]
+
     /// 全カテゴリーのリスト（順序は画像の表示順）
     static let allCategories: [(id: String, name: String)] = [
         // 行1
