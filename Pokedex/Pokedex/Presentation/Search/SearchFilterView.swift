@@ -150,30 +150,22 @@ struct SearchFilterView: View {
 
     private var evolutionFilterSection: some View {
         Section {
-            Toggle("最終進化のみ表示", isOn: $viewModel.filterFinalEvolutionOnly)
-                .disabled(viewModel.filterEvioliteOnly)
-                .onChange(of: viewModel.filterFinalEvolutionOnly) { _, newValue in
-                    if newValue {
-                        viewModel.filterEvioliteOnly = false
-                    }
+            Picker("表示する進化段階", selection: $viewModel.evolutionFilterMode) {
+                ForEach(EvolutionFilterMode.allCases) { mode in
+                    Text(mode.rawValue).tag(mode)
                 }
-
-            Toggle("進化のきせき適用可のみ表示", isOn: $viewModel.filterEvioliteOnly)
-                .disabled(viewModel.filterFinalEvolutionOnly)
-                .onChange(of: viewModel.filterEvioliteOnly) { _, newValue in
-                    if newValue {
-                        viewModel.filterFinalEvolutionOnly = false
-                    }
-                }
+            }
+            .pickerStyle(.menu)
         } header: {
             Text("進化")
         } footer: {
-            if viewModel.filterFinalEvolutionOnly {
-                Text("最終進化形のポケモンのみを表示します")
-            } else if viewModel.filterEvioliteOnly {
-                Text("進化のきせきが使用可能なポケモン（進化前・進化途中）のみを表示します")
-            } else {
+            switch viewModel.evolutionFilterMode {
+            case .all:
                 Text("全ての進化段階のポケモンを表示します")
+            case .finalOnly:
+                Text("最終進化形のポケモンのみを表示します")
+            case .evioliteOnly:
+                Text("進化のきせきが使用可能なポケモン（進化前・進化途中）のみを表示します")
             }
         }
     }
@@ -183,44 +175,57 @@ struct SearchFilterView: View {
     private var statFilterSection: some View {
         Section {
             // 条件入力エリア
-            HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("新しい条件を追加")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+
                 // ステータス種類
-                Picker("ステータス", selection: $inputStatType) {
-                    ForEach(StatType.allCases) { statType in
-                        Text(statType.rawValue).tag(statType)
+                HStack {
+                    Text("ステータス")
+                        .frame(width: 80, alignment: .leading)
+                    Picker("ステータス", selection: $inputStatType) {
+                        ForEach(StatType.allCases) { statType in
+                            Text(statType.rawValue).tag(statType)
+                        }
                     }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
                 }
-                .pickerStyle(.menu)
-                .labelsHidden()
-                .frame(width: 110)
 
-                // 比較演算子
-                Picker("条件", selection: $inputOperator) {
-                    ForEach(ComparisonOperator.allCases) { op in
-                        Text(op.rawValue).tag(op)
+                // 条件と値
+                HStack(spacing: 12) {
+                    Text("条件")
+                        .frame(width: 80, alignment: .leading)
+
+                    // 比較演算子
+                    Picker("条件", selection: $inputOperator) {
+                        ForEach(ComparisonOperator.allCases) { op in
+                            Text(op.rawValue).tag(op)
+                        }
                     }
-                }
-                .pickerStyle(.menu)
-                .labelsHidden()
-                .fixedSize()
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                    .frame(width: 60)
 
-                // 数値入力
-                TextField("値", text: $inputStatValue)
-                    .keyboardType(.numberPad)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 90)
+                    // 数値入力
+                    TextField("値", text: $inputStatValue)
+                        .keyboardType(.numberPad)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 80)
 
-                // 追加ボタン
-                Button {
-                    addStatCondition()
-                } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .foregroundColor(inputStatValue.isEmpty || Int(inputStatValue) == nil ? .gray : .blue)
-                        .imageScale(.large)
+                    // 追加ボタン
+                    Button {
+                        addStatCondition()
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .foregroundColor(inputStatValue.isEmpty || Int(inputStatValue) == nil ? .gray : .blue)
+                            .imageScale(.large)
+                    }
+                    .disabled(inputStatValue.isEmpty || Int(inputStatValue) == nil)
                 }
-                .disabled(inputStatValue.isEmpty || Int(inputStatValue) == nil)
             }
-            .padding(.vertical, 4)
+            .padding(.vertical, 8)
 
             // 選択済み条件の表示
             if !viewModel.statFilterConditions.isEmpty {
@@ -676,16 +681,16 @@ struct SearchFilterView: View {
                     Text("分類: \(filter.damageClasses.map { damageClassLabel($0) }.joined(separator: ", "))")
                         .font(.caption)
                 }
-                if let range = filter.powerRange {
-                    Text("威力: \(range.lowerBound)〜\(range.upperBound)")
+                if let condition = filter.powerCondition {
+                    Text(condition.displayText(label: "威力"))
                         .font(.caption)
                 }
-                if let range = filter.accuracyRange {
-                    Text("命中率: \(range.lowerBound)〜\(range.upperBound)")
+                if let condition = filter.accuracyCondition {
+                    Text(condition.displayText(label: "命中率"))
                         .font(.caption)
                 }
-                if let range = filter.ppRange {
-                    Text("PP: \(range.lowerBound)〜\(range.upperBound)")
+                if let condition = filter.ppCondition {
+                    Text(condition.displayText(label: "PP"))
                         .font(.caption)
                 }
                 if !filter.priorities.isEmpty {

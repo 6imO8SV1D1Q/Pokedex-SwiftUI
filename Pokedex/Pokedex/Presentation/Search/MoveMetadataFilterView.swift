@@ -14,13 +14,13 @@ struct MoveMetadataFilterView: View {
     // 一時的な編集用フィルター
     @State private var tempFilter: MoveMetadataFilter = MoveMetadataFilter()
 
-    // 範囲入力用
-    @State private var inputPowerMin: String = ""
-    @State private var inputPowerMax: String = ""
-    @State private var inputAccuracyMin: String = ""
-    @State private var inputAccuracyMax: String = ""
-    @State private var inputPPMin: String = ""
-    @State private var inputPPMax: String = ""
+    // 数値条件入力用
+    @State private var inputPowerOperator: ComparisonOperator = .greaterThanOrEqual
+    @State private var inputPowerValue: String = ""
+    @State private var inputAccuracyOperator: ComparisonOperator = .greaterThanOrEqual
+    @State private var inputAccuracyValue: String = ""
+    @State private var inputPPOperator: ComparisonOperator = .greaterThanOrEqual
+    @State private var inputPPValue: String = ""
 
     // 全18タイプのリスト
     private let allTypes = [
@@ -89,94 +89,130 @@ struct MoveMetadataFilterView: View {
 
     private var powerAccuracyPPSection: some View {
         Section {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 16) {
                 // 威力
-                HStack {
-                    Text("威力")
-                        .frame(width: 60, alignment: .leading)
-                    TextField("最小", text: $inputPowerMin)
-                        .keyboardType(.numberPad)
-                        .textFieldStyle(.roundedBorder)
-                    Text("〜")
-                    TextField("最大", text: $inputPowerMax)
-                        .keyboardType(.numberPad)
-                        .textFieldStyle(.roundedBorder)
-                    Button {
-                        applyPowerRange()
-                    } label: {
-                        Image(systemName: "checkmark.circle.fill")
-                    }
-                }
-                if tempFilter.powerRange != nil {
-                    HStack {
-                        Text("設定: \(tempFilter.powerRange!.lowerBound)〜\(tempFilter.powerRange!.upperBound)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        Button("解除") {
-                            tempFilter.powerRange = nil
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 8) {
+                        Text("威力")
+                            .frame(width: 60, alignment: .leading)
+                        Picker("", selection: $inputPowerOperator) {
+                            ForEach(ComparisonOperator.allCases) { op in
+                                Text(op.rawValue).tag(op)
+                            }
                         }
-                        .font(.caption)
+                        .pickerStyle(.menu)
+                        .labelsHidden()
+                        .frame(width: 60)
+
+                        TextField("値", text: $inputPowerValue)
+                            .keyboardType(.numberPad)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 80)
+
+                        Button {
+                            applyPowerCondition()
+                        } label: {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(inputPowerValue.isEmpty || Int(inputPowerValue) == nil ? .gray : .blue)
+                        }
+                        .disabled(inputPowerValue.isEmpty || Int(inputPowerValue) == nil)
+                    }
+
+                    if let condition = tempFilter.powerCondition {
+                        HStack {
+                            Text("設定: \(condition.displayText(label: "威力"))")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Button("解除") {
+                                tempFilter.powerCondition = nil
+                            }
+                            .font(.caption)
+                        }
                     }
                 }
 
                 // 命中率
-                HStack {
-                    Text("命中率")
-                        .frame(width: 60, alignment: .leading)
-                    TextField("最小", text: $inputAccuracyMin)
-                        .keyboardType(.numberPad)
-                        .textFieldStyle(.roundedBorder)
-                    Text("〜")
-                    TextField("最大", text: $inputAccuracyMax)
-                        .keyboardType(.numberPad)
-                        .textFieldStyle(.roundedBorder)
-                    Button {
-                        applyAccuracyRange()
-                    } label: {
-                        Image(systemName: "checkmark.circle.fill")
-                    }
-                }
-                if tempFilter.accuracyRange != nil {
-                    HStack {
-                        Text("設定: \(tempFilter.accuracyRange!.lowerBound)〜\(tempFilter.accuracyRange!.upperBound)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        Button("解除") {
-                            tempFilter.accuracyRange = nil
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 8) {
+                        Text("命中率")
+                            .frame(width: 60, alignment: .leading)
+                        Picker("", selection: $inputAccuracyOperator) {
+                            ForEach(ComparisonOperator.allCases) { op in
+                                Text(op.rawValue).tag(op)
+                            }
                         }
-                        .font(.caption)
+                        .pickerStyle(.menu)
+                        .labelsHidden()
+                        .frame(width: 60)
+
+                        TextField("値", text: $inputAccuracyValue)
+                            .keyboardType(.numberPad)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 80)
+
+                        Button {
+                            applyAccuracyCondition()
+                        } label: {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(inputAccuracyValue.isEmpty || Int(inputAccuracyValue) == nil ? .gray : .blue)
+                        }
+                        .disabled(inputAccuracyValue.isEmpty || Int(inputAccuracyValue) == nil)
+                    }
+
+                    if let condition = tempFilter.accuracyCondition {
+                        HStack {
+                            Text("設定: \(condition.displayText(label: "命中率"))")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Button("解除") {
+                                tempFilter.accuracyCondition = nil
+                            }
+                            .font(.caption)
+                        }
                     }
                 }
 
                 // PP
-                HStack {
-                    Text("PP")
-                        .frame(width: 60, alignment: .leading)
-                    TextField("最小", text: $inputPPMin)
-                        .keyboardType(.numberPad)
-                        .textFieldStyle(.roundedBorder)
-                    Text("〜")
-                    TextField("最大", text: $inputPPMax)
-                        .keyboardType(.numberPad)
-                        .textFieldStyle(.roundedBorder)
-                    Button {
-                        applyPPRange()
-                    } label: {
-                        Image(systemName: "checkmark.circle.fill")
-                    }
-                }
-                if tempFilter.ppRange != nil {
-                    HStack {
-                        Text("設定: \(tempFilter.ppRange!.lowerBound)〜\(tempFilter.ppRange!.upperBound)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        Button("解除") {
-                            tempFilter.ppRange = nil
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 8) {
+                        Text("PP")
+                            .frame(width: 60, alignment: .leading)
+                        Picker("", selection: $inputPPOperator) {
+                            ForEach(ComparisonOperator.allCases) { op in
+                                Text(op.rawValue).tag(op)
+                            }
                         }
-                        .font(.caption)
+                        .pickerStyle(.menu)
+                        .labelsHidden()
+                        .frame(width: 60)
+
+                        TextField("値", text: $inputPPValue)
+                            .keyboardType(.numberPad)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 80)
+
+                        Button {
+                            applyPPCondition()
+                        } label: {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(inputPPValue.isEmpty || Int(inputPPValue) == nil ? .gray : .blue)
+                        }
+                        .disabled(inputPPValue.isEmpty || Int(inputPPValue) == nil)
+                    }
+
+                    if let condition = tempFilter.ppCondition {
+                        HStack {
+                            Text("設定: \(condition.displayText(label: "PP"))")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Button("解除") {
+                                tempFilter.ppCondition = nil
+                            }
+                            .font(.caption)
+                        }
                     }
                 }
             }
@@ -184,14 +220,14 @@ struct MoveMetadataFilterView: View {
         } header: {
             Text("威力・命中率・PP")
         } footer: {
-            Text("範囲で絞り込みます。両方入力してチェックボタンを押してください。")
+            Text("条件を設定して絞り込みます。")
         }
     }
 
     private var prioritySection: some View {
         Section {
             LazyVGrid(columns: gridColumns, spacing: 10) {
-                ForEach(Array(-7...5), id: \.self) { priority in
+                ForEach(Array((-7...5).reversed()), id: \.self) { priority in
                     priorityGridButton(priority)
                 }
             }
@@ -269,17 +305,21 @@ struct MoveMetadataFilterView: View {
 
     private var categorySection: some View {
         Section {
-            LazyVGrid(columns: gridColumns, spacing: 10) {
-                ForEach(0..<MoveCategory.categoryGroups.count, id: \.self) { groupIndex in
-                    let group = MoveCategory.categoryGroups[groupIndex]
-                    categoryGroupButton(group: group, index: groupIndex)
+            ForEach(0..<MoveCategory.categoryGroups.count, id: \.self) { groupIndex in
+                let group = MoveCategory.categoryGroups[groupIndex]
+                DisclosureGroup(group.name) {
+                    LazyVGrid(columns: gridColumns, spacing: 10) {
+                        ForEach(group.categories, id: \.id) { category in
+                            moveCategoryGridButton(category)
+                        }
+                    }
+                    .padding(.vertical, 8)
                 }
             }
-            .padding(.vertical, 8)
         } header: {
-            Text("技カテゴリーグループ")
+            Text("技カテゴリー")
         } footer: {
-            Text("グループ全体を選択できます。選択されたグループに属するいずれかの技を持つポケモンを表示します。")
+            Text("グループを展開して個別にカテゴリーを選択できます。")
         }
     }
 
@@ -289,12 +329,9 @@ struct MoveMetadataFilterView: View {
         ToolbarItem(placement: .cancellationAction) {
             Button("クリア") {
                 tempFilter = MoveMetadataFilter()
-                inputPowerMin = ""
-                inputPowerMax = ""
-                inputAccuracyMin = ""
-                inputAccuracyMax = ""
-                inputPPMin = ""
-                inputPPMax = ""
+                inputPowerValue = ""
+                inputAccuracyValue = ""
+                inputPPValue = ""
             }
         }
     }
@@ -355,25 +392,22 @@ struct MoveMetadataFilterView: View {
         .buttonStyle(.plain)
     }
 
-    private func applyPowerRange() {
-        guard let min = Int(inputPowerMin), let max = Int(inputPowerMax), min <= max else { return }
-        tempFilter.powerRange = min...max
-        inputPowerMin = ""
-        inputPowerMax = ""
+    private func applyPowerCondition() {
+        guard let value = Int(inputPowerValue) else { return }
+        tempFilter.powerCondition = MoveNumericCondition(value: value, operator: inputPowerOperator)
+        inputPowerValue = ""
     }
 
-    private func applyAccuracyRange() {
-        guard let min = Int(inputAccuracyMin), let max = Int(inputAccuracyMax), min <= max else { return }
-        tempFilter.accuracyRange = min...max
-        inputAccuracyMin = ""
-        inputAccuracyMax = ""
+    private func applyAccuracyCondition() {
+        guard let value = Int(inputAccuracyValue) else { return }
+        tempFilter.accuracyCondition = MoveNumericCondition(value: value, operator: inputAccuracyOperator)
+        inputAccuracyValue = ""
     }
 
-    private func applyPPRange() {
-        guard let min = Int(inputPPMin), let max = Int(inputPPMax), min <= max else { return }
-        tempFilter.ppRange = min...max
-        inputPPMin = ""
-        inputPPMax = ""
+    private func applyPPCondition() {
+        guard let value = Int(inputPPValue) else { return }
+        tempFilter.ppCondition = MoveNumericCondition(value: value, operator: inputPPOperator)
+        inputPPValue = ""
     }
 
     private func priorityGridButton(_ priority: Int) -> some View {
@@ -464,25 +498,20 @@ struct MoveMetadataFilterView: View {
         .buttonStyle(.plain)
     }
 
-    private func categoryGroupButton(group: MoveCategory.CategoryGroup, index: Int) -> some View {
-        let groupCategoryIds = Set(group.categories.map { $0.id })
-        let isSelected = !groupCategoryIds.isDisjoint(with: tempFilter.categories)
-
-        return Button {
-            if isSelected {
-                // グループ内の全カテゴリーを削除
-                tempFilter.categories.subtract(groupCategoryIds)
+    private func moveCategoryGridButton(_ category: (id: String, name: String)) -> some View {
+        Button {
+            if tempFilter.categories.contains(category.id) {
+                tempFilter.categories.remove(category.id)
             } else {
-                // グループ内の全カテゴリーを追加
-                tempFilter.categories.formUnion(groupCategoryIds)
+                tempFilter.categories.insert(category.id)
             }
         } label: {
-            Text(group.name)
+            Text(category.name)
                 .font(.caption)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
                 .background(
-                    isSelected
+                    tempFilter.categories.contains(category.id)
                         ? Color.blue.opacity(0.2)
                         : Color.secondary.opacity(0.1)
                 )

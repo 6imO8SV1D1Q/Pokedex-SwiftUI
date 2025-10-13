@@ -7,6 +7,23 @@
 
 import Foundation
 
+/// 技の数値パラメータフィルター条件
+struct MoveNumericCondition: Equatable {
+    var value: Int
+    var `operator`: ComparisonOperator
+
+    /// 指定した値が条件を満たすか判定
+    func matches(_ actual: Int?) -> Bool {
+        guard let actual = actual else { return false }
+        return self.`operator`.evaluate(actual, value)
+    }
+
+    /// 表示用の文字列
+    func displayText(label: String) -> String {
+        "\(label) \(`operator`.rawValue) \(value)"
+    }
+}
+
 /// 技のメタデータフィルター条件
 struct MoveMetadataFilter: Equatable {
     // MARK: - 基本情報
@@ -17,14 +34,14 @@ struct MoveMetadataFilter: Equatable {
     /// 分類フィルター（physical, special, status）
     var damageClasses: Set<String> = []
 
-    /// 威力範囲
-    var powerRange: ClosedRange<Int>?
+    /// 威力条件
+    var powerCondition: MoveNumericCondition?
 
-    /// 命中率範囲
-    var accuracyRange: ClosedRange<Int>?
+    /// 命中率条件
+    var accuracyCondition: MoveNumericCondition?
 
-    /// PP範囲
-    var ppRange: ClosedRange<Int>?
+    /// PP条件
+    var ppCondition: MoveNumericCondition?
 
     /// 優先度フィルター
     var priorities: Set<Int> = []
@@ -67,9 +84,9 @@ struct MoveMetadataFilter: Equatable {
     var isEmpty: Bool {
         types.isEmpty &&
         damageClasses.isEmpty &&
-        powerRange == nil &&
-        accuracyRange == nil &&
-        ppRange == nil &&
+        powerCondition == nil &&
+        accuracyCondition == nil &&
+        ppCondition == nil &&
         priorities.isEmpty &&
         targets.isEmpty &&
         ailments.isEmpty &&

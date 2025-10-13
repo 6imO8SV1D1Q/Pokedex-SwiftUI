@@ -9,6 +9,15 @@ import Foundation
 import Combine
 import Kingfisher
 
+/// 進化段階フィルターモード
+enum EvolutionFilterMode: String, CaseIterable, Identifiable {
+    case all = "全て表示"
+    case finalOnly = "最終進化のみ"
+    case evioliteOnly = "進化のきせき適用可のみ"
+
+    var id: String { rawValue }
+}
+
 /// ポケモン一覧画面のViewModel
 ///
 /// ポケモンのリスト取得、検索、フィルタリング、ソート、表示形式の切り替え機能を提供します。
@@ -100,11 +109,8 @@ final class PokemonListViewModel: ObservableObject {
     /// 選択されたポケモン区分
     @Published var selectedCategories: Set<PokemonCategory> = []
 
-    /// 最終進化のみ表示フラグ
-    @Published var filterFinalEvolutionOnly: Bool = false
-
-    /// 進化のきせき適用可フラグ
-    @Published var filterEvioliteOnly: Bool = false
+    /// 進化段階フィルターモード
+    @Published var evolutionFilterMode: EvolutionFilterMode = .all
 
     /// 実数値フィルター条件
     @Published var statFilterConditions: [StatFilterCondition] = []
@@ -293,14 +299,13 @@ final class PokemonListViewModel: ObservableObject {
 
             // 進化フィルター
             let matchesEvolution: Bool
-            if filterFinalEvolutionOnly {
-                // 最終進化のみ表示
-                matchesEvolution = pokemon.evolutionChain?.isFinalEvolution ?? false
-            } else if filterEvioliteOnly {
-                // 進化のきせき適用可のみ表示
-                matchesEvolution = pokemon.evolutionChain?.canUseEviolite ?? false
-            } else {
+            switch evolutionFilterMode {
+            case .all:
                 matchesEvolution = true
+            case .finalOnly:
+                matchesEvolution = pokemon.evolutionChain?.isFinalEvolution ?? false
+            case .evioliteOnly:
+                matchesEvolution = pokemon.evolutionChain?.canUseEviolite ?? false
             }
 
             // 実数値フィルター
@@ -485,8 +490,7 @@ final class PokemonListViewModel: ObservableObject {
         selectedAbilities.removeAll()
         selectedMoveCategories.removeAll()
         selectedMoves.removeAll()
-        filterFinalEvolutionOnly = false
-        filterEvioliteOnly = false
+        evolutionFilterMode = .all
         statFilterConditions.removeAll()
         moveMetadataFilters.removeAll()
         applyFilters()
@@ -587,23 +591,23 @@ final class PokemonListViewModel: ObservableObject {
             return false
         }
 
-        // 威力範囲
-        if let powerRange = filter.powerRange {
-            guard let power = move.power, powerRange.contains(power) else {
+        // 威力条件
+        if let powerCondition = filter.powerCondition {
+            guard powerCondition.matches(move.power) else {
                 return false
             }
         }
 
-        // 命中率範囲
-        if let accuracyRange = filter.accuracyRange {
-            guard let accuracy = move.accuracy, accuracyRange.contains(accuracy) else {
+        // 命中率条件
+        if let accuracyCondition = filter.accuracyCondition {
+            guard accuracyCondition.matches(move.accuracy) else {
                 return false
             }
         }
 
-        // PP範囲
-        if let ppRange = filter.ppRange {
-            guard let pp = move.pp, ppRange.contains(pp) else {
+        // PP条件
+        if let ppCondition = filter.ppCondition {
+            guard ppCondition.matches(move.pp) else {
                 return false
             }
         }
