@@ -62,6 +62,8 @@ struct PokemonListView: View {
                     pokemonCountView
                         .padding(.horizontal, 20)
                         .padding(.top, 8)
+                        .padding(.bottom, 8)
+                        .background(Color(uiColor: .systemGroupedBackground))
                 }
 
                 contentView
