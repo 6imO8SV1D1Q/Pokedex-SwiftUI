@@ -1104,6 +1104,7 @@ struct SettingsView: View {
 - 図鑑区分セレクター ✅
 - 表示形式の統一（グリッド表示削除） ✅
 - ポケモン件数表示 ✅
+- 並び替えUIの改善 ✅
 
 ### 4.0 基本フィルターのOR/AND切り替え ✅
 
@@ -2274,6 +2275,199 @@ private var hasActiveFilters: Bool {
 3. ローディング中は非表示（`if !viewModel.isLoading`で制御）
 4. 件数はリアルタイムで更新される（@Publishedプロパティのバインディング）
 
+### 4.11 並び替えUIの改善 ✅
+
+**設計方針**:
+- 図鑑番号の昇順/降順を切り替え可能に
+- 種族値の全項目で昇順/降順を切り替え可能に
+- UIを改善して使いやすく（Segmented Controlをリストの上に配置）
+- 対戦で不要な名前ソート機能を削除
+
+**実装状況**: ✅ 完了
+
+#### Domain: SortOption変更
+
+```swift
+/// ポケモンリストのソートオプション
+enum SortOption: Equatable {
+    case pokedexNumber(ascending: Bool)  // 図鑑番号に昇順/降順追加
+    // case name(ascending: Bool)  // 削除（対戦で不要）
+    case totalStats(ascending: Bool)
+    case hp(ascending: Bool)
+    case attack(ascending: Bool)
+    case defense(ascending: Bool)
+    case specialAttack(ascending: Bool)
+    case specialDefense(ascending: Bool)
+    case speed(ascending: Bool)
+
+    var displayName: String {
+        switch self {
+        case .pokedexNumber(let ascending):
+            return "図鑑番号\(ascending ? "↑" : "↓")"
+        // 名前の表示名削除
+        case .totalStats(let ascending):
+            return "種族値合計\(ascending ? "↑" : "↓")"
+        // ... 他の種族値項目 ...
+        }
+    }
+}
+```
+
+#### UseCase: SortPokemonUseCase変更
+
+```swift
+func execute(pokemonList: [Pokemon], sortOption: SortOption) -> [Pokemon] {
+    switch sortOption {
+    case .pokedexNumber(let ascending):
+        // 昇順/降順対応
+        return pokemonList.sorted {
+            if $0.speciesId == $1.speciesId {
+                return ascending ? $0.id < $1.id : $0.id > $1.id
+            }
+            return ascending ? $0.speciesId < $1.speciesId : $0.speciesId > $1.speciesId
+        }
+
+    // case .name - 削除
+
+    case .totalStats(let ascending):
+        return pokemonList.sorted {
+            ascending ? $0.totalBaseStat < $1.totalBaseStat : $0.totalBaseStat > $1.totalBaseStat
+        }
+
+    // 他の種族値項目も同様に昇順/降順対応
+    }
+}
+```
+
+#### View: SortOptionView改善
+
+**レイアウト変更**:
+```swift
+VStack(spacing: 0) {
+    // 昇順/降順切り替え（リストの上に配置）
+    Picker("並び順", selection: $isAscending) {
+        Text("昇順 ↑").tag(true)
+        Text("降順 ↓").tag(false)
+    }
+    .pickerStyle(.segmented)
+    .padding(.horizontal, 20)
+    .padding(.top, 8)
+    .padding(.bottom, 16)
+    .background(Color(uiColor: .systemGroupedBackground))
+    .onChange(of: isAscending) { _, newValue in
+        applyCurrentSort(ascending: newValue)
+    }
+
+    List {
+        Section("基本") {
+            sortButton(.pokedexNumber(ascending: isAscending), label: "図鑑番号")
+            // 名前削除
+        }
+
+        Section("種族値") {
+            sortButton(.hp(ascending: isAscending), label: "HP")
+            sortButton(.attack(ascending: isAscending), label: "攻撃")
+            sortButton(.defense(ascending: isAscending), label: "防御")
+            sortButton(.specialAttack(ascending: isAscending), label: "特攻")
+            sortButton(.specialDefense(ascending: isAscending), label: "特防")
+            sortButton(.speed(ascending: isAscending), label: "素早さ")
+            sortButton(.totalStats(ascending: isAscending), label: "種族値合計")  // 最後に移動
+        }
+    }
+    .listStyle(.insetGrouped)
+}
+```
+
+**初期化処理**:
+```swift
+init(currentSortOption: Binding<SortOption>, onSortChange: @escaping (SortOption) -> Void) {
+    self._currentSortOption = currentSortOption
+    self.onSortChange = onSortChange
+
+    // 現在のソートオプションから昇順/降順を取得
+    switch currentSortOption.wrappedValue {
+    case .pokedexNumber(let ascending),
+         .totalStats(let ascending),
+         .hp(let ascending),
+         .attack(let ascending),
+         .defense(let ascending),
+         .specialAttack(let ascending),
+         .specialDefense(let ascending),
+         .speed(let ascending):
+        self._isAscending = State(initialValue: ascending)
+    }
+}
+```
+
+**昇順/降順切り替え処理**:
+```swift
+private func applyCurrentSort(ascending: Bool) {
+    let newOption: SortOption
+
+    switch currentSortOption {
+    case .pokedexNumber:
+        newOption = .pokedexNumber(ascending: ascending)
+    case .totalStats:
+        newOption = .totalStats(ascending: ascending)
+    // ... 他の種族値項目 ...
+    }
+
+    currentSortOption = newOption
+    onSortChange(newOption)
+}
+```
+
+#### ViewModel: PokemonListViewModel変更
+
+```swift
+// デフォルト値を昇順に
+@Published var currentSortOption: SortOption = .pokedexNumber(ascending: true)
+
+// 図鑑番号ソートの比較処理を更新
+if case .pokedexNumber(let ascending) = currentSortOption, selectedPokedex != .national {
+    sorted = sorted.sorted { pokemon1, pokemon2 in
+        let num1 = pokemon1.pokedexNumbers?[selectedPokedex.rawValue] ?? Int.max
+        let num2 = pokemon2.pokedexNumbers?[selectedPokedex.rawValue] ?? Int.max
+        return ascending ? num1 < num2 : num1 > num2
+    }
+}
+```
+
+#### View: PokemonListView - iOS 26対応
+
+```swift
+// 旧: Textの+演算子（iOS 26で非推奨）
+Text("絞り込み結果: \(count)匹")
++
+Text(" / 全\(total)匹")
+
+// 新: HStackで横並び
+HStack(spacing: 0) {
+    Text("絞り込み結果: \(count)匹")
+        .font(.caption)
+        .foregroundColor(.primary)
+    Text(" / 全\(total)匹")
+        .font(.caption)
+        .foregroundColor(.secondary)
+    Spacer()
+}
+```
+
+**UI仕様**:
+
+| 要素 | 配置 | スタイル |
+|------|------|---------|
+| Segmented Control | Listの上 | padding(.horizontal, 20), padding(.top, 8), padding(.bottom, 16) |
+| 背景色 | Picker/件数表示と統一 | Color(uiColor: .systemGroupedBackground) |
+| List | Segmented Controlの下 | .listStyle(.insetGrouped) |
+| セクション | 基本/種族値 | Section("基本"), Section("種族値") |
+
+**動作**:
+1. 項目をタップ → 現在選択中の昇順/降順でソート、画面を閉じる
+2. Segmented Controlで昇順↑/降順↓を切り替え → 即座に反映、画面は開いたまま
+3. チェックマークは1つだけ（現在選択中の項目）
+4. 種族値合計は一番下に表示
+
 ---
 
 ## エラーハンドリング
@@ -2314,3 +2508,4 @@ private var hasActiveFilters: Bool {
 | 2025-10-12 | 4.2 | Phase 4拡張：OR/AND切り替え設計、AbilityDetailFilterView追加、最終進化フィルター追加、StatDetailFilterView設計（UI簡素化・画面分離） |
 | 2025-01-13 | 4.3 | Phase 4完了：OR/AND切り替え実装完了（4.0）、図鑑区分セレクター追加（4.8）、グリッド表示削除（4.9）、FilterMode/PokedexType追加 |
 | 2025-10-13 | 4.4 | Phase 4拡張：ポケモン件数表示追加（4.10）、hasActiveFiltersロジック実装 |
+| 2025-10-13 | 4.5 | Phase 4拡張：並び替えUI改善（4.11）、図鑑番号昇順/降順対応、名前ソート削除、iOS 26対応 |
