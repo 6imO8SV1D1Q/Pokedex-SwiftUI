@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import Kingfisher
 
 /// ポケモン一覧画面のViewModel
 ///
@@ -190,8 +191,25 @@ final class PokemonListViewModel: ObservableObject {
 
     /// キャッシュをクリアして再読み込み（デバッグ用）
     func clearCacheAndReload() async {
+        // SwiftDataキャッシュをクリア
         pokemonRepository.clearCache()
+
+        // Kingfisher画像キャッシュをクリア
+        await clearImageCache()
+
+        // 再読み込み
         await loadPokemons()
+    }
+
+    /// 画像キャッシュをクリア
+    private func clearImageCache() async {
+        await withCheckedContinuation { continuation in
+            KingfisherManager.shared.cache.clearMemoryCache()
+            KingfisherManager.shared.cache.clearDiskCache {
+                print("🗑️ Kingfisher cache cleared")
+                continuation.resume()
+            }
+        }
     }
 
     /// フィルターを適用
