@@ -80,6 +80,11 @@ fastlane/test_output
 # Mac
 .DS_Store
 
+# Backup and temporary files
+*.bak
+*.log
+build.log
+
 # Claude Code
 claude.md
 CLAUDE.md
