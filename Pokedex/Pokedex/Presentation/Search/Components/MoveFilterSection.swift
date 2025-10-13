@@ -88,12 +88,14 @@ struct MoveFilterSection: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
 
-                        ForEach(Array(moveMetadataFilters.enumerated()), id: \.element.id) { index, filter in
-                            MoveMetadataConditionRow(
-                                filter: filter,
-                                index: index,
-                                onRemove: { removeMoveMetadataFilter(id: filter.id) }
-                            )
+                        ForEach(moveMetadataFilters) { filter in
+                            if let index = moveMetadataFilters.firstIndex(where: { $0.id == filter.id }) {
+                                MoveMetadataConditionRow(
+                                    filter: filter,
+                                    index: index,
+                                    onRemove: { removeMoveMetadataFilter(id: filter.id) }
+                                )
+                            }
                         }
                     }
                 }

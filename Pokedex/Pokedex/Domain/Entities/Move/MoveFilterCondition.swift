@@ -25,7 +25,7 @@ struct MoveNumericCondition: Equatable {
 }
 
 /// 技のメタデータフィルター条件
-struct MoveMetadataFilter: Identifiable, Equatable {
+struct MoveMetadataFilter: Identifiable {
     var id = UUID()
 
     // MARK: - 基本情報

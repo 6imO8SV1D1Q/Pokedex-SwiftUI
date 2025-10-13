@@ -230,7 +230,6 @@ final class PokemonListViewModel: ObservableObject {
         await withCheckedContinuation { continuation in
             KingfisherManager.shared.cache.clearMemoryCache()
             KingfisherManager.shared.cache.clearDiskCache {
-                print("🗑️ Kingfisher cache cleared")
                 continuation.resume()
             }
         }
@@ -374,73 +373,58 @@ final class PokemonListViewModel: ObservableObject {
 
         // 技メタデータフィルター適用（OR/AND切り替え対応）
         if !moveMetadataFilters.isEmpty {
-            print("🎯 [MetadataFilter] Starting with \(moveMetadataFilters.count) filter(s), mode: \(moveFilterMode)")
             isFiltering = true
             do {
                 // 1. 全技を取得
                 let allMoves = try await moveRepository.fetchAllMoves(versionGroup: selectedVersionGroup.id)
-                print("🎯 [MetadataFilter] Fetched \(allMoves.count) moves")
 
-                // 2. 各条件ごとに合致する技をフィルタリング（OR/AND検索）
-                var matchingMoveIds: Set<Int>? = nil
+                // 2. 各条件ごとに合致するポケモンを絞り込み（OR/AND検索）
+                var matchingPokemonIds: Set<Int>? = nil
+                let pokemonIds = filtered.map { $0.id }
+
                 for (index, filter) in moveMetadataFilters.enumerated() {
-                    print("🎯 [MetadataFilter] Processing filter \(index + 1):")
-                    print("  - Types: \(filter.types)")
-                    print("  - StatChanges: \(filter.statChanges.map { $0.rawValue })")
-
-                    // デバッグ: 最初の10個の技のタイプを確認
-                    print("  - First 10 moves types:")
-                    for (i, move) in allMoves.prefix(10).enumerated() {
-                        print("    [\(i+1)] \(move.nameJa) (type.name: \(move.type.name))")
-                    }
-
                     let matchingMoves = allMoves.filter { move in
                         matchesMoveMetadata(move: move, filter: filter)
-                    }
-                    print("  - Matching moves: \(matchingMoves.count)")
-                    if matchingMoves.count < 10 {
-                        print("    \(matchingMoves.map { $0.nameJa }.joined(separator: ", "))")
                     }
 
                     let filterMoveIds = Set(matchingMoves.map { $0.id })
 
-                    // 最初の条件は初期化、2つ目以降はOR/ANDモードに応じて結合
-                    if matchingMoveIds == nil {
-                        matchingMoveIds = filterMoveIds
-                    } else {
-                        if moveFilterMode == .or {
-                            // OR検索: いずれかの条件に合致
-                            matchingMoveIds = matchingMoveIds?.union(filterMoveIds)
+                    // この条件に合致する技を覚えるポケモンを取得
+                    if !filterMoveIds.isEmpty {
+                        let bulkLearnMethods = try await moveRepository.fetchBulkLearnMethods(
+                            pokemonIds: pokemonIds,
+                            moveIds: Array(filterMoveIds),
+                            versionGroup: selectedVersionGroup.id
+                        )
+
+                        let pokemonsWhoLearnTheseMoves = Set(
+                            bulkLearnMethods.keys.filter { bulkLearnMethods[$0]?.isEmpty == false }
+                        )
+
+                        // 最初の条件は初期化、2つ目以降はOR/ANDモードに応じて結合
+                        if matchingPokemonIds == nil {
+                            matchingPokemonIds = pokemonsWhoLearnTheseMoves
                         } else {
-                            // AND検索: 全ての条件に合致
-                            matchingMoveIds = matchingMoveIds?.intersection(filterMoveIds)
+                            if moveFilterMode == .or {
+                                // OR検索: いずれかの条件に合致するポケモン
+                                matchingPokemonIds = matchingPokemonIds?.union(pokemonsWhoLearnTheseMoves)
+                            } else {
+                                // AND検索: 全ての条件に合致するポケモン（交差）
+                                matchingPokemonIds = matchingPokemonIds?.intersection(pokemonsWhoLearnTheseMoves)
+                            }
+                        }
+                    } else {
+                        // 条件に合致する技が0件の場合
+                        if moveFilterMode == .and {
+                            // AND検索では0件
+                            matchingPokemonIds = Set()
                         }
                     }
                 }
 
-                print("🎯 [MetadataFilter] Final matching move IDs: \(matchingMoveIds?.count ?? 0)")
-
-                // 3. 条件に合致する技を習得できるポケモンを絞り込み
-                if let finalMatchingMoveIds = matchingMoveIds {
-                    if finalMatchingMoveIds.isEmpty {
-                        // 条件に合致する技が0件の場合は結果も0件
-                        print("🎯 [MetadataFilter] No matching moves found, clearing results")
-                        filtered = []
-                    } else {
-                        let pokemonIds = filtered.map { $0.id }
-                        let bulkLearnMethods = try await moveRepository.fetchBulkLearnMethods(
-                            pokemonIds: pokemonIds,
-                            moveIds: Array(finalMatchingMoveIds),
-                            versionGroup: selectedVersionGroup.id
-                        )
-
-                        let beforeCount = filtered.count
-                        // 条件に合致する技を少なくとも1つ習得できるポケモンのみを残す
-                        filtered = filtered.filter { pokemon in
-                            bulkLearnMethods[pokemon.id]?.isEmpty == false
-                        }
-                        print("🎯 [MetadataFilter] Filtered pokemon: \(beforeCount) → \(filtered.count)")
-                    }
+                // 3. 条件に合致するポケモンのみを残す
+                if let finalPokemonIds = matchingPokemonIds {
+                    filtered = filtered.filter { finalPokemonIds.contains($0.id) }
                 }
             } catch {
                 // エラー時は技メタデータフィルターをスキップ
@@ -621,15 +605,9 @@ final class PokemonListViewModel: ObservableObject {
     ///   - filter: フィルター条件
     /// - Returns: 条件に合致する場合はtrue
     private func matchesMoveMetadata(move: MoveEntity, filter: MoveMetadataFilter) -> Bool {
-        let isDebugMove = move.nameJa.contains("りゅう") || move.name.contains("dragon")
-
         // タイプフィルター
         if !filter.types.isEmpty {
-            if isDebugMove {
-                print("  🐛 [\(move.nameJa)] Type check: move.type.name=\(move.type.name), filter.types=\(filter.types)")
-            }
             if !filter.types.contains(move.type.name) {
-                if isDebugMove { print("  🐛 [\(move.nameJa)] Type check FAILED") }
                 return false
             }
         }
@@ -705,11 +683,6 @@ final class PokemonListViewModel: ObservableObject {
 
         // 能力変化フィルター（全ての条件を満たす必要がある - AND検索）
         if !filter.statChanges.isEmpty {
-            if isDebugMove {
-                print("  🐛 [\(move.nameJa)] StatChange check: target=\(move.target), meta.statChanges=\(meta.statChanges.map { "\($0.stat):\($0.change)" })")
-                print("  🐛 [\(move.nameJa)] Required statChanges: \(filter.statChanges.map { $0.rawValue })")
-            }
-
             let matchesAllStatChanges = filter.statChanges.allSatisfy { statChangeFilter in
                 let (stat, change, isUser) = statChangeFilter.statChangeInfo
 
@@ -718,13 +691,8 @@ final class PokemonListViewModel: ObservableObject {
                 let selfTargets = ["user", "ally", "selected-pokemon", "user-or-ally", "user-and-allies", "all-allies"]
                 let targetIsUser = selfTargets.contains(move.target)
 
-                if isDebugMove {
-                    print("    🐛 Checking \(statChangeFilter.rawValue): isUser=\(isUser), targetIsUser=\(targetIsUser)")
-                }
-
                 // isUserとtargetIsUserが一致する必要がある
                 if isUser != targetIsUser {
-                    if isDebugMove { print("    🐛 Target mismatch!") }
                     return false
                 }
 
@@ -735,14 +703,11 @@ final class PokemonListViewModel: ObservableObject {
                     return statMatches && changeMatches
                 }
 
-                if isDebugMove { print("    🐛 hasMatchingStatChange=\(hasMatchingStatChange)") }
                 return hasMatchingStatChange
             }
             if !matchesAllStatChanges {
-                if isDebugMove { print("  🐛 [\(move.nameJa)] StatChange check FAILED") }
                 return false
             }
-            if isDebugMove { print("  🐛 [\(move.nameJa)] StatChange check PASSED ✅") }
         }
 
         // 技カテゴリーフィルター
