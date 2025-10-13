@@ -57,6 +57,13 @@ struct PokemonListView: View {
                     }
                 }
 
+                // ポケモン件数表示
+                if !viewModel.isLoading {
+                    pokemonCountView
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
+                }
+
                 contentView
             }
             .frame(maxHeight: .infinity, alignment: .top)
@@ -264,5 +271,39 @@ struct PokemonListView: View {
                 viewModel.clearFilters()
             }
         )
+    }
+
+    private var pokemonCountView: some View {
+        HStack {
+            if hasActiveFilters {
+                // フィルターがある場合
+                Text("絞り込み結果: \(viewModel.filteredPokemons.count)匹")
+                    .font(.caption)
+                    .foregroundColor(.primary)
+                +
+                Text(" / 全\(viewModel.pokemons.count)匹")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            } else {
+                // フィルターがない場合
+                Text("全\(viewModel.filteredPokemons.count)匹")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            Spacer()
+        }
+    }
+
+    /// フィルターや検索が有効かどうか
+    private var hasActiveFilters: Bool {
+        !viewModel.searchText.isEmpty ||
+        !viewModel.selectedTypes.isEmpty ||
+        !viewModel.selectedAbilities.isEmpty ||
+        !viewModel.selectedMoves.isEmpty ||
+        !viewModel.selectedMoveCategories.isEmpty ||
+        !viewModel.selectedCategories.isEmpty ||
+        viewModel.evolutionFilterMode != .all ||
+        !viewModel.statFilterConditions.isEmpty ||
+        !viewModel.moveMetadataFilters.isEmpty
     }
 }
