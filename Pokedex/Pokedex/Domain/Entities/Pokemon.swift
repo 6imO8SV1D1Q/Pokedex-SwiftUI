@@ -75,6 +75,9 @@ struct Pokemon: Identifiable, Codable, Hashable {
     /// 関連フォームID配列（v4.0追加）
     let varieties: [Int]?
 
+    /// 進化情報（v4.0追加）
+    let evolutionChain: PokemonEvolution?
+
     // MARK: - Hashable
 
     func hash(into hasher: inout Hasher) {
@@ -631,5 +634,32 @@ struct PokemonSprites: Codable, Hashable {
         case frontDefault = "front_default"
         case frontShiny = "front_shiny"
         case other
+    }
+}
+
+// MARK: - PokemonEvolution
+
+/// ポケモンの進化情報
+///
+/// 進化チェーンID、進化段階、進化先・進化元の情報を保持します。
+struct PokemonEvolution: Codable, Hashable {
+    /// 進化チェーンID
+    let chainId: Int
+
+    /// 進化段階（1=第一段階、2=第二段階、3=最終進化）
+    let evolutionStage: Int
+
+    /// 進化元のポケモンID
+    let evolvesFrom: Int?
+
+    /// 進化先のポケモンID配列（空なら最終進化）
+    let evolvesTo: [Int]
+
+    /// 進化のきせきが使用可能か
+    let canUseEviolite: Bool
+
+    /// 最終進化形かどうか
+    var isFinalEvolution: Bool {
+        evolvesTo.isEmpty
     }
 }

@@ -44,6 +44,7 @@ struct SearchFilterView: View {
             Form {
                 typeFilterSection
                 categoryFilterSection
+                evolutionFilterSection
                 abilityFilterSection
                 moveCategoryFilterSection
                 moveFilterSection
@@ -138,6 +139,38 @@ struct SearchFilterView: View {
                 .cornerRadius(8)
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - Evolution Section
+
+    private var evolutionFilterSection: some View {
+        Section {
+            Toggle("最終進化のみ表示", isOn: $viewModel.filterFinalEvolutionOnly)
+                .disabled(viewModel.filterEvioliteOnly)
+                .onChange(of: viewModel.filterFinalEvolutionOnly) { _, newValue in
+                    if newValue {
+                        viewModel.filterEvioliteOnly = false
+                    }
+                }
+
+            Toggle("進化のきせき適用可のみ表示", isOn: $viewModel.filterEvioliteOnly)
+                .disabled(viewModel.filterFinalEvolutionOnly)
+                .onChange(of: viewModel.filterEvioliteOnly) { _, newValue in
+                    if newValue {
+                        viewModel.filterFinalEvolutionOnly = false
+                    }
+                }
+        } header: {
+            Text("進化")
+        } footer: {
+            if viewModel.filterFinalEvolutionOnly {
+                Text("最終進化形のポケモンのみを表示します")
+            } else if viewModel.filterEvioliteOnly {
+                Text("進化のきせきが使用可能なポケモン（進化前・進化途中）のみを表示します")
+            } else {
+                Text("全ての進化段階のポケモンを表示します")
+            }
+        }
     }
 
     // MARK: - Ability Section (with Search)
@@ -350,9 +383,12 @@ struct SearchFilterView: View {
         ToolbarItem(placement: .cancellationAction) {
             Button("クリア") {
                 viewModel.selectedTypes.removeAll()
+                viewModel.selectedCategories.removeAll()
                 viewModel.selectedAbilities.removeAll()
                 viewModel.selectedMoveCategories.removeAll()
                 viewModel.selectedMoves.removeAll()
+                viewModel.filterFinalEvolutionOnly = false
+                viewModel.filterEvioliteOnly = false
                 viewModel.searchText = ""
                 abilitySearchText = ""
                 moveSearchText = ""

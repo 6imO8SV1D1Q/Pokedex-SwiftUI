@@ -273,7 +273,19 @@ final class PokemonListViewModel: ObservableObject {
                 }
             }
 
-            return matchesPokedex && matchesSearch && matchesType && matchesCategory
+            // 進化フィルター
+            let matchesEvolution: Bool
+            if filterFinalEvolutionOnly {
+                // 最終進化のみ表示
+                matchesEvolution = pokemon.evolutionChain?.isFinalEvolution ?? false
+            } else if filterEvioliteOnly {
+                // 進化のきせき適用可のみ表示
+                matchesEvolution = pokemon.evolutionChain?.canUseEviolite ?? false
+            } else {
+                matchesEvolution = true
+            }
+
+            return matchesPokedex && matchesSearch && matchesType && matchesCategory && matchesEvolution
         }
 
         // 特性フィルター適用
@@ -379,9 +391,12 @@ final class PokemonListViewModel: ObservableObject {
     func clearFilters() {
         searchText = ""
         selectedTypes.removeAll()
+        selectedCategories.removeAll()
         selectedAbilities.removeAll()
         selectedMoveCategories.removeAll()
         selectedMoves.removeAll()
+        filterFinalEvolutionOnly = false
+        filterEvioliteOnly = false
         applyFilters()
     }
 
