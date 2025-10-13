@@ -75,19 +75,6 @@ struct PokemonListView: View {
                     }
                 }
 
-                // キャッシュクリアボタン（デバッグ用）
-                #if DEBUG
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        Task {
-                            await viewModel.clearCacheAndReload()
-                        }
-                    } label: {
-                        Image(systemName: "arrow.clockwise.circle")
-                    }
-                }
-                #endif
-
                 // ソートボタン
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
