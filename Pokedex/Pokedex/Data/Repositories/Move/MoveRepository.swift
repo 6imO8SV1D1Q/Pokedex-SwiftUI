@@ -68,6 +68,7 @@ final class MoveRepository: MoveRepositoryProtocol {
                 categories: model.categories,
                 priority: model.priority,
                 effectChance: model.effectChance,
+                target: model.target,
                 meta: model.meta.map { meta in
                     MoveMeta(
                         ailment: meta.ailment,
@@ -196,6 +197,7 @@ final class MoveRepository: MoveRepositoryProtocol {
                     categories: moveModel.categories,
                     priority: moveModel.priority,
                     effectChance: moveModel.effectChance,
+                    target: moveModel.target,
                     meta: moveModel.meta.map { meta in
                         MoveMeta(
                             ailment: meta.ailment,
@@ -263,6 +265,7 @@ final class MoveRepository: MoveRepositoryProtocol {
             categories: model.categories,
             priority: model.priority,
             effectChance: model.effectChance,
+            target: model.target,
             meta: model.meta.map { meta in
                 MoveMeta(
                     ailment: meta.ailment,

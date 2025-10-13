@@ -29,6 +29,11 @@ struct MoveMetadataFilter: Equatable {
     /// 優先度フィルター
     var priorities: Set<Int> = []
 
+    // MARK: - 対象
+
+    /// 技の対象フィルター（例: "selected-pokemon", "user", "all-opponents"）
+    var targets: Set<String> = []
+
     // MARK: - 状態異常
 
     /// 状態異常フィルター
@@ -50,7 +55,7 @@ struct MoveMetadataFilter: Equatable {
 
     // MARK: - 能力変化
 
-    /// 能力変化フィルター（自分・相手両方）
+    /// 能力変化フィルター（自分・相手明示）
     var statChanges: Set<StatChangeFilter> = []
 
     // MARK: - 技カテゴリー
@@ -66,6 +71,7 @@ struct MoveMetadataFilter: Equatable {
         accuracyRange == nil &&
         ppRange == nil &&
         priorities.isEmpty &&
+        targets.isEmpty &&
         ailments.isEmpty &&
         !hasHighCritRate &&
         !hasDrain &&
@@ -104,45 +110,45 @@ enum Ailment: String, CaseIterable, Identifiable {
     }
 }
 
-/// 能力変化フィルター
+/// 能力変化フィルター（自分/相手を明確に区別）
 enum StatChangeFilter: String, CaseIterable, Identifiable {
     // 自分の能力上昇
-    case attackUp = "こうげき↑"
-    case defenseUp = "ぼうぎょ↑"
-    case spAttackUp = "とくこう↑"
-    case spDefenseUp = "とくぼう↑"
-    case speedUp = "すばやさ↑"
-    case accuracyUp = "命中↑"
-    case evasionUp = "回避↑"
+    case userAttackUp = "自分こうげき↑"
+    case userDefenseUp = "自分ぼうぎょ↑"
+    case userSpAttackUp = "自分とくこう↑"
+    case userSpDefenseUp = "自分とくぼう↑"
+    case userSpeedUp = "自分すばやさ↑"
+    case userAccuracyUp = "自分命中↑"
+    case userEvasionUp = "自分回避↑"
 
     // 相手の能力下降
-    case attackDown = "こうげき↓"
-    case defenseDown = "ぼうぎょ↓"
-    case spAttackDown = "とくこう↓"
-    case spDefenseDown = "とくぼう↓"
-    case speedDown = "すばやさ↓"
-    case accuracyDown = "命中↓"
-    case evasionDown = "回避↓"
+    case opponentAttackDown = "相手こうげき↓"
+    case opponentDefenseDown = "相手ぼうぎょ↓"
+    case opponentSpAttackDown = "相手とくこう↓"
+    case opponentSpDefenseDown = "相手とくぼう↓"
+    case opponentSpeedDown = "相手すばやさ↓"
+    case opponentAccuracyDown = "相手命中↓"
+    case opponentEvasionDown = "相手回避↓"
 
     var id: String { rawValue }
 
-    /// PokéAPIでのステータス名と変化量
-    var statAndChange: (stat: String, change: Int) {
+    /// PokéAPIでのステータス名、変化量、対象
+    var statChangeInfo: (stat: String, change: Int, isUser: Bool) {
         switch self {
-        case .attackUp: return ("attack", 1)
-        case .defenseUp: return ("defense", 1)
-        case .spAttackUp: return ("special-attack", 1)
-        case .spDefenseUp: return ("special-defense", 1)
-        case .speedUp: return ("speed", 1)
-        case .accuracyUp: return ("accuracy", 1)
-        case .evasionUp: return ("evasion", 1)
-        case .attackDown: return ("attack", -1)
-        case .defenseDown: return ("defense", -1)
-        case .spAttackDown: return ("special-attack", -1)
-        case .spDefenseDown: return ("special-defense", -1)
-        case .speedDown: return ("speed", -1)
-        case .accuracyDown: return ("accuracy", -1)
-        case .evasionDown: return ("evasion", -1)
+        case .userAttackUp: return ("attack", 1, true)
+        case .userDefenseUp: return ("defense", 1, true)
+        case .userSpAttackUp: return ("special-attack", 1, true)
+        case .userSpDefenseUp: return ("special-defense", 1, true)
+        case .userSpeedUp: return ("speed", 1, true)
+        case .userAccuracyUp: return ("accuracy", 1, true)
+        case .userEvasionUp: return ("evasion", 1, true)
+        case .opponentAttackDown: return ("attack", -1, false)
+        case .opponentDefenseDown: return ("defense", -1, false)
+        case .opponentSpAttackDown: return ("special-attack", -1, false)
+        case .opponentSpDefenseDown: return ("special-defense", -1, false)
+        case .opponentSpeedDown: return ("speed", -1, false)
+        case .opponentAccuracyDown: return ("accuracy", -1, false)
+        case .opponentEvasionDown: return ("evasion", -1, false)
         }
     }
 }

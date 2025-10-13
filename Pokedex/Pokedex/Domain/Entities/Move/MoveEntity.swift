@@ -35,6 +35,8 @@ struct MoveEntity: Identifiable, Equatable {
     let priority: Int
     /// 追加効果発動確率
     let effectChance: Int?
+    /// 技の対象（例: "selected-pokemon", "user", "all-opponents"）
+    let target: String
     /// 詳細メタデータ
     let meta: MoveMeta?
 

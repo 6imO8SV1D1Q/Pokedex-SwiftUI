@@ -52,7 +52,6 @@ struct SearchFilterView: View {
                 evolutionFilterSection
                 statFilterSection
                 abilityFilterSection
-                moveCategoryFilterSection
                 moveFilterSection
             }
             .navigationTitle("フィルター")
@@ -330,47 +329,7 @@ struct SearchFilterView: View {
         .foregroundColor(.primary)
     }
 
-    // MARK: - Move Category Section
-
-    private var moveCategoryFilterSection: some View {
-        Section {
-            ForEach(0..<MoveCategory.categoryGroups.count, id: \.self) { groupIndex in
-                let group = MoveCategory.categoryGroups[groupIndex]
-                DisclosureGroup(group.name) {
-                    LazyVGrid(columns: typeGridColumns, spacing: 10) {
-                        ForEach(group.categories, id: \.id) { category in
-                            moveCategoryGridButton(category)
-                        }
-                    }
-                    .padding(.vertical, 8)
-                }
-            }
-        } header: {
-            Text("技カテゴリー")
-        } footer: {
-            Text("グループを展開してカテゴリーを選択できます")
-        }
-    }
-
-    private func moveCategoryGridButton(_ category: (id: String, name: String)) -> some View {
-        Button {
-            toggleMoveCategorySelection(category.id)
-        } label: {
-            Text(category.name)
-                .font(.caption)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .background(
-                    viewModel.selectedMoveCategories.contains(category.id)
-                        ? Color.blue.opacity(0.2)
-                        : Color.secondary.opacity(0.1)
-                )
-                .cornerRadius(8)
-        }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: - Move Section (with Search)
+    // MARK: - Move Section (Unified)
 
     private var moveFilterSection: some View {
         Section {
@@ -410,13 +369,44 @@ struct SearchFilterView: View {
                 ForEach(searchFilteredMoves.prefix(50)) { move in
                     moveSelectionButton(move)
                 }
+
+                // 技の条件を追加
+                NavigationLink(destination: MoveMetadataFilterView(onAdd: { filter in
+                    viewModel.moveMetadataFilters.append(filter)
+                })) {
+                    HStack {
+                        Text("技の条件を追加")
+                        Spacer()
+                        Image(systemName: "plus.circle")
+                    }
+                }
+
+                // 設定中の条件を表示
+                if !viewModel.moveMetadataFilters.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("設定中の条件")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        ForEach(Array(viewModel.moveMetadataFilters.enumerated()), id: \.offset) { index, filter in
+                            moveMetadataConditionRow(filter: filter, index: index)
+                        }
+                    }
+                }
             }
         } header: {
             Text("技")
         } footer: {
-            Text(viewModel.moveFilterMode == .or
-                 ? "選択した技のいずれかを覚えられるポケモンを表示"
-                 : "選択した技を全て覚えられるポケモンを表示")
+            VStack(alignment: .leading, spacing: 4) {
+                if !viewModel.moveMetadataFilters.isEmpty {
+                    Text("技の条件: メタデータで絞り込んだ技も含まれます")
+                        .font(.caption)
+                }
+                Text(viewModel.moveFilterMode == .or
+                     ? "選択した技のいずれかを覚えられるポケモンを表示"
+                     : "選択した技を全て覚えられるポケモンを表示")
+                    .font(.caption)
+            }
         }
     }
 
@@ -483,7 +473,7 @@ struct SearchFilterView: View {
                 viewModel.filterFinalEvolutionOnly = false
                 viewModel.filterEvioliteOnly = false
                 viewModel.statFilterConditions.removeAll()
-                viewModel.moveMetadataFilter = MoveMetadataFilter()
+                viewModel.moveMetadataFilters.removeAll()
                 viewModel.searchText = ""
                 abilitySearchText = ""
                 moveSearchText = ""
@@ -538,14 +528,6 @@ struct SearchFilterView: View {
             viewModel.selectedAbilities.insert(abilityName)
             // 選択したら検索バーをクリア
             abilitySearchText = ""
-        }
-    }
-
-    private func toggleMoveCategorySelection(_ categoryId: String) {
-        if viewModel.selectedMoveCategories.contains(categoryId) {
-            viewModel.selectedMoveCategories.remove(categoryId)
-        } else {
-            viewModel.selectedMoveCategories.insert(categoryId)
         }
     }
 
@@ -675,5 +657,96 @@ struct SearchFilterView: View {
         case "fairy": return "フェアリー"
         default: return typeName.capitalized
         }
+    }
+
+    // MARK: - Move Metadata Filter Helpers
+
+    private func moveMetadataConditionRow(filter: MoveMetadataFilter, index: Int) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("条件\(index + 1)")
+                    .font(.caption)
+                    .fontWeight(.bold)
+
+                if !filter.types.isEmpty {
+                    Text("タイプ: \(filter.types.map { typeJapaneseName($0) }.joined(separator: ", "))")
+                        .font(.caption)
+                }
+                if !filter.damageClasses.isEmpty {
+                    Text("分類: \(filter.damageClasses.map { damageClassLabel($0) }.joined(separator: ", "))")
+                        .font(.caption)
+                }
+                if let range = filter.powerRange {
+                    Text("威力: \(range.lowerBound)〜\(range.upperBound)")
+                        .font(.caption)
+                }
+                if let range = filter.accuracyRange {
+                    Text("命中率: \(range.lowerBound)〜\(range.upperBound)")
+                        .font(.caption)
+                }
+                if let range = filter.ppRange {
+                    Text("PP: \(range.lowerBound)〜\(range.upperBound)")
+                        .font(.caption)
+                }
+                if !filter.priorities.isEmpty {
+                    Text("優先度: \(filter.priorities.sorted().map { $0 >= 0 ? "+\($0)" : "\($0)" }.joined(separator: ", "))")
+                        .font(.caption)
+                }
+                if !filter.targets.isEmpty {
+                    Text("対象: \(filter.targets.count)件")
+                        .font(.caption)
+                }
+                if !filter.ailments.isEmpty {
+                    Text("状態異常: \(filter.ailments.map { $0.rawValue }.joined(separator: ", "))")
+                        .font(.caption)
+                }
+                if filter.hasHighCritRate || filter.hasDrain || filter.hasHealing || filter.hasFlinch {
+                    Text("特殊効果: \(specialEffectsText(filter: filter))")
+                        .font(.caption)
+                }
+                if !filter.statChanges.isEmpty {
+                    Text("能力変化: \(filter.statChanges.map { $0.rawValue }.joined(separator: ", "))")
+                        .font(.caption)
+                }
+                if !filter.categories.isEmpty {
+                    Text("カテゴリー: \(filter.categories.count)件")
+                        .font(.caption)
+                }
+            }
+
+            Spacer()
+
+            Button {
+                removeMoveMetadataFilter(at: index)
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundColor(.red)
+            }
+        }
+        .padding(8)
+        .background(Color.secondary.opacity(0.1))
+        .cornerRadius(8)
+    }
+
+    private func removeMoveMetadataFilter(at index: Int) {
+        viewModel.moveMetadataFilters.remove(at: index)
+    }
+
+    private func damageClassLabel(_ damageClass: String) -> String {
+        switch damageClass {
+        case "physical": return "物理"
+        case "special": return "特殊"
+        case "status": return "変化"
+        default: return damageClass
+        }
+    }
+
+    private func specialEffectsText(filter: MoveMetadataFilter) -> String {
+        var effects: [String] = []
+        if filter.hasHighCritRate { effects.append("急所率アップ") }
+        if filter.hasDrain { effects.append("HP吸収") }
+        if filter.hasHealing { effects.append("HP回復") }
+        if filter.hasFlinch { effects.append("ひるみ") }
+        return effects.joined(separator: ", ")
     }
 }

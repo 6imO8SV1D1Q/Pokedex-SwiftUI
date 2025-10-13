@@ -109,8 +109,8 @@ final class PokemonListViewModel: ObservableObject {
     /// 実数値フィルター条件
     @Published var statFilterConditions: [StatFilterCondition] = []
 
-    /// 技のメタデータフィルター条件
-    @Published var moveMetadataFilter: MoveMetadataFilter = MoveMetadataFilter()
+    /// 技のメタデータフィルター条件（複数設定可能）
+    @Published var moveMetadataFilters: [MoveMetadataFilter] = []
 
     // MARK: - Sort Properties
 
@@ -140,6 +140,9 @@ final class PokemonListViewModel: ObservableObject {
     /// ポケモンリポジトリ
     private let pokemonRepository: PokemonRepositoryProtocol
 
+    /// 技リポジトリ
+    private let moveRepository: MoveRepositoryProtocol
+
     /// 最大再試行回数
     private let maxRetries = 3
 
@@ -158,6 +161,7 @@ final class PokemonListViewModel: ObservableObject {
     ///   - fetchVersionGroupsUseCase: バージョングループ情報取得UseCase
     ///   - calculateStatsUseCase: 実数値計算UseCase
     ///   - pokemonRepository: ポケモンリポジトリ
+    ///   - moveRepository: 技リポジトリ
     init(
         fetchPokemonListUseCase: FetchPokemonListUseCaseProtocol,
         sortPokemonUseCase: SortPokemonUseCaseProtocol,
@@ -165,7 +169,8 @@ final class PokemonListViewModel: ObservableObject {
         filterPokemonByMovesUseCase: FilterPokemonByMovesUseCaseProtocol,
         fetchVersionGroupsUseCase: FetchVersionGroupsUseCaseProtocol,
         calculateStatsUseCase: CalculateStatsUseCaseProtocol,
-        pokemonRepository: PokemonRepositoryProtocol
+        pokemonRepository: PokemonRepositoryProtocol,
+        moveRepository: MoveRepositoryProtocol
     ) {
         self.fetchPokemonListUseCase = fetchPokemonListUseCase
         self.sortPokemonUseCase = sortPokemonUseCase
@@ -174,6 +179,7 @@ final class PokemonListViewModel: ObservableObject {
         self.fetchVersionGroupsUseCase = fetchVersionGroupsUseCase
         self.calculateStatsUseCase = calculateStatsUseCase
         self.pokemonRepository = pokemonRepository
+        self.moveRepository = moveRepository
         self.allVersionGroups = fetchVersionGroupsUseCase.execute()
     }
 
@@ -361,6 +367,42 @@ final class PokemonListViewModel: ObservableObject {
             isFiltering = false
         }
 
+        // 技メタデータフィルター適用（複数条件）
+        if !moveMetadataFilters.isEmpty {
+            isFiltering = true
+            do {
+                // 1. 全技を取得
+                let allMoves = try await moveRepository.fetchAllMoves(versionGroup: selectedVersionGroup.id)
+
+                // 2. 各条件ごとに合致する技をフィルタリング
+                var allMatchingMoveIds: Set<Int> = []
+                for filter in moveMetadataFilters {
+                    let matchingMoves = allMoves.filter { move in
+                        matchesMoveMetadata(move: move, filter: filter)
+                    }
+                    allMatchingMoveIds.formUnion(matchingMoves.map { $0.id })
+                }
+
+                // 3. いずれかの条件に合致する技を習得できるポケモンを絞り込み
+                if !allMatchingMoveIds.isEmpty {
+                    let pokemonIds = filtered.map { $0.id }
+                    let bulkLearnMethods = try await moveRepository.fetchBulkLearnMethods(
+                        pokemonIds: pokemonIds,
+                        moveIds: Array(allMatchingMoveIds),
+                        versionGroup: selectedVersionGroup.id
+                    )
+
+                    // いずれかの条件に合致する技を少なくとも1つ習得できるポケモンのみを残す
+                    filtered = filtered.filter { pokemon in
+                        bulkLearnMethods[pokemon.id]?.isEmpty == false
+                    }
+                }
+            } catch {
+                // エラー時は技メタデータフィルターをスキップ
+            }
+            isFiltering = false
+        }
+
         // ソート適用
         var sorted = sortPokemonUseCase.execute(
             pokemonList: filtered,
@@ -446,7 +488,7 @@ final class PokemonListViewModel: ObservableObject {
         filterFinalEvolutionOnly = false
         filterEvioliteOnly = false
         statFilterConditions.removeAll()
-        moveMetadataFilter = MoveMetadataFilter()
+        moveMetadataFilters.removeAll()
         applyFilters()
     }
 
@@ -527,5 +569,124 @@ final class PokemonListViewModel: ObservableObject {
             errorMessage = "予期しないエラーが発生しました: \(error.localizedDescription)"
         }
         showError = true
+    }
+
+    /// 技がメタデータフィルター条件に合致するかチェック
+    /// - Parameters:
+    ///   - move: チェック対象の技
+    ///   - filter: フィルター条件
+    /// - Returns: 条件に合致する場合はtrue
+    private func matchesMoveMetadata(move: MoveEntity, filter: MoveMetadataFilter) -> Bool {
+        // タイプフィルター
+        if !filter.types.isEmpty && !filter.types.contains(move.type.name) {
+            return false
+        }
+
+        // 分類フィルター（物理/特殊/変化）
+        if !filter.damageClasses.isEmpty && !filter.damageClasses.contains(move.damageClass) {
+            return false
+        }
+
+        // 威力範囲
+        if let powerRange = filter.powerRange {
+            guard let power = move.power, powerRange.contains(power) else {
+                return false
+            }
+        }
+
+        // 命中率範囲
+        if let accuracyRange = filter.accuracyRange {
+            guard let accuracy = move.accuracy, accuracyRange.contains(accuracy) else {
+                return false
+            }
+        }
+
+        // PP範囲
+        if let ppRange = filter.ppRange {
+            guard let pp = move.pp, ppRange.contains(pp) else {
+                return false
+            }
+        }
+
+        // 優先度フィルター
+        if !filter.priorities.isEmpty && !filter.priorities.contains(move.priority) {
+            return false
+        }
+
+        // 対象フィルター
+        if !filter.targets.isEmpty && !filter.targets.contains(move.target) {
+            return false
+        }
+
+        // メタデータが必要な条件
+        guard let meta = move.meta else {
+            // メタデータがない場合、メタデータ関連の条件があればfalse
+            if !filter.ailments.isEmpty || filter.hasHighCritRate || filter.hasDrain ||
+               filter.hasHealing || filter.hasFlinch || !filter.statChanges.isEmpty {
+                return false
+            }
+            // メタデータ不要な条件のみならtrue（ここまで到達していれば他の条件は満たしている）
+            return filter.categories.isEmpty || !Set(move.categories).isDisjoint(with: filter.categories)
+        }
+
+        // 状態異常フィルター
+        if !filter.ailments.isEmpty {
+            let matchesAilment = filter.ailments.contains { ailment in
+                meta.ailment == ailment.apiName && meta.ailmentChance > 0
+            }
+            if !matchesAilment {
+                return false
+            }
+        }
+
+        // 急所率アップ
+        if filter.hasHighCritRate && meta.critRate <= 0 {
+            return false
+        }
+
+        // HP吸収
+        if filter.hasDrain && meta.drain <= 0 {
+            return false
+        }
+
+        // HP回復
+        if filter.hasHealing && meta.healing <= 0 {
+            return false
+        }
+
+        // ひるみ
+        if filter.hasFlinch && meta.flinchChance <= 0 {
+            return false
+        }
+
+        // 能力変化フィルター（自分/相手を考慮）
+        if !filter.statChanges.isEmpty {
+            let matchesStatChange = filter.statChanges.contains { statChangeFilter in
+                let (stat, change, isUser) = statChangeFilter.statChangeInfo
+
+                // 技のtargetから自分への技かどうかを判定
+                let targetIsUser = move.target.contains("user") || move.target.contains("ally")
+
+                // isUserとtargetIsUserが一致し、かつstat/changeが一致する必要がある
+                if isUser != targetIsUser {
+                    return false
+                }
+
+                return meta.statChanges.contains { $0.stat == stat && $0.change == change }
+            }
+            if !matchesStatChange {
+                return false
+            }
+        }
+
+        // 技カテゴリーフィルター
+        if !filter.categories.isEmpty {
+            let hasMatchingCategory = !Set(move.categories).isDisjoint(with: filter.categories)
+            if !hasMatchingCategory {
+                return false
+            }
+        }
+
+        return true
     }
 }
