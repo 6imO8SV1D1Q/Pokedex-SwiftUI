@@ -61,7 +61,8 @@ enum PokemonMapper {
             eggGroups: nil,  // API経由では取得不可
             genderRate: nil,  // API経由では取得不可
             pokedexNumbers: nil,  // API経由では取得不可
-            varieties: nil  // API経由では取得不可
+            varieties: nil,  // API経由では取得不可
+            evolutionChain: nil  // API経由では取得不可
         )
     }
 

@@ -143,14 +143,26 @@ enum PokemonModelMapper {
             )
         }
 
-        // Evolution: デフォルト値（API経由では取得不可）
-        let evolutionChain = PokemonEvolutionModel(
-            chainId: 0,
-            evolutionStage: 1,
-            evolvesFrom: nil,
-            evolvesTo: [],
-            canUseEviolite: false
-        )
+        // Evolution: pokemon.evolutionChainがあれば使用、なければデフォルト値
+        let evolutionChain: PokemonEvolutionModel
+        if let evolution = pokemon.evolutionChain {
+            evolutionChain = PokemonEvolutionModel(
+                chainId: evolution.chainId,
+                evolutionStage: evolution.evolutionStage,
+                evolvesFrom: evolution.evolvesFrom,
+                evolvesTo: evolution.evolvesTo,
+                canUseEviolite: evolution.canUseEviolite
+            )
+        } else {
+            // デフォルト値（API経由では取得不可）
+            evolutionChain = PokemonEvolutionModel(
+                chainId: 0,
+                evolutionStage: 1,
+                evolvesFrom: nil,
+                evolvesTo: [],
+                canUseEviolite: false
+            )
+        }
 
         return PokemonModel(
             id: pokemon.id,
@@ -267,6 +279,19 @@ enum PokemonModelMapper {
                                      model.nationalDexNumber <= 809 ? 7 :
                                      model.nationalDexNumber <= 905 ? 8 : 9]
 
+        // 進化情報の変換
+        let evolutionChain: PokemonEvolution? = if let evolutionModel = model.evolutionChain {
+            PokemonEvolution(
+                chainId: evolutionModel.chainId,
+                evolutionStage: evolutionModel.evolutionStage,
+                evolvesFrom: evolutionModel.evolvesFrom,
+                evolvesTo: evolutionModel.evolvesTo,
+                canUseEviolite: evolutionModel.canUseEviolite
+            )
+        } else {
+            nil
+        }
+
         return Pokemon(
             id: model.id,
             speciesId: model.nationalDexNumber,
@@ -287,7 +312,8 @@ enum PokemonModelMapper {
             eggGroups: model.eggGroups,
             genderRate: model.genderRate,
             pokedexNumbers: model.pokedexNumbers,
-            varieties: model.varieties
+            varieties: model.varieties,
+            evolutionChain: evolutionChain
         )
     }
 }
