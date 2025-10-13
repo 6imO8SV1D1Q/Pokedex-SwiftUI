@@ -38,12 +38,13 @@ for pokemon in data['pokemon']:
         continue
 
     # Find all pokemon in same evolution chain with lower stage
+    # Note: evolvesToは信頼できない（リージョンフォームで通常フォームを指している）
+    # 代わりに、同じchainIdでevolutionStageが直前のポケモンを探す
     pre_evolutions = [
         p for p in data['pokemon']
         if p.get('evolutionChain') and
            p['evolutionChain'].get('chainId') == chain_id and
-           p['evolutionChain'].get('evolutionStage', 1) < evolution_stage and
-           pokemon['id'] in p['evolutionChain'].get('evolvesTo', [])
+           p['evolutionChain'].get('evolutionStage', 1) == evolution_stage - 1  # 直前のステージ
     ]
 
     if not pre_evolutions:
