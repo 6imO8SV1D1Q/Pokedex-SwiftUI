@@ -88,11 +88,11 @@ struct MoveFilterSection: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
 
-                        ForEach(Array(moveMetadataFilters.enumerated()), id: \.offset) { index, filter in
+                        ForEach(Array(moveMetadataFilters.enumerated()), id: \.element.id) { index, filter in
                             MoveMetadataConditionRow(
                                 filter: filter,
                                 index: index,
-                                onRemove: { removeMoveMetadataFilter(at: index) }
+                                onRemove: { removeMoveMetadataFilter(id: filter.id) }
                             )
                         }
                     }
@@ -149,7 +149,7 @@ struct MoveFilterSection: View {
         }
     }
 
-    private func removeMoveMetadataFilter(at index: Int) {
-        moveMetadataFilters.remove(at: index)
+    private func removeMoveMetadataFilter(id: UUID) {
+        moveMetadataFilters.removeAll { $0.id == id }
     }
 }

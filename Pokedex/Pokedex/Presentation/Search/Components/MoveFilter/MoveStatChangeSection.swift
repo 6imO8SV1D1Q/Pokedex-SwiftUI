@@ -35,10 +35,15 @@ struct MoveStatChangeSection: View {
     }
 
     private func toggleStatChange(_ statChange: StatChangeFilter) {
+        print("🔧 toggleStatChange called: \(statChange.rawValue)")
+        print("🔧 Before: \(selectedStatChanges.map { $0.rawValue })")
         if selectedStatChanges.contains(statChange) {
             selectedStatChanges.remove(statChange)
+            print("🔧 Removed")
         } else {
             selectedStatChanges.insert(statChange)
+            print("🔧 Inserted")
         }
+        print("🔧 After: \(selectedStatChanges.map { $0.rawValue })")
     }
 }
