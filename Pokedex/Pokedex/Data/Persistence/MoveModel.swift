@@ -40,6 +40,10 @@ final class MoveModel {
 
     var categories: [String]  // ["sound", "punch", "dance"]
 
+    // MARK: - Target (v4.0 Phase 4)
+
+    var target: String  // "selected-pokemon", "user", "all-opponents", etc.
+
     // MARK: - Meta
 
     @Relationship(deleteRule: .cascade) var meta: MoveMetaModel?
@@ -58,6 +62,7 @@ final class MoveModel {
         effect: String,
         effectJa: String,
         categories: [String] = [],
+        target: String = "selected-pokemon",
         meta: MoveMetaModel? = nil
     ) {
         self.id = id
@@ -73,6 +78,7 @@ final class MoveModel {
         self.effect = effect
         self.effectJa = effectJa
         self.categories = categories
+        self.target = target
         self.meta = meta
     }
 }

@@ -7,6 +7,16 @@
 
 import Foundation
 import Combine
+import Kingfisher
+
+/// 進化段階フィルターモード
+enum EvolutionFilterMode: String, CaseIterable, Identifiable {
+    case all = "全て表示"
+    case finalOnly = "最終進化のみ"
+    case evioliteOnly = "進化のきせき適用可のみ"
+
+    var id: String { rawValue }
+}
 
 /// ポケモン一覧画面のViewModel
 ///
@@ -99,11 +109,14 @@ final class PokemonListViewModel: ObservableObject {
     /// 選択されたポケモン区分
     @Published var selectedCategories: Set<PokemonCategory> = []
 
-    /// 最終進化のみ表示フラグ
-    @Published var filterFinalEvolutionOnly: Bool = false
+    /// 進化段階フィルターモード
+    @Published var evolutionFilterMode: EvolutionFilterMode = .all
 
-    /// 進化のきせき適用可フラグ
-    @Published var filterEvioliteOnly: Bool = false
+    /// 実数値フィルター条件
+    @Published var statFilterConditions: [StatFilterCondition] = []
+
+    /// 技のメタデータフィルター条件（複数設定可能）
+    @Published var moveMetadataFilters: [MoveMetadataFilter] = []
 
     // MARK: - Sort Properties
 
@@ -127,8 +140,14 @@ final class PokemonListViewModel: ObservableObject {
     /// 世代情報取得UseCase
     private let fetchVersionGroupsUseCase: FetchVersionGroupsUseCaseProtocol
 
+    /// 実数値計算UseCase
+    private let calculateStatsUseCase: CalculateStatsUseCaseProtocol
+
     /// ポケモンリポジトリ
     private let pokemonRepository: PokemonRepositoryProtocol
+
+    /// 技リポジトリ
+    private let moveRepository: MoveRepositoryProtocol
 
     /// 最大再試行回数
     private let maxRetries = 3
@@ -146,21 +165,27 @@ final class PokemonListViewModel: ObservableObject {
     ///   - filterPokemonByAbilityUseCase: 特性フィルタリングUseCase
     ///   - filterPokemonByMovesUseCase: 技フィルタリングUseCase
     ///   - fetchVersionGroupsUseCase: バージョングループ情報取得UseCase
+    ///   - calculateStatsUseCase: 実数値計算UseCase
     ///   - pokemonRepository: ポケモンリポジトリ
+    ///   - moveRepository: 技リポジトリ
     init(
         fetchPokemonListUseCase: FetchPokemonListUseCaseProtocol,
         sortPokemonUseCase: SortPokemonUseCaseProtocol,
         filterPokemonByAbilityUseCase: FilterPokemonByAbilityUseCaseProtocol,
         filterPokemonByMovesUseCase: FilterPokemonByMovesUseCaseProtocol,
         fetchVersionGroupsUseCase: FetchVersionGroupsUseCaseProtocol,
-        pokemonRepository: PokemonRepositoryProtocol
+        calculateStatsUseCase: CalculateStatsUseCaseProtocol,
+        pokemonRepository: PokemonRepositoryProtocol,
+        moveRepository: MoveRepositoryProtocol
     ) {
         self.fetchPokemonListUseCase = fetchPokemonListUseCase
         self.sortPokemonUseCase = sortPokemonUseCase
         self.filterPokemonByAbilityUseCase = filterPokemonByAbilityUseCase
         self.filterPokemonByMovesUseCase = filterPokemonByMovesUseCase
         self.fetchVersionGroupsUseCase = fetchVersionGroupsUseCase
+        self.calculateStatsUseCase = calculateStatsUseCase
         self.pokemonRepository = pokemonRepository
+        self.moveRepository = moveRepository
         self.allVersionGroups = fetchVersionGroupsUseCase.execute()
     }
 
@@ -177,7 +202,6 @@ final class PokemonListViewModel: ObservableObject {
     func loadPokemons() async {
         // 重複ロード防止
         guard !isLoading else {
-            print("⚠️ [ViewModel] Load already in progress, skipping")
             return
         }
 
@@ -191,8 +215,25 @@ final class PokemonListViewModel: ObservableObject {
 
     /// キャッシュをクリアして再読み込み（デバッグ用）
     func clearCacheAndReload() async {
+        // SwiftDataキャッシュをクリア
         pokemonRepository.clearCache()
+
+        // Kingfisher画像キャッシュをクリア
+        await clearImageCache()
+
+        // 再読み込み
         await loadPokemons()
+    }
+
+    /// 画像キャッシュをクリア
+    private func clearImageCache() async {
+        await withCheckedContinuation { continuation in
+            KingfisherManager.shared.cache.clearMemoryCache()
+            KingfisherManager.shared.cache.clearDiskCache {
+                print("🗑️ Kingfisher cache cleared")
+                continuation.resume()
+            }
+        }
     }
 
     /// フィルターを適用
@@ -242,7 +283,68 @@ final class PokemonListViewModel: ObservableObject {
                 }
             }
 
-            return matchesPokedex && matchesSearch && matchesType
+            // 区分フィルター
+            let matchesCategory: Bool
+            if selectedCategories.isEmpty {
+                matchesCategory = true
+            } else {
+                // 選択された区分のいずれかに該当するか（OR条件）
+                if let categoryString = pokemon.category,
+                   let category = PokemonCategory(rawValue: categoryString) {
+                    matchesCategory = selectedCategories.contains(category)
+                } else {
+                    matchesCategory = false
+                }
+            }
+
+            // 進化フィルター
+            let matchesEvolution: Bool
+            switch evolutionFilterMode {
+            case .all:
+                matchesEvolution = true
+            case .finalOnly:
+                matchesEvolution = pokemon.evolutionChain?.isFinalEvolution ?? false
+            case .evioliteOnly:
+                matchesEvolution = pokemon.evolutionChain?.canUseEviolite ?? false
+            }
+
+            // 実数値フィルター
+            let matchesStatFilter: Bool
+            if !statFilterConditions.isEmpty {
+                let calculatedStats = calculateStatsUseCase.execute(baseStats: pokemon.stats)
+
+                // 全ての条件を満たすか確認
+                matchesStatFilter = statFilterConditions.allSatisfy { condition in
+                    // 「<」「≤」の場合は最小実数値、それ以外は最大実数値で判定
+                    let pattern: CalculatedStats.StatsPattern?
+                    if condition.operator == .lessThan || condition.operator == .lessThanOrEqual {
+                        // 個体値0、努力値0、性格補正0.9（最小値）
+                        pattern = calculatedStats.patterns.first { $0.id == "hindered" }
+                    } else {
+                        // 個体値31、努力値252、性格補正1.1（最大値）
+                        pattern = calculatedStats.patterns.first { $0.id == "ideal" }
+                    }
+
+                    guard let pattern = pattern else {
+                        return false
+                    }
+
+                    let actualValue: Int
+                    switch condition.statType {
+                    case .hp: actualValue = pattern.hp
+                    case .attack: actualValue = pattern.attack
+                    case .defense: actualValue = pattern.defense
+                    case .specialAttack: actualValue = pattern.specialAttack
+                    case .specialDefense: actualValue = pattern.specialDefense
+                    case .speed: actualValue = pattern.speed
+                    }
+                    return condition.matches(actualValue)
+                }
+            } else {
+                matchesStatFilter = true
+            }
+
+            return matchesPokedex && matchesSearch && matchesType && matchesCategory && matchesEvolution && matchesStatFilter
         }
 
         // 特性フィルター適用
@@ -266,6 +368,42 @@ final class PokemonListViewModel: ObservableObject {
                 filtered = moveFilteredResults.map { $0.pokemon }
             } catch {
                 // エラー時は技フィルターをスキップ
+            }
+            isFiltering = false
+        }
+
+        // 技メタデータフィルター適用（複数条件）
+        if !moveMetadataFilters.isEmpty {
+            isFiltering = true
+            do {
+                // 1. 全技を取得
+                let allMoves = try await moveRepository.fetchAllMoves(versionGroup: selectedVersionGroup.id)
+
+                // 2. 各条件ごとに合致する技をフィルタリング
+                var allMatchingMoveIds: Set<Int> = []
+                for filter in moveMetadataFilters {
+                    let matchingMoves = allMoves.filter { move in
+                        matchesMoveMetadata(move: move, filter: filter)
+                    }
+                    allMatchingMoveIds.formUnion(matchingMoves.map { $0.id })
+                }
+
+                // 3. いずれかの条件に合致する技を習得できるポケモンを絞り込み
+                if !allMatchingMoveIds.isEmpty {
+                    let pokemonIds = filtered.map { $0.id }
+                    let bulkLearnMethods = try await moveRepository.fetchBulkLearnMethods(
+                        pokemonIds: pokemonIds,
+                        moveIds: Array(allMatchingMoveIds),
+                        versionGroup: selectedVersionGroup.id
+                    )
+
+                    // いずれかの条件に合致する技を少なくとも1つ習得できるポケモンのみを残す
+                    filtered = filtered.filter { pokemon in
+                        bulkLearnMethods[pokemon.id]?.isEmpty == false
+                    }
+                }
+            } catch {
+                // エラー時は技メタデータフィルターをスキップ
             }
             isFiltering = false
         }
@@ -315,7 +453,6 @@ final class PokemonListViewModel: ObservableObject {
     /// - Note: 図鑑区分変更時はフィルターが再適用されます。
     ///         全国図鑑選択時は全ポケモンをロードし直します。
     func changePokedex(_ pokedex: PokedexType) {
-        let previousPokedex = selectedPokedex
         selectedPokedex = pokedex
 
         // 全国図鑑の場合は全ポケモンをロード
@@ -349,9 +486,13 @@ final class PokemonListViewModel: ObservableObject {
     func clearFilters() {
         searchText = ""
         selectedTypes.removeAll()
+        selectedCategories.removeAll()
         selectedAbilities.removeAll()
         selectedMoveCategories.removeAll()
         selectedMoves.removeAll()
+        evolutionFilterMode = .all
+        statFilterConditions.removeAll()
+        moveMetadataFilters.removeAll()
         applyFilters()
     }
 
@@ -370,8 +511,6 @@ final class PokemonListViewModel: ObservableObject {
         errorMessage = nil
         showError = false
 
-        print("📱 [ViewModel] Loading pokemons (attempt \(attempt + 1)/\(maxRetries))...")
-
         do {
             pokemons = try await fetchWithTimeout {
                 try await self.pokemonRepository.fetchPokemonList(
@@ -379,33 +518,23 @@ final class PokemonListViewModel: ObservableObject {
                     progressHandler: { [weak self] progress in
                         Task { @MainActor in
                             self?.loadingProgress = progress
-                            // 10%ごとに進捗ログ
-                            let percentage = Int(progress * 100)
-                            if percentage % 10 == 0 && percentage > 0 {
-                                print("📊 Progress: \(percentage)%")
-                            }
                         }
                     }
                 )
             }
 
-            print("✅ Load completed successfully: \(pokemons.count) pokemon")
             applyFilters()
             isLoading = false
 
         } catch {
-            print("⚠️ Load failed: \(error)")
-
             // リトライ前に isLoading をリセット（重要！）
             isLoading = false
 
             if attempt < maxRetries - 1 {
-                print("🔄 Retrying in 1 second...")
                 // 再試行前に少し待つ
                 try? await Task.sleep(nanoseconds: 1_000_000_000) // 1秒
                 await loadPokemonsWithRetry(attempt: attempt + 1)
             } else {
-                print("❌ Max retries exceeded")
                 handleError(error)
             }
         }
@@ -444,5 +573,116 @@ final class PokemonListViewModel: ObservableObject {
             errorMessage = "予期しないエラーが発生しました: \(error.localizedDescription)"
         }
         showError = true
+    }
+
+    /// 技がメタデータフィルター条件に合致するかチェック
+    /// - Parameters:
+    ///   - move: チェック対象の技
+    ///   - filter: フィルター条件
+    /// - Returns: 条件に合致する場合はtrue
+    private func matchesMoveMetadata(move: MoveEntity, filter: MoveMetadataFilter) -> Bool {
+        // タイプフィルター
+        if !filter.types.isEmpty && !filter.types.contains(move.type.name) {
+            return false
+        }
+
+        // 分類フィルター（物理/特殊/変化）
+        if !filter.damageClasses.isEmpty && !filter.damageClasses.contains(move.damageClass) {
+            return false
+        }
+
+        // 威力条件
+        if let powerCondition = filter.powerCondition {
+            guard powerCondition.matches(move.power) else {
+                return false
+            }
+        }
+
+        // 命中率条件
+        if let accuracyCondition = filter.accuracyCondition {
+            guard accuracyCondition.matches(move.accuracy) else {
+                return false
+            }
+        }
+
+        // PP条件
+        if let ppCondition = filter.ppCondition {
+            guard ppCondition.matches(move.pp) else {
+                return false
+            }
+        }
+
+        // 優先度フィルター
+        if let priority = filter.priority {
+            guard move.priority == priority else {
+                return false
+            }
+        }
+
+        // 対象フィルター
+        if !filter.targets.isEmpty && !filter.targets.contains(move.target) {
+            return false
+        }
+
+        // メタデータが必要な条件
+        guard let meta = move.meta else {
+            // メタデータがない場合、メタデータ関連の条件があればfalse
+            if !filter.ailments.isEmpty || filter.hasDrain ||
+               filter.hasHealing || !filter.statChanges.isEmpty {
+                return false
+            }
+            // メタデータ不要な条件のみならtrue（ここまで到達していれば他の条件は満たしている）
+            return filter.categories.isEmpty || !Set(move.categories).isDisjoint(with: filter.categories)
+        }
+
+        // 状態異常フィルター
+        if !filter.ailments.isEmpty {
+            let matchesAilment = filter.ailments.contains { ailment in
+                meta.ailment == ailment.apiName && meta.ailmentChance > 0
+            }
+            if !matchesAilment {
+                return false
+            }
+        }
+
+        // HP吸収
+        if filter.hasDrain && meta.drain <= 0 {
+            return false
+        }
+
+        // HP回復
+        if filter.hasHealing && meta.healing <= 0 {
+            return false
+        }
+
+        // 能力変化フィルター（自分/相手を考慮）
+        if !filter.statChanges.isEmpty {
+            let matchesStatChange = filter.statChanges.contains { statChangeFilter in
+                let (stat, change, isUser) = statChangeFilter.statChangeInfo
+
+                // 技のtargetから自分への技かどうかを判定
+                let targetIsUser = move.target.contains("user") || move.target.contains("ally")
+
+                // isUserとtargetIsUserが一致し、かつstat/changeが一致する必要がある
+                if isUser != targetIsUser {
+                    return false
+                }
+
+                return meta.statChanges.contains { $0.stat == stat && $0.change == change }
+            }
+            if !matchesStatChange {
+                return false
+            }
+        }
+
+        // 技カテゴリーフィルター
+        if !filter.categories.isEmpty {
+            let hasMatchingCategory = !Set(move.categories).isDisjoint(with: filter.categories)
+            if !hasMatchingCategory {
+                return false
+            }
+        }
+
+        return true
     }
 }

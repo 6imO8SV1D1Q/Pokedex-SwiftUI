@@ -196,10 +196,44 @@ final class PokemonRepository: PokemonRepositoryProtocol {
         // STEP 4: バージョングループでフィルタリング
         print("🔍 [Filter] Filtering for version group: \(versionGroup.id)")
 
-        // 全国図鑑の場合はフィルタリングせずに全て返す
+        // 全国図鑑の場合: 特定のコスメティックフォームのみ除外
         if versionGroup.id == "national" {
-            print("✅ [Filter] National Dex: Returning all \(allPokemons.count) pokemon")
-            return allPokemons
+            // 除外するコスメティックフォームの名前パターン
+            let cosmeticPatterns = [
+                "pikachu-.*-cap$",
+                "vivillon-(?!$)",  // vivillon- で始まるがvivillon単体ではない
+                "flabebe-(?!$)",
+                "floette-(?!$)",
+                "florges-(?!$)",
+                "shellos-(?!$)",
+                "gastrodon-(?!$)",
+                "deerling-(?!$)",
+                "sawsbuck-(?!$)",
+                "minior-(?!red-meteor$|red$)",  // red-meteor と red 以外のminior
+                "maushold-family",
+                "dudunsparce-(?!$)",
+                "tatsugiri-(?!$)",
+                "mimikyu-busted",
+                "magearna-original",
+                "zarude-dada",
+                "morpeko-hangry",
+                "squawkabilly-(?!blue-plumage$|white-plumage$)",  // 青と白以外
+                "basculin-blue-striped"
+            ]
+
+            let visiblePokemons = allPokemons.filter { pokemon in
+                // コスメティックフォームパターンに一致するか確認
+                for pattern in cosmeticPatterns {
+                    if let regex = try? NSRegularExpression(pattern: pattern),
+                       regex.firstMatch(in: pokemon.name, range: NSRange(pokemon.name.startIndex..., in: pokemon.name)) != nil {
+                        return false  // 除外
+                    }
+                }
+                return true  // 表示
+            }
+
+            print("✅ [Filter] National Dex: Returning \(visiblePokemons.count)/\(allPokemons.count) pokemon (excluding cosmetic variants)")
+            return visiblePokemons
         }
 
         // バージョングループ別の場合: SwiftDataのPokedexから登場するspeciesIdを取得

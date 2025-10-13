@@ -22,7 +22,7 @@ struct PokemonRow: View {
     }
 
     private var pokemonImage: some View {
-        AsyncImage(url: URL(string: pokemon.sprites.preferredImageURL ?? "")) { phase in
+        AsyncImage(url: URL(string: pokemon.displayImageURL ?? "")) { phase in
             switch phase {
             case .success(let image):
                 image

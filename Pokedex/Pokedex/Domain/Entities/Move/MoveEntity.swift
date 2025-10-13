@@ -31,6 +31,14 @@ struct MoveEntity: Identifiable, Equatable {
     let machineNumber: String?
     /// 技カテゴリー（例: ["sound", "punch"]）
     let categories: [String]
+    /// 優先度（-7 〜 +5）
+    let priority: Int
+    /// 追加効果発動確率
+    let effectChance: Int?
+    /// 技の対象（例: "selected-pokemon", "user", "all-opponents"）
+    let target: String
+    /// 詳細メタデータ
+    let meta: MoveMeta?
 
     /// IDで等価性を判定
     static func == (lhs: MoveEntity, rhs: MoveEntity) -> Bool {
@@ -86,4 +94,36 @@ struct MoveEntity: Identifiable, Equatable {
     var displayEffect: String {
         effect ?? "説明なし"
     }
+}
+
+// MARK: - Move Meta
+
+/// 技の詳細メタデータ
+struct MoveMeta: Equatable, Codable {
+    /// 状態異常（paralysis, burn, poison, freeze, sleep, confusion, none）
+    let ailment: String
+    /// 状態異常発動確率（0-100）
+    let ailmentChance: Int
+    /// カテゴリー
+    let category: String
+    /// 急所率（0=通常、1=高い、2=確定）
+    let critRate: Int
+    /// HP吸収率（-100〜100、負の値は反動）
+    let drain: Int
+    /// ひるみ確率（0-100）
+    let flinchChance: Int
+    /// 回復量（-100〜100）
+    let healing: Int
+    /// 能力変化発動確率（0-100）
+    let statChance: Int
+    /// 能力変化詳細
+    let statChanges: [MoveStatChangeEntity]
+}
+
+/// 技の能力変化情報
+struct MoveStatChangeEntity: Equatable, Codable {
+    /// ステータス種類（attack, defense, special-attack, special-defense, speed, accuracy, evasion）
+    let stat: String
+    /// 変化量（-6〜+6）
+    let change: Int
 }

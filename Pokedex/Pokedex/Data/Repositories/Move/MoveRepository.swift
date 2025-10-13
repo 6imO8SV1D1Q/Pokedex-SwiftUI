@@ -65,7 +65,23 @@ final class MoveRepository: MoveRepositoryProtocol {
                 damageClass: model.damageClass,
                 effect: model.effect,
                 machineNumber: nil,  // TODO: 技マシン番号は別途管理
-                categories: model.categories
+                categories: model.categories,
+                priority: model.priority,
+                effectChance: model.effectChance,
+                target: model.target,
+                meta: model.meta.map { meta in
+                    MoveMeta(
+                        ailment: meta.ailment,
+                        ailmentChance: meta.ailmentChance,
+                        category: meta.category,
+                        critRate: meta.critRate,
+                        drain: meta.drain,
+                        flinchChance: meta.flinchChance,
+                        healing: meta.healing,
+                        statChance: meta.statChance,
+                        statChanges: meta.statChanges.map { MoveStatChangeEntity(stat: $0.stat, change: $0.change) }
+                    )
+                }
             )
         }
 
@@ -178,7 +194,23 @@ final class MoveRepository: MoveRepositoryProtocol {
                     damageClass: moveModel.damageClass,
                     effect: moveModel.effect,
                     machineNumber: learnedMove.machineNumber,
-                    categories: moveModel.categories
+                    categories: moveModel.categories,
+                    priority: moveModel.priority,
+                    effectChance: moveModel.effectChance,
+                    target: moveModel.target,
+                    meta: moveModel.meta.map { meta in
+                        MoveMeta(
+                            ailment: meta.ailment,
+                            ailmentChance: meta.ailmentChance,
+                            category: meta.category,
+                            critRate: meta.critRate,
+                            drain: meta.drain,
+                            flinchChance: meta.flinchChance,
+                            healing: meta.healing,
+                            statChance: meta.statChance,
+                            statChanges: meta.statChanges.map { MoveStatChangeEntity(stat: $0.stat, change: $0.change) }
+                        )
+                    }
                 )
 
                 // 習得方法を変換
@@ -230,7 +262,23 @@ final class MoveRepository: MoveRepositoryProtocol {
             damageClass: model.damageClass,
             effect: model.effect,
             machineNumber: nil,  // TODO: 技マシン番号の管理
-            categories: model.categories
+            categories: model.categories,
+            priority: model.priority,
+            effectChance: model.effectChance,
+            target: model.target,
+            meta: model.meta.map { meta in
+                MoveMeta(
+                    ailment: meta.ailment,
+                    ailmentChance: meta.ailmentChance,
+                    category: meta.category,
+                    critRate: meta.critRate,
+                    drain: meta.drain,
+                    flinchChance: meta.flinchChance,
+                    healing: meta.healing,
+                    statChance: meta.statChance,
+                    statChanges: meta.statChanges.map { MoveStatChangeEntity(stat: $0.stat, change: $0.change) }
+                )
+            }
         )
     }
 

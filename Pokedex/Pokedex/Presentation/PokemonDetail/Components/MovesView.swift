@@ -222,6 +222,21 @@ struct MoveRow: View {
                     .foregroundColor(.secondary)
                 }
 
+                // 技カテゴリー
+                if !detail.categories.isEmpty {
+                    HStack(spacing: 4) {
+                        ForEach(detail.categories, id: \.self) { categoryId in
+                            Text(MoveCategory.displayName(for: categoryId))
+                                .font(.caption2)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.blue.opacity(0.15))
+                                .foregroundColor(.blue)
+                                .cornerRadius(4)
+                        }
+                    }
+                }
+
                 // 説明文
                 if let effect = detail.effect {
                     Text(effect)
