@@ -475,8 +475,7 @@ struct SearchFilterView: View {
                 viewModel.selectedAbilities.removeAll()
                 viewModel.selectedMoveCategories.removeAll()
                 viewModel.selectedMoves.removeAll()
-                viewModel.filterFinalEvolutionOnly = false
-                viewModel.filterEvioliteOnly = false
+                viewModel.evolutionFilterMode = .all
                 viewModel.statFilterConditions.removeAll()
                 viewModel.moveMetadataFilters.removeAll()
                 viewModel.searchText = ""
