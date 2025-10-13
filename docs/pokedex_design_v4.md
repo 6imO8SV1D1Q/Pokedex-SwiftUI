@@ -1093,7 +1093,7 @@ struct SettingsView: View {
 
 ### 目標
 
-- タイプ/特性/技フィルターのOR/AND切り替え
+- タイプ/特性/技フィルターのOR/AND切り替え ✅
 - 技のメタデータによる絞り込み
 - 特性のメタデータによる絞り込み
 - ポケモン区分フィルター（一般/準伝説/伝説/幻）
@@ -1101,6 +1101,9 @@ struct SettingsView: View {
 - 最終進化フィルター
 - 実数値絞り込みフィルター
 - Chip UIでフィルター条件を可視化
+- 図鑑区分セレクター ✅
+- 表示形式の統一（グリッド表示削除） ✅
+- ポケモン件数表示 ✅
 
 ### 4.0 基本フィルターのOR/AND切り替え ✅
 
@@ -2187,6 +2190,90 @@ pokemonList
 .contentMargins(.top, 0, for: .scrollContent)
 ```
 
+### 4.10 ポケモン件数表示 ✅
+
+**設計方針**:
+- ポケモン一覧画面に取得件数を表示
+- フィルター有効時と無効時で表示を切り替え
+- ユーザーが現在表示されているポケモンの数を一目で把握できる
+
+**実装状況**: ✅ 完了
+
+#### View: PokemonListView拡張
+
+**配置位置**:
+```swift
+VStack(spacing: 0) {
+    // 図鑑切り替えSegmented Control
+    Picker("図鑑", selection: $viewModel.selectedPokedex) {
+        // ...
+    }
+
+    // ポケモン件数表示（NEW）
+    if !viewModel.isLoading {
+        pokemonCountView
+            .padding(.horizontal, 20)
+            .padding(.top, 8)
+    }
+
+    contentView
+}
+```
+
+**pokemonCountView実装**:
+```swift
+private var pokemonCountView: some View {
+    HStack {
+        if hasActiveFilters {
+            // フィルターがある場合
+            Text("絞り込み結果: \(viewModel.filteredPokemons.count)匹")
+                .font(.caption)
+                .foregroundColor(.primary)
+            +
+            Text(" / 全\(viewModel.pokemons.count)匹")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        } else {
+            // フィルターがない場合
+            Text("全\(viewModel.filteredPokemons.count)匹")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        Spacer()
+    }
+}
+```
+
+**hasActiveFilters計算プロパティ**:
+```swift
+/// フィルターや検索が有効かどうか
+private var hasActiveFilters: Bool {
+    !viewModel.searchText.isEmpty ||
+    !viewModel.selectedTypes.isEmpty ||
+    !viewModel.selectedAbilities.isEmpty ||
+    !viewModel.selectedMoves.isEmpty ||
+    !viewModel.selectedMoveCategories.isEmpty ||
+    !viewModel.selectedCategories.isEmpty ||
+    viewModel.evolutionFilterMode != .all ||
+    !viewModel.statFilterConditions.isEmpty ||
+    !viewModel.moveMetadataFilters.isEmpty
+}
+```
+
+**表示仕様**:
+
+| 状態 | 表示内容 | フォント | 色 |
+|------|---------|---------|-----|
+| フィルター有効 | "絞り込み結果: 25匹 / 全400匹" | .caption | .primary + .secondary |
+| フィルター無効 | "全400匹" | .caption | .secondary |
+| ローディング中 | 非表示 | - | - |
+
+**動作**:
+1. フィルター条件が1つでも設定されている場合、絞り込み結果と全件数を表示
+2. フィルター条件が何もない場合、全件数のみ表示
+3. ローディング中は非表示（`if !viewModel.isLoading`で制御）
+4. 件数はリアルタイムで更新される（@Publishedプロパティのバインディング）
+
 ---
 
 ## エラーハンドリング
@@ -2226,3 +2313,4 @@ pokemonList
 | 2025-10-12 | 4.1 | Phase 4追加：高度なフィルタリング機能の設計（MoveFilterCondition、AbilityCategory、Chip UI、MoveDetailFilterView） |
 | 2025-10-12 | 4.2 | Phase 4拡張：OR/AND切り替え設計、AbilityDetailFilterView追加、最終進化フィルター追加、StatDetailFilterView設計（UI簡素化・画面分離） |
 | 2025-01-13 | 4.3 | Phase 4完了：OR/AND切り替え実装完了（4.0）、図鑑区分セレクター追加（4.8）、グリッド表示削除（4.9）、FilterMode/PokedexType追加 |
+| 2025-10-13 | 4.4 | Phase 4拡張：ポケモン件数表示追加（4.10）、hasActiveFiltersロジック実装 |
