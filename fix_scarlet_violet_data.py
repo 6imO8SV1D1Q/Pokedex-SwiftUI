@@ -89,8 +89,52 @@ print("")
 # MARK: - Task 2: Add evolution-inherited moves
 
 print("📝 Task 2: Adding evolution-inherited moves...")
-print("⚠️  Skipping Task 2 - requires further analysis of evolution chain structure")
+
+# Build pokemon ID to pokemon mapping
+pokemon_by_id = {p['id']: p for p in data['pokemon']}
+
 moves_added_count = 0
+
+# For each pokemon, check if it evolves from another pokemon
+for pokemon in data['pokemon']:
+    if 'evolutionChain' not in pokemon or pokemon['evolutionChain'] is None:
+        continue
+
+    evolution_chain = pokemon['evolutionChain']
+    evolution_stage = evolution_chain.get('evolutionStage', 1)
+
+    # Only process evolved pokemon (stage 2 or higher)
+    if evolution_stage <= 1:
+        continue
+
+    # Find pre-evolution(s) by checking other pokemon in same chain
+    chain_id = evolution_chain.get('chainId')
+    if chain_id is None:
+        continue
+
+    # Find all pokemon in same evolution chain with lower stage
+    pre_evolutions = [
+        p for p in data['pokemon']
+        if p.get('evolutionChain') and
+           p['evolutionChain'].get('chainId') == chain_id and
+           p['evolutionChain'].get('evolutionStage', 1) < evolution_stage and
+           pokemon['id'] in p['evolutionChain'].get('evolvesTo', [])
+    ]
+
+    if not pre_evolutions:
+        continue
+
+    current_move_ids = {m['moveId'] for m in pokemon.get('moves', [])}
+
+    # Inherit moves from all pre-evolutions
+    for pre_evo in pre_evolutions:
+        for move in pre_evo.get('moves', []):
+            if move['moveId'] not in current_move_ids:
+                pokemon['moves'].append(move)
+                current_move_ids.add(move['moveId'])
+                moves_added_count += 1
+
+print(f"✅ Added {moves_added_count} inherited moves to evolved Pokemon")
 print("")
 
 # MARK: - Save updated JSON
