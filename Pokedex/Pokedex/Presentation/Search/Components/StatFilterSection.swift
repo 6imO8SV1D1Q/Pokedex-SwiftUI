@@ -2,68 +2,53 @@
 //  StatFilterSection.swift
 //  Pokedex
 //
-//  実数値フィルターセクション
+//  種族値フィルターセクション
 //
 
 import SwiftUI
 
 struct StatFilterSection: View {
     @Binding var statFilterConditions: [StatFilterCondition]
-    @State private var inputStatType: StatType = .hp
-    @State private var inputOperator: ComparisonOperator = .greaterThanOrEqual
-    @State private var inputStatValue: String = ""
+    @State private var inputValues: [StatType: (min: String, max: String)] = [:]
 
     var body: some View {
         Section {
-            // 条件入力エリア
+            // 全ステータスを一覧表示
             VStack(alignment: .leading, spacing: 12) {
-                Text("新しい条件を追加")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                ForEach(StatType.allCases) { statType in
+                    HStack(spacing: 8) {
+                        // ステータス名
+                        Text(statType.rawValue)
+                            .frame(width: 80, alignment: .leading)
+                            .font(.body)
 
-                // ステータス種類
-                HStack {
-                    Text("ステータス")
-                        .frame(width: 80, alignment: .leading)
-                    Picker("ステータス", selection: $inputStatType) {
-                        ForEach(StatType.allCases) { statType in
-                            Text(statType.rawValue).tag(statType)
+                        // 最小値入力
+                        TextField("最小", text: binding(for: statType, isMin: true))
+                            .keyboardType(.numberPad)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 70)
+
+                        Text("〜")
+                            .foregroundColor(.secondary)
+
+                        // 最大値入力
+                        TextField("最大", text: binding(for: statType, isMin: false))
+                            .keyboardType(.numberPad)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 70)
+
+                        // 追加ボタン
+                        Button {
+                            addStatCondition(for: statType)
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundColor(canAdd(for: statType) ? .blue : .gray)
+                                .imageScale(.large)
                         }
+                        .disabled(!canAdd(for: statType))
+
+                        Spacer()
                     }
-                    .pickerStyle(.menu)
-                    .labelsHidden()
-                }
-
-                // 条件と値
-                HStack(spacing: 12) {
-                    Text("条件")
-                        .frame(width: 80, alignment: .leading)
-
-                    // 比較演算子
-                    Picker("条件", selection: $inputOperator) {
-                        ForEach(ComparisonOperator.allCases) { op in
-                            Text(op.rawValue).tag(op)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .labelsHidden()
-                    .frame(width: 60)
-
-                    // 数値入力
-                    TextField("値", text: $inputStatValue)
-                        .keyboardType(.numberPad)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(width: 80)
-
-                    // 追加ボタン
-                    Button {
-                        addStatCondition()
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundColor(inputStatValue.isEmpty || Int(inputStatValue) == nil ? .gray : .blue)
-                            .imageScale(.large)
-                    }
-                    .disabled(inputStatValue.isEmpty || Int(inputStatValue) == nil)
                 }
             }
             .padding(.vertical, 8)
@@ -94,23 +79,73 @@ struct StatFilterSection: View {
                 }
             }
         } header: {
-            Text("実数値")
+            Text("種族値")
         } footer: {
-            Text("レベル50、個体値31、努力値252、性格補正1.1での実数値で絞り込みます")
+            Text("ポケモンの種族値で絞り込みます")
         }
     }
 
-    private func addStatCondition() {
-        guard let value = Int(inputStatValue), value > 0 else { return }
+    private func binding(for statType: StatType, isMin: Bool) -> Binding<String> {
+        Binding(
+            get: {
+                if isMin {
+                    return inputValues[statType]?.min ?? ""
+                } else {
+                    return inputValues[statType]?.max ?? ""
+                }
+            },
+            set: { newValue in
+                let currentMin = inputValues[statType]?.min ?? ""
+                let currentMax = inputValues[statType]?.max ?? ""
+                if isMin {
+                    inputValues[statType] = (min: newValue, max: currentMax)
+                } else {
+                    inputValues[statType] = (min: currentMin, max: newValue)
+                }
+            }
+        )
+    }
+
+    private func canAdd(for statType: StatType) -> Bool {
+        guard let values = inputValues[statType] else { return false }
+
+        // 最小値か最大値の少なくとも一方が入力されている
+        let hasMin = !values.min.isEmpty && Int(values.min) != nil
+        let hasMax = !values.max.isEmpty && Int(values.max) != nil
+
+        if !hasMin && !hasMax {
+            return false
+        }
+
+        // 両方入力されている場合、最小 <= 最大をチェック
+        if hasMin && hasMax {
+            guard let minValue = Int(values.min), let maxValue = Int(values.max) else {
+                return false
+            }
+            return minValue <= maxValue
+        }
+
+        return true
+    }
+
+    private func addStatCondition(for statType: StatType) {
+        guard let values = inputValues[statType] else { return }
+
+        let minValue = Int(values.min)
+        let maxValue = Int(values.max)
+
+        // 少なくとも一方が入力されている必要がある
+        guard minValue != nil || maxValue != nil else { return }
 
         let condition = StatFilterCondition(
-            statType: inputStatType,
-            operator: inputOperator,
-            value: value
+            statType: statType,
+            mode: .range,
+            minValue: minValue ?? 0,
+            maxValue: maxValue
         )
 
         statFilterConditions.append(condition)
-        inputStatValue = ""
+        inputValues[statType] = (min: "", max: "")
     }
 
     private func removeStatCondition(_ condition: StatFilterCondition) {
