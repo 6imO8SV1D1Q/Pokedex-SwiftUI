@@ -140,6 +140,14 @@ final class DIContainer: ObservableObject {
         FetchFlavorTextUseCase(pokemonRepository: pokemonRepository)
     }
 
+    func makeGetAbilityCategoriesUseCase() -> GetAbilityCategoriesUseCaseProtocol {
+        GetAbilityCategoriesUseCase()
+    }
+
+    func makeFilterPokemonByAbilityCategoryUseCase() -> FilterPokemonByAbilityCategoryUseCaseProtocol {
+        FilterPokemonByAbilityCategoryUseCase()
+    }
+
     // MARK: - Repositories Factory Methods
 
     func makeMoveRepository() -> MoveRepositoryProtocol {
@@ -159,6 +167,8 @@ final class DIContainer: ObservableObject {
             filterPokemonByMovesUseCase: makeFilterPokemonByMovesUseCase(),
             fetchVersionGroupsUseCase: makeFetchVersionGroupsUseCase(),
             calculateStatsUseCase: makeCalculateStatsUseCase(),
+            getAbilityCategoriesUseCase: makeGetAbilityCategoriesUseCase(),
+            filterPokemonByAbilityCategoryUseCase: makeFilterPokemonByAbilityCategoryUseCase(),
             pokemonRepository: pokemonRepository,
             moveRepository: moveRepository
         )

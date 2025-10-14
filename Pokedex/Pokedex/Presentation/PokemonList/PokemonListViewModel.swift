@@ -109,6 +109,9 @@ final class PokemonListViewModel: ObservableObject {
     /// 選択されたポケモン区分
     @Published var selectedCategories: Set<PokemonCategory> = []
 
+    /// 選択された特性カテゴリ
+    @Published var selectedAbilityCategories: Set<AbilityCategory> = []
+
     /// 進化段階フィルターモード
     @Published var evolutionFilterMode: EvolutionFilterMode = .all
 
@@ -149,6 +152,15 @@ final class PokemonListViewModel: ObservableObject {
     /// 技リポジトリ
     private let moveRepository: MoveRepositoryProtocol
 
+    /// 特性カテゴリ取得UseCase
+    private let getAbilityCategoriesUseCase: GetAbilityCategoriesUseCaseProtocol
+
+    /// 特性カテゴリフィルタリングUseCase
+    private let filterPokemonByAbilityCategoryUseCase: FilterPokemonByAbilityCategoryUseCaseProtocol
+
+    /// 特性カテゴリマッピング（特性名 → カテゴリ配列）
+    private var abilityCategories: [String: [AbilityCategory]] = [:]
+
     /// 最大再試行回数
     private let maxRetries = 3
 
@@ -175,6 +187,8 @@ final class PokemonListViewModel: ObservableObject {
         filterPokemonByMovesUseCase: FilterPokemonByMovesUseCaseProtocol,
         fetchVersionGroupsUseCase: FetchVersionGroupsUseCaseProtocol,
         calculateStatsUseCase: CalculateStatsUseCaseProtocol,
+        getAbilityCategoriesUseCase: GetAbilityCategoriesUseCaseProtocol,
+        filterPokemonByAbilityCategoryUseCase: FilterPokemonByAbilityCategoryUseCaseProtocol,
         pokemonRepository: PokemonRepositoryProtocol,
         moveRepository: MoveRepositoryProtocol
     ) {
@@ -184,9 +198,12 @@ final class PokemonListViewModel: ObservableObject {
         self.filterPokemonByMovesUseCase = filterPokemonByMovesUseCase
         self.fetchVersionGroupsUseCase = fetchVersionGroupsUseCase
         self.calculateStatsUseCase = calculateStatsUseCase
+        self.getAbilityCategoriesUseCase = getAbilityCategoriesUseCase
+        self.filterPokemonByAbilityCategoryUseCase = filterPokemonByAbilityCategoryUseCase
         self.pokemonRepository = pokemonRepository
         self.moveRepository = moveRepository
         self.allVersionGroups = fetchVersionGroupsUseCase.execute()
+        self.abilityCategories = getAbilityCategoriesUseCase.execute()
     }
 
     // MARK: - Public Methods
@@ -352,6 +369,13 @@ final class PokemonListViewModel: ObservableObject {
             pokemonList: filtered,
             selectedAbilities: selectedAbilities,
             mode: abilityFilterMode
+        )
+
+        // 特性カテゴリフィルター適用
+        filtered = filterPokemonByAbilityCategoryUseCase.execute(
+            pokemons: filtered,
+            selectedCategories: selectedAbilityCategories,
+            abilityCategories: abilityCategories
         )
 
         // 技フィルター適用
