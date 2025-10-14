@@ -112,7 +112,7 @@ final class PokemonListViewModel: ObservableObject {
     /// 進化段階フィルターモード
     @Published var evolutionFilterMode: EvolutionFilterMode = .all
 
-    /// 実数値フィルター条件
+    /// 種族値フィルター条件
     @Published var statFilterConditions: [StatFilterCondition] = []
 
     /// 技のメタデータフィルター条件（複数設定可能）
@@ -307,37 +307,38 @@ final class PokemonListViewModel: ObservableObject {
                 matchesEvolution = pokemon.evolutionChain?.canUseEviolite ?? false
             }
 
-            // 実数値フィルター
+            // 種族値フィルター
             let matchesStatFilter: Bool
             if !statFilterConditions.isEmpty {
-                let calculatedStats = calculateStatsUseCase.execute(baseStats: pokemon.stats)
-
                 // 全ての条件を満たすか確認
                 matchesStatFilter = statFilterConditions.allSatisfy { condition in
-                    // 「<」「≤」の場合は最小実数値、それ以外は最大実数値で判定
-                    let pattern: CalculatedStats.StatsPattern?
-                    if condition.operator == .lessThan || condition.operator == .lessThanOrEqual {
-                        // 個体値0、努力値0、性格補正0.9（最小値）
-                        pattern = calculatedStats.patterns.first { $0.id == "hindered" }
+                    let baseStatValue: Int
+
+                    if condition.statType == .total {
+                        // 種族値合計
+                        baseStatValue = pokemon.stats.reduce(0) { $0 + $1.baseStat }
                     } else {
-                        // 個体値31、努力値252、性格補正1.1（最大値）
-                        pattern = calculatedStats.patterns.first { $0.id == "ideal" }
+                        // ステータス名を取得
+                        let statName: String
+                        switch condition.statType {
+                        case .hp: statName = "hp"
+                        case .attack: statName = "attack"
+                        case .defense: statName = "defense"
+                        case .specialAttack: statName = "special-attack"
+                        case .specialDefense: statName = "special-defense"
+                        case .speed: statName = "speed"
+                        case .total: statName = "" // 上で処理済み
+                        }
+
+                        // 該当するステータスを検索
+                        guard let stat = pokemon.stats.first(where: { $0.name == statName }) else {
+                            return false
+                        }
+
+                        baseStatValue = stat.baseStat
                     }
 
-                    guard let pattern = pattern else {
-                        return false
-                    }
-
-                    let actualValue: Int
-                    switch condition.statType {
-                    case .hp: actualValue = pattern.hp
-                    case .attack: actualValue = pattern.attack
-                    case .defense: actualValue = pattern.defense
-                    case .specialAttack: actualValue = pattern.specialAttack
-                    case .specialDefense: actualValue = pattern.specialDefense
-                    case .speed: actualValue = pattern.speed
-                    }
-                    return condition.matches(actualValue)
+                    return condition.matches(baseStatValue)
                 }
             } else {
                 matchesStatFilter = true
@@ -382,7 +383,7 @@ final class PokemonListViewModel: ObservableObject {
                 var matchingPokemonIds: Set<Int>? = nil
                 let pokemonIds = filtered.map { $0.id }
 
-                for (index, filter) in moveMetadataFilters.enumerated() {
+                for filter in moveMetadataFilters {
                     let matchingMoves = allMoves.filter { move in
                         matchesMoveMetadata(move: move, filter: filter)
                     }
