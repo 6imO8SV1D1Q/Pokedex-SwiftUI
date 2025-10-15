@@ -12,119 +12,210 @@ struct MoveNumericConditionSection: View {
     @Binding var accuracyCondition: MoveNumericCondition?
     @Binding var ppCondition: MoveNumericCondition?
 
-    @State private var inputPowerOperator: ComparisonOperator = .greaterThanOrEqual
-    @State private var inputPowerValue: String = ""
-    @State private var inputAccuracyOperator: ComparisonOperator = .greaterThanOrEqual
-    @State private var inputAccuracyValue: String = ""
-    @State private var inputPPOperator: ComparisonOperator = .greaterThanOrEqual
-    @State private var inputPPValue: String = ""
+    @State private var powerMin: String = ""
+    @State private var powerMax: String = ""
+    @State private var accuracyMin: String = ""
+    @State private var accuracyMax: String = ""
+    @State private var ppMin: String = ""
+    @State private var ppMax: String = ""
 
     var body: some View {
         Section {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 12) {
                 // 威力
-                numericConditionRow(
+                rangeConditionRow(
                     label: "威力",
-                    operator: $inputPowerOperator,
-                    value: $inputPowerValue,
-                    currentCondition: powerCondition,
-                    onApply: applyPowerCondition,
-                    onClear: { powerCondition = nil }
+                    minValue: $powerMin,
+                    maxValue: $powerMax,
+                    onUpdate: updatePowerCondition,
+                    onClear: clearPowerCondition,
+                    hasCondition: powerCondition != nil
                 )
 
                 // 命中率
-                numericConditionRow(
+                rangeConditionRow(
                     label: "命中率",
-                    operator: $inputAccuracyOperator,
-                    value: $inputAccuracyValue,
-                    currentCondition: accuracyCondition,
-                    onApply: applyAccuracyCondition,
-                    onClear: { accuracyCondition = nil }
+                    minValue: $accuracyMin,
+                    maxValue: $accuracyMax,
+                    onUpdate: updateAccuracyCondition,
+                    onClear: clearAccuracyCondition,
+                    hasCondition: accuracyCondition != nil
                 )
 
                 // PP
-                numericConditionRow(
+                rangeConditionRow(
                     label: "PP",
-                    operator: $inputPPOperator,
-                    value: $inputPPValue,
-                    currentCondition: ppCondition,
-                    onApply: applyPPCondition,
-                    onClear: { ppCondition = nil }
+                    minValue: $ppMin,
+                    maxValue: $ppMax,
+                    onUpdate: updatePPCondition,
+                    onClear: clearPPCondition,
+                    hasCondition: ppCondition != nil
                 )
             }
             .padding(.vertical, 8)
         } header: {
             Text("威力・命中率・PP")
         } footer: {
-            Text("条件を設定して絞り込みます。")
+            let count = [powerCondition, accuracyCondition, ppCondition].compactMap { $0 }.count
+            if count == 0 {
+                Text("条件を設定して絞り込みます")
+            } else {
+                Text("条件: \(count)件")
+            }
+        }
+        .onAppear {
+            loadConditionsToInputValues()
         }
     }
 
-    private func numericConditionRow(
+    private func rangeConditionRow(
         label: String,
-        operator operatorBinding: Binding<ComparisonOperator>,
-        value: Binding<String>,
-        currentCondition: MoveNumericCondition?,
-        onApply: @escaping () -> Void,
-        onClear: @escaping () -> Void
+        minValue: Binding<String>,
+        maxValue: Binding<String>,
+        onUpdate: @escaping () -> Void,
+        onClear: @escaping () -> Void,
+        hasCondition: Bool
     ) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                Text(label)
-                    .frame(width: 60, alignment: .leading)
-                Picker("", selection: operatorBinding) {
-                    ForEach(ComparisonOperator.allCases) { op in
-                        Text(op.rawValue).tag(op)
-                    }
+        HStack(spacing: 8) {
+            Text(label)
+                .frame(width: 60, alignment: .leading)
+                .font(.body)
+
+            TextField("最小", text: minValue)
+                .keyboardType(.numberPad)
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 70)
+                .onChange(of: minValue.wrappedValue) {
+                    onUpdate()
                 }
-                .pickerStyle(.menu)
-                .labelsHidden()
-                .frame(width: 60)
 
-                TextField("値", text: value)
-                    .keyboardType(.numberPad)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 80)
+            Text("〜")
+                .foregroundColor(.secondary)
 
+            TextField("最大", text: maxValue)
+                .keyboardType(.numberPad)
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 70)
+                .onChange(of: maxValue.wrappedValue) {
+                    onUpdate()
+                }
+
+            // クリアボタン（値が入力されているか条件が設定されている場合に表示）
+            if !minValue.wrappedValue.isEmpty || !maxValue.wrappedValue.isEmpty || hasCondition {
                 Button {
-                    onApply()
+                    onClear()
                 } label: {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(value.wrappedValue.isEmpty || Int(value.wrappedValue) == nil ? .gray : .blue)
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.gray)
+                        .imageScale(.medium)
                 }
-                .disabled(value.wrappedValue.isEmpty || Int(value.wrappedValue) == nil)
             }
 
-            if let condition = currentCondition {
-                HStack {
-                    Text("設定: \(condition.displayText(label: label))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Spacer()
-                    Button("解除") {
-                        onClear()
-                    }
-                    .font(.caption)
-                }
-            }
+            Spacer()
         }
     }
 
-    private func applyPowerCondition() {
-        guard let value = Int(inputPowerValue) else { return }
-        powerCondition = MoveNumericCondition(value: value, operator: inputPowerOperator)
-        inputPowerValue = ""
+    private func updatePowerCondition() {
+        let minValue = Int(powerMin)
+        let maxValue = Int(powerMax)
+
+        guard minValue != nil || maxValue != nil else {
+            powerCondition = nil
+            return
+        }
+
+        // 両方入力されている場合、最小 <= 最大をチェック
+        if let min = minValue, let max = maxValue, min > max {
+            return
+        }
+
+        // 範囲条件として保存（最小値優先）
+        if let min = minValue {
+            powerCondition = MoveNumericCondition(value: min, operator: .greaterThanOrEqual)
+        } else if let max = maxValue {
+            powerCondition = MoveNumericCondition(value: max, operator: .lessThanOrEqual)
+        }
     }
 
-    private func applyAccuracyCondition() {
-        guard let value = Int(inputAccuracyValue) else { return }
-        accuracyCondition = MoveNumericCondition(value: value, operator: inputAccuracyOperator)
-        inputAccuracyValue = ""
+    private func clearPowerCondition() {
+        powerMin = ""
+        powerMax = ""
+        powerCondition = nil
     }
 
-    private func applyPPCondition() {
-        guard let value = Int(inputPPValue) else { return }
-        ppCondition = MoveNumericCondition(value: value, operator: inputPPOperator)
-        inputPPValue = ""
+    private func updateAccuracyCondition() {
+        let minValue = Int(accuracyMin)
+        let maxValue = Int(accuracyMax)
+
+        guard minValue != nil || maxValue != nil else {
+            accuracyCondition = nil
+            return
+        }
+
+        if let min = minValue, let max = maxValue, min > max {
+            return
+        }
+
+        if let min = minValue {
+            accuracyCondition = MoveNumericCondition(value: min, operator: .greaterThanOrEqual)
+        } else if let max = maxValue {
+            accuracyCondition = MoveNumericCondition(value: max, operator: .lessThanOrEqual)
+        }
+    }
+
+    private func clearAccuracyCondition() {
+        accuracyMin = ""
+        accuracyMax = ""
+        accuracyCondition = nil
+    }
+
+    private func updatePPCondition() {
+        let minValue = Int(ppMin)
+        let maxValue = Int(ppMax)
+
+        guard minValue != nil || maxValue != nil else {
+            ppCondition = nil
+            return
+        }
+
+        if let min = minValue, let max = maxValue, min > max {
+            return
+        }
+
+        if let min = minValue {
+            ppCondition = MoveNumericCondition(value: min, operator: .greaterThanOrEqual)
+        } else if let max = maxValue {
+            ppCondition = MoveNumericCondition(value: max, operator: .lessThanOrEqual)
+        }
+    }
+
+    private func clearPPCondition() {
+        ppMin = ""
+        ppMax = ""
+        ppCondition = nil
+    }
+
+    private func loadConditionsToInputValues() {
+        if let condition = powerCondition {
+            if condition.`operator` == .greaterThanOrEqual {
+                powerMin = String(condition.value)
+            } else if condition.`operator` == .lessThanOrEqual {
+                powerMax = String(condition.value)
+            }
+        }
+        if let condition = accuracyCondition {
+            if condition.`operator` == .greaterThanOrEqual {
+                accuracyMin = String(condition.value)
+            } else if condition.`operator` == .lessThanOrEqual {
+                accuracyMax = String(condition.value)
+            }
+        }
+        if let condition = ppCondition {
+            if condition.`operator` == .greaterThanOrEqual {
+                ppMin = String(condition.value)
+            } else if condition.`operator` == .lessThanOrEqual {
+                ppMax = String(condition.value)
+            }
+        }
     }
 }

@@ -32,6 +32,9 @@ struct AbilityNumericConditionSection: View {
                         .keyboardType(.decimalPad)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 70)
+                        .onChange(of: statMultiplierMin) {
+                            updateStatMultiplierCondition()
+                        }
 
                     Text("〜")
                         .foregroundColor(.secondary)
@@ -40,15 +43,20 @@ struct AbilityNumericConditionSection: View {
                         .keyboardType(.decimalPad)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 70)
+                        .onChange(of: statMultiplierMax) {
+                            updateStatMultiplierCondition()
+                        }
 
-                    Button {
-                        applyStatMultiplierCondition()
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundColor(canAddStatMultiplier() ? .blue : .gray)
-                            .imageScale(.large)
+                    // クリアボタン
+                    if hasStatMultiplierValue() || statMultiplierCondition != nil {
+                        Button {
+                            clearStatMultiplierCondition()
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                                .imageScale(.medium)
+                        }
                     }
-                    .disabled(!canAddStatMultiplier())
 
                     Spacer()
                 }
@@ -63,6 +71,9 @@ struct AbilityNumericConditionSection: View {
                         .keyboardType(.decimalPad)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 70)
+                        .onChange(of: movePowerMultiplierMin) {
+                            updateMovePowerMultiplierCondition()
+                        }
 
                     Text("〜")
                         .foregroundColor(.secondary)
@@ -71,15 +82,20 @@ struct AbilityNumericConditionSection: View {
                         .keyboardType(.decimalPad)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 70)
+                        .onChange(of: movePowerMultiplierMax) {
+                            updateMovePowerMultiplierCondition()
+                        }
 
-                    Button {
-                        applyMovePowerMultiplierCondition()
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundColor(canAddMovePowerMultiplier() ? .blue : .gray)
-                            .imageScale(.large)
+                    // クリアボタン
+                    if hasMovePowerMultiplierValue() || movePowerMultiplierCondition != nil {
+                        Button {
+                            clearMovePowerMultiplierCondition()
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                                .imageScale(.medium)
+                        }
                     }
-                    .disabled(!canAddMovePowerMultiplier())
 
                     Spacer()
                 }
@@ -94,6 +110,9 @@ struct AbilityNumericConditionSection: View {
                         .keyboardType(.numberPad)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 70)
+                        .onChange(of: probabilityMin) {
+                            updateProbabilityCondition()
+                        }
 
                     Text("〜")
                         .foregroundColor(.secondary)
@@ -102,181 +121,159 @@ struct AbilityNumericConditionSection: View {
                         .keyboardType(.numberPad)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 70)
+                        .onChange(of: probabilityMax) {
+                            updateProbabilityCondition()
+                        }
 
-                    Button {
-                        applyProbabilityCondition()
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundColor(canAddProbability() ? .blue : .gray)
-                            .imageScale(.large)
+                    // クリアボタン
+                    if hasProbabilityValue() || probabilityCondition != nil {
+                        Button {
+                            clearProbabilityCondition()
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                                .imageScale(.medium)
+                        }
                     }
-                    .disabled(!canAddProbability())
 
                     Spacer()
                 }
             }
             .padding(.vertical, 8)
-
-            // 設定済み条件の表示
-            if statMultiplierCondition != nil || movePowerMultiplierCondition != nil || probabilityCondition != nil {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("設定中の条件")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-
-                    if let condition = statMultiplierCondition {
-                        conditionRow(
-                            label: "能力値倍率",
-                            condition: condition,
-                            onRemove: { statMultiplierCondition = nil }
-                        )
-                    }
-
-                    if let condition = movePowerMultiplierCondition {
-                        conditionRow(
-                            label: "技威力倍率",
-                            condition: condition,
-                            onRemove: { movePowerMultiplierCondition = nil }
-                        )
-                    }
-
-                    if let condition = probabilityCondition {
-                        conditionRow(
-                            label: "発動確率",
-                            condition: condition,
-                            onRemove: { probabilityCondition = nil }
-                        )
-                    }
-                }
-            }
         } header: {
             Text("数値条件")
         } footer: {
-            Text("倍率や確率の範囲を設定して絞り込みます")
-        }
-    }
-
-    private func conditionRow(label: String, condition: NumericCondition, onRemove: @escaping () -> Void) -> some View {
-        HStack {
-            Text(condition.displayText(label: label))
-                .font(.body)
-
-            Spacer()
-
-            Button {
-                onRemove()
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundColor(.red)
+            let count = [statMultiplierCondition, movePowerMultiplierCondition, probabilityCondition].compactMap { $0 }.count
+            if count == 0 {
+                Text("倍率や確率の範囲を設定して絞り込みます")
+            } else {
+                Text("条件: \(count)件")
             }
         }
-        .padding(.vertical, 4)
+        .onAppear {
+            loadConditionsToInputValues()
+        }
     }
 
-    // MARK: - Validation
+    // MARK: - Value Check
 
-    private func canAddStatMultiplier() -> Bool {
-        let hasMin = !statMultiplierMin.isEmpty && Double(statMultiplierMin) != nil
-        let hasMax = !statMultiplierMax.isEmpty && Double(statMultiplierMax) != nil
-
-        if !hasMin && !hasMax {
-            return false
-        }
-
-        if hasMin && hasMax {
-            guard let minValue = Double(statMultiplierMin), let maxValue = Double(statMultiplierMax) else {
-                return false
-            }
-            return minValue <= maxValue
-        }
-
-        return true
+    private func hasStatMultiplierValue() -> Bool {
+        return !statMultiplierMin.isEmpty || !statMultiplierMax.isEmpty
     }
 
-    private func canAddMovePowerMultiplier() -> Bool {
-        let hasMin = !movePowerMultiplierMin.isEmpty && Double(movePowerMultiplierMin) != nil
-        let hasMax = !movePowerMultiplierMax.isEmpty && Double(movePowerMultiplierMax) != nil
-
-        if !hasMin && !hasMax {
-            return false
-        }
-
-        if hasMin && hasMax {
-            guard let minValue = Double(movePowerMultiplierMin), let maxValue = Double(movePowerMultiplierMax) else {
-                return false
-            }
-            return minValue <= maxValue
-        }
-
-        return true
+    private func hasMovePowerMultiplierValue() -> Bool {
+        return !movePowerMultiplierMin.isEmpty || !movePowerMultiplierMax.isEmpty
     }
 
-    private func canAddProbability() -> Bool {
-        let hasMin = !probabilityMin.isEmpty && Double(probabilityMin) != nil
-        let hasMax = !probabilityMax.isEmpty && Double(probabilityMax) != nil
-
-        if !hasMin && !hasMax {
-            return false
-        }
-
-        if hasMin && hasMax {
-            guard let minValue = Double(probabilityMin), let maxValue = Double(probabilityMax) else {
-                return false
-            }
-            return minValue <= maxValue
-        }
-
-        return true
+    private func hasProbabilityValue() -> Bool {
+        return !probabilityMin.isEmpty || !probabilityMax.isEmpty
     }
 
-    // MARK: - Actions
+    // MARK: - Update Conditions
 
-    private func applyStatMultiplierCondition() {
+    private func updateStatMultiplierCondition() {
         let minValue = Double(statMultiplierMin)
         let maxValue = Double(statMultiplierMax)
 
-        guard minValue != nil || maxValue != nil else { return }
+        guard minValue != nil || maxValue != nil else {
+            statMultiplierCondition = nil
+            return
+        }
 
-        // 範囲条件として保存（とりあえず最小値のgreaterThanOrEqualで表現）
+        // 両方入力されている場合、最小 <= 最大をチェック
+        if let min = minValue, let max = maxValue, min > max {
+            return
+        }
+
+        // 範囲条件として保存（最小値優先）
         if let min = minValue {
             statMultiplierCondition = NumericCondition(value: min, comparisonOperator: .greaterThanOrEqual)
         } else if let max = maxValue {
             statMultiplierCondition = NumericCondition(value: max, comparisonOperator: .lessThanOrEqual)
         }
-
-        statMultiplierMin = ""
-        statMultiplierMax = ""
     }
 
-    private func applyMovePowerMultiplierCondition() {
+    private func updateMovePowerMultiplierCondition() {
         let minValue = Double(movePowerMultiplierMin)
         let maxValue = Double(movePowerMultiplierMax)
 
-        guard minValue != nil || maxValue != nil else { return }
+        guard minValue != nil || maxValue != nil else {
+            movePowerMultiplierCondition = nil
+            return
+        }
+
+        if let min = minValue, let max = maxValue, min > max {
+            return
+        }
 
         if let min = minValue {
             movePowerMultiplierCondition = NumericCondition(value: min, comparisonOperator: .greaterThanOrEqual)
         } else if let max = maxValue {
             movePowerMultiplierCondition = NumericCondition(value: max, comparisonOperator: .lessThanOrEqual)
         }
-
-        movePowerMultiplierMin = ""
-        movePowerMultiplierMax = ""
     }
 
-    private func applyProbabilityCondition() {
+    private func updateProbabilityCondition() {
         let minValue = Double(probabilityMin)
         let maxValue = Double(probabilityMax)
 
-        guard minValue != nil || maxValue != nil else { return }
+        guard minValue != nil || maxValue != nil else {
+            probabilityCondition = nil
+            return
+        }
+
+        if let min = minValue, let max = maxValue, min > max {
+            return
+        }
 
         if let min = minValue {
             probabilityCondition = NumericCondition(value: min, comparisonOperator: .greaterThanOrEqual)
         } else if let max = maxValue {
             probabilityCondition = NumericCondition(value: max, comparisonOperator: .lessThanOrEqual)
         }
+    }
 
+    // MARK: - Clear Conditions
+
+    private func clearStatMultiplierCondition() {
+        statMultiplierMin = ""
+        statMultiplierMax = ""
+        statMultiplierCondition = nil
+    }
+
+    private func clearMovePowerMultiplierCondition() {
+        movePowerMultiplierMin = ""
+        movePowerMultiplierMax = ""
+        movePowerMultiplierCondition = nil
+    }
+
+    private func clearProbabilityCondition() {
         probabilityMin = ""
         probabilityMax = ""
+        probabilityCondition = nil
+    }
+
+    private func loadConditionsToInputValues() {
+        if let condition = statMultiplierCondition {
+            if condition.comparisonOperator == .greaterThanOrEqual {
+                statMultiplierMin = String(condition.value)
+            } else if condition.comparisonOperator == .lessThanOrEqual {
+                statMultiplierMax = String(condition.value)
+            }
+        }
+        if let condition = movePowerMultiplierCondition {
+            if condition.comparisonOperator == .greaterThanOrEqual {
+                movePowerMultiplierMin = String(condition.value)
+            } else if condition.comparisonOperator == .lessThanOrEqual {
+                movePowerMultiplierMax = String(condition.value)
+            }
+        }
+        if let condition = probabilityCondition {
+            if condition.comparisonOperator == .greaterThanOrEqual {
+                probabilityMin = String(condition.value)
+            } else if condition.comparisonOperator == .lessThanOrEqual {
+                probabilityMax = String(condition.value)
+            }
+        }
     }
 }

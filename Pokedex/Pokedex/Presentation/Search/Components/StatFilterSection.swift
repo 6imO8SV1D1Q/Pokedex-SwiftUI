@@ -27,6 +27,9 @@ struct StatFilterSection: View {
                             .keyboardType(.numberPad)
                             .textFieldStyle(.roundedBorder)
                             .frame(width: 70)
+                            .onChange(of: inputValues[statType]?.min ?? "") {
+                                updateCondition(for: statType)
+                            }
 
                         Text("〜")
                             .foregroundColor(.secondary)
@@ -36,52 +39,37 @@ struct StatFilterSection: View {
                             .keyboardType(.numberPad)
                             .textFieldStyle(.roundedBorder)
                             .frame(width: 70)
+                            .onChange(of: inputValues[statType]?.max ?? "") {
+                                updateCondition(for: statType)
+                            }
 
-                        // 追加ボタン
-                        Button {
-                            addStatCondition(for: statType)
-                        } label: {
-                            Image(systemName: "plus.circle.fill")
-                                .foregroundColor(canAdd(for: statType) ? .blue : .gray)
-                                .imageScale(.large)
+                        // クリアボタン（値が入力されているか条件が設定されている場合に表示）
+                        if hasValue(for: statType) || hasCondition(for: statType) {
+                            Button {
+                                clearCondition(for: statType)
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.gray)
+                                    .imageScale(.medium)
+                            }
                         }
-                        .disabled(!canAdd(for: statType))
 
                         Spacer()
                     }
                 }
             }
             .padding(.vertical, 8)
-
-            // 選択済み条件の表示
-            if !statFilterConditions.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("設定中の条件")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-
-                    ForEach(statFilterConditions) { condition in
-                        HStack {
-                            Text(condition.displayText)
-                                .font(.body)
-
-                            Spacer()
-
-                            Button {
-                                removeStatCondition(condition)
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.red)
-                            }
-                        }
-                        .padding(.vertical, 4)
-                    }
-                }
-            }
         } header: {
             Text("種族値")
         } footer: {
-            Text("ポケモンの種族値で絞り込みます")
+            if statFilterConditions.isEmpty {
+                Text("ポケモンの種族値で絞り込みます")
+            } else {
+                Text("条件: \(statFilterConditions.count)件")
+            }
+        }
+        .onAppear {
+            loadConditionsToInputValues()
         }
     }
 
@@ -106,36 +94,31 @@ struct StatFilterSection: View {
         )
     }
 
-    private func canAdd(for statType: StatType) -> Bool {
+    private func hasValue(for statType: StatType) -> Bool {
         guard let values = inputValues[statType] else { return false }
-
-        // 最小値か最大値の少なくとも一方が入力されている
-        let hasMin = !values.min.isEmpty && Int(values.min) != nil
-        let hasMax = !values.max.isEmpty && Int(values.max) != nil
-
-        if !hasMin && !hasMax {
-            return false
-        }
-
-        // 両方入力されている場合、最小 <= 最大をチェック
-        if hasMin && hasMax {
-            guard let minValue = Int(values.min), let maxValue = Int(values.max) else {
-                return false
-            }
-            return minValue <= maxValue
-        }
-
-        return true
+        return !values.min.isEmpty || !values.max.isEmpty
     }
 
-    private func addStatCondition(for statType: StatType) {
+    private func hasCondition(for statType: StatType) -> Bool {
+        return statFilterConditions.contains { $0.statType == statType }
+    }
+
+    private func updateCondition(for statType: StatType) {
+        // 既存の条件を削除
+        statFilterConditions.removeAll { $0.statType == statType }
+
         guard let values = inputValues[statType] else { return }
 
         let minValue = Int(values.min)
         let maxValue = Int(values.max)
 
-        // 少なくとも一方が入力されている必要がある
+        // 最小値か最大値の少なくとも一方が入力されている場合のみ条件を追加
         guard minValue != nil || maxValue != nil else { return }
+
+        // 両方入力されている場合、最小 <= 最大をチェック
+        if let min = minValue, let max = maxValue, min > max {
+            return
+        }
 
         let condition = StatFilterCondition(
             statType: statType,
@@ -145,10 +128,18 @@ struct StatFilterSection: View {
         )
 
         statFilterConditions.append(condition)
-        inputValues[statType] = (min: "", max: "")
     }
 
-    private func removeStatCondition(_ condition: StatFilterCondition) {
-        statFilterConditions.removeAll { $0.id == condition.id }
+    private func clearCondition(for statType: StatType) {
+        inputValues[statType] = (min: "", max: "")
+        statFilterConditions.removeAll { $0.statType == statType }
+    }
+
+    private func loadConditionsToInputValues() {
+        for condition in statFilterConditions {
+            let minStr = condition.minValue > 0 ? String(condition.minValue) : ""
+            let maxStr = condition.maxValue.map { String($0) } ?? ""
+            inputValues[condition.statType] = (min: minStr, max: maxStr)
+        }
     }
 }
