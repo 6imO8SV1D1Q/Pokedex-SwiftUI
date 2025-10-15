@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AbilityFilterSection: View {
     @Binding var selectedAbilities: Set<String>
+    @Binding var abilityMetadataFilters: [AbilityMetadataFilter]
     @Binding var filterMode: FilterMode
     @State private var searchText = ""
 
@@ -60,6 +61,40 @@ struct AbilityFilterSection: View {
                         }
                     }
                     .foregroundColor(.primary)
+                }
+
+                // 特性の条件を追加
+                NavigationLink(destination: AbilityMetadataFilterView(onAdd: { filter in
+                    abilityMetadataFilters.append(filter)
+                })) {
+                    HStack {
+                        Text("特性の条件を追加")
+                        Spacer()
+                        Image(systemName: "plus.circle")
+                    }
+                }
+
+                // 設定中の条件を表示
+                if !abilityMetadataFilters.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("設定中の条件: \(abilityMetadataFilters.count)件")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        ForEach(0..<abilityMetadataFilters.count, id: \.self) { index in
+                            HStack {
+                                Text("条件\(index + 1)")
+                                    .font(.caption)
+                                Spacer()
+                                Button("削除") {
+                                    abilityMetadataFilters.remove(at: index)
+                                }
+                                .font(.caption)
+                                .foregroundColor(.red)
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
                 }
             }
         } header: {

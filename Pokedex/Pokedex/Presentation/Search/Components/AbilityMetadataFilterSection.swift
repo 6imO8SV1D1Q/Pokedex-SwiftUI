@@ -13,22 +13,35 @@ struct AbilityMetadataFilterSection: View {
 
     private let gridColumns = [
         GridItem(.flexible()),
+        GridItem(.flexible()),
         GridItem(.flexible())
     ]
 
     var body: some View {
         Section {
-            LazyVGrid(columns: gridColumns, spacing: 10) {
-                ForEach(AbilityCategory.allCases) { category in
-                    GridButtonView(
-                        text: category.displayName,
-                        isSelected: selectedCategories.contains(category),
-                        action: { toggleCategory(category) },
-                        selectedColor: .orange
-                    )
+            ForEach(0..<AbilityCategory.categoryGroups.count, id: \.self) { groupIndex in
+                let group = AbilityCategory.categoryGroups[groupIndex]
+                VStack(alignment: .leading, spacing: 8) {
+                    // グループ名
+                    Text(group.name)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                        .padding(.top, groupIndex > 0 ? 8 : 0)
+
+                    // カテゴリーボタン
+                    LazyVGrid(columns: gridColumns, spacing: 10) {
+                        ForEach(group.categories, id: \.id) { category in
+                            GridButtonView(
+                                text: category.displayName,
+                                isSelected: selectedCategories.contains(category),
+                                action: { toggleCategory(category) },
+                                selectedColor: .orange
+                            )
+                        }
+                    }
                 }
             }
-            .padding(.vertical, 8)
         } header: {
             Text("特性カテゴリ")
         } footer: {

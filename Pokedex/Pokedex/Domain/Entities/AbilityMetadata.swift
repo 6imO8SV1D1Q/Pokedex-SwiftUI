@@ -465,3 +465,186 @@ enum AccumulationSource: String, Codable {
         self = AccumulationSource(rawValue: rawValue) ?? .unknown
     }
 }
+
+// MARK: - UI Extensions
+
+extension Trigger {
+    var displayName: String {
+        switch self {
+        case .passive: return "常時"
+        case .onSwitchIn: return "場に出た時"
+        case .onAttacking: return "攻撃時"
+        case .onBeingHit: return "被弾時"
+        case .onContact: return "接触時（防御）"
+        case .onMakingContact: return "接触時（攻撃）"
+        case .onTurnEnd: return "ターン終了時"
+        case .onSwitchOut: return "交代時"
+        case .onStatChange: return "能力変化時"
+        case .onKO: return "相手を倒した時"
+        case .onAllyFainted: return "味方が倒れた時"
+        case .onHPThreshold: return "HP閾値到達時"
+        case .afterMove: return "技使用後"
+        case .onCriticalHit: return "急所を受けた時"
+        case .onFlinch: return "ひるんだ時"
+        case .onAllyMove: return "味方の技使用時"
+        case .onAnyPokemonMove: return "誰かの技使用時"
+        case .afterSpecificMove: return "特定技使用後"
+        case .onItemConsumed: return "道具消費時"
+        case .onFaintAny: return "誰かが倒れた時"
+        case .unknown: return "不明"
+        }
+    }
+
+    // UI用の主要なトリガー
+    static let uiCases: [Trigger] = [
+        .passive,
+        .onSwitchIn,
+        .onAttacking,
+        .onBeingHit,
+        .onTurnEnd,
+        .onSwitchOut,
+        .onContact,
+        .onStatChange
+    ]
+}
+
+extension EffectType {
+    var displayName: String {
+        switch self {
+        case .statMultiplier: return "能力値倍率"
+        case .statStageChange: return "能力ランク変化"
+        case .preventStatDecrease: return "能力低下無効"
+        case .ignoreStatChanges: return "能力変化無視"
+        case .reverseStatChanges: return "能力変化反転"
+        case .doubleStatChanges: return "能力変化2倍"
+        case .movePowerMultiplier: return "技威力倍率"
+        case .damageMultiplier: return "受けるダメージ倍率"
+        case .immuneToMove: return "技無効化"
+        case .immuneToType: return "タイプ無効化"
+        case .absorbType: return "タイプ吸収"
+        case .contactDamage: return "接触ダメージ"
+        case .surviveHit: return "一撃耐え"
+        case .immuneToStatus: return "状態異常無効"
+        case .inflictStatus: return "状態異常付与"
+        case .cureStatus: return "状態異常回復"
+        case .syncStatus: return "状態異常反射"
+        case .setWeather: return "天候設定"
+        case .setTerrain: return "フィールド設定"
+        case .nullifyWeather: return "天候無効化"
+        case .healHP: return "HP回復"
+        case .accuracyMultiplier: return "命中率倍率"
+        case .evasionMultiplier: return "回避率倍率"
+        case .criticalRateChange: return "急所率変化"
+        case .criticalDamageMultiplier: return "急所ダメージ倍率"
+        case .preventCritical: return "急所無効"
+        case .alwaysHit: return "必中"
+        case .additionalEffectChance: return "追加効果確率変化"
+        case .removeAdditionalEffect: return "追加効果削除"
+        case .preventAdditionalEffect: return "追加効果無効"
+        case .multiHitCount: return "連続攻撃回数変化"
+        case .priorityChange: return "優先度変更"
+        case .convertMoveType: return "技タイプ変換"
+        case .makeNonContact: return "非接触化"
+        case .reflectStatusMove: return "変化技反射"
+        case .changeUserType: return "自分タイプ変更"
+        case .changeTargetType: return "相手タイプ変更"
+        case .ignoreAbility: return "特性無視"
+        case .nullifyAbilities: return "全特性無効化"
+        case .copyAbility: return "特性コピー"
+        case .changeAbility: return "特性変更"
+        case .swapAbility: return "特性入れ替え"
+        case .preventItemLoss: return "道具保護"
+        case .stealItem: return "道具奪取"
+        case .disableItem: return "道具無効化"
+        case .berryEffect: return "きのみ効果変更"
+        case .preventSwitch: return "交代封じ"
+        case .preventForcedSwitch: return "強制交代無効"
+        case .forceSwitch: return "強制交代"
+        case .redirectMove: return "技引き寄せ"
+        case .formChange: return "フォルムチェンジ"
+        case .transform: return "変身"
+        case .disguise: return "見た目変更"
+        case .preventRecoil: return "反動無効"
+        case .immuneToIndirectDamage: return "間接ダメージ無効"
+        case .increasePPCost: return "PP消費増加"
+        case .disableMove: return "技封じ"
+        case .weightMultiplier: return "重さ変更"
+        case .preventAction: return "行動制限"
+        case .protectAlly: return "味方保護"
+        case .damageReductionFullHP: return "満タン時ダメージ軽減"
+        case .bypassProtection: return "保護技貫通"
+        case .reflectStatChanges: return "能力変化反射"
+        case .copyStatChanges: return "能力変化コピー"
+        case .cumulativeStatBoost: return "累積型能力上昇"
+        case .randomStatChange: return "ランダム能力変化"
+        case .setAccuracyFixed: return "命中率固定"
+        case .forceSlowStatusMove: return "変化技後攻化"
+        case .multiHitExact: return "連続攻撃回数固定"
+        case .replicateMove: return "技コピー"
+        case .createHazard: return "設置技設置"
+        case .grantAbilityToAlly: return "味方に特性付与"
+        case .boostAllyMovePower: return "味方技威力上昇"
+        case .healAlly: return "味方回復"
+        case .passItemToAlly: return "味方に道具渡す"
+        case .protectAllyFromStatus: return "味方状態異常防止"
+        case .setFlag: return "内部フラグ設定"
+        case .consumeItemAgain: return "きのみ再消費"
+        case .unknown: return "不明"
+        }
+    }
+
+    // UI用の主要な効果タイプ
+    static let uiCases: [EffectType] = [
+        .statMultiplier,
+        .movePowerMultiplier,
+        .immuneToType,
+        .absorbType,
+        .immuneToStatus,
+        .setWeather,
+        .setTerrain,
+        .healHP,
+        .statStageChange,
+        .preventStatDecrease,
+        .damageMultiplier,
+        .contactDamage
+    ]
+}
+
+extension Weather {
+    var displayName: String {
+        switch self {
+        case .sun: return "晴れ"
+        case .rain: return "雨"
+        case .sandstorm: return "砂嵐"
+        case .hail: return "あられ"
+        case .snow: return "雪"
+        case .unknown: return "不明"
+        }
+    }
+}
+
+extension Terrain {
+    var displayName: String {
+        switch self {
+        case .electric: return "エレキフィールド"
+        case .grassy: return "グラスフィールド"
+        case .misty: return "ミストフィールド"
+        case .psychic: return "サイコフィールド"
+        case .unknown: return "不明"
+        }
+    }
+}
+
+extension Status {
+    var displayName: String {
+        switch self {
+        case .burn: return "やけど"
+        case .freeze: return "こおり"
+        case .paralysis: return "まひ"
+        case .poison: return "どく"
+        case .badlyPoisoned: return "もうどく"
+        case .sleep: return "ねむり"
+        case .unknown: return "不明"
+        }
+    }
+}

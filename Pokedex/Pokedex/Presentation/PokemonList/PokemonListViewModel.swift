@@ -110,7 +110,7 @@ final class PokemonListViewModel: ObservableObject {
     @Published var selectedCategories: Set<PokemonCategory> = []
 
     /// 選択された特性カテゴリ
-    @Published var selectedAbilityCategories: Set<AbilityCategory> = []
+    @Published var abilityMetadataFilters: [AbilityMetadataFilter] = []
 
     /// 進化段階フィルターモード
     @Published var evolutionFilterMode: EvolutionFilterMode = .all
@@ -371,12 +371,12 @@ final class PokemonListViewModel: ObservableObject {
             mode: abilityFilterMode
         )
 
-        // 特性カテゴリフィルター適用
-        filtered = filterPokemonByAbilityCategoryUseCase.execute(
-            pokemons: filtered,
-            selectedCategories: selectedAbilityCategories,
-            abilityCategories: abilityCategories
-        )
+        // 特性メタデータフィルター適用
+        // TODO: 詳細メタデータフィルターのロジックを実装
+        // filtered = filterPokemonByAbilityMetadataUseCase.execute(
+        //     pokemons: filtered,
+        //     filters: abilityMetadataFilters
+        // )
 
         // 技フィルター適用
         if !selectedMoves.isEmpty {

@@ -46,8 +46,8 @@ enum AbilityCategory: String, CaseIterable, Identifiable {
         case .weatherDependent: return "天候依存"
         case .terrainSetter: return "フィールド設定"
         case .terrainDependent: return "フィールド依存"
-        case .statBoost: return "能力上昇"
-        case .statReducer: return "能力下降"
+        case .statBoost: return "自分能力上昇"
+        case .statReducer: return "相手能力下降"
         case .typeBoost: return "タイプ強化"
         case .typeImmunity: return "タイプ無効"
         case .typeDefense: return "タイプ耐性"
@@ -68,7 +68,7 @@ enum AbilityCategory: String, CaseIterable, Identifiable {
         case .weatherDependent: return "天候によって効果が変わる特性"
         case .terrainSetter: return "フィールドを変更する特性"
         case .terrainDependent: return "フィールドによって効果が変わる特性"
-        case .statBoost: return "能力を上昇させる特性"
+        case .statBoost: return "自分の能力を上昇させる特性"
         case .statReducer: return "相手の能力を下げる特性"
         case .typeBoost: return "特定タイプの技を強化する特性"
         case .typeImmunity: return "特定タイプを無効化する特性"
@@ -83,4 +83,45 @@ enum AbilityCategory: String, CaseIterable, Identifiable {
         case .hpDependent: return "HPの状態によって効果が変わる特性"
         }
     }
+
+    // MARK: - Category Groups
+
+    /// カテゴリーグループの定義
+    struct CategoryGroup {
+        let name: String
+        let categories: [AbilityCategory]
+    }
+
+    /// グループ分けされたカテゴリー
+    static let categoryGroups: [CategoryGroup] = [
+        CategoryGroup(name: "天候・フィールド", categories: [
+            .weatherSetter,
+            .weatherDependent,
+            .terrainSetter,
+            .terrainDependent
+        ]),
+        CategoryGroup(name: "能力変化", categories: [
+            .statBoost,
+            .statReducer
+        ]),
+        CategoryGroup(name: "タイプ関連", categories: [
+            .typeBoost,
+            .typeImmunity,
+            .typeDefense
+        ]),
+        CategoryGroup(name: "状態異常", categories: [
+            .statusImmunity,
+            .statusInflictor
+        ]),
+        CategoryGroup(name: "ダメージ・回復", categories: [
+            .damageReduction,
+            .damageIncrease,
+            .healing
+        ]),
+        CategoryGroup(name: "特殊効果", categories: [
+            .switchInEffect,
+            .randomEffect,
+            .hpDependent
+        ])
+    ]
 }
