@@ -77,22 +77,30 @@ struct AbilityFilterSection: View {
                 // 設定中の条件を表示
                 if !abilityMetadataFilters.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("設定中の条件: \(abilityMetadataFilters.count)件")
+                        Text("設定中の条件")
                             .font(.caption)
                             .foregroundColor(.secondary)
 
                         ForEach(0..<abilityMetadataFilters.count, id: \.self) { index in
                             HStack {
-                                Text("条件\(index + 1)")
-                                    .font(.caption)
-                                Spacer()
-                                Button("削除") {
-                                    abilityMetadataFilters.remove(at: index)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("条件\(index + 1)")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
                                 }
-                                .font(.caption)
-                                .foregroundColor(.red)
+
+                                Spacer()
+
+                                Button {
+                                    abilityMetadataFilters.remove(at: index)
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.red)
+                                }
                             }
-                            .padding(.vertical, 4)
+                            .padding(8)
+                            .background(Color.secondary.opacity(0.1))
+                            .cornerRadius(8)
                         }
                     }
                 }
