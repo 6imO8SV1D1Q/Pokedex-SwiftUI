@@ -158,8 +158,17 @@ final class PokemonListViewModel: ObservableObject {
     /// 特性カテゴリフィルタリングUseCase
     private let filterPokemonByAbilityCategoryUseCase: FilterPokemonByAbilityCategoryUseCaseProtocol
 
+    /// 特性メタデータ読み込みUseCase
+    private let loadAbilityMetadataUseCase: LoadAbilityMetadataUseCaseProtocol
+
+    /// 特性メタデータフィルタリングUseCase
+    private let filterPokemonByAbilityMetadataUseCase: FilterPokemonByAbilityMetadataUseCaseProtocol
+
     /// 特性カテゴリマッピング（特性名 → カテゴリ配列）
     private var abilityCategories: [String: [AbilityCategory]] = [:]
+
+    /// 特性メタデータ（全特性の詳細情報）
+    private var allAbilityMetadata: [AbilityMetadata] = []
 
     /// 最大再試行回数
     private let maxRetries = 3
@@ -189,6 +198,8 @@ final class PokemonListViewModel: ObservableObject {
         calculateStatsUseCase: CalculateStatsUseCaseProtocol,
         getAbilityCategoriesUseCase: GetAbilityCategoriesUseCaseProtocol,
         filterPokemonByAbilityCategoryUseCase: FilterPokemonByAbilityCategoryUseCaseProtocol,
+        loadAbilityMetadataUseCase: LoadAbilityMetadataUseCaseProtocol,
+        filterPokemonByAbilityMetadataUseCase: FilterPokemonByAbilityMetadataUseCaseProtocol,
         pokemonRepository: PokemonRepositoryProtocol,
         moveRepository: MoveRepositoryProtocol
     ) {
@@ -200,10 +211,20 @@ final class PokemonListViewModel: ObservableObject {
         self.calculateStatsUseCase = calculateStatsUseCase
         self.getAbilityCategoriesUseCase = getAbilityCategoriesUseCase
         self.filterPokemonByAbilityCategoryUseCase = filterPokemonByAbilityCategoryUseCase
+        self.loadAbilityMetadataUseCase = loadAbilityMetadataUseCase
+        self.filterPokemonByAbilityMetadataUseCase = filterPokemonByAbilityMetadataUseCase
         self.pokemonRepository = pokemonRepository
         self.moveRepository = moveRepository
         self.allVersionGroups = fetchVersionGroupsUseCase.execute()
         self.abilityCategories = getAbilityCategoriesUseCase.execute()
+
+        // 特性メタデータを読み込み
+        do {
+            self.allAbilityMetadata = try loadAbilityMetadataUseCase.execute()
+        } catch {
+            print("❌ Failed to load ability metadata: \(error)")
+            self.allAbilityMetadata = []
+        }
     }
 
     // MARK: - Public Methods
@@ -372,11 +393,13 @@ final class PokemonListViewModel: ObservableObject {
         )
 
         // 特性メタデータフィルター適用
-        // TODO: 詳細メタデータフィルターのロジックを実装
-        // filtered = filterPokemonByAbilityMetadataUseCase.execute(
-        //     pokemons: filtered,
-        //     filters: abilityMetadataFilters
-        // )
+        if !abilityMetadataFilters.isEmpty {
+            filtered = filterPokemonByAbilityMetadataUseCase.execute(
+                pokemons: filtered,
+                filters: abilityMetadataFilters,
+                allMetadata: allAbilityMetadata
+            )
+        }
 
         // 技フィルター適用
         if !selectedMoves.isEmpty {
@@ -537,6 +560,7 @@ final class PokemonListViewModel: ObservableObject {
         selectedTypes.removeAll()
         selectedCategories.removeAll()
         selectedAbilities.removeAll()
+        abilityMetadataFilters.removeAll()
         selectedMoveCategories.removeAll()
         selectedMoves.removeAll()
         evolutionFilterMode = .all
