@@ -106,6 +106,7 @@ enum ConditionType: String, Codable {
     case defeatedAlliesCount = "defeated_allies_count"
     case flagActive = "flag_active"
     case opposingPokemonCount = "opposing_pokemon_count"
+    case statLowered = "stat_lowered"
     case unknown = "unknown"
 
     init(from decoder: Decoder) throws {

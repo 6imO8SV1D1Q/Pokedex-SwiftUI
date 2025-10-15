@@ -16,6 +16,10 @@ struct AbilityMetadataFilterView: View {
     var body: some View {
         NavigationStack {
             Form {
+                AbilityMetadataFilterSection(
+                    selectedCategories: $tempFilter.categories
+                )
+
                 AbilityTriggerSection(
                     selectedTriggers: $tempFilter.triggers
                 )

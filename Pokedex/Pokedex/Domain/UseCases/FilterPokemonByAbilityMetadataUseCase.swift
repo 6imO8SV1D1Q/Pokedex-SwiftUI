@@ -117,16 +117,9 @@ struct FilterPokemonByAbilityMetadataUseCase: FilterPokemonByAbilityMetadataUseC
             }
         }
 
-        // 天候のチェック
+        // 天候のチェック（天候を設定する特性のみ）
         if !filter.weathers.isEmpty {
             let hasWeather = metadata.effects.contains { effect in
-                guard let condition = effect.condition,
-                      condition.type == .weather,
-                      case let .weather(weather) = condition.value else {
-                    return false
-                }
-                return filter.weathers.contains(weather.rawValue)
-            } || metadata.effects.contains { effect in
                 guard effect.effectType == .setWeather,
                       let weather = effect.value?.weather else {
                     return false
@@ -138,16 +131,9 @@ struct FilterPokemonByAbilityMetadataUseCase: FilterPokemonByAbilityMetadataUseC
             }
         }
 
-        // フィールドのチェック
+        // フィールドのチェック（フィールドを設定する特性のみ）
         if !filter.terrains.isEmpty {
             let hasTerrain = metadata.effects.contains { effect in
-                guard let condition = effect.condition,
-                      condition.type == .terrain,
-                      case let .terrain(terrain) = condition.value else {
-                    return false
-                }
-                return filter.terrains.contains(terrain.rawValue)
-            } || metadata.effects.contains { effect in
                 guard effect.effectType == .setTerrain,
                       let terrain = effect.value?.terrain else {
                     return false
@@ -155,6 +141,16 @@ struct FilterPokemonByAbilityMetadataUseCase: FilterPokemonByAbilityMetadataUseC
                 return filter.terrains.contains(terrain.rawValue)
             }
             if !hasTerrain {
+                matches = false
+            }
+        }
+
+        // カテゴリのチェック
+        if !filter.categories.isEmpty {
+            let hasCategory = filter.categories.contains { category in
+                metadata.categories.contains(category.rawValue)
+            }
+            if !hasCategory {
                 matches = false
             }
         }

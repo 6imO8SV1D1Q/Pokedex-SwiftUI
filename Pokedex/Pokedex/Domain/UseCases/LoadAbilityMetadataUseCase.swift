@@ -13,11 +13,22 @@ protocol LoadAbilityMetadataUseCaseProtocol {
 
 struct LoadAbilityMetadataUseCase: LoadAbilityMetadataUseCaseProtocol {
     func execute() throws -> [AbilityMetadata] {
-        guard let url = Bundle.main.url(
+        // まずsubdirectory付きで探す
+        var url = Bundle.main.url(
             forResource: "ability_metadata",
             withExtension: "json",
             subdirectory: "Resources/PreloadedData"
-        ) else {
+        )
+
+        if url == nil {
+            // subdirectoryなしで探す
+            url = Bundle.main.url(
+                forResource: "ability_metadata",
+                withExtension: "json"
+            )
+        }
+
+        guard let url = url else {
             throw NSError(domain: "LoadAbilityMetadataUseCase", code: 1, userInfo: [
                 NSLocalizedDescriptionKey: "ability_metadata.json not found"
             ])
@@ -25,9 +36,8 @@ struct LoadAbilityMetadataUseCase: LoadAbilityMetadataUseCaseProtocol {
 
         let data = try Data(contentsOf: url)
         let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-
         let metadata = try decoder.decode([AbilityMetadata].self, from: data)
+
         return metadata
     }
 }

@@ -35,6 +35,7 @@ enum AbilityCategory: String, CaseIterable, Identifiable {
 
     // 特殊効果
     case switchInEffect = "switch_in_effect"
+    case switchOutEffect = "switch_out_effect"
     case randomEffect = "random_effect"
     case hpDependent = "hp_dependent"
 
@@ -57,6 +58,7 @@ enum AbilityCategory: String, CaseIterable, Identifiable {
         case .damageIncrease: return "ダメージ増加"
         case .healing: return "HP回復"
         case .switchInEffect: return "登場時効果"
+        case .switchOutEffect: return "交代時効果"
         case .randomEffect: return "ランダム効果"
         case .hpDependent: return "HP依存"
         }
@@ -79,6 +81,7 @@ enum AbilityCategory: String, CaseIterable, Identifiable {
         case .damageIncrease: return "与えるダメージを増加させる特性"
         case .healing: return "HPを回復する特性"
         case .switchInEffect: return "場に出たときに効果を発動する特性"
+        case .switchOutEffect: return "交代時に効果を発動する特性"
         case .randomEffect: return "ランダムに効果を発動する特性"
         case .hpDependent: return "HPの状態によって効果が変わる特性"
         }
@@ -120,6 +123,7 @@ enum AbilityCategory: String, CaseIterable, Identifiable {
         ]),
         CategoryGroup(name: "特殊効果", categories: [
             .switchInEffect,
+            .switchOutEffect,
             .randomEffect,
             .hpDependent
         ])
