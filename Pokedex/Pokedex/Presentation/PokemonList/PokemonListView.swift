@@ -255,7 +255,10 @@ struct PokemonListView: View {
                         PokemonRow(
                             pokemon: pokemonWithMatch.pokemon,
                             selectedPokedex: viewModel.selectedPokedex,
-                            matchInfo: pokemonWithMatch.matchInfo
+                            matchInfo: pokemonWithMatch.matchInfo,
+                            statFilterConditions: viewModel.statFilterConditions,
+                            selectedMoves: viewModel.selectedMoves,
+                            moveMetadataFilters: viewModel.moveMetadataFilters
                         )
                     }
                 }
