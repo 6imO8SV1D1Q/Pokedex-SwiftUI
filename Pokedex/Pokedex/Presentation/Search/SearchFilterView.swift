@@ -41,6 +41,7 @@ struct SearchFilterView: View {
 
                 AbilityFilterSection(
                     selectedAbilities: $viewModel.selectedAbilities,
+                    abilityMetadataFilters: $viewModel.abilityMetadataFilters,
                     filterMode: $viewModel.abilityFilterMode,
                     allAbilities: allAbilities,
                     isLoading: isLoadingAbilities
@@ -93,6 +94,7 @@ struct SearchFilterView: View {
         viewModel.selectedTypes.removeAll()
         viewModel.selectedCategories.removeAll()
         viewModel.selectedAbilities.removeAll()
+        viewModel.abilityMetadataFilters.removeAll()
         viewModel.selectedMoveCategories.removeAll()
         viewModel.selectedMoves.removeAll()
         viewModel.evolutionFilterMode = .all

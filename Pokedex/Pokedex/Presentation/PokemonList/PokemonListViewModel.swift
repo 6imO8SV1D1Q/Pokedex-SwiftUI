@@ -51,8 +51,8 @@ final class PokemonListViewModel: ObservableObject {
     /// 取得したポケモンの全リスト
     @Published private(set) var pokemons: [Pokemon] = []
 
-    /// フィルタリング後のポケモンリスト
-    @Published private(set) var filteredPokemons: [Pokemon] = []
+    /// フィルタリング後のポケモンリスト（合致理由付き）
+    @Published private(set) var filteredPokemons: [PokemonWithMatchInfo] = []
 
     /// ローディング状態
     @Published private(set) var isLoading = false
@@ -109,6 +109,9 @@ final class PokemonListViewModel: ObservableObject {
     /// 選択されたポケモン区分
     @Published var selectedCategories: Set<PokemonCategory> = []
 
+    /// 選択された特性カテゴリ
+    @Published var abilityMetadataFilters: [AbilityMetadataFilter] = []
+
     /// 進化段階フィルターモード
     @Published var evolutionFilterMode: EvolutionFilterMode = .all
 
@@ -149,6 +152,24 @@ final class PokemonListViewModel: ObservableObject {
     /// 技リポジトリ
     private let moveRepository: MoveRepositoryProtocol
 
+    /// 特性カテゴリ取得UseCase
+    private let getAbilityCategoriesUseCase: GetAbilityCategoriesUseCaseProtocol
+
+    /// 特性カテゴリフィルタリングUseCase
+    private let filterPokemonByAbilityCategoryUseCase: FilterPokemonByAbilityCategoryUseCaseProtocol
+
+    /// 特性メタデータ読み込みUseCase
+    private let loadAbilityMetadataUseCase: LoadAbilityMetadataUseCaseProtocol
+
+    /// 特性メタデータフィルタリングUseCase
+    private let filterPokemonByAbilityMetadataUseCase: FilterPokemonByAbilityMetadataUseCaseProtocol
+
+    /// 特性カテゴリマッピング（特性名 → カテゴリ配列）
+    private var abilityCategories: [String: [AbilityCategory]] = [:]
+
+    /// 特性メタデータ（全特性の詳細情報）
+    private var allAbilityMetadata: [AbilityMetadata] = []
+
     /// 最大再試行回数
     private let maxRetries = 3
 
@@ -175,6 +196,10 @@ final class PokemonListViewModel: ObservableObject {
         filterPokemonByMovesUseCase: FilterPokemonByMovesUseCaseProtocol,
         fetchVersionGroupsUseCase: FetchVersionGroupsUseCaseProtocol,
         calculateStatsUseCase: CalculateStatsUseCaseProtocol,
+        getAbilityCategoriesUseCase: GetAbilityCategoriesUseCaseProtocol,
+        filterPokemonByAbilityCategoryUseCase: FilterPokemonByAbilityCategoryUseCaseProtocol,
+        loadAbilityMetadataUseCase: LoadAbilityMetadataUseCaseProtocol,
+        filterPokemonByAbilityMetadataUseCase: FilterPokemonByAbilityMetadataUseCaseProtocol,
         pokemonRepository: PokemonRepositoryProtocol,
         moveRepository: MoveRepositoryProtocol
     ) {
@@ -184,9 +209,22 @@ final class PokemonListViewModel: ObservableObject {
         self.filterPokemonByMovesUseCase = filterPokemonByMovesUseCase
         self.fetchVersionGroupsUseCase = fetchVersionGroupsUseCase
         self.calculateStatsUseCase = calculateStatsUseCase
+        self.getAbilityCategoriesUseCase = getAbilityCategoriesUseCase
+        self.filterPokemonByAbilityCategoryUseCase = filterPokemonByAbilityCategoryUseCase
+        self.loadAbilityMetadataUseCase = loadAbilityMetadataUseCase
+        self.filterPokemonByAbilityMetadataUseCase = filterPokemonByAbilityMetadataUseCase
         self.pokemonRepository = pokemonRepository
         self.moveRepository = moveRepository
         self.allVersionGroups = fetchVersionGroupsUseCase.execute()
+        self.abilityCategories = getAbilityCategoriesUseCase.execute()
+
+        // 特性メタデータを読み込み
+        do {
+            self.allAbilityMetadata = try loadAbilityMetadataUseCase.execute()
+        } catch {
+            print("❌ Failed to load ability metadata: \(error)")
+            self.allAbilityMetadata = []
+        }
     }
 
     // MARK: - Public Methods
@@ -250,6 +288,9 @@ final class PokemonListViewModel: ObservableObject {
 
     /// フィルターを適用（非同期版）
     private func applyFiltersAsync() async {
+        // 合致情報を保持するマップ（ポケモンID → 合致情報）
+        var matchInfoMap: [Int: PokemonMatchInfo] = [:]
+
         // フィルタリング
         // 注: 世代フィルターはRepositoryで既に適用済みなので、ここでは検索とタイプのみ
         var filtered = pokemons.filter { pokemon in
@@ -347,14 +388,45 @@ final class PokemonListViewModel: ObservableObject {
             return matchesPokedex && matchesSearch && matchesType && matchesCategory && matchesEvolution && matchesStatFilter
         }
 
-        // 特性フィルター適用
-        filtered = filterPokemonByAbilityUseCase.execute(
+        // 特性フィルター適用（合致した特性を収集）
+        let abilityFilterResults = filterPokemonByAbilityUseCase.execute(
             pokemonList: filtered,
             selectedAbilities: selectedAbilities,
             mode: abilityFilterMode
         )
+        filtered = abilityFilterResults.map { $0.pokemon }
 
-        // 技フィルター適用
+        // 合致した特性を記録
+        for (pokemon, matchedAbilities) in abilityFilterResults {
+            var matchInfo = matchInfoMap[pokemon.id] ?? PokemonMatchInfo.empty
+            matchInfo = PokemonMatchInfo(
+                matchedAbilities: (matchInfo.matchedAbilities + matchedAbilities).unique(),
+                matchedMoves: matchInfo.matchedMoves
+            )
+            matchInfoMap[pokemon.id] = matchInfo
+        }
+
+        // 特性メタデータフィルター適用（合致した特性を収集）
+        if !abilityMetadataFilters.isEmpty {
+            let metadataFilterResults = filterPokemonByAbilityMetadataUseCase.execute(
+                pokemons: filtered,
+                filters: abilityMetadataFilters,
+                allMetadata: allAbilityMetadata
+            )
+            filtered = metadataFilterResults.map { $0.pokemon }
+
+            // 合致した特性を記録
+            for (pokemon, matchedAbilities) in metadataFilterResults {
+                var matchInfo = matchInfoMap[pokemon.id] ?? PokemonMatchInfo.empty
+                matchInfo = PokemonMatchInfo(
+                    matchedAbilities: (matchInfo.matchedAbilities + matchedAbilities).unique(),
+                    matchedMoves: matchInfo.matchedMoves
+                )
+                matchInfoMap[pokemon.id] = matchInfo
+            }
+        }
+
+        // 技フィルター適用（合致した技を収集）
         if !selectedMoves.isEmpty {
             isFiltering = true
             do {
@@ -364,15 +436,24 @@ final class PokemonListViewModel: ObservableObject {
                     versionGroup: selectedVersionGroup.id,
                     mode: moveFilterMode
                 )
-                // 技フィルター結果からポケモンのみを抽出
                 filtered = moveFilteredResults.map { $0.pokemon }
+
+                // 合致した技を記録
+                for (pokemon, learnMethods) in moveFilteredResults {
+                    var matchInfo = matchInfoMap[pokemon.id] ?? PokemonMatchInfo.empty
+                    matchInfo = PokemonMatchInfo(
+                        matchedAbilities: matchInfo.matchedAbilities,
+                        matchedMoves: (matchInfo.matchedMoves + learnMethods).uniqueByMoveId()
+                    )
+                    matchInfoMap[pokemon.id] = matchInfo
+                }
             } catch {
                 // エラー時は技フィルターをスキップ
             }
             isFiltering = false
         }
 
-        // 技メタデータフィルター適用（OR/AND切り替え対応）
+        // 技メタデータフィルター適用（OR/AND切り替え対応、合致した技を収集）
         if !moveMetadataFilters.isEmpty {
             isFiltering = true
             do {
@@ -381,6 +462,7 @@ final class PokemonListViewModel: ObservableObject {
 
                 // 2. 各条件ごとに合致するポケモンを絞り込み（OR/AND検索）
                 var matchingPokemonIds: Set<Int>? = nil
+                var pokemonLearnMethodsMap: [Int: [MoveLearnMethod]] = [:]  // ポケモンID → 合致した技
                 let pokemonIds = filtered.map { $0.id }
 
                 for filter in moveMetadataFilters {
@@ -401,6 +483,11 @@ final class PokemonListViewModel: ObservableObject {
                         let pokemonsWhoLearnTheseMoves = Set(
                             bulkLearnMethods.keys.filter { bulkLearnMethods[$0]?.isEmpty == false }
                         )
+
+                        // 習得方法を記録
+                        for (pokemonId, learnMethods) in bulkLearnMethods where !learnMethods.isEmpty {
+                            pokemonLearnMethodsMap[pokemonId, default: []] += learnMethods
+                        }
 
                         // 最初の条件は初期化、2つ目以降はOR/ANDモードに応じて結合
                         if matchingPokemonIds == nil {
@@ -426,6 +513,16 @@ final class PokemonListViewModel: ObservableObject {
                 // 3. 条件に合致するポケモンのみを残す
                 if let finalPokemonIds = matchingPokemonIds {
                     filtered = filtered.filter { finalPokemonIds.contains($0.id) }
+
+                    // 合致した技を記録
+                    for (pokemonId, learnMethods) in pokemonLearnMethodsMap where finalPokemonIds.contains(pokemonId) {
+                        var matchInfo = matchInfoMap[pokemonId] ?? PokemonMatchInfo.empty
+                        matchInfo = PokemonMatchInfo(
+                            matchedAbilities: matchInfo.matchedAbilities,
+                            matchedMoves: (matchInfo.matchedMoves + learnMethods).uniqueByMoveId()
+                        )
+                        matchInfoMap[pokemonId] = matchInfo
+                    }
                 }
             } catch {
                 // エラー時は技メタデータフィルターをスキップ
@@ -448,7 +545,11 @@ final class PokemonListViewModel: ObservableObject {
             }
         }
 
-        filteredPokemons = sorted
+        // 合致情報と一緒にラップ
+        filteredPokemons = sorted.map { pokemon in
+            let matchInfo = matchInfoMap[pokemon.id] ?? .empty
+            return PokemonWithMatchInfo(pokemon: pokemon, matchInfo: matchInfo)
+        }
     }
 
     /// ソートオプションを変更
@@ -513,6 +614,7 @@ final class PokemonListViewModel: ObservableObject {
         selectedTypes.removeAll()
         selectedCategories.removeAll()
         selectedAbilities.removeAll()
+        abilityMetadataFilters.removeAll()
         selectedMoveCategories.removeAll()
         selectedMoves.removeAll()
         evolutionFilterMode = .all

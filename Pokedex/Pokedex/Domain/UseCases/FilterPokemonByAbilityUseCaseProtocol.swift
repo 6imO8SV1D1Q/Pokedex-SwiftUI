@@ -14,10 +14,10 @@ protocol FilterPokemonByAbilityUseCaseProtocol {
     ///   - pokemonList: フィルタリング対象のポケモンリスト
     ///   - selectedAbilities: 選択された特性名のセット
     ///   - mode: 検索モード（OR/AND）
-    /// - Returns: フィルタリング済みのポケモンリスト
+    /// - Returns: フィルタリング済みのポケモンと合致した特性名のタプル配列
     func execute(
         pokemonList: [Pokemon],
         selectedAbilities: Set<String>,
         mode: FilterMode
-    ) -> [Pokemon]
+    ) -> [(pokemon: Pokemon, matchedAbilities: [String])]
 }

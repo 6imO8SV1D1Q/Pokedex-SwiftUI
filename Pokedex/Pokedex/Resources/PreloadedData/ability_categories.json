@@ -1,0 +1,882 @@
+{
+  "ability_categories": {
+    "stench": [
+      "status_inflict"
+    ],
+    "drizzle": [
+      "weather_setter",
+      "switch_in_effect"
+    ],
+    "speed-boost": [
+      "stat_boost"
+    ],
+    "battle-armor": [
+      "other"
+    ],
+    "sturdy": [
+      "hp_dependent"
+    ],
+    "damp": [
+      "other"
+    ],
+    "limber": [
+      "healing",
+      "status_immunity"
+    ],
+    "sand-veil": [
+      "weather_dependent"
+    ],
+    "static": [
+      "type_immunity",
+      "status_inflict"
+    ],
+    "volt-absorb": [
+      "type_immunity",
+      "healing"
+    ],
+    "water-absorb": [
+      "healing"
+    ],
+    "oblivious": [
+      "other"
+    ],
+    "cloud-nine": [
+      "weather_dependent"
+    ],
+    "compound-eyes": [
+      "stat_boost"
+    ],
+    "insomnia": [
+      "status_immunity"
+    ],
+    "immunity": [
+      "healing",
+      "status_immunity"
+    ],
+    "flash-fire": [
+      "type_immunity"
+    ],
+    "shield-dust": [
+      "other"
+    ],
+    "own-tempo": [
+      "healing",
+      "status_immunity"
+    ],
+    "suction-cups": [
+      "other"
+    ],
+    "intimidate": [
+      "switch_in_effect",
+      "random_effect"
+    ],
+    "shadow-tag": [
+      "switch_in_effect"
+    ],
+    "rough-skin": [
+      "other"
+    ],
+    "levitate": [
+      "weather_dependent",
+      "type_immunity"
+    ],
+    "effect-spore": [
+      "status_inflict"
+    ],
+    "synchronize": [
+      "random_effect"
+    ],
+    "clear-body": [
+      "stat_boost"
+    ],
+    "natural-cure": [
+      "status_immunity"
+    ],
+    "lightning-rod": [
+      "type_immunity"
+    ],
+    "serene-grace": [
+      "random_effect"
+    ],
+    "swift-swim": [
+      "weather_dependent"
+    ],
+    "chlorophyll": [
+      "weather_dependent",
+      "stat_boost"
+    ],
+    "illuminate": [
+      "other"
+    ],
+    "trace": [
+      "switch_in_effect"
+    ],
+    "huge-power": [
+      "other"
+    ],
+    "poison-point": [
+      "status_inflict"
+    ],
+    "inner-focus": [
+      "other"
+    ],
+    "magma-armor": [
+      "status_immunity"
+    ],
+    "water-veil": [
+      "healing",
+      "status_immunity"
+    ],
+    "magnet-pull": [
+      "switch_in_effect"
+    ],
+    "soundproof": [
+      "healing"
+    ],
+    "rain-dish": [
+      "weather_dependent",
+      "healing"
+    ],
+    "sand-stream": [
+      "weather_setter",
+      "switch_in_effect"
+    ],
+    "pressure": [
+      "weather_dependent",
+      "switch_in_effect"
+    ],
+    "thick-fat": [
+      "type_defense"
+    ],
+    "early-bird": [
+      "other"
+    ],
+    "flame-body": [
+      "status_inflict"
+    ],
+    "run-away": [
+      "other"
+    ],
+    "keen-eye": [
+      "stat_boost"
+    ],
+    "hyper-cutter": [
+      "other"
+    ],
+    "pickup": [
+      "random_effect"
+    ],
+    "truant": [
+      "stat_reducer"
+    ],
+    "hustle": [
+      "stat_boost"
+    ],
+    "cute-charm": [
+      "random_effect"
+    ],
+    "plus": [
+      "other"
+    ],
+    "minus": [
+      "other"
+    ],
+    "sticky-hold": [
+      "other"
+    ],
+    "shed-skin": [
+      "other"
+    ],
+    "guts": [
+      "stat_boost"
+    ],
+    "marvel-scale": [
+      "stat_boost"
+    ],
+    "liquid-ooze": [
+      "healing"
+    ],
+    "overgrow": [
+      "hp_dependent"
+    ],
+    "blaze": [
+      "hp_dependent"
+    ],
+    "torrent": [
+      "hp_dependent"
+    ],
+    "swarm": [
+      "hp_dependent"
+    ],
+    "rock-head": [
+      "damage_reduction"
+    ],
+    "drought": [
+      "weather_setter",
+      "switch_in_effect"
+    ],
+    "arena-trap": [
+      "switch_in_effect"
+    ],
+    "vital-spirit": [
+      "status_immunity"
+    ],
+    "white-smoke": [
+      "stat_boost"
+    ],
+    "pure-power": [
+      "other"
+    ],
+    "shell-armor": [
+      "other"
+    ],
+    "air-lock": [
+      "weather_dependent"
+    ],
+    "tangled-feet": [
+      "stat_boost"
+    ],
+    "motor-drive": [
+      "stat_boost",
+      "type_immunity"
+    ],
+    "rivalry": [
+      "damage_increase"
+    ],
+    "steadfast": [
+      "stat_boost"
+    ],
+    "snow-cloak": [
+      "weather_dependent"
+    ],
+    "gluttony": [
+      "other"
+    ],
+    "anger-point": [
+      "stat_boost"
+    ],
+    "unburden": [
+      "other"
+    ],
+    "heatproof": [
+      "type_defense"
+    ],
+    "simple": [
+      "stat_boost"
+    ],
+    "dry-skin": [
+      "weather_dependent",
+      "healing",
+      "damage_increase"
+    ],
+    "download": [
+      "stat_boost",
+      "switch_in_effect"
+    ],
+    "iron-fist": [
+      "damage_increase"
+    ],
+    "poison-heal": [
+      "healing"
+    ],
+    "adaptability": [
+      "type_boost"
+    ],
+    "skill-link": [
+      "damage_increase"
+    ],
+    "hydration": [
+      "weather_dependent"
+    ],
+    "solar-power": [
+      "weather_dependent",
+      "stat_boost"
+    ],
+    "quick-feet": [
+      "stat_boost"
+    ],
+    "sniper": [
+      "damage_increase"
+    ],
+    "magic-guard": [
+      "weather_dependent",
+      "healing"
+    ],
+    "no-guard": [
+      "stat_boost"
+    ],
+    "stall": [
+      "stat_reducer"
+    ],
+    "technician": [
+      "damage_increase"
+    ],
+    "leaf-guard": [
+      "weather_dependent",
+      "status_immunity"
+    ],
+    "klutz": [
+      "stat_reducer"
+    ],
+    "mold-breaker": [
+      "weather_dependent",
+      "healing",
+      "switch_in_effect"
+    ],
+    "super-luck": [
+      "stat_boost"
+    ],
+    "aftermath": [
+      "other"
+    ],
+    "anticipation": [
+      "weather_dependent",
+      "switch_in_effect"
+    ],
+    "forewarn": [
+      "weather_dependent",
+      "switch_in_effect"
+    ],
+    "unaware": [
+      "damage_reduction"
+    ],
+    "tinted-lens": [
+      "damage_increase"
+    ],
+    "filter": [
+      "type_defense"
+    ],
+    "slow-start": [
+      "stat_reducer"
+    ],
+    "scrappy": [
+      "type_immunity"
+    ],
+    "storm-drain": [
+      "type_immunity",
+      "stat_boost"
+    ],
+    "ice-body": [
+      "weather_dependent",
+      "healing"
+    ],
+    "solid-rock": [
+      "type_defense"
+    ],
+    "snow-warning": [
+      "weather_setter",
+      "switch_in_effect"
+    ],
+    "honey-gather": [
+      "random_effect"
+    ],
+    "frisk": [
+      "weather_dependent",
+      "switch_in_effect"
+    ],
+    "reckless": [
+      "other"
+    ],
+    "multitype": [
+      "other"
+    ],
+    "bad-dreams": [
+      "other"
+    ],
+    "pickpocket": [
+      "weather_dependent"
+    ],
+    "sheer-force": [
+      "damage_increase"
+    ],
+    "contrary": [
+      "stat_boost"
+    ],
+    "unnerve": [
+      "other"
+    ],
+    "defiant": [
+      "stat_boost"
+    ],
+    "cursed-body": [
+      "random_effect"
+    ],
+    "healer": [
+      "random_effect"
+    ],
+    "friend-guard": [
+      "other"
+    ],
+    "weak-armor": [
+      "stat_boost"
+    ],
+    "heavy-metal": [
+      "stat_boost"
+    ],
+    "light-metal": [
+      "stat_boost"
+    ],
+    "multiscale": [
+      "hp_dependent"
+    ],
+    "toxic-boost": [
+      "stat_boost"
+    ],
+    "flare-boost": [
+      "stat_boost"
+    ],
+    "harvest": [
+      "weather_dependent",
+      "random_effect"
+    ],
+    "telepathy": [
+      "other"
+    ],
+    "moody": [
+      "stat_boost",
+      "random_effect"
+    ],
+    "overcoat": [
+      "weather_dependent",
+      "damage_reduction"
+    ],
+    "poison-touch": [
+      "status_inflict"
+    ],
+    "regenerator": [
+      "healing"
+    ],
+    "big-pecks": [
+      "other"
+    ],
+    "sand-rush": [
+      "weather_dependent"
+    ],
+    "wonder-skin": [
+      "other"
+    ],
+    "analytic": [
+      "damage_increase"
+    ],
+    "illusion": [
+      "switch_in_effect"
+    ],
+    "imposter": [
+      "switch_in_effect"
+    ],
+    "infiltrator": [
+      "other"
+    ],
+    "moxie": [
+      "stat_boost"
+    ],
+    "justified": [
+      "stat_boost"
+    ],
+    "rattled": [
+      "stat_boost"
+    ],
+    "magic-bounce": [
+      "other"
+    ],
+    "sap-sipper": [
+      "type_immunity",
+      "stat_boost"
+    ],
+    "prankster": [
+      "damage_increase"
+    ],
+    "sand-force": [
+      "weather_dependent",
+      "type_boost"
+    ],
+    "turboblaze": [
+      "weather_dependent",
+      "healing",
+      "switch_in_effect"
+    ],
+    "teravolt": [
+      "weather_dependent",
+      "healing",
+      "switch_in_effect"
+    ],
+    "aroma-veil": [
+      "other"
+    ],
+    "flower-veil": [
+      "other"
+    ],
+    "cheek-pouch": [
+      "healing"
+    ],
+    "protean": [
+      "type_immunity"
+    ],
+    "fur-coat": [
+      "damage_reduction"
+    ],
+    "magician": [
+      "random_effect"
+    ],
+    "bulletproof": [
+      "damage_reduction"
+    ],
+    "competitive": [
+      "stat_boost"
+    ],
+    "strong-jaw": [
+      "damage_increase"
+    ],
+    "sweet-veil": [
+      "status_immunity"
+    ],
+    "gale-wings": [
+      "damage_increase"
+    ],
+    "mega-launcher": [
+      "damage_increase"
+    ],
+    "grass-pelt": [
+      "terrain_dependent",
+      "stat_boost"
+    ],
+    "symbiosis": [
+      "other"
+    ],
+    "tough-claws": [
+      "damage_increase"
+    ],
+    "pixilate": [
+      "type_boost",
+      "damage_increase"
+    ],
+    "gooey": [
+      "other"
+    ],
+    "stamina": [
+      "stat_boost"
+    ],
+    "water-compaction": [
+      "stat_boost"
+    ],
+    "merciless": [
+      "other"
+    ],
+    "shields-down": [
+      "stat_boost",
+      "hp_dependent"
+    ],
+    "stakeout": [
+      "damage_increase"
+    ],
+    "water-bubble": [
+      "status_immunity"
+    ],
+    "berserk": [
+      "stat_boost"
+    ],
+    "slush-rush": [
+      "weather_dependent"
+    ],
+    "long-reach": [
+      "other"
+    ],
+    "liquid-voice": [
+      "other"
+    ],
+    "triage": [
+      "healing"
+    ],
+    "galvanize": [
+      "type_boost",
+      "damage_increase"
+    ],
+    "surge-surfer": [
+      "terrain_dependent",
+      "stat_boost"
+    ],
+    "disguise": [
+      "damage_reduction",
+      "hp_dependent"
+    ],
+    "battle-bond": [
+      "other"
+    ],
+    "corrosion": [
+      "other"
+    ],
+    "comatose": [
+      "other"
+    ],
+    "queenly-majesty": [
+      "other"
+    ],
+    "dancer": [
+      "other"
+    ],
+    "battery": [
+      "damage_increase"
+    ],
+    "fluffy": [
+      "type_defense"
+    ],
+    "dazzling": [
+      "other"
+    ],
+    "soul-heart": [
+      "stat_boost"
+    ],
+    "tangling-hair": [
+      "other"
+    ],
+    "receiver": [
+      "switch_in_effect"
+    ],
+    "power-of-alchemy": [
+      "switch_in_effect"
+    ],
+    "electric-surge": [
+      "terrain_setter",
+      "switch_in_effect"
+    ],
+    "psychic-surge": [
+      "terrain_setter",
+      "switch_in_effect"
+    ],
+    "misty-surge": [
+      "terrain_setter",
+      "switch_in_effect"
+    ],
+    "grassy-surge": [
+      "terrain_setter",
+      "switch_in_effect"
+    ],
+    "full-metal-body": [
+      "stat_boost"
+    ],
+    "shadow-shield": [
+      "hp_dependent"
+    ],
+    "prism-armor": [
+      "type_defense"
+    ],
+    "intrepid-sword": [
+      "switch_in_effect",
+      "stat_boost"
+    ],
+    "dauntless-shield": [
+      "switch_in_effect",
+      "stat_boost"
+    ],
+    "libero": [
+      "type_immunity"
+    ],
+    "propeller-tail": [
+      "other"
+    ],
+    "mirror-armor": [
+      "other"
+    ],
+    "gulp-missile": [
+      "other"
+    ],
+    "stalwart": [
+      "other"
+    ],
+    "steam-engine": [
+      "stat_boost"
+    ],
+    "punk-rock": [
+      "damage_increase",
+      "damage_reduction"
+    ],
+    "sand-spit": [
+      "other"
+    ],
+    "ice-scales": [
+      "other"
+    ],
+    "ripen": [
+      "other"
+    ],
+    "ice-face": [
+      "weather_dependent"
+    ],
+    "power-spot": [
+      "damage_increase"
+    ],
+    "steely-spirit": [
+      "type_boost"
+    ],
+    "neutralizing-gas": [
+      "other"
+    ],
+    "hunger-switch": [
+      "other"
+    ],
+    "quick-draw": [
+      "random_effect"
+    ],
+    "unseen-fist": [
+      "other"
+    ],
+    "curious-medicine": [
+      "other"
+    ],
+    "transistor": [
+      "type_boost"
+    ],
+    "dragons-maw": [
+      "type_boost"
+    ],
+    "chilling-neigh": [
+      "stat_boost"
+    ],
+    "grim-neigh": [
+      "stat_boost"
+    ],
+    "as-one-glastrier": [
+      "switch_in_effect",
+      "status_inflict"
+    ],
+    "as-one-spectrier": [
+      "switch_in_effect",
+      "status_inflict"
+    ],
+    "lingering-aroma": [
+      "other"
+    ],
+    "seed-sower": [
+      "weather_dependent",
+      "terrain_setter",
+      "switch_in_effect"
+    ],
+    "thermal-exchange": [
+      "stat_boost",
+      "status_immunity"
+    ],
+    "anger-shell": [
+      "stat_boost"
+    ],
+    "purifying-salt": [
+      "damage_reduction"
+    ],
+    "well-baked-body": [
+      "type_immunity",
+      "stat_boost"
+    ],
+    "wind-rider": [
+      "stat_boost"
+    ],
+    "guard-dog": [
+      "stat_boost"
+    ],
+    "rocky-payload": [
+      "type_boost"
+    ],
+    "wind-power": [
+      "stat_boost"
+    ],
+    "zero-to-hero": [
+      "other"
+    ],
+    "commander": [
+      "stat_boost",
+      "switch_in_effect"
+    ],
+    "electromorphosis": [
+      "other"
+    ],
+    "protosynthesis": [
+      "weather_dependent"
+    ],
+    "quark-drive": [
+      "terrain_dependent"
+    ],
+    "good-as-gold": [
+      "status_immunity"
+    ],
+    "vessel-of-ruin": [
+      "stat_reducer",
+      "switch_in_effect"
+    ],
+    "sword-of-ruin": [
+      "stat_reducer",
+      "switch_in_effect"
+    ],
+    "tablets-of-ruin": [
+      "stat_reducer",
+      "switch_in_effect"
+    ],
+    "beads-of-ruin": [
+      "stat_reducer",
+      "switch_in_effect"
+    ],
+    "orichalcum-pulse": [
+      "weather_setter",
+      "switch_in_effect",
+      "stat_boost"
+    ],
+    "hadron-engine": [
+      "terrain_setter",
+      "switch_in_effect",
+      "stat_boost"
+    ],
+    "opportunist": [
+      "stat_boost"
+    ],
+    "cud-chew": [
+      "other"
+    ],
+    "sharpness": [
+      "damage_increase"
+    ],
+    "supreme-overlord": [
+      "stat_boost"
+    ],
+    "costar": [
+      "switch_in_effect"
+    ],
+    "toxic-debris": [
+      "other"
+    ],
+    "armor-tail": [
+      "other"
+    ],
+    "earth-eater": [
+      "type_immunity",
+      "healing"
+    ],
+    "mycelium-might": [
+      "stat_reducer"
+    ],
+    "minds-eye": [
+      "stat_boost"
+    ],
+    "supersweet-syrup": [
+      "switch_in_effect",
+      "stat_reducer"
+    ],
+    "hospitality": [
+      "healing",
+      "switch_in_effect"
+    ],
+    "toxic-chain": [
+      "other"
+    ],
+    "tera-shift": [
+      "switch_in_effect"
+    ],
+    "tera-shell": [
+      "damage_reduction",
+      "hp_dependent"
+    ],
+    "teraform-zero": [
+      "weather_setter",
+      "switch_in_effect"
+    ],
+    "poison-puppeteer": [
+      "status_inflict"
+    ]
+  }
+}

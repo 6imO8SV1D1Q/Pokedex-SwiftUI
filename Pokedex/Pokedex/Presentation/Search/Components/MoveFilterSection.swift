@@ -71,7 +71,7 @@ struct MoveFilterSection: View {
                 }
 
                 // 技の条件を追加
-                NavigationLink(destination: MoveMetadataFilterView(onAdd: { filter in
+                NavigationLink(destination: MoveMetadataFilterView(onSave: { filter in
                     moveMetadataFilters.append(filter)
                 })) {
                     HStack {
@@ -90,11 +90,21 @@ struct MoveFilterSection: View {
 
                         ForEach(moveMetadataFilters) { filter in
                             if let index = moveMetadataFilters.firstIndex(where: { $0.id == filter.id }) {
-                                MoveMetadataConditionRow(
-                                    filter: filter,
-                                    index: index,
-                                    onRemove: { removeMoveMetadataFilter(id: filter.id) }
-                                )
+                                NavigationLink {
+                                    MoveMetadataFilterView(
+                                        initialFilter: filter,
+                                        onSave: { updatedFilter in
+                                            moveMetadataFilters[index] = updatedFilter
+                                        }
+                                    )
+                                } label: {
+                                    MoveMetadataConditionRow(
+                                        filter: filter,
+                                        index: index,
+                                        onRemove: { removeMoveMetadataFilter(id: filter.id) }
+                                    )
+                                }
+                                .buttonStyle(.plain)
                             }
                         }
                     }

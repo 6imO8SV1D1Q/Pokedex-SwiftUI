@@ -250,9 +250,16 @@ struct PokemonListView: View {
                 // ロード完了後にポケモンが0の場合のみ表示
                 emptyStateView
             } else if !viewModel.filteredPokemons.isEmpty {
-                List(viewModel.filteredPokemons) { pokemon in
-                    NavigationLink(value: pokemon) {
-                        PokemonRow(pokemon: pokemon, selectedPokedex: viewModel.selectedPokedex)
+                List(viewModel.filteredPokemons) { pokemonWithMatch in
+                    NavigationLink(value: pokemonWithMatch.pokemon) {
+                        PokemonRow(
+                            pokemon: pokemonWithMatch.pokemon,
+                            selectedPokedex: viewModel.selectedPokedex,
+                            matchInfo: pokemonWithMatch.matchInfo,
+                            statFilterConditions: viewModel.statFilterConditions,
+                            selectedMoves: viewModel.selectedMoves,
+                            moveMetadataFilters: viewModel.moveMetadataFilters
+                        )
                     }
                 }
                 .listStyle(.insetGrouped)

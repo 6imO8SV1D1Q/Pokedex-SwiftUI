@@ -50,4 +50,27 @@ enum FilterHelpers {
         if filter.hasHealing { effects.append("HP回復") }
         return effects.joined(separator: ", ")
     }
+
+    /// 技の対象を日本語に変換
+    static func targetJapaneseName(_ target: String) -> String {
+        switch target {
+        case "selected-pokemon": return "相手1体"
+        case "selected-pokemon-me-first": return "相手1体（先制）"
+        case "ally": return "味方1体"
+        case "users-field": return "自分の場"
+        case "user-or-ally": return "自分か味方"
+        case "opponents-field": return "相手の場"
+        case "user": return "自分"
+        case "random-opponent": return "ランダムな相手"
+        case "all-other-pokemon": return "自分以外"
+        case "all-opponents": return "相手全体"
+        case "entire-field": return "場全体"
+        case "user-and-allies": return "自分と味方"
+        case "all-pokemon": return "場の全員"
+        case "all-allies": return "味方全体"
+        case "specific-move": return "特定の技"
+        case "fainting-pokemon": return "ひんし直前"
+        default: return target
+        }
+    }
 }

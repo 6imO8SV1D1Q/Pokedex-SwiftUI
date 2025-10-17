@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AbilityFilterSection: View {
     @Binding var selectedAbilities: Set<String>
+    @Binding var abilityMetadataFilters: [AbilityMetadataFilter]
     @Binding var filterMode: FilterMode
     @State private var searchText = ""
 
@@ -61,6 +62,46 @@ struct AbilityFilterSection: View {
                     }
                     .foregroundColor(.primary)
                 }
+
+                // 特性の条件を追加
+                NavigationLink(destination: AbilityMetadataFilterView(onSave: { filter in
+                    abilityMetadataFilters.append(filter)
+                })) {
+                    HStack {
+                        Text("特性の条件を追加")
+                        Spacer()
+                        Image(systemName: "plus.circle")
+                    }
+                }
+
+                // 設定中の条件を表示
+                if !abilityMetadataFilters.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("設定中の条件")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        ForEach(abilityMetadataFilters) { filter in
+                            if let index = abilityMetadataFilters.firstIndex(where: { $0.id == filter.id }) {
+                                NavigationLink {
+                                    AbilityMetadataFilterView(
+                                        initialFilter: filter,
+                                        onSave: { updatedFilter in
+                                            abilityMetadataFilters[index] = updatedFilter
+                                        }
+                                    )
+                                } label: {
+                                    AbilityMetadataConditionRow(
+                                        filter: filter,
+                                        index: index,
+                                        onRemove: { removeAbilityMetadataFilter(id: filter.id) }
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                }
             }
         } header: {
             Text("特性")
@@ -92,5 +133,9 @@ struct AbilityFilterSection: View {
 
     private func displayName(for abilityName: String) -> String {
         allAbilities.first { $0.name == abilityName }?.nameJa ?? abilityName
+    }
+
+    private func removeAbilityMetadataFilter(id: UUID) {
+        abilityMetadataFilters.removeAll { $0.id == id }
     }
 }
