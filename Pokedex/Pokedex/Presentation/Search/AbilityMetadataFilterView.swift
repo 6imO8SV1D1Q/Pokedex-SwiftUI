@@ -9,9 +9,16 @@ import SwiftUI
 
 struct AbilityMetadataFilterView: View {
     @Environment(\.dismiss) var dismiss
-    let onAdd: (AbilityMetadataFilter) -> Void
+    let initialFilter: AbilityMetadataFilter?
+    let onSave: (AbilityMetadataFilter) -> Void
 
-    @State private var tempFilter: AbilityMetadataFilter = AbilityMetadataFilter()
+    @State private var tempFilter: AbilityMetadataFilter
+
+    init(initialFilter: AbilityMetadataFilter? = nil, onSave: @escaping (AbilityMetadataFilter) -> Void) {
+        self.initialFilter = initialFilter
+        self.onSave = onSave
+        self._tempFilter = State(initialValue: initialFilter ?? AbilityMetadataFilter())
+    }
 
     var body: some View {
         NavigationStack {
@@ -60,8 +67,8 @@ struct AbilityMetadataFilterView: View {
 
     private var applyButton: some ToolbarContent {
         ToolbarItem(placement: .confirmationAction) {
-            Button("追加") {
-                onAdd(tempFilter)
+            Button(initialFilter == nil ? "追加" : "保存") {
+                onSave(tempFilter)
                 dismiss()
             }
             .disabled(tempFilter.isEmpty)
@@ -71,6 +78,6 @@ struct AbilityMetadataFilterView: View {
 
 #Preview {
     NavigationStack {
-        AbilityMetadataFilterView(onAdd: { _ in })
+        AbilityMetadataFilterView(onSave: { _ in })
     }
 }

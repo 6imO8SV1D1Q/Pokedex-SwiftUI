@@ -9,9 +9,16 @@ import SwiftUI
 
 struct MoveMetadataFilterView: View {
     @Environment(\.dismiss) var dismiss
-    let onAdd: (MoveMetadataFilter) -> Void
+    let initialFilter: MoveMetadataFilter?
+    let onSave: (MoveMetadataFilter) -> Void
 
-    @State private var tempFilter: MoveMetadataFilter = MoveMetadataFilter()
+    @State private var tempFilter: MoveMetadataFilter
+
+    init(initialFilter: MoveMetadataFilter? = nil, onSave: @escaping (MoveMetadataFilter) -> Void) {
+        self.initialFilter = initialFilter
+        self.onSave = onSave
+        self._tempFilter = State(initialValue: initialFilter ?? MoveMetadataFilter())
+    }
 
     var body: some View {
         NavigationStack {
@@ -73,8 +80,8 @@ struct MoveMetadataFilterView: View {
 
     private var applyButton: some ToolbarContent {
         ToolbarItem(placement: .confirmationAction) {
-            Button("追加") {
-                onAdd(tempFilter)
+            Button(initialFilter == nil ? "追加" : "保存") {
+                onSave(tempFilter)
                 dismiss()
             }
             .disabled(tempFilter.isEmpty)

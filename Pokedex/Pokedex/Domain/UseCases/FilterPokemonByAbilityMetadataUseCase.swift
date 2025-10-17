@@ -12,7 +12,7 @@ protocol FilterPokemonByAbilityMetadataUseCaseProtocol {
         pokemons: [Pokemon],
         filters: [AbilityMetadataFilter],
         allMetadata: [AbilityMetadata]
-    ) -> [Pokemon]
+    ) -> [(pokemon: Pokemon, matchedAbilities: [String])]
 }
 
 struct FilterPokemonByAbilityMetadataUseCase: FilterPokemonByAbilityMetadataUseCaseProtocol {
@@ -20,18 +20,50 @@ struct FilterPokemonByAbilityMetadataUseCase: FilterPokemonByAbilityMetadataUseC
         pokemons: [Pokemon],
         filters: [AbilityMetadataFilter],
         allMetadata: [AbilityMetadata]
-    ) -> [Pokemon] {
+    ) -> [(pokemon: Pokemon, matchedAbilities: [String])] {
         guard !filters.isEmpty else {
-            return pokemons
+            return pokemons.map { ($0, []) }
         }
 
         // 特性名→メタデータのマップを作成
         let metadataMap = Dictionary(uniqueKeysWithValues: allMetadata.map { ($0.name, $0) })
 
-        return pokemons.filter { pokemon in
+        return pokemons.compactMap { pokemon in
+            let matchedAbilities = getMatchedAbilities(
+                pokemon: pokemon,
+                filters: filters,
+                metadataMap: metadataMap
+            )
+
             // 全てのフィルター条件を満たすか確認（AND条件）
-            filters.allSatisfy { filter in
+            let matchesAllFilters = filters.allSatisfy { filter in
                 matchesFilter(pokemon: pokemon, filter: filter, metadataMap: metadataMap)
+            }
+
+            guard matchesAllFilters else {
+                return nil
+            }
+
+            return (pokemon, matchedAbilities)
+        }
+    }
+
+    /// ポケモンが持つ特性のうち、フィルター条件に合致する特性名のリストを返す
+    private func getMatchedAbilities(
+        pokemon: Pokemon,
+        filters: [AbilityMetadataFilter],
+        metadataMap: [String: AbilityMetadata]
+    ) -> [String] {
+        let pokemonAbilities = pokemon.abilities.map { $0.name }
+
+        return pokemonAbilities.filter { abilityName in
+            guard let metadata = metadataMap[abilityName] else {
+                return false
+            }
+
+            // いずれかのフィルター条件に合致するか確認
+            return filters.contains { filter in
+                matchesMetadata(metadata: metadata, filter: filter)
             }
         }
     }

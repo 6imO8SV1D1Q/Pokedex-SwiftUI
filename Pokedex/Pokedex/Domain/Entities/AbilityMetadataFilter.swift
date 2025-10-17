@@ -7,7 +7,9 @@
 
 import Foundation
 
-struct AbilityMetadataFilter: Equatable {
+struct AbilityMetadataFilter: Identifiable, Equatable {
+    var id = UUID()
+
     // 発動タイミング
     var triggers: Set<String> = []
 

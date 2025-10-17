@@ -64,7 +64,7 @@ struct AbilityFilterSection: View {
                 }
 
                 // 特性の条件を追加
-                NavigationLink(destination: AbilityMetadataFilterView(onAdd: { filter in
+                NavigationLink(destination: AbilityMetadataFilterView(onSave: { filter in
                     abilityMetadataFilters.append(filter)
                 })) {
                     HStack {
@@ -81,26 +81,24 @@ struct AbilityFilterSection: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
 
-                        ForEach(0..<abilityMetadataFilters.count, id: \.self) { index in
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("条件\(index + 1)")
-                                        .font(.caption)
-                                        .fontWeight(.bold)
-                                }
-
-                                Spacer()
-
-                                Button {
-                                    abilityMetadataFilters.remove(at: index)
+                        ForEach(abilityMetadataFilters) { filter in
+                            if let index = abilityMetadataFilters.firstIndex(where: { $0.id == filter.id }) {
+                                NavigationLink {
+                                    AbilityMetadataFilterView(
+                                        initialFilter: filter,
+                                        onSave: { updatedFilter in
+                                            abilityMetadataFilters[index] = updatedFilter
+                                        }
+                                    )
                                 } label: {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .foregroundColor(.red)
+                                    AbilityMetadataConditionRow(
+                                        filter: filter,
+                                        index: index,
+                                        onRemove: { removeAbilityMetadataFilter(id: filter.id) }
+                                    )
                                 }
+                                .buttonStyle(.plain)
                             }
-                            .padding(8)
-                            .background(Color.secondary.opacity(0.1))
-                            .cornerRadius(8)
                         }
                     }
                 }
@@ -135,5 +133,9 @@ struct AbilityFilterSection: View {
 
     private func displayName(for abilityName: String) -> String {
         allAbilities.first { $0.name == abilityName }?.nameJa ?? abilityName
+    }
+
+    private func removeAbilityMetadataFilter(id: UUID) {
+        abilityMetadataFilters.removeAll { $0.id == id }
     }
 }

@@ -44,7 +44,7 @@ struct MoveMetadataConditionRow: View {
                         .font(.caption)
                 }
                 if !filter.targets.isEmpty {
-                    Text("対象: \(filter.targets.count)件")
+                    Text("対象: \(filter.targets.map { FilterHelpers.targetJapaneseName($0) }.joined(separator: ", "))")
                         .font(.caption)
                 }
                 if !filter.ailments.isEmpty {
@@ -73,6 +73,7 @@ struct MoveMetadataConditionRow: View {
                 Image(systemName: "xmark.circle.fill")
                     .foregroundColor(.red)
             }
+            .buttonStyle(.borderless)
         }
         .padding(8)
         .background(Color.secondary.opacity(0.1))
