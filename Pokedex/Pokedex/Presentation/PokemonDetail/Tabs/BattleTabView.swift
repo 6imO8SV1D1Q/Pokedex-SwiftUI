@@ -10,93 +10,96 @@ import SwiftUI
 /// バトルタブ: 対戦用情報を表示
 struct BattleTabView: View {
     @ObservedObject var viewModel: PokemonDetailViewModel
+    @EnvironmentObject private var localizationManager: LocalizationManager
 
     var body: some View {
         ScrollView {
-            VStack(spacing: DesignConstants.Spacing.large) {
+            VStack(spacing: 20) {
                 // タイプ相性
                 if let matchup = viewModel.typeMatchup {
-                    ExpandableSection(
-                        title: "タイプ相性",
-                        systemImage: "shield.fill",
-                        isExpanded: sectionBinding("typeMatchup")
-                    ) {
+                    GroupBoxSection(title: "タイプ相性", icon: "shield.fill") {
                         TypeMatchupView(matchup: matchup)
+                            .padding(.horizontal, -16)
+                            .padding(.vertical, -12)
                     }
                 }
 
                 // 種族値
-                ExpandableSection(
+                GroupBoxSection(
                     title: viewModel.calculatedStats != nil ? "種族値・実数値" : "種族値",
-                    systemImage: "chart.bar.fill",
-                    isExpanded: sectionBinding("stats")
+                    icon: "chart.bar.fill"
                 ) {
                     if let calculatedStats = viewModel.calculatedStats {
                         CalculatedStatsView(
                             stats: calculatedStats,
                             baseStats: viewModel.displayStats
                         )
+                        .padding(.horizontal, -16)
+                        .padding(.vertical, -12)
                     } else {
                         PokemonStatsView(stats: viewModel.displayStats)
-                            .padding()
                     }
                 }
 
                 // 特性
-                ExpandableSection(
-                    title: "特性",
-                    systemImage: "star.fill",
-                    isExpanded: sectionBinding("abilities")
-                ) {
+                GroupBoxSection(title: "特性", icon: "star.fill") {
                     if !viewModel.abilityDetails.isEmpty {
                         AbilitiesView(
                             abilities: viewModel.displayAbilities,
                             abilityDetails: viewModel.abilityDetails
                         )
+                        .padding(.horizontal, -16)
+                        .padding(.vertical, -12)
                     } else {
-                        abilitiesViewLegacy
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(viewModel.displayAbilities, id: \.name) { ability in
+                                Text(localizationManager.displayName(for: ability))
+                                    .font(.body)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
 
                 // 覚える技
-                ExpandableSection(
-                    title: "覚える技",
-                    systemImage: "bolt.fill",
-                    isExpanded: sectionBinding("moves")
-                ) {
+                GroupBoxSection(title: "覚える技", icon: "bolt.fill") {
                     MovesView(
                         moves: viewModel.pokemon.moves,
                         moveDetails: viewModel.moveDetails,
                         selectedLearnMethod: $viewModel.selectedLearnMethod
                     )
+                    .padding(.horizontal, -16)
+                    .padding(.vertical, -12)
                 }
             }
-            .padding(DesignConstants.Spacing.medium)
+            .padding()
         }
+        .background(Color(.systemGroupedBackground))
     }
+}
 
-    // MARK: - Section Binding Helper
+/// InsetGroupedスタイル風のセクション
+struct GroupBoxSection<Content: View>: View {
+    let title: String
+    let icon: String
+    @ViewBuilder let content: Content
 
-    private func sectionBinding(_ sectionId: String) -> Binding<Bool> {
-        Binding(
-            get: { viewModel.isSectionExpanded[sectionId, default: true] },
-            set: { _ in viewModel.toggleSection(sectionId) }
-        )
-    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(title, systemImage: icon)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
+                .textCase(.uppercase)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 4)
 
-    // MARK: - Legacy Abilities View
-
-    @EnvironmentObject private var localizationManager: LocalizationManager
-
-    private var abilitiesViewLegacy: some View {
-        VStack(alignment: .leading, spacing: DesignConstants.Spacing.xSmall) {
-            ForEach(viewModel.displayAbilities, id: \.name) { ability in
-                Text(localizationManager.displayName(for: ability))
-                    .font(.body)
-                    .foregroundColor(.primary)
+            VStack(spacing: 0) {
+                content
+                    .padding(16)
             }
+            .background(Color(.secondarySystemGroupedBackground))
+            .cornerRadius(10)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
     }
 }
