@@ -31,7 +31,7 @@ struct BattleTabView: View {
 
                 // 実数値
                 if let calculatedStats = viewModel.calculatedStats {
-                    GroupBoxSection(title: "実数値", icon: "number") {
+                    GroupBoxSection(title: "実数値（Lv.50）", icon: "number") {
                         CalculatedStatsView(
                             stats: calculatedStats,
                             baseStats: viewModel.displayStats

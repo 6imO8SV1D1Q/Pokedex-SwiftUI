@@ -35,7 +35,7 @@ final class PokemonDetailViewModel: ObservableObject {
     @Published var evolutionChainEntity: EvolutionChainEntity?
 
     /// 選択された技の習得方法
-    @Published var selectedLearnMethod = "level-up"
+    @Published var selectedLearnMethod = "all"
 
     // MARK: - v3.0 新規プロパティ
 

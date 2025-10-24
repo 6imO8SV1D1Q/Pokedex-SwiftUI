@@ -14,9 +14,6 @@ struct AbilitiesView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("特性")
-                .font(.headline)
-
             ForEach(abilities, id: \.name) { ability in
                 AbilityCard(
                     ability: ability,

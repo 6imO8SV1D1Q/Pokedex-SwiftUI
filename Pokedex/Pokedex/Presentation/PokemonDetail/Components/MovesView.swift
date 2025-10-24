@@ -200,6 +200,7 @@ struct MoveRow: View {
     let move: PokemonMove
     let moveDetail: MoveEntity?  // 技詳細情報（オプショナル）
     @EnvironmentObject private var localizationManager: LocalizationManager
+    @State private var isExpanded = false
 
     init(move: PokemonMove, moveDetail: MoveEntity? = nil) {
         self.move = move
@@ -259,6 +260,19 @@ struct MoveRow: View {
                     Text(localizationManager.displayName(for: detail.type))
                         .typeBadgeStyle(detail.type)
                         .font(.caption)
+
+                    // 開閉ボタン（説明がある場合のみ）
+                    if detail.effect != nil {
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isExpanded.toggle()
+                            }
+                        } label: {
+                            Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
                 }
             }
 
@@ -310,8 +324,8 @@ struct MoveRow: View {
                     }
                 }
 
-                // 説明文
-                if let effect = detail.effect {
+                // 説明文（展開時のみ表示）
+                if isExpanded, let effect = detail.effect {
                     Text(effect)
                         .font(.caption2)
                         .foregroundColor(.secondary)
