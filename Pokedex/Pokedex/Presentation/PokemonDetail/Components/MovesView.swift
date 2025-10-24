@@ -13,13 +13,39 @@ struct MovesView: View {
     let moveDetails: [String: MoveEntity]  // 技詳細情報
     @Binding var selectedLearnMethod: String
 
-    /// 利用可能な習得方法一覧
+    /// 利用可能な習得方法一覧（「すべて」を含む）
     private var availableLearnMethods: [String] {
         let methods = Set(moves.map { $0.learnMethod })
-        return Array(methods).sorted()
+        var result = ["all"] // 「すべて」を最初に追加
+        result.append(contentsOf: Array(methods).sorted())
+        return result
     }
 
-    /// フィルタリングされた技リスト
+    /// 習得方法の表示順序
+    private let methodOrder = ["level-up", "machine", "egg", "tutor"]
+
+    /// 「すべて」が選択されている場合の、習得方法ごとにグループ化された技
+    private var groupedMoves: [(method: String, moves: [PokemonMove])] {
+        let grouped = Dictionary(grouping: moves) { $0.learnMethod }
+
+        return methodOrder.compactMap { method in
+            guard let movesForMethod = grouped[method], !movesForMethod.isEmpty else {
+                return nil
+            }
+
+            let sortedMoves = movesForMethod.sorted { move1, move2 in
+                // レベルアップ技の場合はレベル順、それ以外は名前順
+                if let level1 = move1.level, let level2 = move2.level {
+                    return level1 < level2
+                }
+                return move1.name < move2.name
+            }
+
+            return (method, sortedMoves)
+        }
+    }
+
+    /// フィルタリングされた技リスト（特定の習得方法が選択されている場合）
     private var filteredMoves: [PokemonMove] {
         moves
             .filter { $0.learnMethod == selectedLearnMethod }
@@ -34,9 +60,6 @@ struct MovesView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("わざ")
-                .font(.headline)
-
             // 習得方法フィルター
             if !availableLearnMethods.isEmpty {
                 LearnMethodPicker(
@@ -46,14 +69,43 @@ struct MovesView: View {
             }
 
             // 技リスト
-            if filteredMoves.isEmpty {
-                Text("この方法で習得できる技はありません")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .padding()
+            if selectedLearnMethod == "all" {
+                // 「すべて」が選択されている場合は習得方法ごとにグループ化
+                VStack(alignment: .leading, spacing: 16) {
+                    ForEach(groupedMoves, id: \.method) { group in
+                        VStack(alignment: .leading, spacing: 8) {
+                            // セクションヘッダー
+                            HStack {
+                                Text(learnMethodDisplayName(group.method))
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+
+                                Text("(\(group.moves.count))")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            // 技リスト
+                            VStack(spacing: 8) {
+                                ForEach(group.moves, id: \.name) { move in
+                                    MoveRow(
+                                        move: move,
+                                        moveDetail: moveDetails[move.name]
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
-                ScrollView {
-                    LazyVStack(spacing: 8) {
+                // 特定の習得方法が選択されている場合
+                if filteredMoves.isEmpty {
+                    Text("この方法で習得できる技はありません")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding()
+                } else {
+                    VStack(spacing: 8) {
                         ForEach(filteredMoves, id: \.name) { move in
                             MoveRow(
                                 move: move,
@@ -62,10 +114,29 @@ struct MovesView: View {
                         }
                     }
                 }
-                .frame(maxHeight: 400)
             }
         }
         .padding()
+    }
+
+    /// 習得方法を日本語表示に変換
+    private func learnMethodDisplayName(_ method: String) -> String {
+        switch method {
+        case "all":
+            return "すべて"
+        case "level-up":
+            return "レベルアップ"
+        case "machine":
+            return "わざマシン"
+        case "egg":
+            return "タマゴわざ"
+        case "tutor":
+            return "教え技"
+        default:
+            return method
+                .replacingOccurrences(of: "-", with: " ")
+                .capitalized
+        }
     }
 }
 
@@ -106,6 +177,8 @@ struct LearnMethodPicker: View {
     /// 習得方法を日本語表示に変換
     private func learnMethodDisplayName(_ method: String) -> String {
         switch method {
+        case "all":
+            return "すべて"
         case "level-up":
             return "レベルアップ"
         case "machine":
@@ -173,8 +246,8 @@ struct MoveRow: View {
                     Color.clear.frame(width: 50)
                 }
 
-                // 技名
-                Text(move.displayName)
+                // 技名（moveDetailがあれば日本語名、なければ英語名）
+                Text(moveDetail?.nameJa ?? move.displayName)
                     .font(.subheadline)
                     .fontWeight(.medium)
 

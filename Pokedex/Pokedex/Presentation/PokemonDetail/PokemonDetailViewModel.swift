@@ -98,19 +98,6 @@ final class PokemonDetailViewModel: ObservableObject {
 
     // MARK: - Computed Properties
 
-    /// フィルタリングされた技リスト
-    var filteredMoves: [PokemonMove] {
-        pokemon.moves.filter { move in
-            move.learnMethod == selectedLearnMethod
-        }
-        .sorted { move1, move2 in
-            if let level1 = move1.level, let level2 = move2.level {
-                return level1 < level2
-            }
-            return move1.name < move2.name
-        }
-    }
-
     /// 表示する画像URL
     var displayImageURL: String? {
         // selectedFormがある場合はそのスプライトを使用
