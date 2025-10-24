@@ -25,19 +25,19 @@ struct BattleTabView: View {
                 }
 
                 // 種族値
-                GroupBoxSection(
-                    title: viewModel.calculatedStats != nil ? "種族値・実数値" : "種族値",
-                    icon: "chart.bar.fill"
-                ) {
-                    if let calculatedStats = viewModel.calculatedStats {
+                GroupBoxSection(title: "種族値", icon: "chart.bar.fill") {
+                    PokemonStatsView(stats: viewModel.displayStats)
+                }
+
+                // 実数値
+                if let calculatedStats = viewModel.calculatedStats {
+                    GroupBoxSection(title: "実数値", icon: "number") {
                         CalculatedStatsView(
                             stats: calculatedStats,
                             baseStats: viewModel.displayStats
                         )
                         .padding(.horizontal, -16)
                         .padding(.vertical, -12)
-                    } else {
-                        PokemonStatsView(stats: viewModel.displayStats)
                     }
                 }
 
