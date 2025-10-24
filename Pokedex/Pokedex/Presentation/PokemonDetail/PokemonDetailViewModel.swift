@@ -31,10 +31,7 @@ final class PokemonDetailViewModel: ObservableObject {
     /// エラー表示フラグ
     @Published var showError = false
 
-    /// 進化チェーン（ポケモンIDのリスト）- v2互換
-    @Published var evolutionChain: [Int] = []
-
-    /// 進化チェーン（ツリー構造）- v3.0
+    /// 進化チェーン（ツリー構造）
     @Published var evolutionChainEntity: EvolutionChainEntity?
 
     /// 選択された技の習得方法
@@ -47,6 +44,9 @@ final class PokemonDetailViewModel: ObservableObject {
 
     /// 選択中のフォーム
     @Published var selectedForm: PokemonForm?
+
+    /// 進化チェーンの各ノードのリージョンフォームバリエーション（speciesId: フォーム）
+    @Published var evolutionFormVariants: [Int: PokemonForm] = [:]
 
     /// タイプ相性
     @Published var typeMatchup: TypeMatchup?
@@ -113,11 +113,29 @@ final class PokemonDetailViewModel: ObservableObject {
 
     /// 表示する画像URL
     var displayImageURL: String? {
+        // selectedFormがある場合はそのスプライトを使用
+        let sprites = selectedForm?.sprites ?? pokemon.sprites
+
         if isShiny {
-            return pokemon.sprites.shinyImageURL ?? pokemon.displayImageURL
+            return sprites.shinyImageURL ?? sprites.other?.home?.frontDefault ?? sprites.frontDefault
         } else {
-            return pokemon.displayImageURL
+            return sprites.other?.home?.frontDefault ?? sprites.frontDefault
         }
+    }
+
+    /// 表示するタイプ
+    var displayTypes: [PokemonType] {
+        return selectedForm?.types ?? pokemon.types
+    }
+
+    /// 表示する特性
+    var displayAbilities: [PokemonAbility] {
+        return selectedForm?.abilities ?? pokemon.abilities
+    }
+
+    /// 表示する種族値
+    var displayStats: [PokemonStat] {
+        return selectedForm?.stats ?? pokemon.stats
     }
 
     // MARK: - Initialization
@@ -168,23 +186,6 @@ final class PokemonDetailViewModel: ObservableObject {
         isShiny.toggle()
     }
 
-    /// 進化チェーンを読み込む
-    func loadEvolutionChain() async {
-        // v2互換とv3.0の両方を読み込む
-        await loadEvolutionChainWithRetry()
-        await loadEvolutionChainV3()
-    }
-
-    /// v3.0進化チェーンを読み込む
-    private func loadEvolutionChainV3() async {
-        do {
-            evolutionChainEntity = try await fetchEvolutionChainUseCase.executeV3(pokemonId: pokemon.id)
-        } catch {
-            // v3.0進化チェーン取得失敗は致命的ではないため、ログのみ
-            print("Failed to load evolution chain v3: \(error)")
-            evolutionChainEntity = nil
-        }
-    }
 
     // MARK: - v3.0 新規メソッド
 
@@ -196,20 +197,25 @@ final class PokemonDetailViewModel: ObservableObject {
         showError = false
 
         do {
-            // 並列でデータ取得
-            async let formsTask = fetchPokemonFormsUseCase.execute(pokemonId: id, versionGroup: versionGroup)
-            async let locationsTask = fetchPokemonLocationsUseCase.execute(pokemonId: id, versionGroup: versionGroup)
-            async let flavorTextTask = fetchFlavorTextUseCase.execute(speciesId: id, versionGroup: versionGroup)
-            async let speciesTask = pokemonRepository.fetchPokemonSpecies(id: pokemon.speciesId)
+            // 並列でデータ取得（speciesIdを使用）
+            let speciesId = pokemon.speciesId
+            async let formsTask = fetchPokemonFormsUseCase.execute(pokemonId: speciesId, versionGroup: versionGroup)
+            async let locationsTask = fetchPokemonLocationsUseCase.execute(pokemonId: speciesId, versionGroup: versionGroup)
+            async let flavorTextTask = fetchFlavorTextUseCase.execute(speciesId: speciesId, versionGroup: versionGroup)
+            async let speciesTask = pokemonRepository.fetchPokemonSpecies(id: speciesId)
+            async let evolutionChainTask = fetchEvolutionChainUseCase.executeV3(pokemonId: speciesId)
 
             // 結果を待機
             availableForms = try await formsTask
             locations = try await locationsTask
             flavorText = try await flavorTextTask
             pokemonSpecies = try await speciesTask
+            evolutionChainEntity = try await evolutionChainTask
 
-            // デフォルトフォームを選択
-            selectedForm = availableForms.first(where: { $0.isDefault }) ?? availableForms.first
+            // 現在のpokemon.idに一致するフォームを選択、なければデフォルトフォーム
+            selectedForm = availableForms.first(where: { $0.pokemonId == pokemon.id }) ??
+                          availableForms.first(where: { $0.isDefault }) ??
+                          availableForms.first
 
             // フォーム依存データを読み込む
             await loadFormDependentData()
@@ -244,8 +250,71 @@ final class PokemonDetailViewModel: ObservableObject {
 
             // 特性詳細を取得
             await loadAbilityDetails(abilities: form.abilities)
+
+            // speciesIdが異なる場合は、speciesと進化チェーンを再取得
+            if form.speciesId != pokemon.speciesId {
+                async let speciesTask = pokemonRepository.fetchPokemonSpecies(id: form.speciesId)
+                async let flavorTextTask = fetchFlavorTextUseCase.execute(speciesId: form.speciesId, versionGroup: versionGroup)
+                async let evolutionChainTask = fetchEvolutionChainUseCase.executeV3(pokemonId: form.speciesId)
+
+                pokemonSpecies = try await speciesTask
+                flavorText = try await flavorTextTask
+                evolutionChainEntity = try await evolutionChainTask
+            }
+
+            // リージョンフォームの場合、進化チェーンの各ノードのリージョンフォームを取得
+            await loadEvolutionFormVariants(for: form.formName)
         } catch {
             handleError(error)
+        }
+    }
+
+    /// 進化チェーンの各ノードのリージョンフォームバリエーションを取得
+    private func loadEvolutionFormVariants(for formName: String) async {
+        // 通常フォームの場合はクリア
+        guard formName != "normal" else {
+            evolutionFormVariants = [:]
+            return
+        }
+
+        guard let chain = evolutionChainEntity else { return }
+
+        // 進化チェーンの全speciesIdを収集
+        var speciesIds = Set<Int>()
+        collectSpeciesIds(from: chain.rootNode, into: &speciesIds)
+
+        // 各speciesIdに対して、同じformNameのフォームを並列取得
+        await withTaskGroup(of: (Int, PokemonForm)?.self) { group in
+            for speciesId in speciesIds {
+                group.addTask {
+                    do {
+                        let forms = try await self.fetchPokemonFormsUseCase.execute(pokemonId: speciesId, versionGroup: self.versionGroup)
+                        // 同じformNameのフォームを探す
+                        if let regionalForm = forms.first(where: { $0.formName == formName }) {
+                            return (speciesId, regionalForm)
+                        }
+                    } catch {
+                        // エラーは無視（そのポケモンにリージョンフォームがない場合）
+                    }
+                    return nil
+                }
+            }
+
+            for await result in group {
+                if let (speciesId, form) = result {
+                    evolutionFormVariants[speciesId] = form
+                }
+            }
+        }
+    }
+
+    /// 進化チェーンから全speciesIdを再帰的に収集
+    private func collectSpeciesIds(from node: EvolutionNode, into set: inout Set<Int>) {
+        set.insert(node.speciesId)
+        for edge in node.evolvesTo {
+            if let targetNode = evolutionChainEntity?.nodeMap[edge.target] {
+                collectSpeciesIds(from: targetNode, into: &set)
+            }
         }
     }
 
@@ -308,60 +377,6 @@ final class PokemonDetailViewModel: ObservableObject {
     }
 
     // MARK: - Private Methods
-
-    /// リトライ機能付きで進化チェーンを読み込む
-    /// - Parameter attempt: 現在の試行回数
-    private func loadEvolutionChainWithRetry(attempt: Int = 0) async {
-        guard attempt < maxRetries else {
-            handleError(PokemonError.networkError(NSError(domain: "PokemonError", code: -1, userInfo: [NSLocalizedDescriptionKey: "最大再試行回数を超えました"])))
-            return
-        }
-
-        isLoading = true
-        errorMessage = nil
-        showError = false
-
-        do {
-            evolutionChain = try await fetchWithTimeout {
-                try await self.fetchEvolutionChainUseCase.execute(pokemonId: self.pokemon.id)
-            }
-            isLoading = false
-        } catch {
-            if attempt < maxRetries - 1 {
-                // 再試行前に少し待つ
-                try? await Task.sleep(nanoseconds: 1_000_000_000) // 1秒
-                await loadEvolutionChainWithRetry(attempt: attempt + 1)
-            } else {
-                isLoading = false
-                // 進化チェーンの取得失敗は致命的ではないため、エラーを表示せず空配列のまま
-                evolutionChain = []
-            }
-        }
-    }
-
-    /// タイムアウト付きで非同期処理を実行
-    /// - Parameter operation: 実行する非同期処理
-    /// - Returns: 処理の結果
-    /// - Throws: タイムアウトエラーまたは処理のエラー
-    private func fetchWithTimeout<T>(_ operation: @escaping () async throws -> T) async throws -> T {
-        try await withThrowingTaskGroup(of: T.self) { group in
-            group.addTask {
-                try await operation()
-            }
-
-            group.addTask {
-                try await Task.sleep(nanoseconds: self.timeoutSeconds * 1_000_000_000)
-                throw PokemonError.timeout
-            }
-
-            guard let result = try await group.next() else {
-                throw PokemonError.timeout
-            }
-
-            group.cancelAll()
-            return result
-        }
-    }
 
     /// エラーハンドリング
     /// - Parameter error: 発生したエラー

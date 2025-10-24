@@ -37,7 +37,7 @@ struct EvolutionChainMapper {
     /// PKMEvolutionChainからEvolutionChainEntityに変換
     nonisolated static func mapToEntity(
         from pkmChain: PKMEvolutionChain,
-        pokemonCache: [Int: (name: String, imageUrl: String?, types: [String])]
+        pokemonCache: [Int: (name: String, nameJa: String?, imageUrl: String?, types: [String])]
     ) -> EvolutionChainEntity {
         var nodeCache: [Int: EvolutionNode] = [:]
         let rootNode = mapToEvolutionNode(from: pkmChain.chain, pokemonCache: pokemonCache, nodeCache: &nodeCache)
@@ -51,7 +51,7 @@ struct EvolutionChainMapper {
     /// PKMChainLinkからEvolutionNodeに変換（再帰的）
     private nonisolated static func mapToEvolutionNode(
         from pkmLink: PKMChainLink?,
-        pokemonCache: [Int: (name: String, imageUrl: String?, types: [String])],
+        pokemonCache: [Int: (name: String, nameJa: String?, imageUrl: String?, types: [String])],
         nodeCache: inout [Int: EvolutionNode]
     ) -> EvolutionNode {
         guard let pkmLink = pkmLink,
@@ -62,6 +62,7 @@ struct EvolutionChainMapper {
                 id: 0,
                 speciesId: 0,
                 name: "Unknown",
+                nameJa: nil,
                 imageUrl: nil,
                 types: [],
                 evolvesTo: [],
@@ -72,6 +73,7 @@ struct EvolutionChainMapper {
         // キャッシュからポケモン情報を取得
         let cachedInfo = pokemonCache[speciesId]
         let name = cachedInfo?.name ?? pkmLink.species?.name ?? "Unknown"
+        let nameJa = cachedInfo?.nameJa
         let imageUrl = cachedInfo?.imageUrl
         let types = cachedInfo?.types ?? []
 
@@ -103,6 +105,7 @@ struct EvolutionChainMapper {
             id: speciesId,
             speciesId: speciesId,
             name: name,
+            nameJa: nameJa,
             imageUrl: imageUrl,
             types: types,
             evolvesTo: evolvesTo,

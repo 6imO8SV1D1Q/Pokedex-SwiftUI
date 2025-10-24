@@ -10,25 +10,35 @@ import SwiftUI
 /// 進化の矢印と条件を表示するコンポーネント
 struct EvolutionArrow: View {
     let edge: EvolutionNode.EvolutionEdge
+    @EnvironmentObject private var localizationManager: LocalizationManager
 
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 6) {
             // 矢印
             Image(systemName: "arrow.right")
-                .font(.title3)
-                .foregroundColor(.secondary)
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundColor(.blue)
 
             // 進化条件テキスト
             if !conditionText.isEmpty {
                 Text(conditionText)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .font(.caption)
+                    .foregroundColor(.primary)
                     .multilineTextAlignment(.center)
-                    .lineLimit(3)
-                    .frame(width: 60)
+                    .lineLimit(4)
+                    .frame(width: 80)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 4)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(6)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color(.systemGray4), lineWidth: 1)
+                    )
             }
         }
-        .padding(.horizontal, 4)
+        .padding(.horizontal, 8)
     }
 
     /// 進化条件を表示用テキストに変換
@@ -36,36 +46,13 @@ struct EvolutionArrow: View {
         var components: [String] = []
 
         // トリガーテキスト
-        switch edge.trigger {
-        case .levelUp:
-            break // レベルアップは表示しない（条件にLv.が含まれるため）
-        case .trade:
-            components.append("通信交換")
-        case .useItem:
-            components.append("アイテム")
-        case .shed:
-            components.append("脱皮")
-        case .other:
-            components.append("特殊")
+        if let triggerText = localizationManager.displayText(for: edge.trigger) {
+            components.append(triggerText)
         }
 
         // 条件テキスト
         for condition in edge.conditions {
-            let text = condition.displayText
-            // アイテム名の場合は「～のいし」などの表記を短縮
-            if condition.type == .item, let value = condition.value {
-                if value.contains("stone") {
-                    // 「～stone」を「～のいし」に変換
-                    let stoneName = value
-                        .replacingOccurrences(of: "-", with: " ")
-                        .capitalized
-                    components.append(stoneName)
-                } else {
-                    components.append(text)
-                }
-            } else {
-                components.append(text)
-            }
+            components.append(localizationManager.displayText(for: condition))
         }
 
         return components.joined(separator: "\n")
@@ -118,4 +105,5 @@ struct EvolutionArrow: View {
         )
     }
     .padding()
+    .environmentObject(LocalizationManager.shared)
 }

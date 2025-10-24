@@ -9,30 +9,71 @@ import Foundation
 import PokemonAPI
 
 enum PokemonFormMapper {
-    /// PKMPokemonからPokemonFormにマッピング
-    nonisolated static func map(from pkm: PKMPokemon) -> [PokemonForm] {
-        // TODO: フェーズ1-7で実装
-        // 現在はデフォルトフォームのみ返す簡易実装
-        guard let id = pkm.id, let name = pkm.name else {
-            return []
-        }
+    /// PKMPokemonから単一のPokemonFormにマッピング
+    nonisolated static func mapSingle(from pkm: PKMPokemon, isDefault: Bool) -> PokemonForm {
+        let id = pkm.id ?? 0
+        let name = pkm.name ?? "unknown"
 
-        let defaultForm = PokemonForm(
+        // speciesIdを取得（species.urlから抽出）
+        let speciesId = extractSpeciesId(from: pkm) ?? id
+
+        // フォーム名を取得（forms配列から、またはname自体から）
+        let formName = extractFormName(from: pkm)
+
+        // リージョンフォーム判定
+        let isRegional = formName.contains("alola") ||
+                        formName.contains("galar") ||
+                        formName.contains("hisui") ||
+                        formName.contains("paldea")
+
+        // メガシンカ判定
+        let isMega = formName.contains("mega") || formName.contains("primal")
+
+        return PokemonForm(
             id: id,
             name: name,
             pokemonId: id,
-            formName: "normal",
+            speciesId: speciesId,
+            formName: formName,
             types: mapTypes(from: pkm.types),
             sprites: mapSprites(from: pkm.sprites),
             stats: mapStats(from: pkm.stats),
             abilities: mapAbilities(from: pkm.abilities),
-            isDefault: true,
-            isMega: false,
-            isRegional: false,
+            isDefault: isDefault,
+            isMega: isMega,
+            isRegional: isRegional,
             versionGroup: nil
         )
+    }
 
-        return [defaultForm]
+    /// speciesIdをPKMPokemonから抽出
+    nonisolated private static func extractSpeciesId(from pkm: PKMPokemon) -> Int? {
+        guard let urlString = pkm.species?.url else {
+            return nil
+        }
+
+        // URLの末尾の数字を抽出: "/pokemon-species/26/" → "26"
+        let components = urlString.split(separator: "/")
+        guard let lastComponent = components.last,
+              let id = Int(lastComponent) else {
+            return nil
+        }
+
+        return id
+    }
+
+    /// フォーム名を抽出
+    nonisolated private static func extractFormName(from pkm: PKMPokemon) -> String {
+        // nameから抽出（例: "raichu-alola" -> "alola"）
+        guard let name = pkm.name else { return "normal" }
+
+        let components = name.split(separator: "-")
+        if components.count > 1 {
+            // "raichu-alola" -> "alola"
+            return components.dropFirst().joined(separator: "-")
+        }
+
+        return "normal"
     }
 
     // MARK: - Private Helpers

@@ -10,129 +10,27 @@ import SwiftUI
 struct PokemonDetailView: View {
     @ObservedObject var viewModel: PokemonDetailViewModel
     @EnvironmentObject private var localizationManager: LocalizationManager
+    @State private var selectedTab: DetailTab = .ecology
+
+    enum DetailTab {
+        case ecology   // 生態タブ
+        case battle    // バトルタブ
+    }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: DesignConstants.Spacing.large) {
-                // ヘッダー(画像、番号、名前、タイプ)
-                headerView
+        VStack(spacing: 0) {
+            // スプライト＋基本情報（タブの上に固定表示）
+            ScrollView {
+                VStack(spacing: DesignConstants.Spacing.medium) {
+                    spriteAndBasicInfo
 
-                // 基本情報(身長、体重)
-                basicInfoView
+                    // カスタムセグメントコントロール
+                    segmentedControl
 
-                // 性別比・たまごグループ（v3.0新機能）
-                if let species = viewModel.pokemonSpecies {
-                    breedingInfoView(species: species)
-                }
-
-                // 図鑑テキスト（v3.0新機能）
-                if let flavorText = viewModel.flavorText {
-                    flavorTextView(flavorText: flavorText)
-                }
-
-                // フォーム選択（v3.0新機能）
-                if !viewModel.availableForms.isEmpty {
-                    PokemonFormSelectorSection(
-                        forms: viewModel.availableForms,
-                        selectedForm: viewModel.selectedForm,
-                        onFormSelect: { form in
-                            Task {
-                                await viewModel.selectForm(form)
-                            }
-                        }
-                    )
-                }
-
-                // タイプ相性（v3.0新機能）
-                if let matchup = viewModel.typeMatchup {
-                    ExpandableSection(
-                        title: "タイプ相性",
-                        systemImage: "shield.fill",
-                        isExpanded: sectionBinding("typeMatchup")
-                    ) {
-                        TypeMatchupView(matchup: matchup)
-                    }
-                }
-
-                // 種族値・実数値（v3.0更新）
-                ExpandableSection(
-                    title: viewModel.calculatedStats != nil ? "種族値・実数値" : "種族値",
-                    systemImage: "chart.bar.fill",
-                    isExpanded: sectionBinding("stats")
-                ) {
-                    if let calculatedStats = viewModel.calculatedStats {
-                        CalculatedStatsView(
-                            stats: calculatedStats,
-                            baseStats: viewModel.pokemon.stats
-                        )
-                    } else {
-                        PokemonStatsView(stats: viewModel.pokemon.stats)
-                            .padding()
-                    }
-                }
-
-                // 特性（v3.0更新）
-                ExpandableSection(
-                    title: "特性",
-                    systemImage: "star.fill",
-                    isExpanded: sectionBinding("abilities")
-                ) {
-                    if !viewModel.abilityDetails.isEmpty {
-                        AbilitiesView(
-                            abilities: viewModel.pokemon.abilities,
-                            abilityDetails: viewModel.abilityDetails
-                        )
-                    } else {
-                        abilitiesViewLegacy
-                    }
-                }
-
-                // 出現場所（v3.0新機能）
-                if !viewModel.locations.isEmpty {
-                    ExpandableSection(
-                        title: "出現場所",
-                        systemImage: "map.fill",
-                        isExpanded: sectionBinding("locations")
-                    ) {
-                        locationsView
-                    }
-                }
-
-                // 覚える技（v3.0更新）
-                ExpandableSection(
-                    title: "覚える技",
-                    systemImage: "bolt.fill",
-                    isExpanded: sectionBinding("moves")
-                ) {
-                    MovesView(
-                        moves: viewModel.pokemon.moves,
-                        moveDetails: viewModel.moveDetails,
-                        selectedLearnMethod: $viewModel.selectedLearnMethod
-                    )
-                }
-
-                // 進化チェーン
-                if let evolutionChainEntity = viewModel.evolutionChainEntity {
-                    // v3.0: ツリー構造の進化チェーン
-                    ExpandableSection(
-                        title: "進化",
-                        systemImage: "arrow.triangle.branch",
-                        isExpanded: sectionBinding("evolution")
-                    ) {
-                        EvolutionChainView(chain: evolutionChainEntity)
-                    }
-                } else if !viewModel.evolutionChain.isEmpty {
-                    // v2互換: 単純なIDリストの進化チェーン
-                    ExpandableSection(
-                        title: "進化",
-                        systemImage: "arrow.triangle.branch",
-                        isExpanded: sectionBinding("evolution")
-                    ) {
-                        evolutionChainViewLegacy
-                    }
+                    // タブコンテンツ
+                    tabContent
                 }
             }
-            .padding(DesignConstants.Spacing.medium)
         }
         .navigationDestination(for: Int.self) { pokemonId in
             // 進化チェーンからのナビゲーション
@@ -147,39 +45,69 @@ struct PokemonDetailView: View {
             Button("再試行") {
                 Task {
                     await viewModel.loadPokemonDetail(id: viewModel.pokemon.id)
-                    await viewModel.loadEvolutionChain()
                 }
             }
         } message: {
             Text(viewModel.errorMessage ?? "不明なエラーが発生しました")
         }
         .task {
-            // v3.0データ読み込み
+            // v3.0データ読み込み（進化チェーンも含む）
             await viewModel.loadPokemonDetail(id: viewModel.pokemon.id)
-            // v2互換: 進化チェーン読み込み
-            await viewModel.loadEvolutionChain()
         }
     }
 
-    // MARK: - Section Binding Helper
+    // MARK: - Sprite and Basic Info
 
-    /// セクションの展開状態Bindingを生成
-    private func sectionBinding(_ sectionId: String) -> Binding<Bool> {
-        Binding(
-            get: { viewModel.isSectionExpanded[sectionId, default: true] },
-            set: { _ in viewModel.toggleSection(sectionId) }
-        )
-    }
+    private var spriteAndBasicInfo: some View {
+        HStack(alignment: .top, spacing: DesignConstants.Spacing.medium) {
+            // 左側: スプライト
+            VStack(spacing: DesignConstants.Spacing.small) {
+                pokemonImage
+                shinyToggle
+            }
 
-    // MARK: - Header View
-    private var headerView: some View {
-        VStack(spacing: DesignConstants.Spacing.medium) {
-            pokemonImage
-            shinyToggle
-            pokemonNumber
-            pokemonName
-            typesBadges
+            // 右側: 基本情報
+            VStack(alignment: .leading, spacing: DesignConstants.Spacing.xSmall) {
+                Text(viewModel.pokemon.formattedId)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                Text(localizationManager.displayName(for: viewModel.pokemon))
+                    .font(.title2)
+                    .fontWeight(.bold)
+
+                typesBadges
+
+                Divider()
+                    .padding(.vertical, 2)
+
+                HStack(spacing: DesignConstants.Spacing.large) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("高さ")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(String(format: "%.1f m", viewModel.pokemon.heightInMeters))
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                    }
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("重さ")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(String(format: "%.1f kg", viewModel.pokemon.weightInKilograms))
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                    }
+                }
+            }
+
+            Spacer()
         }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(DesignConstants.CornerRadius.large)
+        .padding(.horizontal, DesignConstants.Spacing.medium)
     }
 
     private var pokemonImage: some View {
@@ -198,223 +126,57 @@ struct PokemonDetailView: View {
                 EmptyView()
             }
         }
-        .frame(width: DesignConstants.ImageSize.xLarge, height: DesignConstants.ImageSize.xLarge)
+        .frame(width: 120, height: 120)
         .background(Color(.tertiarySystemFill))
         .clipShape(Circle())
         .shadow(color: Color(.systemGray).opacity(DesignConstants.Shadow.opacity), radius: DesignConstants.Shadow.medium, x: 0, y: 2)
     }
 
     private var shinyToggle: some View {
-        Toggle("色違い", isOn: $viewModel.isShiny)
-            .padding(.horizontal, DesignConstants.Spacing.xLarge * 2)
-    }
-
-    private var pokemonNumber: some View {
-        Text(viewModel.pokemon.formattedId)
+        Button {
+            viewModel.isShiny.toggle()
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: viewModel.isShiny ? "arrow.uturn.backward.circle.fill" : "sparkles")
+                Text(viewModel.isShiny ? "通常" : "色違い")
+            }
             .font(.caption)
-            .foregroundColor(.secondary)
-    }
-
-    private var pokemonName: some View {
-        Text(localizationManager.displayName(for: viewModel.pokemon))
-            .font(.title)
-            .fontWeight(.bold)
+        }
+        .buttonStyle(.bordered)
     }
 
     private var typesBadges: some View {
         HStack(spacing: DesignConstants.Spacing.xSmall) {
-            ForEach(viewModel.pokemon.types.sorted(by: { $0.slot < $1.slot }), id: \.slot) { type in
+            ForEach(viewModel.displayTypes.sorted(by: { $0.slot < $1.slot }), id: \.slot) { type in
                 Text(localizationManager.displayName(for: type))
                     .typeBadgeStyle(type)
             }
         }
     }
 
-    // MARK: - Basic Info View
-    private var basicInfoView: some View {
-        HStack(spacing: DesignConstants.Spacing.xLarge * 2) {
-            heightInfo
-            Divider().frame(height: 40)
-            weightInfo
+    // MARK: - Segmented Control
+
+    private var segmentedControl: some View {
+        Picker("タブ", selection: $selectedTab) {
+            Label("生態", systemImage: "book.fill")
+                .tag(DetailTab.ecology)
+            Label("バトル", systemImage: "bolt.fill")
+                .tag(DetailTab.battle)
         }
-        .padding(DesignConstants.Spacing.medium)
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(DesignConstants.CornerRadius.large)
+        .pickerStyle(.segmented)
+        .padding(.horizontal, DesignConstants.Spacing.medium)
     }
 
-    private var heightInfo: some View {
-        VStack {
-            Text("高さ")
-                .font(.caption)
-                .foregroundColor(.secondary)
-            Text(String(format: "%.1f m", viewModel.pokemon.heightInMeters))
-                .font(.title3)
-                .fontWeight(.semibold)
-        }
-    }
+    // MARK: - Tab Content
 
-    private var weightInfo: some View {
-        VStack {
-            Text("重さ")
-                .font(.caption)
-                .foregroundColor(.secondary)
-            Text(String(format: "%.1f kg", viewModel.pokemon.weightInKilograms))
-                .font(.title3)
-                .fontWeight(.semibold)
+    @ViewBuilder
+    private var tabContent: some View {
+        switch selectedTab {
+        case .ecology:
+            EcologyTabView(viewModel: viewModel)
+        case .battle:
+            BattleTabView(viewModel: viewModel)
         }
     }
 
-    // MARK: - v3.0 New Views
-
-    /// 性別比・たまごグループ表示
-    private func breedingInfoView(species: PokemonSpecies) -> some View {
-        VStack(spacing: DesignConstants.Spacing.small) {
-            // 性別比
-            HStack {
-                Text("性別比")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Text(species.genderRatioDisplay)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-            }
-            .padding(.horizontal, DesignConstants.Spacing.medium)
-
-            Divider()
-
-            // たまごグループ
-            HStack {
-                Text("たまごグループ")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Text(species.eggGroupsDisplay)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-            }
-            .padding(.horizontal, DesignConstants.Spacing.medium)
-        }
-        .padding(.vertical, DesignConstants.Spacing.medium)
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(DesignConstants.CornerRadius.large)
-    }
-
-    /// 図鑑テキスト表示
-    private func flavorTextView(flavorText: PokemonFlavorText) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(flavorText.text)
-                .font(.body)
-                .foregroundColor(.primary)
-                .lineLimit(nil)
-                .fixedSize(horizontal: false, vertical: true)
-
-            Text("出典: \(flavorText.versionGroup)")
-                .font(.caption2)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(DesignConstants.CornerRadius.large)
-    }
-
-    /// 出現場所表示
-    private var locationsView: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ForEach(viewModel.locations, id: \.locationName) { location in
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(location.locationName)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-
-                    ForEach(location.versionDetails, id: \.version) { detail in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(detail.version)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .fontWeight(.medium)
-
-                            if !detail.encounterDetails.isEmpty {
-                                ForEach(Array(detail.encounterDetails.enumerated()), id: \.offset) { _, encounter in
-                                    HStack {
-                                        Text("・\(encounter.displayMethod)")
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
-                                        Text("Lv.\(encounter.minLevel)-\(encounter.maxLevel)")
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
-                                        Text("\(encounter.chance)%")
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(8)
-            }
-        }
-        .padding()
-    }
-
-    // MARK: - Legacy v2 Views
-
-    /// v2互換: シンプルな特性リスト
-    private var abilitiesViewLegacy: some View {
-        VStack(alignment: .leading, spacing: DesignConstants.Spacing.xSmall) {
-            ForEach(viewModel.pokemon.abilities, id: \.name) { ability in
-                Text(localizationManager.displayName(for: ability))
-                    .font(.body)
-                    .foregroundColor(.primary)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-    }
-
-    /// v2互換: IDベースの進化チェーン表示
-    private var evolutionChainViewLegacy: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: DesignConstants.Spacing.small) {
-                ForEach(Array(viewModel.evolutionChain.enumerated()), id: \.offset) { index, pokemonId in
-                    NavigationLink(value: pokemonId) {
-                        VStack(spacing: DesignConstants.Spacing.xxSmall) {
-                            AsyncImage(url: URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/\(pokemonId).png")) { phase in
-                                switch phase {
-                                case .empty:
-                                    ProgressView()
-                                case .success(let image):
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                case .failure:
-                                    Image(systemName: "questionmark.circle")
-                                        .foregroundColor(.gray)
-                                @unknown default:
-                                    EmptyView()
-                                }
-                            }
-                            .frame(width: DesignConstants.ImageSize.small, height: DesignConstants.ImageSize.small)
-
-                            Text(String(format: "#%03d", pokemonId))
-                                .font(.caption2)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    .buttonStyle(PlainButtonStyle())
-
-                    if index < viewModel.evolutionChain.count - 1 {
-                        Image(systemName: "arrow.right")
-                            .foregroundColor(.gray)
-                            .font(.body)
-                    }
-                }
-            }
-            .padding()
-        }
-    }
 }
