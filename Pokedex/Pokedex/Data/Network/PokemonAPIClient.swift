@@ -358,9 +358,9 @@ final class PokemonAPIClient {
 
     // MARK: - Flavor Text
 
-    func fetchFlavorText(speciesId: Int, versionGroup: String?) async throws -> PokemonFlavorText? {
+    func fetchFlavorText(speciesId: Int, versionGroup: String?, preferredVersion: String? = nil) async throws -> PokemonFlavorText? {
         let species = try await pokemonAPI.pokemonService.fetchPokemonSpecies(speciesId)
-        return FlavorTextMapper.mapFlavorText(from: species, versionGroup: versionGroup)
+        return FlavorTextMapper.mapFlavorText(from: species, versionGroup: versionGroup, preferredVersion: preferredVersion)
     }
 
     // MARK: - Machine API

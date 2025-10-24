@@ -13,8 +13,9 @@ protocol FetchFlavorTextUseCaseProtocol {
     /// - Parameters:
     ///   - speciesId: 種族ID
     ///   - versionGroup: バージョングループ（nilの場合は最新のテキスト）
+    ///   - preferredVersion: 優先バージョン（例: "scarlet" または "violet"）
     /// - Returns: 図鑑テキスト
-    func execute(speciesId: Int, versionGroup: String?) async throws -> PokemonFlavorText?
+    func execute(speciesId: Int, versionGroup: String?, preferredVersion: String?) async throws -> PokemonFlavorText?
 }
 
 /// 図鑑テキストを取得するUseCase
@@ -25,7 +26,7 @@ final class FetchFlavorTextUseCase: FetchFlavorTextUseCaseProtocol {
         self.pokemonRepository = pokemonRepository
     }
 
-    func execute(speciesId: Int, versionGroup: String?) async throws -> PokemonFlavorText? {
-        return try await pokemonRepository.fetchFlavorText(speciesId: speciesId, versionGroup: versionGroup)
+    func execute(speciesId: Int, versionGroup: String?, preferredVersion: String?) async throws -> PokemonFlavorText? {
+        return try await pokemonRepository.fetchFlavorText(speciesId: speciesId, versionGroup: versionGroup, preferredVersion: preferredVersion)
     }
 }

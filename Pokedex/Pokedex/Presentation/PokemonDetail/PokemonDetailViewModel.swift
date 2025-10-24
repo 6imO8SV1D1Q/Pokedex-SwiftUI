@@ -199,9 +199,10 @@ final class PokemonDetailViewModel: ObservableObject {
         do {
             // 並列でデータ取得（speciesIdを使用）
             let speciesId = pokemon.speciesId
+            let preferredVersion = AppSettings.shared.preferredVersion.rawValue
             async let formsTask = fetchPokemonFormsUseCase.execute(pokemonId: speciesId, versionGroup: versionGroup)
             async let locationsTask = fetchPokemonLocationsUseCase.execute(pokemonId: speciesId, versionGroup: versionGroup)
-            async let flavorTextTask = fetchFlavorTextUseCase.execute(speciesId: speciesId, versionGroup: versionGroup)
+            async let flavorTextTask = fetchFlavorTextUseCase.execute(speciesId: speciesId, versionGroup: versionGroup, preferredVersion: preferredVersion)
             async let speciesTask = pokemonRepository.fetchPokemonSpecies(id: speciesId)
             async let evolutionChainTask = fetchEvolutionChainUseCase.executeV3(pokemonId: speciesId)
 
@@ -253,8 +254,9 @@ final class PokemonDetailViewModel: ObservableObject {
 
             // speciesIdが異なる場合は、speciesと進化チェーンを再取得
             if form.speciesId != pokemon.speciesId {
+                let preferredVersion = AppSettings.shared.preferredVersion.rawValue
                 async let speciesTask = pokemonRepository.fetchPokemonSpecies(id: form.speciesId)
-                async let flavorTextTask = fetchFlavorTextUseCase.execute(speciesId: form.speciesId, versionGroup: versionGroup)
+                async let flavorTextTask = fetchFlavorTextUseCase.execute(speciesId: form.speciesId, versionGroup: versionGroup, preferredVersion: preferredVersion)
                 async let evolutionChainTask = fetchEvolutionChainUseCase.executeV3(pokemonId: form.speciesId)
 
                 pokemonSpecies = try await speciesTask
