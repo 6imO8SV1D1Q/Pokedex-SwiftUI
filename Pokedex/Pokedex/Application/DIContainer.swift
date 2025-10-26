@@ -183,4 +183,10 @@ final class DIContainer: ObservableObject {
             moveRepository: moveRepository
         )
     }
+
+    func makeStatsCalculatorViewModel() -> StatsCalculatorViewModel {
+        StatsCalculatorViewModel(
+            pokemonRepository: pokemonRepository
+        )
+    }
 }

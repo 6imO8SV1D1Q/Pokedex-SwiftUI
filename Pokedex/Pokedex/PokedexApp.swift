@@ -86,14 +86,30 @@ struct PokedexApp: App {
 /// ContentView: ModelContextを取得してDIContainerに注入
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var viewModel: PokemonListViewModel?
+    @State private var pokemonListViewModel: PokemonListViewModel?
+    @State private var statsCalculatorViewModel: StatsCalculatorViewModel?
     @State private var isInitialized = false
 
     var body: some View {
         Group {
-            if let viewModel = viewModel {
-                PokemonListView(viewModel: viewModel)
-                    .environmentObject(LocalizationManager.shared)
+            if let pokemonListViewModel = pokemonListViewModel,
+               let statsCalculatorViewModel = statsCalculatorViewModel {
+                // タブ構成
+                TabView {
+                    // 図鑑タブ
+                    PokemonListView(viewModel: pokemonListViewModel)
+                        .environmentObject(LocalizationManager.shared)
+                        .tabItem {
+                            Label("図鑑", systemImage: "book.fill")
+                        }
+
+                    // 計算機タブ
+                    StatsCalculatorView(viewModel: statsCalculatorViewModel)
+                        .environmentObject(LocalizationManager.shared)
+                        .tabItem {
+                            Label("計算機", systemImage: "function")
+                        }
+                }
             } else {
                 ProgressView("初期化中...")
                     .onAppear {
@@ -104,8 +120,9 @@ struct ContentView: View {
                         print("🔧 Setting up ModelContext in DIContainer...")
                         DIContainer.shared.setModelContext(modelContext)
 
-                        print("🏗️ Creating PokemonListViewModel...")
-                        viewModel = DIContainer.shared.makePokemonListViewModel()
+                        print("🏗️ Creating ViewModels...")
+                        pokemonListViewModel = DIContainer.shared.makePokemonListViewModel()
+                        statsCalculatorViewModel = DIContainer.shared.makeStatsCalculatorViewModel()
 
                         print("✅ App initialization completed")
                     }
