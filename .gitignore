@@ -84,8 +84,3 @@ fastlane/test_output
 *.bak
 *.log
 build.log
-
-# Claude Code
-claude.md
-CLAUDE.md
-.claude/

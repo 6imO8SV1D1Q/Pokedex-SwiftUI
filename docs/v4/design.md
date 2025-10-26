@@ -1100,7 +1100,6 @@ struct SettingsView: View {
 - 進化のきせきフィルター
 - 最終進化フィルター
 - 実数値絞り込みフィルター
-- Chip UIでフィルター条件を可視化
 - 図鑑区分セレクター ✅
 - 表示形式の統一（グリッド表示削除） ✅
 - ポケモン件数表示 ✅
@@ -1510,83 +1509,7 @@ NavigationStack {
 }
 ```
 
-### 4.4 FilterConditionChipView（選択条件の表示）
-
-**Chip UI実装**:
-
-```swift
-struct FilterConditionChipView: View {
-    let condition: FilterCondition
-    let onRemove: () -> Void
-
-    var body: some View {
-        HStack(spacing: 4) {
-            Text(condition.displayText)
-                .font(.caption)
-                .foregroundColor(.white)
-
-            Button(action: onRemove) {
-                Image(systemName: "xmark")
-                    .font(.caption)
-                    .foregroundColor(.white)
-            }
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(condition.categoryColor)
-        .cornerRadius(8)
-    }
-}
-
-enum FilterCondition {
-    case moveName(MoveEntity)
-    case moveMetadata(String)  // "特攻上昇 AND 特防上昇"
-    case abilityName(AbilityEntity)
-    case abilityCategory(AbilityCategory)
-    case pokemonCategory(PokemonCategory)
-    case canUseEviolite
-    case isFinalEvolution
-    case statFilter(StatFilterCondition)
-
-    var displayText: String {
-        switch self {
-        case .moveName(let move):
-            return move.nameJa
-        case .moveMetadata(let description):
-            return description
-        case .abilityName(let ability):
-            return ability.nameJa ?? ability.name
-        case .abilityCategory(let category):
-            return category.displayName
-        case .pokemonCategory(let category):
-            return category.displayName
-        case .canUseEviolite:
-            return "進化のきせき適用可"
-        case .isFinalEvolution:
-            return "最終進化のみ"
-        case .statFilter(let condition):
-            return condition.displayText
-        }
-    }
-
-    var categoryColor: Color {
-        switch self {
-        case .moveName, .moveMetadata:
-            return .blue
-        case .abilityName, .abilityCategory:
-            return .green
-        case .pokemonCategory:
-            return .purple
-        case .canUseEviolite, .isFinalEvolution:
-            return .orange
-        case .statFilter:
-            return .red
-        }
-    }
-}
-```
-
-### 4.5 最終進化フィルター
+### 4.4 最終進化フィルター
 
 **設計方針**:
 - PokemonEvolutionModel.evolvesToで最終進化を判定
@@ -1819,24 +1742,6 @@ struct SearchFilterView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // 選択中の条件を表示（Chip UI）
-                if hasAnyFilter {
-                    Section("選択中の条件") {
-                        FlowLayout(spacing: 8) {
-                            ForEach(allFilterConditions, id: \.self) { condition in
-                                FilterConditionChipView(condition: condition) {
-                                    removeCondition(condition)
-                                }
-                            }
-                        }
-
-                        Button("全てクリア") {
-                            clearAllFilters()
-                        }
-                        .foregroundColor(.red)
-                    }
-                }
-
                 // タイプフィルター（OR/AND追加）
                 Section("タイプ") {
                     Picker("検索モード", selection: $viewModel.typeFilterMode) {
@@ -1912,18 +1817,6 @@ struct SearchFilterView: View {
     }
 }
 ```
-
----
-
-## Phase 5以降
-
-**Phase 5: バージョン固有データ対応** - PokemonVersionVariantモデル追加、地方図鑑対応
-
-**Phase 6: モジュール化** - PokedexCoreパッケージ作成、Domain/Data/Presentation層の分離
-
-**Phase 7: UI/UX改善** - アニメーション、詳細画面拡充
-
-詳細は `docs/pokedex_prompts_v4.md` および `docs/pokedex_requirements_v4.md` を参照してください。
 
 ---
 
@@ -2504,12 +2397,13 @@ HStack(spacing: 0) {
 | 2025-10-10 | 2.0 | Phase 1をSwiftData永続化に変更、Phase 2をプリバンドルDBに変更、Phase 3以降を簡略化 |
 | 2025-10-11 | 3.0 | JSONベースのアプローチに変更、全モデルをJSONデータ構造に合わせて更新、日本語フィールド追加、技・特性モデル追加 |
 | 2025-10-12 | 4.0 | Phase 1-3完了を反映、埋め込みモデル採用、PokedexModel追加、スキーマバージョン管理追加、パフォーマンス実測値更新、LocalizationManager追加 |
-| 2025-10-12 | 4.1 | Phase 4追加：高度なフィルタリング機能の設計（MoveFilterCondition、AbilityCategory、Chip UI、MoveDetailFilterView） |
+| 2025-10-12 | 4.1 | Phase 4追加：高度なフィルタリング機能の設計（MoveFilterCondition、AbilityCategory、MoveDetailFilterView） |
 | 2025-10-12 | 4.2 | Phase 4拡張：OR/AND切り替え設計、AbilityDetailFilterView追加、最終進化フィルター追加、StatDetailFilterView設計（UI簡素化・画面分離） |
 | 2025-01-13 | 4.3 | Phase 4完了：OR/AND切り替え実装完了（4.0）、図鑑区分セレクター追加（4.8）、グリッド表示削除（4.9）、FilterMode/PokedexType追加 |
 | 2025-10-13 | 4.4 | Phase 4拡張：ポケモン件数表示追加（4.10）、hasActiveFiltersロジック実装 |
 | 2025-10-13 | 4.5 | Phase 4拡張：並び替えUI改善（4.11）、図鑑番号昇順/降順対応、名前ソート削除、iOS 26対応 |
 | 2025-10-13 | 4.6 | バグ修正：技メタデータフィルターのAND検索ロジック修正（技ID交差→ポケモンID交差）、技条件削除ボタン修正（UUID基準の削除）、デバッグログ削除 |
+| 2025-10-26 | 4.7 | Phase 6（モジュール化）、Phase 7（UI/UX改善）を削除（低優先度のため） |
 
 ---
 
@@ -2728,33 +2622,40 @@ struct BattleTabView: View {
 }
 ```
 
-#### StatsCalculatorView（新規）
-実数値計算UI
+#### CalculatedStatsView（実装済み）
+実数値計算UI（固定5パターン表示版）
 
+**現在の実装**:
+- 固定5パターンの実数値を表示（理想、252振り、無振り、最低、下降補正）
+- 横スクロール可能な表形式
+- Lv.50固定
+
+**今後の拡張案（優先度：低）**:
 ```swift
+// 将来的に検討するユーザー入力UI版
 struct StatsCalculatorView: View {
     @ObservedObject var viewModel: PokemonDetailViewModel
     @State private var level: Int = 50
     @State private var evs: [StatType: Int] = [:]
     @State private var ivs: [StatType: Int] = [:]
     @State private var nature: Nature = .hardy
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: DesignConstants.Spacing.medium) {
             // レベル入力
             levelPicker
-            
+
             // 努力値入力（簡易版）
             evsInput
-            
+
             // 個体値入力（簡易版）
             ivsInput
-            
+
             // 性格選択
             naturePicker
-            
+
             Divider()
-            
+
             // 計算結果表示
             calculatedStatsDisplay
         }
@@ -3007,19 +2908,14 @@ Pokedex/
 2. EcologyTabView実装（既存UIを移植）
 3. BattleTabView実装（既存UIを移植）
 
-### Phase 5.2: 実数値計算UIの実装
-1. StatsCalculatorView実装
-2. ViewModelへの入力UI状態追加
-3. 既存CalculateStatsUseCaseとの連携
+### Phase 5.2: 実数値計算UI・技フィルター機能の実装 ✅
+1. ✅ CalculatedStatsView実装（固定5パターン表示版）
+2. ✅ 技フィルター機能実装（ライバル除外機能）
+3. ✅ バトルタブへの統合
 
-### Phase 5.3: 技フィルター機能の実装
-1. MoveFilter構造体実装
-2. MovesWithFilterView実装
-3. MoveDetailFilterSheet実装
-
-### Phase 5.4: テスト・調整
-1. ビルド・動作確認
-2. UI/UXの微調整
+### Phase 5.3: テスト・調整 ✅
+1. ✅ ビルド・動作確認
+2. ✅ UI/UXの微調整
 
 ---
 
@@ -3051,4 +2947,6 @@ Pokedex/
 
 | 日付 | バージョン | 変更内容 |
 |------|-----------|---------|
-| 2025-10-21 | 5.0 | Phase 5追加：詳細画面UI改善（v4.1）設計、タブ構成、技フィルター、実数値計算UI |
+| 2025-10-21 | 5.0 | Phase 5追加：詳細画面UI改善（v4.1）設計、タブ構成、技フィルター、実数値計算UI（固定表示版） |
+| 2025-10-26 | 5.1 | FR-4.4.7削除、FR-4.5.4を今後の改善予定に移動、Phase 5完了反映 |
+| 2025-10-26 | 5.2 | Phase 6（モジュール化）、Phase 7（UI/UX改善）を削除（低優先度のため） |
