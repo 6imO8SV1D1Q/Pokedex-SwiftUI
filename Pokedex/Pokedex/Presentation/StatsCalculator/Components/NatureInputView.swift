@@ -9,9 +9,9 @@ import SwiftUI
 
 /// 性格補正入力UI
 struct NatureInputView: View {
-    @Binding var natureModifiers: [String: StatsCalculatorViewModel.NatureModifier]
+    @Binding var natureModifiers: [String: NatureModifier]
 
-    let onSetNature: (String, StatsCalculatorViewModel.NatureModifier) -> Void
+    let onSetNature: (String, NatureModifier) -> Void
 
     private let statNames: [(key: String, label: String)] = [
         ("attack", "攻撃"),
@@ -74,7 +74,7 @@ struct NatureInputView: View {
 
     private func modifierButton(
         stat: String,
-        modifier: StatsCalculatorViewModel.NatureModifier,
+        modifier: NatureModifier,
         label: String,
         color: Color
     ) -> some View {
@@ -94,7 +94,7 @@ struct NatureInputView: View {
         }
     }
 
-    private func isSelected(stat: String, modifier: StatsCalculatorViewModel.NatureModifier) -> Bool {
+    private func isSelected(stat: String, modifier: NatureModifier) -> Bool {
         natureModifiers[stat] == modifier
     }
 }

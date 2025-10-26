@@ -11,7 +11,7 @@ import SwiftUI
 struct StatsResultView: View {
     let pokemon: Pokemon
     let calculatedStats: [String: Int]
-    let natureModifiers: [String: StatsCalculatorViewModel.NatureModifier]
+    let natureModifiers: [String: NatureModifier]
 
     private let statNames: [(key: String, label: String)] = [
         ("hp", "HP"),
@@ -98,7 +98,7 @@ struct StatsResultView: View {
 
     // MARK: - 補正アイコン
 
-    private func modifierIcon(_ modifier: StatsCalculatorViewModel.NatureModifier) -> some View {
+    private func modifierIcon(_ modifier: NatureModifier) -> some View {
         Group {
             switch modifier {
             case .boosted:
@@ -118,7 +118,7 @@ struct StatsResultView: View {
 
     // MARK: - 色の決定
 
-    private func natureColor(_ modifier: StatsCalculatorViewModel.NatureModifier?) -> Color {
+    private func natureColor(_ modifier: NatureModifier?) -> Color {
         guard let modifier = modifier else { return .primary }
         switch modifier {
         case .boosted:
@@ -159,8 +159,8 @@ struct StatsResultView: View {
             weight: 69,
             category: nil,
             types: [
-                PokemonType(slot: 1, name: "grass"),
-                PokemonType(slot: 2, name: "poison")
+                PokemonType(slot: 1, name: "grass", nameJa: "くさ"),
+                PokemonType(slot: 2, name: "poison", nameJa: "どく")
             ],
             stats: [
                 PokemonStat(name: "hp", baseStat: 45),
@@ -174,8 +174,6 @@ struct StatsResultView: View {
             sprites: PokemonSprites(
                 frontDefault: "",
                 frontShiny: nil,
-                frontFemale: nil,
-                frontShinyFemale: nil,
                 other: nil
             ),
             moves: [],
