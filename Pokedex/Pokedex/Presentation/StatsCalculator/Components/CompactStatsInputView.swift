@@ -25,11 +25,11 @@ struct CompactStatsInputView: View {
 
     private let statNames: [(key: String, label: String)] = [
         ("hp", "HP"),
-        ("attack", "攻撃"),
-        ("defense", "防御"),
+        ("attack", "攻"),
+        ("defense", "防"),
         ("special-attack", "特攻"),
         ("special-defense", "特防"),
-        ("speed", "素早さ")
+        ("speed", "素早")
     ]
 
     var body: some View {
@@ -91,26 +91,26 @@ struct CompactStatsInputView: View {
 
     private var headerRow: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 4) {
+            HStack(spacing: 3) {
                 Text("")
-                    .frame(width: 40, alignment: .leading)
+                    .frame(width: 32, alignment: .leading)
 
                 Text("IV")
-                    .font(.system(size: 11))
+                    .font(.system(size: 10))
                     .fontWeight(.semibold)
                     .foregroundColor(.secondary)
-                    .frame(width: 36)
+                    .frame(width: 32)
 
                 Text("EV")
-                    .font(.system(size: 11))
+                    .font(.system(size: 10))
                     .fontWeight(.semibold)
                     .foregroundColor(.secondary)
-                    .frame(width: 36)
+                    .frame(width: 32)
 
                 Spacer()
 
                 Text("性格")
-                    .font(.system(size: 11))
+                    .font(.system(size: 10))
                     .fontWeight(.semibold)
                     .foregroundColor(.secondary)
             }
@@ -122,13 +122,13 @@ struct CompactStatsInputView: View {
                     onSetAllIVsToMax()
                 }
                 .buttonStyle(.bordered)
-                .font(.system(size: 10))
+                .font(.system(size: 9))
 
                 Button("IV 0") {
                     onSetAllIVsToMin()
                 }
                 .buttonStyle(.bordered)
-                .font(.system(size: 10))
+                .font(.system(size: 9))
             }
         }
     }
@@ -136,11 +136,11 @@ struct CompactStatsInputView: View {
     // MARK: - ステータス行
 
     private func statRow(stat: (key: String, label: String)) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 3) {
             // ステータス名
             Text(stat.label)
-                .frame(width: 40, alignment: .leading)
-                .font(.caption)
+                .frame(width: 32, alignment: .leading)
+                .font(.system(size: 11))
 
             // 個体値（IV）
             TextField("", value: Binding(
@@ -151,8 +151,8 @@ struct CompactStatsInputView: View {
             ), format: .number)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .keyboardType(.numberPad)
-            .frame(width: 36)
-            .font(.caption)
+            .frame(width: 32)
+            .font(.system(size: 11))
             .multilineTextAlignment(.center)
 
             // 努力値（EV）
@@ -164,53 +164,53 @@ struct CompactStatsInputView: View {
             ), format: .number)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .keyboardType(.numberPad)
-            .frame(width: 36)
-            .font(.caption)
+            .frame(width: 32)
+            .font(.system(size: 11))
             .multilineTextAlignment(.center)
 
             // EV調整ボタン
-            HStack(spacing: 2) {
+            HStack(spacing: 1) {
                 Button {
                     onDecrementEV(stat.key)
                 } label: {
-                    Image(systemName: "minus")
-                        .font(.system(size: 10))
+                    Text("-")
+                        .font(.system(size: 11, weight: .bold))
                 }
                 .buttonStyle(.bordered)
-                .frame(width: 24, height: 24)
+                .frame(width: 22, height: 22)
 
                 Button {
                     onIncrementEV(stat.key)
                 } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 10))
+                    Text("+")
+                        .font(.system(size: 11, weight: .bold))
                 }
                 .buttonStyle(.bordered)
-                .frame(width: 24, height: 24)
+                .frame(width: 22, height: 22)
 
                 Button {
                     evs[stat.key] = 252
                 } label: {
-                    Text("252")
-                        .font(.system(size: 9))
+                    Text("MAX")
+                        .font(.system(size: 8, weight: .bold))
                 }
                 .buttonStyle(.bordered)
-                .frame(width: 30, height: 24)
+                .frame(width: 28, height: 22)
             }
 
             Spacer()
+                .frame(maxWidth: 4)
 
             // 性格補正（HPは除外）
             if stat.key != "hp" {
-                HStack(spacing: 2) {
+                HStack(spacing: 1) {
                     natureButton(stat: stat.key, modifier: .boosted, label: "↑", color: .red)
-                    natureButton(stat: stat.key, modifier: .neutral, label: "-", color: .gray)
                     natureButton(stat: stat.key, modifier: .hindered, label: "↓", color: .blue)
                 }
             } else {
                 // HPの場合は空白
                 Color.clear
-                    .frame(width: 76)
+                    .frame(width: 46)
             }
         }
     }
@@ -227,8 +227,8 @@ struct CompactStatsInputView: View {
             onSetNature(stat, modifier)
         } label: {
             Text(label)
-                .font(.system(size: 12, weight: .semibold))
-                .frame(width: 24, height: 24)
+                .font(.system(size: 11, weight: .semibold))
+                .frame(width: 22, height: 22)
                 .background(isNatureSelected(stat: stat, modifier: modifier) ? color.opacity(0.2) : Color(.systemGray5))
                 .foregroundColor(isNatureSelected(stat: stat, modifier: modifier) ? color : .secondary)
                 .cornerRadius(4)
