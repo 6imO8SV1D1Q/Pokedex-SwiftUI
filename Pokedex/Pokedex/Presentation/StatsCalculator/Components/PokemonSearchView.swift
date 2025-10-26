@@ -45,7 +45,7 @@ struct PokemonSearchView: View {
 
             HStack(spacing: 16) {
                 // スプライト画像
-                AsyncImage(url: URL(string: pokemon.sprites.frontDefault)) { image in
+                AsyncImage(url: pokemon.sprites.frontDefault.flatMap { URL(string: $0) }) { image in
                     image
                         .resizable()
                         .interpolation(.none)
@@ -111,7 +111,7 @@ struct PokemonSearchView: View {
                         } label: {
                             HStack {
                                 // スプライト画像
-                                AsyncImage(url: URL(string: pokemon.sprites.frontDefault)) { image in
+                                AsyncImage(url: pokemon.sprites.frontDefault.flatMap { URL(string: $0) }) { image in
                                     image
                                         .resizable()
                                         .interpolation(.none)

@@ -62,7 +62,7 @@ struct StatsInputView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .keyboardType(.numberPad)
                     .frame(width: 80)
-                    .onChange(of: level) { newValue in
+                    .onChange(of: level) { _, newValue in
                         // 1-100の範囲に制限
                         if newValue < 1 {
                             level = 1

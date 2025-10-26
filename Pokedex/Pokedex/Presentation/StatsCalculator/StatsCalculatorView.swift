@@ -51,10 +51,10 @@ struct StatsCalculatorView: View {
                                 viewModel.decrementEV(for: stat)
                             }
                         )
-                        .onChange(of: viewModel.level) { _ in
+                        .onChange(of: viewModel.level) {
                             viewModel.calculateStats()
                         }
-                        .onChange(of: viewModel.ivs) { _ in
+                        .onChange(of: viewModel.ivs) {
                             viewModel.calculateStats()
                         }
 
