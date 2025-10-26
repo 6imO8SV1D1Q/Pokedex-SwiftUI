@@ -32,11 +32,12 @@ struct StatsCalculatorView: View {
 
                     // ポケモン選択後の入力UI
                     if viewModel.selectedPokemon != nil {
-                        // ステータス入力（レベル、個体値、努力値）
-                        StatsInputView(
+                        // コンパクトなステータス入力（個体値・努力値・性格を統合）
+                        CompactStatsInputView(
                             level: $viewModel.level,
                             ivs: $viewModel.ivs,
                             evs: $viewModel.evs,
+                            natureModifiers: $viewModel.nature,
                             remainingEVs: viewModel.remainingEVs,
                             isEVOverLimit: viewModel.isEVOverLimit,
                             onSetAllIVsToMax: {
@@ -50,6 +51,9 @@ struct StatsCalculatorView: View {
                             },
                             onDecrementEV: { stat in
                                 viewModel.decrementEV(for: stat)
+                            },
+                            onSetNature: { stat, modifier in
+                                viewModel.setNature(for: stat, modifier: modifier)
                             }
                         )
                         .onChange(of: viewModel.level) {
@@ -58,14 +62,6 @@ struct StatsCalculatorView: View {
                         .onChange(of: viewModel.ivs) {
                             viewModel.calculateStats()
                         }
-
-                        // 性格補正入力
-                        NatureInputView(
-                            natureModifiers: $viewModel.nature,
-                            onSetNature: { stat, modifier in
-                                viewModel.setNature(for: stat, modifier: modifier)
-                            }
-                        )
 
                         // 計算結果表示
                         if !viewModel.calculatedStats.isEmpty,
