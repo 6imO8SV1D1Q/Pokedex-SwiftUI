@@ -71,13 +71,8 @@ struct PokemonSearchView: View {
                     // タイプバッジ
                     HStack(spacing: 4) {
                         ForEach(pokemon.types, id: \.name) { type in
-                            Text(LocalizationManager.shared.localizedTypeName(type.name))
-                                .font(.caption)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(LocalizationManager.shared.typeColor(for: type.name))
-                                .foregroundColor(.white)
-                                .cornerRadius(4)
+                            Text(LocalizationManager.shared.displayName(for: type))
+                                .typeBadgeStyle(type, fontSize: 10)
                         }
                     }
                 }
@@ -103,64 +98,72 @@ struct PokemonSearchView: View {
                 .autocapitalization(.none)
 
             // 候補リスト
-            if !filteredPokemon.isEmpty {
-                VStack(spacing: 8) {
-                    ForEach(filteredPokemon.prefix(10), id: \.id) { pokemon in
-                        Button {
-                            onSelect(pokemon)
-                        } label: {
-                            HStack {
-                                // スプライト画像
-                                AsyncImage(url: pokemon.sprites.frontDefault.flatMap { URL(string: $0) }) { image in
-                                    image
-                                        .resizable()
-                                        .interpolation(.none)
-                                        .frame(width: 40, height: 40)
-                                } placeholder: {
-                                    Rectangle()
-                                        .fill(Color.gray.opacity(0.2))
-                                        .frame(width: 40, height: 40)
-                                }
+            candidateList
+        }
+    }
 
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(pokemon.nameJa ?? pokemon.name)
-                                        .font(.subheadline)
-                                        .fontWeight(.medium)
+    // MARK: - 候補リスト
 
-                                    Text("#\(pokemon.nationalDexNumber ?? pokemon.id)")
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
-                                }
+    @ViewBuilder
+    private var candidateList: some View {
+        if !filteredPokemon.isEmpty {
+            VStack(spacing: 8) {
+                ForEach(filteredPokemon.prefix(10), id: \.id) { pokemon in
+                    candidateRow(pokemon: pokemon)
+                }
+            }
+        } else if !searchText.isEmpty {
+            Text("該当するポケモンが見つかりません")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding()
+        }
+    }
 
-                                Spacer()
+    // MARK: - 候補行
 
-                                // タイプバッジ
-                                HStack(spacing: 4) {
-                                    ForEach(pokemon.types, id: \.name) { type in
-                                        Text(LocalizationManager.shared.localizedTypeName(type.name))
-                                            .font(.caption2)
-                                            .padding(.horizontal, 6)
-                                            .padding(.vertical, 2)
-                                            .background(LocalizationManager.shared.typeColor(for: type.name))
-                                            .foregroundColor(.white)
-                                            .cornerRadius(3)
-                                    }
-                                }
-                            }
-                            .padding(8)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(8)
-                        }
-                        .buttonStyle(PlainButtonStyle())
+    private func candidateRow(pokemon: Pokemon) -> some View {
+        Button {
+            onSelect(pokemon)
+        } label: {
+            HStack {
+                // スプライト画像
+                AsyncImage(url: pokemon.sprites.frontDefault.flatMap { URL(string: $0) }) { image in
+                    image
+                        .resizable()
+                        .interpolation(.none)
+                        .frame(width: 40, height: 40)
+                } placeholder: {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(width: 40, height: 40)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(pokemon.nameJa ?? pokemon.name)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+
+                    Text("#\(pokemon.nationalDexNumber ?? pokemon.id)")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                // タイプバッジ
+                HStack(spacing: 4) {
+                    ForEach(pokemon.types, id: \.name) { type in
+                        Text(LocalizationManager.shared.displayName(for: type))
+                            .typeBadgeStyle(type, fontSize: 9)
                     }
                 }
-            } else if !searchText.isEmpty {
-                Text("該当するポケモンが見つかりません")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .padding()
             }
+            .padding(8)
+            .background(Color(.systemGray6))
+            .cornerRadius(8)
         }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
