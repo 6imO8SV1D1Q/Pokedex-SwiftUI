@@ -15,8 +15,11 @@ struct EvolutionNode: Equatable, Identifiable {
     /// 種族ID
     let speciesId: Int
 
-    /// ポケモン名
+    /// ポケモン名（英語）
     let name: String
+
+    /// ポケモン名（日本語）
+    let nameJa: String?
 
     /// 画像URL
     let imageUrl: String?
@@ -88,65 +91,6 @@ struct EvolutionNode: Equatable, Identifiable {
             case turnUpsideDown = "turn_upside_down"
         }
 
-        /// 表示用テキスト
-        var displayText: String {
-            switch type {
-            case .minLevel:
-                return "Lv.\(value ?? "?")"
-            case .item:
-                return value ?? "アイテム"
-            case .heldItem:
-                return "\(value ?? "持ち物")を持たせて通信交換"
-            case .timeOfDay:
-                if let value = value {
-                    switch value {
-                    case "day":
-                        return "朝・昼"
-                    case "night":
-                        return "夜"
-                    default:
-                        return value
-                    }
-                }
-                return "特定の時間帯"
-            case .location:
-                return value ?? "特定の場所"
-            case .minHappiness:
-                return "なつき度\(value ?? "")"
-            case .minBeauty:
-                return "うつくしさ\(value ?? "")"
-            case .minAffection:
-                return "なかよし度\(value ?? "")"
-            case .knownMove:
-                return "\(value ?? "技")習得"
-            case .knownMoveType:
-                return "\(value ?? "タイプ")技習得"
-            case .partySpecies:
-                return "\(value ?? "ポケモン")を手持ちに"
-            case .partyType:
-                return "\(value ?? "タイプ")を手持ちに"
-            case .relativePhysicalStats:
-                if let value = value {
-                    switch value {
-                    case "1":
-                        return "攻撃>防御"
-                    case "-1":
-                        return "攻撃<防御"
-                    case "0":
-                        return "攻撃=防御"
-                    default:
-                        return value
-                    }
-                }
-                return "攻撃・防御の関係"
-            case .tradeSpecies:
-                return "\(value ?? "ポケモン")と交換"
-            case .needsOverworldRain:
-                return "雨が降っている"
-            case .turnUpsideDown:
-                return "本体を逆さまに"
-            }
-        }
     }
 }
 

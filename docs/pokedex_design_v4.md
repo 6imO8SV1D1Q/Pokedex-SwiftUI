@@ -2510,3 +2510,545 @@ HStack(spacing: 0) {
 | 2025-10-13 | 4.4 | Phase 4拡張：ポケモン件数表示追加（4.10）、hasActiveFiltersロジック実装 |
 | 2025-10-13 | 4.5 | Phase 4拡張：並び替えUI改善（4.11）、図鑑番号昇順/降順対応、名前ソート削除、iOS 26対応 |
 | 2025-10-13 | 4.6 | バグ修正：技メタデータフィルターのAND検索ロジック修正（技ID交差→ポケモンID交差）、技条件削除ボタン修正（UUID基準の削除）、デバッグログ削除 |
+
+---
+
+## Phase 5: 詳細画面UI改善（v4.1）設計
+
+### 概要
+
+v4.1では詳細画面のUIを2タブ構成に変更し、ユーザー体験を大幅に改善する。
+
+---
+
+## 1. Presentation層の設計
+
+### 1.1 新規コンポーネント
+
+#### PokemonDetailTabView（新規）
+詳細画面のタブコンテナ
+
+```swift
+struct PokemonDetailTabView: View {
+    @ObservedObject var viewModel: PokemonDetailViewModel
+    @State private var selectedTab: DetailTab = .ecology
+    
+    enum DetailTab {
+        case ecology   // 生態タブ
+        case battle    // バトルタブ
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // カスタムセグメントコントロール
+            segmentedControl
+            
+            // タブコンテンツ
+            TabView(selection: $selectedTab) {
+                EcologyTabView(viewModel: viewModel)
+                    .tag(DetailTab.ecology)
+                
+                BattleTabView(viewModel: viewModel)
+                    .tag(DetailTab.battle)
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+        }
+        .navigationTitle(viewModel.pokemon.nameJa)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    private var segmentedControl: some View {
+        Picker("タブ", selection: $selectedTab) {
+            Text("生態").tag(DetailTab.ecology)
+            Text("バトル").tag(DetailTab.battle)
+        }
+        .pickerStyle(.segmented)
+        .padding()
+    }
+}
+```
+
+#### EcologyTabView（新規）
+生態タブのコンテンツ
+
+```swift
+struct EcologyTabView: View {
+    @ObservedObject var viewModel: PokemonDetailViewModel
+    @EnvironmentObject private var localizationManager: LocalizationManager
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: DesignConstants.Spacing.medium) {
+                // スプライト＋基本情報（横並び）
+                spriteAndBasicInfo
+                
+                // 繁殖情報
+                if let species = viewModel.pokemonSpecies {
+                    breedingInfoView(species: species)
+                }
+                
+                // 図鑑説明
+                if let flavorText = viewModel.flavorText {
+                    flavorTextView(flavorText: flavorText)
+                }
+                
+                // フォーム選択
+                if !viewModel.availableForms.isEmpty {
+                    formSelectorView
+                }
+                
+                // 進化チェーン
+                if let evolutionChain = viewModel.evolutionChainEntity {
+                    evolutionChainView(evolutionChain)
+                }
+            }
+            .padding(DesignConstants.Spacing.medium)
+        }
+    }
+    
+    private var spriteAndBasicInfo: some View {
+        HStack(alignment: .top, spacing: DesignConstants.Spacing.medium) {
+            // 左側: スプライト
+            pokemonImage
+                .frame(width: 120, height: 120)
+            
+            // 右側: 基本情報
+            VStack(alignment: .leading, spacing: DesignConstants.Spacing.xSmall) {
+                Text(viewModel.pokemon.formattedId)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Text(localizationManager.displayName(for: viewModel.pokemon))
+                    .font(.title2)
+                    .fontWeight(.bold)
+                
+                typesBadges
+                
+                HStack(spacing: DesignConstants.Spacing.medium) {
+                    VStack(alignment: .leading) {
+                        Text("高さ")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(String(format: "%.1f m", viewModel.pokemon.heightInMeters))
+                            .font(.subheadline)
+                    }
+                    
+                    VStack(alignment: .leading) {
+                        Text("重さ")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(String(format: "%.1f kg", viewModel.pokemon.weightInKilograms))
+                            .font(.subheadline)
+                    }
+                }
+            }
+            
+            Spacer()
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(DesignConstants.CornerRadius.large)
+    }
+    
+    // その他のView定義...
+}
+```
+
+#### BattleTabView（新規）
+バトルタブのコンテンツ
+
+```swift
+struct BattleTabView: View {
+    @ObservedObject var viewModel: PokemonDetailViewModel
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: DesignConstants.Spacing.large) {
+                // 1. 実数値計算（新規セクション）
+                ExpandableSection(
+                    title: "実数値計算",
+                    systemImage: "number",
+                    isExpanded: sectionBinding("statsCalculator")
+                ) {
+                    StatsCalculatorView(viewModel: viewModel)
+                }
+                
+                // 2. タイプ相性
+                if let matchup = viewModel.typeMatchup {
+                    ExpandableSection(
+                        title: "タイプ相性",
+                        systemImage: "shield.fill",
+                        isExpanded: sectionBinding("typeMatchup")
+                    ) {
+                        TypeMatchupView(matchup: matchup)
+                    }
+                }
+                
+                // 3. 種族値
+                ExpandableSection(
+                    title: "種族値",
+                    systemImage: "chart.bar.fill",
+                    isExpanded: sectionBinding("baseStats")
+                ) {
+                    PokemonStatsView(stats: viewModel.pokemon.stats)
+                        .padding()
+                }
+                
+                // 4. 特性
+                ExpandableSection(
+                    title: "特性",
+                    systemImage: "star.fill",
+                    isExpanded: sectionBinding("abilities")
+                ) {
+                    AbilitiesView(
+                        abilities: viewModel.pokemon.abilities,
+                        abilityDetails: viewModel.abilityDetails
+                    )
+                }
+                
+                // 5. 覚える技
+                ExpandableSection(
+                    title: "覚える技",
+                    systemImage: "bolt.fill",
+                    isExpanded: sectionBinding("moves")
+                ) {
+                    MovesWithFilterView(viewModel: viewModel)
+                }
+            }
+            .padding(DesignConstants.Spacing.medium)
+        }
+    }
+    
+    private func sectionBinding(_ sectionId: String) -> Binding<Bool> {
+        Binding(
+            get: { viewModel.isSectionExpanded[sectionId, default: true] },
+            set: { _ in viewModel.toggleSection(sectionId) }
+        )
+    }
+}
+```
+
+#### StatsCalculatorView（新規）
+実数値計算UI
+
+```swift
+struct StatsCalculatorView: View {
+    @ObservedObject var viewModel: PokemonDetailViewModel
+    @State private var level: Int = 50
+    @State private var evs: [StatType: Int] = [:]
+    @State private var ivs: [StatType: Int] = [:]
+    @State private var nature: Nature = .hardy
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: DesignConstants.Spacing.medium) {
+            // レベル入力
+            levelPicker
+            
+            // 努力値入力（簡易版）
+            evsInput
+            
+            // 個体値入力（簡易版）
+            ivsInput
+            
+            // 性格選択
+            naturePicker
+            
+            Divider()
+            
+            // 計算結果表示
+            calculatedStatsDisplay
+        }
+        .padding()
+        .onChange(of: level) { _ in recalculate() }
+        .onChange(of: evs) { _ in recalculate() }
+        .onChange(of: ivs) { _ in recalculate() }
+        .onChange(of: nature) { _ in recalculate() }
+    }
+    
+    private var levelPicker: some View {
+        HStack {
+            Text("レベル")
+                .font(.subheadline)
+            Spacer()
+            Picker("レベル", selection: $level) {
+                ForEach(1...100, id: \.self) { level in
+                    Text("\(level)").tag(level)
+                }
+            }
+            .pickerStyle(.menu)
+        }
+    }
+    
+    // 詳細なUI実装は省略
+    
+    private func recalculate() {
+        // 実数値を再計算してviewModelに反映
+        // 既存のCalculateStatsUseCaseを利用
+    }
+}
+
+enum Nature: String, CaseIterable {
+    case hardy = "がんばりや"
+    // その他の性格...
+}
+```
+
+#### MovesWithFilterView（新規）
+技フィルター機能付き技リスト
+
+```swift
+struct MovesWithFilterView: View {
+    @ObservedObject var viewModel: PokemonDetailViewModel
+    @State private var showFilterSheet = false
+    @State private var moveFilter: MoveFilter = MoveFilter()
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: DesignConstants.Spacing.small) {
+            // フィルターボタン
+            Button {
+                showFilterSheet = true
+            } label: {
+                HStack {
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                    Text("フィルター")
+                    if moveFilter.hasActiveFilters {
+                        Circle()
+                            .fill(Color.blue)
+                            .frame(width: 8, height: 8)
+                    }
+                }
+            }
+            .padding(.horizontal)
+            
+            // 技リスト
+            MovesView(
+                moves: filteredMoves,
+                moveDetails: viewModel.moveDetails,
+                selectedLearnMethod: $viewModel.selectedLearnMethod
+            )
+        }
+        .sheet(isPresented: $showFilterSheet) {
+            MoveDetailFilterSheet(filter: $moveFilter)
+        }
+    }
+    
+    private var filteredMoves: [PokemonMove] {
+        viewModel.pokemon.moves.filter { move in
+            moveFilter.matches(move, details: viewModel.moveDetails)
+        }
+    }
+}
+
+struct MoveFilter {
+    var learnMethods: Set<String> = []
+    var types: Set<PokemonType> = []
+    var damageClasses: Set<String> = []
+    var powerCondition: NumericCondition?
+    var accuracyCondition: NumericCondition?
+    var ppCondition: NumericCondition?
+    var priority: Int?
+    var targets: Set<String> = []
+    
+    var hasActiveFilters: Bool {
+        !learnMethods.isEmpty ||
+        !types.isEmpty ||
+        !damageClasses.isEmpty ||
+        powerCondition != nil ||
+        accuracyCondition != nil ||
+        ppCondition != nil ||
+        priority != nil ||
+        !targets.isEmpty
+    }
+    
+    func matches(_ move: PokemonMove, details: [String: MoveEntity]) -> Bool {
+        // フィルター条件に基づいて技を判定
+        // 既存のMoveMetadataFilterロジックを参考に実装
+        true
+    }
+}
+```
+
+#### MoveDetailFilterSheet（新規）
+技フィルター設定画面（モーダル）
+
+```swift
+struct MoveDetailFilterSheet: View {
+    @Binding var filter: MoveFilter
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                // 習得方法セクション
+                Section("習得方法") {
+                    learnMethodsSection
+                }
+                
+                // タイプセクション
+                Section("タイプ") {
+                    typesSection
+                }
+                
+                // 分類セクション
+                Section("分類") {
+                    damageClassesSection
+                }
+                
+                // 数値条件セクション
+                Section("数値条件") {
+                    numericConditionsSection
+                }
+                
+                // その他セクション
+                Section("その他") {
+                    prioritySection
+                    targetsSection
+                }
+            }
+            .navigationTitle("技フィルター")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("キャンセル") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("適用") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .bottomBar) {
+                    Button("クリア") {
+                        filter = MoveFilter()
+                    }
+                }
+            }
+        }
+    }
+    
+    // 各セクションの実装は既存のMoveMetadataFilterViewを参考
+}
+```
+
+---
+
+## 2. ViewModel層の設計
+
+### 2.1 PokemonDetailViewModelの拡張
+
+既存のPokemonDetailViewModelに以下を追加：
+
+```swift
+@MainActor
+final class PokemonDetailViewModel: ObservableObject {
+    // 既存のプロパティ...
+    
+    // v4.1 新規追加
+    @Published var statsCalculatorInput: StatsCalculatorInput = .default
+    @Published var moveFilter: MoveFilter = MoveFilter()
+    
+    // 既存のメソッド...
+}
+
+struct StatsCalculatorInput {
+    var level: Int = 50
+    var evs: [StatType: Int] = [:]
+    var ivs: [StatType: Int] = [:]
+    var nature: Nature = .hardy
+    
+    static var `default`: StatsCalculatorInput {
+        var input = StatsCalculatorInput()
+        StatType.allCases.forEach { stat in
+            input.evs[stat] = 0
+            input.ivs[stat] = 31
+        }
+        return input
+    }
+}
+
+enum StatType: CaseIterable {
+    case hp, attack, defense, specialAttack, specialDefense, speed
+}
+```
+
+---
+
+## 3. Domain層の設計
+
+Domain層は変更なし。既存のEntity、UseCaseをそのまま利用。
+
+---
+
+## 4. ファイル構成
+
+```
+Pokedex/
+└── Presentation/
+    └── PokemonDetail/
+        ├── PokemonDetailView.swift           （v4.1で大幅変更）
+        ├── PokemonDetailViewModel.swift      （v4.1で拡張）
+        ├── PokemonDetailTabView.swift        （新規）
+        ├── Tabs/
+        │   ├── EcologyTabView.swift          （新規）
+        │   └── BattleTabView.swift           （新規）
+        └── Components/
+            ├── StatsCalculatorView.swift     （新規）
+            ├── MovesWithFilterView.swift     （新規）
+            └── MoveDetailFilterSheet.swift   （新規）
+```
+
+---
+
+## 5. 実装フェーズ
+
+### Phase 5.1: タブ構成の実装
+1. PokemonDetailTabView実装
+2. EcologyTabView実装（既存UIを移植）
+3. BattleTabView実装（既存UIを移植）
+
+### Phase 5.2: 実数値計算UIの実装
+1. StatsCalculatorView実装
+2. ViewModelへの入力UI状態追加
+3. 既存CalculateStatsUseCaseとの連携
+
+### Phase 5.3: 技フィルター機能の実装
+1. MoveFilter構造体実装
+2. MovesWithFilterView実装
+3. MoveDetailFilterSheet実装
+
+### Phase 5.4: テスト・調整
+1. ビルド・動作確認
+2. UI/UXの微調整
+
+---
+
+## 6. 既知の課題・今後の改善予定
+
+### 6.1 進化ルート表示の改善
+
+#### 現状の課題
+現在、分岐進化（例: イーブイの8進化）を2列グリッドで表示しているため、以下の問題がある:
+- 矢印の方向が誤解を招く（横並びの進化先が、前の進化先から進化するように見える）
+- 視覚的に進化の流れが追いづらい
+- 画面幅が狭い場合、カードが小さくなりすぎる
+
+#### 改善案
+1. **縦方向レイアウト**: 分岐進化を縦に並べ、各進化先を明確に区別
+2. **フローチャート風表示**: 進化元から放射状に矢印を伸ばす
+3. **スクロール方向の工夫**: 横スクロール+縦スクロールの組み合わせ最適化
+
+#### 優先度
+- 中（Phase 5.x以降で対応予定）
+
+#### 関連機能
+- EvolutionChainView.swift:56-124（分岐進化の2列グリッド表示）
+- EvolutionArrow.swift（進化条件付き矢印）
+
+---
+
+## 7. 変更履歴（v4.1追加）
+
+| 日付 | バージョン | 変更内容 |
+|------|-----------|---------|
+| 2025-10-21 | 5.0 | Phase 5追加：詳細画面UI改善（v4.1）設計、タブ構成、技フィルター、実数値計算UI |

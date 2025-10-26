@@ -349,9 +349,9 @@ final class PokemonRepository: PokemonRepositoryProtocol {
         return locations
     }
 
-    func fetchFlavorText(speciesId: Int, versionGroup: String?) async throws -> PokemonFlavorText? {
+    func fetchFlavorText(speciesId: Int, versionGroup: String?, preferredVersion: String?) async throws -> PokemonFlavorText? {
         // 図鑑テキストは頻繁に変わらないので、APIから直接取得
-        return try await apiClient.fetchFlavorText(speciesId: speciesId, versionGroup: versionGroup)
+        return try await apiClient.fetchFlavorText(speciesId: speciesId, versionGroup: versionGroup, preferredVersion: preferredVersion)
     }
 
     func fetchEvolutionChainEntity(speciesId: Int) async throws -> EvolutionChainEntity {
@@ -365,6 +365,7 @@ final class PokemonRepository: PokemonRepositoryProtocol {
                 id: speciesId,
                 speciesId: speciesId,
                 name: pokemon.name,
+                nameJa: pokemon.nameJa,
                 imageUrl: pokemon.sprites.other?.home?.frontDefault,
                 types: pokemon.types.map { $0.name },
                 evolvesTo: [],
@@ -383,15 +384,16 @@ final class PokemonRepository: PokemonRepositoryProtocol {
         let allSpeciesIds = EvolutionChainMapper.extractAllSpeciesIds(from: pkmChain)
 
         // 各species IDからポケモン情報を取得してキャッシュを構築
-        var pokemonCache: [Int: (name: String, imageUrl: String?, types: [String])] = [:]
+        var pokemonCache: [Int: (name: String, nameJa: String?, imageUrl: String?, types: [String])] = [:]
 
-        await withTaskGroup(of: (Int, (name: String, imageUrl: String?, types: [String])?)?.self) { group in
+        await withTaskGroup(of: (Int, (name: String, nameJa: String?, imageUrl: String?, types: [String])?)?.self) { group in
             for id in allSpeciesIds {
                 group.addTask {
                     do {
                         let pokemon = try await self.fetchPokemonDetail(id: id)
                         return (id, (
                             name: pokemon.name,
+                            nameJa: pokemon.nameJa,
                             imageUrl: pokemon.sprites.other?.home?.frontDefault,
                             types: pokemon.types.map { $0.name }
                         ))

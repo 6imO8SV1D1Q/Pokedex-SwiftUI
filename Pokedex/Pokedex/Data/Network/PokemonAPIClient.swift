@@ -289,8 +289,43 @@ final class PokemonAPIClient {
     // MARK: - Pokemon Forms
 
     func fetchPokemonForms(pokemonId: Int) async throws -> [PokemonForm] {
-        let pkm = try await pokemonAPI.pokemonService.fetchPokemon(pokemonId)
-        return PokemonFormMapper.map(from: pkm)
+        // 1. pokemon-speciesを取得してvarietiesを確認
+        let species = try await pokemonAPI.pokemonService.fetchPokemonSpecies(pokemonId)
+
+        guard let varieties = species.varieties, !varieties.isEmpty else {
+            // varietiesがない場合は通常のpokemonのみ
+            let pkm = try await pokemonAPI.pokemonService.fetchPokemon(pokemonId)
+            return [PokemonFormMapper.mapSingle(from: pkm, isDefault: true)]
+        }
+
+        // 2. 各varietyのpokemonを並列で取得
+        let forms = try await withThrowingTaskGroup(of: (PokemonForm, Int)?.self) { group in
+            for (index, variety) in varieties.enumerated() {
+                group.addTask {
+                    guard let pokemonResource = variety.pokemon,
+                          let urlString = pokemonResource.url,
+                          let components = urlString.split(separator: "/").last,
+                          let varietyPokemonId = Int(components) else {
+                        return nil
+                    }
+
+                    let pkm = try await self.pokemonAPI.pokemonService.fetchPokemon(varietyPokemonId)
+                    let isDefault = variety.isDefault ?? false
+                    return (PokemonFormMapper.mapSingle(from: pkm, isDefault: isDefault), index)
+                }
+            }
+
+            var results: [(PokemonForm, Int)] = []
+            for try await result in group {
+                if let result = result {
+                    results.append(result)
+                }
+            }
+            return results
+        }
+
+        // 元の順序でソート
+        return forms.sorted(by: { $0.1 < $1.1 }).map { $0.0 }
     }
 
     // MARK: - Pokemon Locations
@@ -323,9 +358,9 @@ final class PokemonAPIClient {
 
     // MARK: - Flavor Text
 
-    func fetchFlavorText(speciesId: Int, versionGroup: String?) async throws -> PokemonFlavorText? {
+    func fetchFlavorText(speciesId: Int, versionGroup: String?, preferredVersion: String? = nil) async throws -> PokemonFlavorText? {
         let species = try await pokemonAPI.pokemonService.fetchPokemonSpecies(speciesId)
-        return FlavorTextMapper.mapFlavorText(from: species, versionGroup: versionGroup)
+        return FlavorTextMapper.mapFlavorText(from: species, versionGroup: versionGroup, preferredVersion: preferredVersion)
     }
 
     // MARK: - Machine API

@@ -10,21 +10,22 @@ import SwiftUI
 /// 進化チェーン表示ビュー
 struct EvolutionChainView: View {
     let chain: EvolutionChainEntity
+    let regionalForms: [Int: PokemonForm]  // speciesId: リージョンフォーム
     let onPokemonTap: ((Int) -> Void)?
+    @EnvironmentObject private var localizationManager: LocalizationManager
 
-    init(chain: EvolutionChainEntity, onPokemonTap: ((Int) -> Void)? = nil) {
+    init(chain: EvolutionChainEntity, regionalForms: [Int: PokemonForm] = [:], onPokemonTap: ((Int) -> Void)? = nil) {
         self.chain = chain
+        self.regionalForms = regionalForms
         self.onPokemonTap = onPokemonTap
     }
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            ScrollView(.vertical, showsIndicators: false) {
-                HStack(alignment: .center, spacing: 0) {
-                    buildEvolutionTreeView(node: chain.rootNode)
-                }
-                .padding()
+            HStack(alignment: .center, spacing: 0) {
+                buildEvolutionTreeView(node: chain.rootNode)
             }
+            .padding()
         }
     }
 
@@ -37,13 +38,20 @@ struct EvolutionChainView: View {
                 // 現在のノード
                 if let onTap = onPokemonTap {
                     // コールバックが提供されている場合はそれを使用
-                    EvolutionNodeCard(node: node, onTap: {
-                        onTap(node.speciesId)
-                    })
+                    EvolutionNodeCard(
+                        node: node,
+                        regionalForm: regionalForms[node.speciesId],
+                        onTap: {
+                            onTap(node.speciesId)
+                        }
+                    )
                 } else {
                     // NavigationLinkを使用
                     NavigationLink(value: node.speciesId) {
-                        EvolutionNodeCard(node: node)
+                        EvolutionNodeCard(
+                            node: node,
+                            regionalForm: regionalForms[node.speciesId]
+                        )
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
@@ -52,20 +60,62 @@ struct EvolutionChainView: View {
                 if !node.evolvesTo.isEmpty {
                     // 分岐進化の場合（複数の進化先）
                     if node.evolvesTo.count > 1 {
-                        // 縦に並べる
-                        VStack(alignment: .leading, spacing: 8) {
-                            ForEach(Array(node.evolvesTo.enumerated()), id: \.offset) { index, edge in
-                                HStack(spacing: 0) {
-                                    // 進化条件付き矢印
-                                    EvolutionArrow(edge: edge)
+                        // グリッド表示（2列） - LazyVGridを使わず通常のVStack+HStackで構築
+                        VStack(alignment: .leading, spacing: 16) {
+                            ForEach(Array(stride(from: 0, to: node.evolvesTo.count, by: 2)), id: \.self) { rowIndex in
+                                HStack(spacing: 8) {
+                                    ForEach(rowIndex..<min(rowIndex + 2, node.evolvesTo.count), id: \.self) { index in
+                                        let edge = node.evolvesTo[index]
+                                        VStack(spacing: 0) {
+                                            // 進化条件付き矢印（縦向き）
+                                            VStack(spacing: 6) {
+                                                Image(systemName: "arrow.down")
+                                                    .font(.title2)
+                                                    .fontWeight(.semibold)
+                                                    .foregroundColor(.blue)
 
-                                    // 進化先ノード
-                                    if let targetNode = chain.nodeMap[edge.target] {
-                                        // 再帰的に進化先を表示
-                                        buildEvolutionTreeView(node: targetNode)
-                                    } else {
-                                        // ノードデータがない場合はプレースホルダー
-                                        evolutionPlaceholder(speciesId: edge.target)
+                                                if !evolutionConditionText(for: edge).isEmpty {
+                                                    Text(evolutionConditionText(for: edge))
+                                                        .font(.caption)
+                                                        .foregroundColor(.primary)
+                                                        .multilineTextAlignment(.center)
+                                                        .lineLimit(4)
+                                                        .frame(maxWidth: 100)
+                                                        .padding(.horizontal, 4)
+                                                        .padding(.vertical, 4)
+                                                        .background(Color(.systemBackground))
+                                                        .cornerRadius(6)
+                                                        .overlay(
+                                                            RoundedRectangle(cornerRadius: 6)
+                                                                .stroke(Color(.systemGray4), lineWidth: 1)
+                                                        )
+                                                }
+                                            }
+                                            .padding(.vertical, 8)
+
+                                            // 進化先ノード
+                                            if let targetNode = chain.nodeMap[edge.target] {
+                                                if let onTap = onPokemonTap {
+                                                    EvolutionNodeCard(
+                                                        node: targetNode,
+                                                        regionalForm: regionalForms[targetNode.speciesId],
+                                                        onTap: {
+                                                            onTap(targetNode.speciesId)
+                                                        }
+                                                    )
+                                                } else {
+                                                    NavigationLink(value: targetNode.speciesId) {
+                                                        EvolutionNodeCard(
+                                                            node: targetNode,
+                                                            regionalForm: regionalForms[targetNode.speciesId]
+                                                        )
+                                                    }
+                                                    .buttonStyle(PlainButtonStyle())
+                                                }
+                                            } else {
+                                                evolutionPlaceholder(speciesId: edge.target)
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -108,13 +158,31 @@ struct EvolutionChainView: View {
         .background(Color(.systemGray6))
         .cornerRadius(8)
     }
+
+    /// 進化条件を表示用テキストに変換
+    private func evolutionConditionText(for edge: EvolutionNode.EvolutionEdge) -> String {
+        var components: [String] = []
+
+        // トリガーテキスト
+        if let triggerText = localizationManager.displayText(for: edge.trigger) {
+            components.append(triggerText)
+        }
+
+        // 条件テキスト
+        for condition in edge.conditions {
+            components.append(localizationManager.displayText(for: condition))
+        }
+
+        return components.joined(separator: "\n")
+    }
 }
 
 #Preview("単一進化") {
     let ivysaur = EvolutionNode(
         id: 2,
         speciesId: 2,
-        name: "フシギソウ",
+        name: "ivysaur",
+        nameJa: "フシギソウ",
         imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/2.png",
         types: ["grass", "poison"],
         evolvesTo: [],
@@ -123,7 +191,8 @@ struct EvolutionChainView: View {
     let bulbasaur = EvolutionNode(
         id: 1,
         speciesId: 1,
-        name: "フシギダネ",
+        name: "bulbasaur",
+        nameJa: "フシギダネ",
         imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/1.png",
         types: ["grass", "poison"],
         evolvesTo: [
@@ -148,13 +217,15 @@ struct EvolutionChainView: View {
             nodeMap: nodeMap
         )
     )
+    .environmentObject(LocalizationManager.shared)
 }
 
 #Preview("分岐進化（イーブイ風）") {
     let vaporeon = EvolutionNode(
         id: 134,
         speciesId: 134,
-        name: "シャワーズ",
+        name: "vaporeon",
+        nameJa: "シャワーズ",
         imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/134.png",
         types: ["water"],
         evolvesTo: [],
@@ -163,7 +234,8 @@ struct EvolutionChainView: View {
     let jolteon = EvolutionNode(
         id: 135,
         speciesId: 135,
-        name: "サンダース",
+        name: "jolteon",
+        nameJa: "サンダース",
         imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/135.png",
         types: ["electric"],
         evolvesTo: [],
@@ -172,7 +244,8 @@ struct EvolutionChainView: View {
     let flareon = EvolutionNode(
         id: 136,
         speciesId: 136,
-        name: "ブースター",
+        name: "flareon",
+        nameJa: "ブースター",
         imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/136.png",
         types: ["fire"],
         evolvesTo: [],
@@ -181,7 +254,8 @@ struct EvolutionChainView: View {
     let eevee = EvolutionNode(
         id: 133,
         speciesId: 133,
-        name: "イーブイ",
+        name: "eevee",
+        nameJa: "イーブイ",
         imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/133.png",
         types: ["normal"],
         evolvesTo: [
@@ -222,4 +296,5 @@ struct EvolutionChainView: View {
             nodeMap: nodeMap
         )
     )
+    .environmentObject(LocalizationManager.shared)
 }

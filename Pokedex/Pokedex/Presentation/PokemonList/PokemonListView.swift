@@ -103,15 +103,25 @@ struct PokemonListView: View {
                 }
             }
             .navigationDestination(for: Pokemon.self) { pokemon in
+                let allPokemon = viewModel.filteredPokemons
                 PokemonDetailView(
-                    viewModel: PokemonDetailViewModel(pokemon: pokemon, versionGroup: "scarlet-violet")
+                    viewModel: PokemonDetailViewModel(
+                        pokemon: pokemon,
+                        allPokemon: allPokemon,
+                        versionGroup: "scarlet-violet"
+                    )
                 )
             }
             .navigationDestination(for: Int.self) { pokemonId in
+                let allPokemon = viewModel.filteredPokemons
                 // まずキャッシュを確認
                 if let pokemon = pokemonById[pokemonId] {
                     PokemonDetailView(
-                        viewModel: PokemonDetailViewModel(pokemon: pokemon, versionGroup: "scarlet-violet")
+                        viewModel: PokemonDetailViewModel(
+                            pokemon: pokemon,
+                            allPokemon: allPokemon,
+                            versionGroup: "scarlet-violet"
+                        )
                     )
                 } else {
                     // キャッシュにない場合は非同期で取得

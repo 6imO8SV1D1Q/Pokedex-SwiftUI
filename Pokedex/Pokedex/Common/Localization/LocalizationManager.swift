@@ -121,4 +121,290 @@ class LocalizationManager: ObservableObject {
             return pokedex.nameEn
         }
     }
+
+    // MARK: - Evolution Conditions
+
+    /// 進化条件の表示テキストを取得
+    func displayText(for condition: EvolutionNode.EvolutionCondition) -> String {
+        switch condition.type {
+        case .minLevel:
+            return "Lv.\(condition.value ?? "?")"
+        case .item:
+            return localizedItemName(condition.value)
+        case .heldItem:
+            let itemName = localizedItemName(condition.value)
+            switch currentLanguage {
+            case .japanese:
+                return "\(itemName)を持たせて通信交換"
+            case .english:
+                return "Trade holding \(itemName)"
+            }
+        case .timeOfDay:
+            return localizedTimeOfDay(condition.value)
+        case .location:
+            return localizedLocation(condition.value)
+        case .minHappiness:
+            switch currentLanguage {
+            case .japanese:
+                return "なつき度\(condition.value ?? "")"
+            case .english:
+                return "Happiness \(condition.value ?? "")"
+            }
+        case .minBeauty:
+            switch currentLanguage {
+            case .japanese:
+                return "うつくしさ\(condition.value ?? "")"
+            case .english:
+                return "Beauty \(condition.value ?? "")"
+            }
+        case .minAffection:
+            switch currentLanguage {
+            case .japanese:
+                return "なかよし度\(condition.value ?? "")"
+            case .english:
+                return "Affection \(condition.value ?? "")"
+            }
+        case .knownMove:
+            switch currentLanguage {
+            case .japanese:
+                return "\(condition.value ?? "技")習得"
+            case .english:
+                return "Learn \(condition.value ?? "move")"
+            }
+        case .knownMoveType:
+            let typeName = condition.value ?? ""
+            let localizedType = displayName(forTypeName: typeName)
+            switch currentLanguage {
+            case .japanese:
+                return "\(localizedType)技習得"
+            case .english:
+                return "Learn \(localizedType) move"
+            }
+        case .partySpecies:
+            switch currentLanguage {
+            case .japanese:
+                return "\(condition.value ?? "ポケモン")を手持ちに"
+            case .english:
+                return "\(condition.value ?? "Pokémon") in party"
+            }
+        case .partyType:
+            let typeName = condition.value ?? ""
+            let localizedType = displayName(forTypeName: typeName)
+            switch currentLanguage {
+            case .japanese:
+                return "\(localizedType)を手持ちに"
+            case .english:
+                return "\(localizedType) in party"
+            }
+        case .relativePhysicalStats:
+            if let value = condition.value {
+                switch value {
+                case "1":
+                    switch currentLanguage {
+                    case .japanese: return "攻撃>防御"
+                    case .english: return "Atk > Def"
+                    }
+                case "-1":
+                    switch currentLanguage {
+                    case .japanese: return "攻撃<防御"
+                    case .english: return "Atk < Def"
+                    }
+                case "0":
+                    switch currentLanguage {
+                    case .japanese: return "攻撃=防御"
+                    case .english: return "Atk = Def"
+                    }
+                default:
+                    return value
+                }
+            }
+            switch currentLanguage {
+            case .japanese: return "攻撃・防御の関係"
+            case .english: return "Atk/Def relation"
+            }
+        case .tradeSpecies:
+            switch currentLanguage {
+            case .japanese:
+                return "\(condition.value ?? "ポケモン")と交換"
+            case .english:
+                return "Trade for \(condition.value ?? "Pokémon")"
+            }
+        case .needsOverworldRain:
+            switch currentLanguage {
+            case .japanese: return "雨が降っている"
+            case .english: return "Raining"
+            }
+        case .turnUpsideDown:
+            switch currentLanguage {
+            case .japanese: return "本体を逆さまに"
+            case .english: return "Turn upside down"
+            }
+        }
+    }
+
+    /// 進化トリガーの表示テキストを取得
+    func displayText(for trigger: EvolutionNode.EvolutionTrigger) -> String? {
+        switch trigger {
+        case .levelUp:
+            return nil // レベルアップは表示しない（条件にLv.が含まれるため）
+        case .trade:
+            switch currentLanguage {
+            case .japanese: return "通信交換"
+            case .english: return "Trade"
+            }
+        case .useItem:
+            switch currentLanguage {
+            case .japanese: return "アイテム"
+            case .english: return "Item"
+            }
+        case .shed:
+            switch currentLanguage {
+            case .japanese: return "脱皮"
+            case .english: return "Shed"
+            }
+        case .other:
+            switch currentLanguage {
+            case .japanese: return "特殊"
+            case .english: return "Other"
+            }
+        }
+    }
+
+    // MARK: - Private Helpers
+
+    /// アイテム名のローカライズ
+    private func localizedItemName(_ itemName: String?) -> String {
+        guard let itemName = itemName else {
+            switch currentLanguage {
+            case .japanese: return "アイテム"
+            case .english: return "Item"
+            }
+        }
+
+        switch currentLanguage {
+        case .japanese:
+            let itemMapping: [String: String] = [
+                // 進化石
+                "fire-stone": "ほのおのいし",
+                "water-stone": "みずのいし",
+                "thunder-stone": "かみなりのいし",
+                "leaf-stone": "リーフのいし",
+                "moon-stone": "つきのいし",
+                "sun-stone": "たいようのいし",
+                "shiny-stone": "ひかりのいし",
+                "dusk-stone": "やみのいし",
+                "dawn-stone": "めざめのいし",
+                "ice-stone": "こおりのいし",
+                "oval-stone": "まんまるいし",
+                // その他の進化アイテム
+                "kings-rock": "おうじゃのしるし",
+                "metal-coat": "メタルコート",
+                "dragon-scale": "りゅうのウロコ",
+                "up-grade": "アップグレード",
+                "dubious-disc": "あやしいパッチ",
+                "protector": "プロテクター",
+                "electirizer": "エレキブースター",
+                "magmarizer": "マグマブースター",
+                "razor-fang": "するどいキバ",
+                "razor-claw": "するどいツメ",
+                "prism-scale": "きれいなウロコ",
+                "reaper-cloth": "れいかいのぬの",
+                "deep-sea-tooth": "しんかいのキバ",
+                "deep-sea-scale": "しんかいのウロコ",
+                "sachet": "においぶくろ",
+                "whipped-dream": "ホイップポップ",
+                "tart-apple": "すっぱいりんご",
+                "sweet-apple": "あまーいりんご",
+                "cracked-pot": "われたポット",
+                "chipped-pot": "かけたポット",
+                "galarica-cuff": "ガラナツのえだ",
+                "galarica-wreath": "ガラナツのリース",
+                "black-augurite": "くろいかけら",
+                "peat-block": "ピートブロック",
+                "linking-cord": "つながりのヒモ",
+                "malicious-armor": "のろいのよろい",
+                "auspicious-armor": "いわいのよろい"
+            ]
+            return itemMapping[itemName] ?? itemName.capitalized
+        case .english:
+            let itemMapping: [String: String] = [
+                "fire-stone": "Fire Stone",
+                "water-stone": "Water Stone",
+                "thunder-stone": "Thunder Stone",
+                "leaf-stone": "Leaf Stone",
+                "moon-stone": "Moon Stone",
+                "sun-stone": "Sun Stone",
+                "shiny-stone": "Shiny Stone",
+                "dusk-stone": "Dusk Stone",
+                "dawn-stone": "Dawn Stone",
+                "ice-stone": "Ice Stone",
+                "oval-stone": "Oval Stone",
+                "kings-rock": "King's Rock",
+                "metal-coat": "Metal Coat",
+                "dragon-scale": "Dragon Scale",
+                "up-grade": "Up-Grade",
+                "dubious-disc": "Dubious Disc",
+                "protector": "Protector",
+                "electirizer": "Electirizer",
+                "magmarizer": "Magmarizer",
+                "razor-fang": "Razor Fang",
+                "razor-claw": "Razor Claw",
+                "prism-scale": "Prism Scale",
+                "reaper-cloth": "Reaper Cloth",
+                "deep-sea-tooth": "Deep Sea Tooth",
+                "deep-sea-scale": "Deep Sea Scale",
+                "sachet": "Sachet",
+                "whipped-dream": "Whipped Dream",
+                "tart-apple": "Tart Apple",
+                "sweet-apple": "Sweet Apple",
+                "cracked-pot": "Cracked Pot",
+                "chipped-pot": "Chipped Pot",
+                "galarica-cuff": "Galarica Cuff",
+                "galarica-wreath": "Galarica Wreath",
+                "black-augurite": "Black Augurite",
+                "peat-block": "Peat Block",
+                "linking-cord": "Linking Cord",
+                "malicious-armor": "Malicious Armor",
+                "auspicious-armor": "Auspicious Armor"
+            ]
+            return itemMapping[itemName] ?? itemName.capitalized
+        }
+    }
+
+    /// 時間帯のローカライズ
+    private func localizedTimeOfDay(_ timeOfDay: String?) -> String {
+        guard let timeOfDay = timeOfDay else {
+            switch currentLanguage {
+            case .japanese: return "特定の時間帯"
+            case .english: return "Specific time"
+            }
+        }
+
+        switch timeOfDay {
+        case "day":
+            switch currentLanguage {
+            case .japanese: return "朝・昼"
+            case .english: return "Day"
+            }
+        case "night":
+            switch currentLanguage {
+            case .japanese: return "夜"
+            case .english: return "Night"
+            }
+        default:
+            return timeOfDay
+        }
+    }
+
+    /// 場所のローカライズ
+    private func localizedLocation(_ location: String?) -> String {
+        guard let location = location else {
+            switch currentLanguage {
+            case .japanese: return "特定の場所"
+            case .english: return "Specific location"
+            }
+        }
+        // TODO: 場所名のマッピングを追加
+        return location.capitalized
+    }
 }

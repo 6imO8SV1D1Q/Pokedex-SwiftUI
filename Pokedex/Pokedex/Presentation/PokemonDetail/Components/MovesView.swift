@@ -12,16 +12,51 @@ struct MovesView: View {
     let moves: [PokemonMove]
     let moveDetails: [String: MoveEntity]  // 技詳細情報
     @Binding var selectedLearnMethod: String
+    @ObservedObject var viewModel: PokemonDetailViewModel
+    let allPokemon: [PokemonWithMatchInfo]
 
-    /// 利用可能な習得方法一覧
-    private var availableLearnMethods: [String] {
-        let methods = Set(moves.map { $0.learnMethod })
-        return Array(methods).sorted()
+    @State private var showRivalSelection = false
+
+    /// ライバル除外フィルター適用後の技リスト
+    private var displayMoves: [PokemonMove] {
+        return viewModel.filteredMovesByRival
     }
 
-    /// フィルタリングされた技リスト
+    /// 利用可能な習得方法一覧（「すべて」を含む）
+    private var availableLearnMethods: [String] {
+        let methods = Set(displayMoves.map { $0.learnMethod })
+        var result = ["all"] // 「すべて」を最初に追加
+        result.append(contentsOf: Array(methods).sorted())
+        return result
+    }
+
+    /// 習得方法の表示順序
+    private let methodOrder = ["level-up", "machine", "egg", "tutor"]
+
+    /// 「すべて」が選択されている場合の、習得方法ごとにグループ化された技
+    private var groupedMoves: [(method: String, moves: [PokemonMove])] {
+        let grouped = Dictionary(grouping: displayMoves) { $0.learnMethod }
+
+        return methodOrder.compactMap { method in
+            guard let movesForMethod = grouped[method], !movesForMethod.isEmpty else {
+                return nil
+            }
+
+            let sortedMoves = movesForMethod.sorted { move1, move2 in
+                // レベルアップ技の場合はレベル順、それ以外は名前順
+                if let level1 = move1.level, let level2 = move2.level {
+                    return level1 < level2
+                }
+                return move1.name < move2.name
+            }
+
+            return (method, sortedMoves)
+        }
+    }
+
+    /// フィルタリングされた技リスト（特定の習得方法が選択されている場合）
     private var filteredMoves: [PokemonMove] {
-        moves
+        displayMoves
             .filter { $0.learnMethod == selectedLearnMethod }
             .sorted { move1, move2 in
                 // レベルアップ技の場合はレベル順、それ以外は名前順
@@ -34,9 +69,6 @@ struct MovesView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("わざ")
-                .font(.headline)
-
             // 習得方法フィルター
             if !availableLearnMethods.isEmpty {
                 LearnMethodPicker(
@@ -45,15 +77,122 @@ struct MovesView: View {
                 )
             }
 
+            // ライバル除外フィルター
+            HStack {
+                Button {
+                    viewModel.toggleRivalFilter()
+                    if viewModel.excludeRivalMoves && viewModel.selectedRivals.isEmpty {
+                        showRivalSelection = true
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: viewModel.excludeRivalMoves ? "checkmark.square.fill" : "square")
+                            .foregroundColor(viewModel.excludeRivalMoves ? .blue : .secondary)
+                        Text("ライバル除外")
+                            .font(.caption)
+                            .foregroundColor(.primary)
+                        if !viewModel.selectedRivals.isEmpty {
+                            Text("(\(viewModel.selectedRivals.count)匹)")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+
+                if viewModel.excludeRivalMoves {
+                    Button {
+                        showRivalSelection = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "person.2")
+                            Text("選択")
+                        }
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.blue)
+                        .cornerRadius(4)
+                    }
+                }
+            }
+
+            // 選択されたライバルのスプライト表示
+            if !viewModel.selectedRivals.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(Array(viewModel.selectedRivals), id: \.self) { rivalId in
+                            if let rivalPokemon = allPokemon.first(where: { $0.id == rivalId })?.pokemon {
+                                VStack(spacing: 4) {
+                                    AsyncImage(url: URL(string: rivalPokemon.displayImageURL ?? "")) { phase in
+                                        switch phase {
+                                        case .success(let image):
+                                            image
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                        case .empty:
+                                            ProgressView()
+                                        case .failure:
+                                            Image(systemName: "questionmark.circle")
+                                                .foregroundColor(.gray)
+                                        @unknown default:
+                                            EmptyView()
+                                        }
+                                    }
+                                    .frame(width: 60, height: 60)
+                                    .background(Color(.systemGray6))
+                                    .clipShape(Circle())
+
+                                    Text(LocalizationManager.shared.displayName(for: rivalPokemon))
+                                        .font(.caption2)
+                                        .lineLimit(1)
+                                        .frame(width: 60)
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding(.vertical, 8)
+            }
+
             // 技リスト
-            if filteredMoves.isEmpty {
-                Text("この方法で習得できる技はありません")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .padding()
+            if selectedLearnMethod == "all" {
+                // 「すべて」が選択されている場合は習得方法ごとにグループ化
+                VStack(alignment: .leading, spacing: 16) {
+                    ForEach(groupedMoves, id: \.method) { group in
+                        VStack(alignment: .leading, spacing: 8) {
+                            // セクションヘッダー
+                            HStack {
+                                Text(learnMethodDisplayName(group.method))
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+
+                                Text("(\(group.moves.count))")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            // 技リスト
+                            VStack(spacing: 8) {
+                                ForEach(group.moves, id: \.name) { move in
+                                    MoveRow(
+                                        move: move,
+                                        moveDetail: moveDetails[move.name]
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
-                ScrollView {
-                    LazyVStack(spacing: 8) {
+                // 特定の習得方法が選択されている場合
+                if filteredMoves.isEmpty {
+                    Text("この方法で習得できる技はありません")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding()
+                } else {
+                    VStack(spacing: 8) {
                         ForEach(filteredMoves, id: \.name) { move in
                             MoveRow(
                                 move: move,
@@ -62,10 +201,43 @@ struct MovesView: View {
                         }
                     }
                 }
-                .frame(maxHeight: 400)
             }
         }
         .padding()
+        .sheet(isPresented: $showRivalSelection) {
+            RivalSelectionView(
+                selectedRivals: $viewModel.selectedRivals,
+                allPokemon: allPokemon,
+                currentPokemonId: viewModel.pokemon.id,
+                fetchAllAbilitiesUseCase: DIContainer.shared.makeFetchAllAbilitiesUseCase(),
+                fetchAllMovesUseCase: DIContainer.shared.makeFetchAllMovesUseCase()
+            )
+        }
+        .onChange(of: viewModel.selectedRivals) { _, _ in
+            Task {
+                await viewModel.loadRivalMoves()
+            }
+        }
+    }
+
+    /// 習得方法を日本語表示に変換
+    private func learnMethodDisplayName(_ method: String) -> String {
+        switch method {
+        case "all":
+            return "すべて"
+        case "level-up":
+            return "レベルアップ"
+        case "machine":
+            return "わざマシン"
+        case "egg":
+            return "タマゴわざ"
+        case "tutor":
+            return "教え技"
+        default:
+            return method
+                .replacingOccurrences(of: "-", with: " ")
+                .capitalized
+        }
     }
 }
 
@@ -106,6 +278,8 @@ struct LearnMethodPicker: View {
     /// 習得方法を日本語表示に変換
     private func learnMethodDisplayName(_ method: String) -> String {
         switch method {
+        case "all":
+            return "すべて"
         case "level-up":
             return "レベルアップ"
         case "machine":
@@ -127,6 +301,7 @@ struct MoveRow: View {
     let move: PokemonMove
     let moveDetail: MoveEntity?  // 技詳細情報（オプショナル）
     @EnvironmentObject private var localizationManager: LocalizationManager
+    @State private var isExpanded = false
 
     init(move: PokemonMove, moveDetail: MoveEntity? = nil) {
         self.move = move
@@ -173,8 +348,8 @@ struct MoveRow: View {
                     Color.clear.frame(width: 50)
                 }
 
-                // 技名
-                Text(move.displayName)
+                // 技名（moveDetailがあれば日本語名、なければ英語名）
+                Text(moveDetail?.nameJa ?? move.displayName)
                     .font(.subheadline)
                     .fontWeight(.medium)
 
@@ -186,6 +361,19 @@ struct MoveRow: View {
                     Text(localizationManager.displayName(for: detail.type))
                         .typeBadgeStyle(detail.type)
                         .font(.caption)
+
+                    // 開閉ボタン（説明がある場合のみ）
+                    if detail.effect != nil {
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isExpanded.toggle()
+                            }
+                        } label: {
+                            Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
                 }
             }
 
@@ -237,8 +425,8 @@ struct MoveRow: View {
                     }
                 }
 
-                // 説明文
-                if let effect = detail.effect {
+                // 説明文（展開時のみ表示）
+                if isExpanded, let effect = detail.effect {
                     Text(effect)
                         .font(.caption2)
                         .foregroundColor(.secondary)
@@ -253,40 +441,3 @@ struct MoveRow: View {
     }
 }
 
-#Preview {
-    MovesView(
-        moves: [
-            PokemonMove(
-                id: 1,
-                name: "tackle",
-                learnMethod: "level-up",
-                level: 1,
-                machineNumber: nil
-            ),
-            PokemonMove(
-                id: 2,
-                name: "vine-whip",
-                learnMethod: "level-up",
-                level: 9,
-                machineNumber: nil
-            ),
-            PokemonMove(
-                id: 3,
-                name: "solar-beam",
-                learnMethod: "machine",
-                level: nil,
-                machineNumber: "TM22"
-            ),
-            PokemonMove(
-                id: 4,
-                name: "leaf-storm",
-                learnMethod: "tutor",
-                level: nil,
-                machineNumber: nil
-            )
-        ],
-        moveDetails: [:],  // 空の辞書
-        selectedLearnMethod: .constant("level-up")
-    )
-    .environmentObject(LocalizationManager.shared)
-}

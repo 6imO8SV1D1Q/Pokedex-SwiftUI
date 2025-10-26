@@ -47,9 +47,20 @@ final class FetchPokemonFormsUseCase: FetchPokemonFormsUseCaseProtocol {
                 return true
             }
 
-            // メガシンカ：X-Y以降
+            // キョダイマックス: ソード・シールド限定（スカーレット・バイオレットでは除外）
+            if form.formName.contains("gmax") || form.formName.contains("gigantamax") {
+                return versionGroup == "sword-shield"
+            }
+
+            // Let's Go フォーム: Let's Go ピカチュウ・イーブイ限定
+            if form.formName.contains("starter") {
+                return versionGroup == "lets-go-pikachu-lets-go-eevee"
+            }
+
+            // メガシンカ：X-Y以降、ただしソード・シールド以降は除外
             if form.isMega {
-                return isVersionGroupAfter(versionGroup, thanOrEqualTo: "x-y")
+                return isVersionGroupAfter(versionGroup, thanOrEqualTo: "x-y") &&
+                       !isVersionGroupAfter(versionGroup, thanOrEqualTo: "sword-shield")
             }
 
             // リージョンフォーム
@@ -62,9 +73,9 @@ final class FetchPokemonFormsUseCase: FetchPokemonFormsUseCaseProtocol {
                 if form.formName.contains("galar") {
                     return isVersionGroupAfter(versionGroup, thanOrEqualTo: "sword-shield")
                 }
-                // ヒスイフォーム：レジェンズアルセウス以降
+                // ヒスイフォーム：レジェンズアルセウス限定
                 if form.formName.contains("hisui") {
-                    return isVersionGroupAfter(versionGroup, thanOrEqualTo: "legends-arceus")
+                    return versionGroup == "legends-arceus"
                 }
                 // パルデアフォーム：スカーレット・バイオレット以降
                 if form.formName.contains("paldea") {

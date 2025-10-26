@@ -22,9 +22,6 @@ struct CalculatedStatsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("実数値（Lv.50）")
-                .font(.headline)
-
             ScrollView(.horizontal, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 8) {
                     // ヘッダー行（パターン名）

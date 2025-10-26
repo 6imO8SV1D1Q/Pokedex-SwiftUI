@@ -20,6 +20,9 @@ struct PokemonForm: Equatable, Identifiable {
     /// ポケモンのID
     let pokemonId: Int
 
+    /// 種族ID（pokemon-speciesのID）
+    let speciesId: Int
+
     /// フォーム名（"normal", "alola", "galar", "mega-x" など）
     let formName: String
 
