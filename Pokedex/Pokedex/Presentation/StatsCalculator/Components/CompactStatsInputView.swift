@@ -25,11 +25,11 @@ struct CompactStatsInputView: View {
 
     private let statNames: [(key: String, label: String)] = [
         ("hp", "HP"),
-        ("attack", "攻"),
-        ("defense", "防"),
+        ("attack", "攻撃"),
+        ("defense", "防御"),
         ("special-attack", "特攻"),
         ("special-defense", "特防"),
-        ("speed", "素早")
+        ("speed", "素早さ")
     ]
 
     var body: some View {
@@ -93,7 +93,7 @@ struct CompactStatsInputView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 3) {
                 Text("")
-                    .frame(width: 32, alignment: .leading)
+                    .frame(width: 44, alignment: .leading)
 
                 Text("IV")
                     .font(.system(size: 10))
@@ -139,7 +139,7 @@ struct CompactStatsInputView: View {
         HStack(spacing: 3) {
             // ステータス名
             Text(stat.label)
-                .frame(width: 32, alignment: .leading)
+                .frame(width: 44, alignment: .leading)
                 .font(.system(size: 11))
 
             // 個体値（IV）
