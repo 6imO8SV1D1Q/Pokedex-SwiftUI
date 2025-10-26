@@ -24,6 +24,7 @@ final class StatsCalculatorViewModel: ObservableObject {
     }
     @Published var selectedPokemon: Pokemon?
     @Published var filteredPokemon: [Pokemon] = []
+    @Published var isLoadingPokemon: Bool = false
 
     // 入力値
     @Published var level: Int = 50
@@ -76,13 +77,14 @@ final class StatsCalculatorViewModel: ObservableObject {
     /// 全ポケモンをロード
     @MainActor
     private func loadAllPokemon() async {
+        isLoadingPokemon = true
         do {
-            // 実数値計算機では全ポケモンを対象とする
-            allPokemon = try await pokemonRepository.fetchPokemonList(versionGroup: .nationalDex, progressHandler: nil)
+            allPokemon = try await pokemonRepository.fetchPokemonList(versionGroup: .scarletViolet, progressHandler: nil)
             print("📋 Loaded \(allPokemon.count) pokemon for stats calculator")
         } catch {
             print("❌ Failed to load pokemon: \(error)")
         }
+        isLoadingPokemon = false
     }
 
     /// 検索テキスト変更時の絞り込み

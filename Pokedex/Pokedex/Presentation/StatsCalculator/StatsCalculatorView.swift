@@ -24,6 +24,7 @@ struct StatsCalculatorView: View {
                         selectedPokemon: $viewModel.selectedPokemon,
                         searchText: $viewModel.searchText,
                         filteredPokemon: viewModel.filteredPokemon,
+                        isLoadingPokemon: viewModel.isLoadingPokemon,
                         onSelect: { pokemon in
                             viewModel.selectPokemon(pokemon)
                         }

@@ -12,6 +12,7 @@ struct PokemonSearchView: View {
     @Binding var selectedPokemon: Pokemon?
     @Binding var searchText: String
     let filteredPokemon: [Pokemon]
+    let isLoadingPokemon: Bool
     let onSelect: (Pokemon) -> Void
 
     var body: some View {
@@ -115,7 +116,15 @@ struct PokemonSearchView: View {
 
     @ViewBuilder
     private var candidateList: some View {
-        if !filteredPokemon.isEmpty {
+        if isLoadingPokemon {
+            HStack {
+                ProgressView()
+                Text("ポケモンを読み込み中...")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .padding()
+        } else if !filteredPokemon.isEmpty {
             VStack(spacing: 8) {
                 ForEach(filteredPokemon.prefix(10), id: \.id) { pokemon in
                     candidateRow(pokemon: pokemon)
@@ -190,6 +199,7 @@ struct PokemonSearchView: View {
         selectedPokemon: .constant(nil),
         searchText: .constant(""),
         filteredPokemon: [],
+        isLoadingPokemon: false,
         onSelect: { _ in }
     )
 }
