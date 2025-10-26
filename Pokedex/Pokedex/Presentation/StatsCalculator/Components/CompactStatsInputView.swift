@@ -174,32 +174,32 @@ struct CompactStatsInputView: View {
                     onDecrementEV(stat.key)
                 } label: {
                     Text("-")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.system(size: 10, weight: .bold))
                 }
                 .buttonStyle(.bordered)
-                .frame(width: 22, height: 22)
+                .frame(width: 20, height: 20)
 
                 Button {
                     onIncrementEV(stat.key)
                 } label: {
                     Text("+")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.system(size: 10, weight: .bold))
                 }
                 .buttonStyle(.bordered)
-                .frame(width: 22, height: 22)
+                .frame(width: 20, height: 20)
 
                 Button {
                     evs[stat.key] = 252
                 } label: {
-                    Text("MAX")
-                        .font(.system(size: 8, weight: .bold))
+                    Text("252")
+                        .font(.system(size: 9, weight: .bold))
                 }
                 .buttonStyle(.bordered)
-                .frame(width: 28, height: 22)
+                .frame(width: 26, height: 20)
             }
 
             Spacer()
-                .frame(maxWidth: 4)
+                .frame(maxWidth: 2)
 
             // 性格補正（HPは除外）
             if stat.key != "hp" {
@@ -210,7 +210,7 @@ struct CompactStatsInputView: View {
             } else {
                 // HPの場合は空白
                 Color.clear
-                    .frame(width: 46)
+                    .frame(width: 41)
             }
         }
     }
@@ -227,8 +227,8 @@ struct CompactStatsInputView: View {
             onSetNature(stat, modifier)
         } label: {
             Text(label)
-                .font(.system(size: 11, weight: .semibold))
-                .frame(width: 22, height: 22)
+                .font(.system(size: 10, weight: .semibold))
+                .frame(width: 20, height: 20)
                 .background(isNatureSelected(stat: stat, modifier: modifier) ? color.opacity(0.2) : Color(.systemGray5))
                 .foregroundColor(isNatureSelected(stat: stat, modifier: modifier) ? color : .secondary)
                 .cornerRadius(4)
