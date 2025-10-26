@@ -72,6 +72,20 @@ final class PokemonDetailViewModel: ObservableObject {
     /// セクションの展開状態
     @Published var isSectionExpanded: [String: Bool] = [:]
 
+    // MARK: - ライバル除外フィルター
+
+    /// 選択されたライバルのID
+    @Published var selectedRivals: Set<Int> = []
+
+    /// ライバル除外フィルターのON/OFF
+    @Published var excludeRivalMoves: Bool = false
+
+    /// ライバルの技データ（ライバルID -> 技リスト）
+    @Published var rivalMoves: [Int: [PokemonMove]] = [:]
+
+    /// 全ポケモンリスト（ライバル選択用）
+    @Published var allPokemon: [PokemonWithMatchInfo] = []
+
     // MARK: - Private Properties
 
     /// 進化チェーン取得UseCase
@@ -125,11 +139,49 @@ final class PokemonDetailViewModel: ObservableObject {
         return selectedForm?.stats ?? pokemon.stats
     }
 
+    /// ライバル除外フィルター適用後の技リスト
+    var filteredMovesByRival: [PokemonMove] {
+        guard excludeRivalMoves && !selectedRivals.isEmpty else {
+            return pokemon.moves
+        }
+
+        // 選択されているライバルの技の名前セット（selectedRivalsでフィルタ）
+        let rivalMoveNames = Set(
+            selectedRivals.compactMap { rivalMoves[$0] }
+                .flatMap { $0.map { $0.name } }
+        )
+
+        // デバッグログ
+        print("🔍 [Rival Filter Debug]")
+        print("  Current Pokemon: \(pokemon.name) (ID: \(pokemon.id))")
+        print("  Selected Rivals: \(selectedRivals.count) - \(selectedRivals)")
+        print("  Loaded Rival Data (total): \(rivalMoves.count) - \(rivalMoves.keys)")
+        print("  Used Rival Data (filtered): \(selectedRivals.filter { rivalMoves[$0] != nil }.count)")
+        print("  Total Moves (Pokemon): \(pokemon.moves.count)")
+        print("  Total Moves (Selected Rivals combined): \(rivalMoveNames.count)")
+
+        // 技名の比較（1匹だけ選択時のみ）
+        if selectedRivals.count == 1, let rivalId = selectedRivals.first, rivalMoves[rivalId] != nil {
+            let pokemonMoveNames = Set(pokemon.moves.map { $0.name })
+            let rivalOnlyMoves = rivalMoveNames.subtracting(pokemonMoveNames)
+            let pokemonOnlyMoves = pokemonMoveNames.subtracting(rivalMoveNames)
+            print("  🎯 Rival-only moves: \(rivalOnlyMoves.count) - \(Array(rivalOnlyMoves).prefix(5))")
+            print("  🎯 Pokemon-only moves: \(pokemonOnlyMoves.count) - \(Array(pokemonOnlyMoves).prefix(5))")
+        }
+
+        // ライバルが覚えない技のみ返す
+        let filtered = pokemon.moves.filter { !rivalMoveNames.contains($0.name) }
+        print("  Filtered Moves (result): \(filtered.count)")
+
+        return filtered
+    }
+
     // MARK: - Initialization
 
     /// イニシャライザ
     /// - Parameters:
     ///   - pokemon: ポケモンデータ
+    ///   - allPokemon: 全ポケモンリスト（ライバル選択用、省略可能）
     ///   - versionGroup: バージョングループ
     ///   - fetchEvolutionChainUseCase: 進化チェーン取得UseCase（省略時はDIContainerから取得）
     ///   - fetchPokemonFormsUseCase: フォーム取得UseCase（省略時はDIContainerから取得）
@@ -142,6 +194,7 @@ final class PokemonDetailViewModel: ObservableObject {
     ///   - pokemonRepository: ポケモンリポジトリ（省略時はDIContainerから取得）
     init(
         pokemon: Pokemon,
+        allPokemon: [PokemonWithMatchInfo] = [],
         versionGroup: String? = nil,
         fetchEvolutionChainUseCase: FetchEvolutionChainUseCaseProtocol? = nil,
         fetchPokemonFormsUseCase: FetchPokemonFormsUseCaseProtocol? = nil,
@@ -154,6 +207,7 @@ final class PokemonDetailViewModel: ObservableObject {
         pokemonRepository: PokemonRepositoryProtocol? = nil
     ) {
         self.pokemon = pokemon
+        self.allPokemon = allPokemon
         self.versionGroup = versionGroup
         self.fetchEvolutionChainUseCase = fetchEvolutionChainUseCase ?? DIContainer.shared.makeFetchEvolutionChainUseCase()
         self.fetchPokemonFormsUseCase = fetchPokemonFormsUseCase ?? DIContainer.shared.makeFetchPokemonFormsUseCase()
@@ -376,5 +430,50 @@ final class PokemonDetailViewModel: ObservableObject {
             errorMessage = "予期しないエラーが発生しました: \(error.localizedDescription)"
         }
         showError = true
+    }
+
+    // MARK: - Rival Filter Methods
+
+    /// ライバルの技データを読み込む
+    func loadRivalMoves() async {
+        guard !selectedRivals.isEmpty else {
+            rivalMoves.removeAll()
+            return
+        }
+
+        await withTaskGroup(of: (Int, [PokemonMove]?).self) { group in
+            for rivalId in selectedRivals {
+                // すでに取得済みの場合はスキップ
+                if rivalMoves[rivalId] != nil {
+                    continue
+                }
+
+                group.addTask { [weak self] in
+                    guard let self = self else { return (rivalId, nil) }
+
+                    do {
+                        let rivalPokemon = try await self.pokemonRepository.fetchPokemonDetail(id: rivalId)
+                        return (rivalId, rivalPokemon.moves)
+                    } catch {
+                        print("Failed to load moves for rival \(rivalId): \(error)")
+                        return (rivalId, nil)
+                    }
+                }
+            }
+
+            for await (rivalId, moves) in group {
+                if let moves = moves {
+                    await MainActor.run {
+                        self.rivalMoves[rivalId] = moves
+                    }
+                }
+            }
+        }
+    }
+
+    /// ライバル除外フィルターを切り替え
+    func toggleRivalFilter() {
+        excludeRivalMoves.toggle()
+        // データロードはライバル選択後に行う（onChange(of: selectedRivals)で実行）
     }
 }

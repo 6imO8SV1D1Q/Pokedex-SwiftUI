@@ -66,7 +66,9 @@ struct BattleTabView: View {
                     MovesView(
                         moves: viewModel.pokemon.moves,
                         moveDetails: viewModel.moveDetails,
-                        selectedLearnMethod: $viewModel.selectedLearnMethod
+                        selectedLearnMethod: $viewModel.selectedLearnMethod,
+                        viewModel: viewModel,
+                        allPokemon: viewModel.allPokemon
                     )
                     .padding(.horizontal, -16)
                     .padding(.vertical, -12)

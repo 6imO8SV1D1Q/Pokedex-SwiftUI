@@ -12,10 +12,19 @@ struct MovesView: View {
     let moves: [PokemonMove]
     let moveDetails: [String: MoveEntity]  // 技詳細情報
     @Binding var selectedLearnMethod: String
+    @ObservedObject var viewModel: PokemonDetailViewModel
+    let allPokemon: [PokemonWithMatchInfo]
+
+    @State private var showRivalSelection = false
+
+    /// ライバル除外フィルター適用後の技リスト
+    private var displayMoves: [PokemonMove] {
+        return viewModel.filteredMovesByRival
+    }
 
     /// 利用可能な習得方法一覧（「すべて」を含む）
     private var availableLearnMethods: [String] {
-        let methods = Set(moves.map { $0.learnMethod })
+        let methods = Set(displayMoves.map { $0.learnMethod })
         var result = ["all"] // 「すべて」を最初に追加
         result.append(contentsOf: Array(methods).sorted())
         return result
@@ -26,7 +35,7 @@ struct MovesView: View {
 
     /// 「すべて」が選択されている場合の、習得方法ごとにグループ化された技
     private var groupedMoves: [(method: String, moves: [PokemonMove])] {
-        let grouped = Dictionary(grouping: moves) { $0.learnMethod }
+        let grouped = Dictionary(grouping: displayMoves) { $0.learnMethod }
 
         return methodOrder.compactMap { method in
             guard let movesForMethod = grouped[method], !movesForMethod.isEmpty else {
@@ -47,7 +56,7 @@ struct MovesView: View {
 
     /// フィルタリングされた技リスト（特定の習得方法が選択されている場合）
     private var filteredMoves: [PokemonMove] {
-        moves
+        displayMoves
             .filter { $0.learnMethod == selectedLearnMethod }
             .sorted { move1, move2 in
                 // レベルアップ技の場合はレベル順、それ以外は名前順
@@ -66,6 +75,84 @@ struct MovesView: View {
                     methods: availableLearnMethods,
                     selectedMethod: $selectedLearnMethod
                 )
+            }
+
+            // ライバル除外フィルター
+            HStack {
+                Button {
+                    viewModel.toggleRivalFilter()
+                    if viewModel.excludeRivalMoves && viewModel.selectedRivals.isEmpty {
+                        showRivalSelection = true
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: viewModel.excludeRivalMoves ? "checkmark.square.fill" : "square")
+                            .foregroundColor(viewModel.excludeRivalMoves ? .blue : .secondary)
+                        Text("ライバル除外")
+                            .font(.caption)
+                            .foregroundColor(.primary)
+                        if !viewModel.selectedRivals.isEmpty {
+                            Text("(\(viewModel.selectedRivals.count)匹)")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+
+                if viewModel.excludeRivalMoves {
+                    Button {
+                        showRivalSelection = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "person.2")
+                            Text("選択")
+                        }
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.blue)
+                        .cornerRadius(4)
+                    }
+                }
+            }
+
+            // 選択されたライバルのスプライト表示
+            if !viewModel.selectedRivals.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(Array(viewModel.selectedRivals), id: \.self) { rivalId in
+                            if let rivalPokemon = allPokemon.first(where: { $0.id == rivalId })?.pokemon {
+                                VStack(spacing: 4) {
+                                    AsyncImage(url: URL(string: rivalPokemon.displayImageURL ?? "")) { phase in
+                                        switch phase {
+                                        case .success(let image):
+                                            image
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                        case .empty:
+                                            ProgressView()
+                                        case .failure:
+                                            Image(systemName: "questionmark.circle")
+                                                .foregroundColor(.gray)
+                                        @unknown default:
+                                            EmptyView()
+                                        }
+                                    }
+                                    .frame(width: 60, height: 60)
+                                    .background(Color(.systemGray6))
+                                    .clipShape(Circle())
+
+                                    Text(LocalizationManager.shared.displayName(for: rivalPokemon))
+                                        .font(.caption2)
+                                        .lineLimit(1)
+                                        .frame(width: 60)
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding(.vertical, 8)
             }
 
             // 技リスト
@@ -117,6 +204,20 @@ struct MovesView: View {
             }
         }
         .padding()
+        .sheet(isPresented: $showRivalSelection) {
+            RivalSelectionView(
+                selectedRivals: $viewModel.selectedRivals,
+                allPokemon: allPokemon,
+                currentPokemonId: viewModel.pokemon.id,
+                fetchAllAbilitiesUseCase: DIContainer.shared.makeFetchAllAbilitiesUseCase(),
+                fetchAllMovesUseCase: DIContainer.shared.makeFetchAllMovesUseCase()
+            )
+        }
+        .onChange(of: viewModel.selectedRivals) { _, _ in
+            Task {
+                await viewModel.loadRivalMoves()
+            }
+        }
     }
 
     /// 習得方法を日本語表示に変換
@@ -340,40 +441,3 @@ struct MoveRow: View {
     }
 }
 
-#Preview {
-    MovesView(
-        moves: [
-            PokemonMove(
-                id: 1,
-                name: "tackle",
-                learnMethod: "level-up",
-                level: 1,
-                machineNumber: nil
-            ),
-            PokemonMove(
-                id: 2,
-                name: "vine-whip",
-                learnMethod: "level-up",
-                level: 9,
-                machineNumber: nil
-            ),
-            PokemonMove(
-                id: 3,
-                name: "solar-beam",
-                learnMethod: "machine",
-                level: nil,
-                machineNumber: "TM22"
-            ),
-            PokemonMove(
-                id: 4,
-                name: "leaf-storm",
-                learnMethod: "tutor",
-                level: nil,
-                machineNumber: nil
-            )
-        ],
-        moveDetails: [:],  // 空の辞書
-        selectedLearnMethod: .constant("level-up")
-    )
-    .environmentObject(LocalizationManager.shared)
-}
