@@ -45,16 +45,24 @@ struct PokemonSearchView: View {
 
             HStack(spacing: 16) {
                 // スプライト画像
-                AsyncImage(url: pokemon.sprites.frontDefault.flatMap { URL(string: $0) }) { image in
-                    image
-                        .resizable()
-                        .interpolation(.none)
-                        .frame(width: 80, height: 80)
-                } placeholder: {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.2))
-                        .frame(width: 80, height: 80)
+                AsyncImage(url: URL(string: pokemon.displayImageURL ?? "")) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    case .empty:
+                        ProgressView()
+                    case .failure:
+                        Image(systemName: "photo")
+                            .foregroundColor(.gray)
+                    @unknown default:
+                        EmptyView()
+                    }
                 }
+                .frame(width: 80, height: 80)
+                .background(Color(.tertiarySystemFill))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 VStack(alignment: .leading, spacing: 4) {
                     // 名前
@@ -128,16 +136,26 @@ struct PokemonSearchView: View {
         } label: {
             HStack {
                 // スプライト画像
-                AsyncImage(url: pokemon.sprites.frontDefault.flatMap { URL(string: $0) }) { image in
-                    image
-                        .resizable()
-                        .interpolation(.none)
-                        .frame(width: 40, height: 40)
-                } placeholder: {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.2))
-                        .frame(width: 40, height: 40)
+                AsyncImage(url: URL(string: pokemon.displayImageURL ?? "")) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    case .empty:
+                        ProgressView()
+                            .frame(width: 40, height: 40)
+                    case .failure:
+                        Image(systemName: "photo")
+                            .foregroundColor(.gray)
+                            .frame(width: 40, height: 40)
+                    @unknown default:
+                        EmptyView()
+                    }
                 }
+                .frame(width: 40, height: 40)
+                .background(Color(.tertiarySystemFill))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(pokemon.nameJa ?? pokemon.name)
