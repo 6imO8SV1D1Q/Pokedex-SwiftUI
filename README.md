@@ -303,9 +303,21 @@ MIT License
 
 ---
 
-詳細なドキュメント:
-- [要件定義書 v3](docs/pokedex_requirements_v3.md)
-- [設計書 v3](docs/pokedex_design_v3.md)
-- [要件定義書 v2](docs/pokedex_requirements_v2.md)
-- [設計書 v2](docs/pokedex_design_v2.md)
-- [変更履歴](CHANGELOG.md)
+## 📋 詳細ドキュメント
+
+### 📊 プロジェクト状況
+- [実装状況](docs/implementation_status.md) - 現在の実装状況とバージョン別進捗
+- [今後の改善予定](docs/future_improvements.md) - 既知の課題と将来の機能拡張
+- [変更履歴](CHANGELOG.md) - 変更履歴
+
+### 📚 バージョン別ドキュメント
+- **v4.0（開発中）**: [要件](docs/v4/requirements.md) | [設計](docs/v4/design.md) | [プロンプト](docs/v4/prompts.md)
+- **v3.0（完了）**: [要件](docs/v3/requirements.md) | [設計](docs/v3/design.md) | [プロンプト](docs/v3/prompts.md)
+- **v2.0（完了）**: [要件](docs/v2/requirements.md) | [設計](docs/v2/design.md)
+
+### 🔬 機能別設計
+- [特性メタデータ](docs/features/ability_metadata/) - 特性フィルター機能の設計
+- [スカーレット・バイオレット](docs/features/scarlet_violet/) - 第9世代データ構造
+
+### 🛠 開発ガイドライン
+- [Claude Code開発ガイド](CLAUDE.md) - Claude Codeでの開発ルール
