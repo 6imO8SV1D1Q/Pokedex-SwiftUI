@@ -43,7 +43,7 @@ struct PokemonSearchView: View {
                 .buttonStyle(.bordered)
             }
 
-            HStack(spacing: 16) {
+            HStack(spacing: DesignConstants.Spacing.small) {
                 // スプライト画像
                 AsyncImage(url: URL(string: pokemon.displayImageURL ?? "")) { phase in
                     switch phase {
@@ -54,15 +54,16 @@ struct PokemonSearchView: View {
                     case .empty:
                         ProgressView()
                     case .failure:
-                        Image(systemName: "photo")
+                        Image(systemName: "questionmark.circle")
                             .foregroundColor(.gray)
                     @unknown default:
                         EmptyView()
                     }
                 }
-                .frame(width: 80, height: 80)
+                .frame(width: DesignConstants.ImageSize.medium, height: DesignConstants.ImageSize.medium)
                 .background(Color(.tertiarySystemFill))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(Circle())
+                .shadow(color: Color(.systemGray).opacity(DesignConstants.Shadow.opacity), radius: DesignConstants.Shadow.medium, x: 0, y: 2)
 
                 VStack(alignment: .leading, spacing: 4) {
                     // 名前
@@ -144,18 +145,17 @@ struct PokemonSearchView: View {
                             .aspectRatio(contentMode: .fit)
                     case .empty:
                         ProgressView()
-                            .frame(width: 40, height: 40)
                     case .failure:
-                        Image(systemName: "photo")
+                        Image(systemName: "questionmark.circle")
                             .foregroundColor(.gray)
-                            .frame(width: 40, height: 40)
                     @unknown default:
                         EmptyView()
                     }
                 }
-                .frame(width: 40, height: 40)
+                .frame(width: DesignConstants.ImageSize.small, height: DesignConstants.ImageSize.small)
                 .background(Color(.tertiarySystemFill))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .clipShape(Circle())
+                .shadow(color: Color(.systemGray).opacity(DesignConstants.Shadow.opacity), radius: DesignConstants.Shadow.small, x: 0, y: 1)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(pokemon.nameJa ?? pokemon.name)
