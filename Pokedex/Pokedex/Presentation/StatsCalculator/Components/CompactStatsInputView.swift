@@ -33,7 +33,7 @@ struct CompactStatsInputView: View {
     ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             // レベル入力
             levelInput
 
@@ -47,14 +47,14 @@ struct CompactStatsInputView: View {
                 statRow(stat: stat)
                 if stat.key != "speed" {
                     Divider()
-                        .padding(.horizontal, 8)
+                        .padding(.horizontal, 4)
                 }
             }
 
             // 努力値情報
             evSummary
         }
-        .padding()
+        .padding(12)
         .background(Color(.systemGray6))
         .cornerRadius(12)
     }
@@ -64,12 +64,13 @@ struct CompactStatsInputView: View {
     private var levelInput: some View {
         HStack {
             Text("レベル")
-                .font(.headline)
+                .font(.subheadline)
 
             TextField("レベル", value: $level, format: .number)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .keyboardType(.numberPad)
-                .frame(width: 80)
+                .frame(width: 60)
+                .font(.caption)
                 .onChange(of: level) { _, newValue in
                     if newValue < 1 {
                         level = 1
@@ -79,7 +80,7 @@ struct CompactStatsInputView: View {
                 }
 
             Text("(1-100)")
-                .font(.caption)
+                .font(.system(size: 10))
                 .foregroundColor(.secondary)
 
             Spacer()
@@ -89,30 +90,27 @@ struct CompactStatsInputView: View {
     // MARK: - ヘッダー行
 
     private var headerRow: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 4) {
                 Text("")
-                    .frame(width: 50, alignment: .leading)
+                    .frame(width: 40, alignment: .leading)
 
                 Text("IV")
-                    .font(.caption)
+                    .font(.system(size: 11))
                     .fontWeight(.semibold)
                     .foregroundColor(.secondary)
-                    .frame(width: 50)
-
-                Spacer()
-                    .frame(width: 8)
+                    .frame(width: 36)
 
                 Text("EV")
-                    .font(.caption)
+                    .font(.system(size: 11))
                     .fontWeight(.semibold)
                     .foregroundColor(.secondary)
-                    .frame(width: 50)
+                    .frame(width: 36)
 
                 Spacer()
 
                 Text("性格")
-                    .font(.caption)
+                    .font(.system(size: 11))
                     .fontWeight(.semibold)
                     .foregroundColor(.secondary)
             }
@@ -124,13 +122,13 @@ struct CompactStatsInputView: View {
                     onSetAllIVsToMax()
                 }
                 .buttonStyle(.bordered)
-                .font(.caption2)
+                .font(.system(size: 10))
 
                 Button("IV 0") {
                     onSetAllIVsToMin()
                 }
                 .buttonStyle(.bordered)
-                .font(.caption2)
+                .font(.system(size: 10))
             }
         }
     }
@@ -138,11 +136,11 @@ struct CompactStatsInputView: View {
     // MARK: - ステータス行
 
     private func statRow(stat: (key: String, label: String)) -> some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 4) {
             // ステータス名
             Text(stat.label)
-                .frame(width: 50, alignment: .leading)
-                .font(.subheadline)
+                .frame(width: 40, alignment: .leading)
+                .font(.caption)
 
             // 個体値（IV）
             TextField("", value: Binding(
@@ -153,11 +151,9 @@ struct CompactStatsInputView: View {
             ), format: .number)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .keyboardType(.numberPad)
-            .frame(width: 50)
+            .frame(width: 36)
+            .font(.caption)
             .multilineTextAlignment(.center)
-
-            Spacer()
-                .frame(width: 8)
 
             // 努力値（EV）
             TextField("", value: Binding(
@@ -168,44 +164,45 @@ struct CompactStatsInputView: View {
             ), format: .number)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .keyboardType(.numberPad)
-            .frame(width: 50)
+            .frame(width: 36)
+            .font(.caption)
             .multilineTextAlignment(.center)
 
             // EV調整ボタン
-            HStack(spacing: 4) {
+            HStack(spacing: 2) {
                 Button {
                     onDecrementEV(stat.key)
                 } label: {
                     Image(systemName: "minus")
-                        .font(.caption2)
+                        .font(.system(size: 10))
                 }
                 .buttonStyle(.bordered)
-                .frame(width: 28, height: 28)
+                .frame(width: 24, height: 24)
 
                 Button {
                     onIncrementEV(stat.key)
                 } label: {
                     Image(systemName: "plus")
-                        .font(.caption2)
+                        .font(.system(size: 10))
                 }
                 .buttonStyle(.bordered)
-                .frame(width: 28, height: 28)
+                .frame(width: 24, height: 24)
 
                 Button {
                     evs[stat.key] = 252
                 } label: {
                     Text("252")
-                        .font(.caption2)
+                        .font(.system(size: 9))
                 }
                 .buttonStyle(.bordered)
-                .frame(width: 36, height: 28)
+                .frame(width: 30, height: 24)
             }
 
             Spacer()
 
             // 性格補正（HPは除外）
             if stat.key != "hp" {
-                HStack(spacing: 4) {
+                HStack(spacing: 2) {
                     natureButton(stat: stat.key, modifier: .boosted, label: "↑", color: .red)
                     natureButton(stat: stat.key, modifier: .neutral, label: "-", color: .gray)
                     natureButton(stat: stat.key, modifier: .hindered, label: "↓", color: .blue)
@@ -213,7 +210,7 @@ struct CompactStatsInputView: View {
             } else {
                 // HPの場合は空白
                 Color.clear
-                    .frame(width: 100)
+                    .frame(width: 76)
             }
         }
     }
@@ -230,14 +227,14 @@ struct CompactStatsInputView: View {
             onSetNature(stat, modifier)
         } label: {
             Text(label)
-                .font(.system(size: 14, weight: .semibold))
-                .frame(width: 28, height: 28)
+                .font(.system(size: 12, weight: .semibold))
+                .frame(width: 24, height: 24)
                 .background(isNatureSelected(stat: stat, modifier: modifier) ? color.opacity(0.2) : Color(.systemGray5))
                 .foregroundColor(isNatureSelected(stat: stat, modifier: modifier) ? color : .secondary)
                 .cornerRadius(4)
                 .overlay(
                     RoundedRectangle(cornerRadius: 4)
-                        .stroke(isNatureSelected(stat: stat, modifier: modifier) ? color : Color.clear, lineWidth: 2)
+                        .stroke(isNatureSelected(stat: stat, modifier: modifier) ? color : Color.clear, lineWidth: 1.5)
                 )
         }
     }
@@ -251,12 +248,12 @@ struct CompactStatsInputView: View {
     private var evSummary: some View {
         HStack {
             Text("努力値 残り: \(remainingEVs)")
-                .font(.subheadline)
+                .font(.caption)
                 .foregroundColor(isEVOverLimit ? .red : .secondary)
 
             if isEVOverLimit {
                 Text("（510を超えています）")
-                    .font(.caption)
+                    .font(.system(size: 10))
                     .foregroundColor(.red)
             }
 
