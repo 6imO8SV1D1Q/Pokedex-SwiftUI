@@ -77,7 +77,8 @@ final class StatsCalculatorViewModel: ObservableObject {
     @MainActor
     private func loadAllPokemon() async {
         do {
-            allPokemon = try await pokemonRepository.fetchPokemonList(versionGroup: .scarletViolet, progressHandler: nil)
+            // 実数値計算機では全ポケモンを対象とする
+            allPokemon = try await pokemonRepository.fetchPokemonList(versionGroup: .nationalDex, progressHandler: nil)
             print("📋 Loaded \(allPokemon.count) pokemon for stats calculator")
         } catch {
             print("❌ Failed to load pokemon: \(error)")
