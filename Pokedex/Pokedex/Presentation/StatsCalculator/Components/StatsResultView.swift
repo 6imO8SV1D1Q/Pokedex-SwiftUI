@@ -9,7 +9,7 @@ import SwiftUI
 
 /// 計算結果表示UI
 struct StatsResultView: View {
-    let pokemon: PokemonEntity
+    let pokemon: Pokemon
     let calculatedStats: [String: Int]
     let natureModifiers: [String: StatsCalculatorViewModel.NatureModifier]
 
@@ -148,24 +148,44 @@ struct StatsResultView: View {
 
 #Preview {
     StatsResultView(
-        pokemon: PokemonEntity(
+        pokemon: Pokemon(
             id: 1,
+            speciesId: 1,
             name: "bulbasaur",
             nameJa: "フシギダネ",
-            nationalDexNumber: 1,
-            types: ["grass", "poison"],
-            stats: [
-                PokemonEntity.Stat(name: "hp", baseStat: 45),
-                PokemonEntity.Stat(name: "attack", baseStat: 49),
-                PokemonEntity.Stat(name: "defense", baseStat: 49),
-                PokemonEntity.Stat(name: "special-attack", baseStat: 65),
-                PokemonEntity.Stat(name: "special-defense", baseStat: 65),
-                PokemonEntity.Stat(name: "speed", baseStat: 45)
-            ],
-            sprites: PokemonEntity.Sprites(frontDefault: ""),
-            abilities: [],
+            genus: nil,
+            genusJa: nil,
             height: 7,
-            weight: 69
+            weight: 69,
+            category: nil,
+            types: [
+                PokemonType(slot: 1, name: "grass"),
+                PokemonType(slot: 2, name: "poison")
+            ],
+            stats: [
+                PokemonStat(name: "hp", baseStat: 45),
+                PokemonStat(name: "attack", baseStat: 49),
+                PokemonStat(name: "defense", baseStat: 49),
+                PokemonStat(name: "special-attack", baseStat: 65),
+                PokemonStat(name: "special-defense", baseStat: 65),
+                PokemonStat(name: "speed", baseStat: 45)
+            ],
+            abilities: [],
+            sprites: PokemonSprites(
+                frontDefault: "",
+                frontShiny: nil,
+                frontFemale: nil,
+                frontShinyFemale: nil,
+                other: nil
+            ),
+            moves: [],
+            availableGenerations: [1],
+            nationalDexNumber: 1,
+            eggGroups: nil,
+            genderRate: nil,
+            pokedexNumbers: nil,
+            varieties: nil,
+            evolutionChain: nil
         ),
         calculatedStats: [
             "hp": 150,

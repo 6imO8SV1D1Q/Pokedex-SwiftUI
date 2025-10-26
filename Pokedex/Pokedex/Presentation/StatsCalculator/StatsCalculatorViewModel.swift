@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 /// 実数値計算機画面のViewModel
 @MainActor
@@ -21,8 +22,8 @@ final class StatsCalculatorViewModel: ObservableObject {
             }
         }
     }
-    @Published var selectedPokemon: PokemonEntity?
-    @Published var filteredPokemon: [PokemonEntity] = []
+    @Published var selectedPokemon: Pokemon?
+    @Published var filteredPokemon: [Pokemon] = []
 
     // 入力値
     @Published var level: Int = 50
@@ -44,7 +45,7 @@ final class StatsCalculatorViewModel: ObservableObject {
 
     // MARK: - Private Properties
 
-    private var allPokemon: [PokemonEntity] = []
+    private var allPokemon: [Pokemon] = []
 
     // MARK: - Computed Properties
 
@@ -76,7 +77,7 @@ final class StatsCalculatorViewModel: ObservableObject {
     @MainActor
     private func loadAllPokemon() async {
         do {
-            allPokemon = try await pokemonRepository.fetchPokemonList(versionGroup: "scarlet-violet")
+            allPokemon = try await pokemonRepository.fetchPokemonList(versionGroup: .scarletViolet, progressHandler: nil)
             print("📋 Loaded \(allPokemon.count) pokemon for stats calculator")
         } catch {
             print("❌ Failed to load pokemon: \(error)")
@@ -96,17 +97,17 @@ final class StatsCalculatorViewModel: ObservableObject {
         filteredPokemon = allPokemon.filter { pokemon in
             // 名前で検索（日本語・英語両方）
             let nameMatch = pokemon.name.lowercased().contains(query) ||
-                           pokemon.nameJa.lowercased().contains(query)
+                           (pokemon.nameJa?.lowercased().contains(query) ?? false)
 
             // 図鑑番号で検索
-            let numberMatch = String(pokemon.nationalDexNumber).contains(query)
+            let numberMatch = pokemon.nationalDexNumber.map { String($0).contains(query) } ?? false
 
             return nameMatch || numberMatch
         }
     }
 
     /// ポケモン選択時の処理
-    func selectPokemon(_ pokemon: PokemonEntity) {
+    func selectPokemon(_ pokemon: Pokemon) {
         selectedPokemon = pokemon
         resetInputs()
         calculateStats()
