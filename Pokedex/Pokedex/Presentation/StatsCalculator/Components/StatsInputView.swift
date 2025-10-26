@@ -185,6 +185,15 @@ struct StatsInputView: View {
                     .buttonStyle(.bordered)
                     .frame(width: 36, height: 36)
 
+                    Button {
+                        evs[stat.key] = 252
+                    } label: {
+                        Text("252")
+                            .font(.caption2)
+                    }
+                    .buttonStyle(.bordered)
+                    .frame(height: 36)
+
                     Spacer()
                 }
             }
