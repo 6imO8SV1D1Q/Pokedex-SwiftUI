@@ -1,9 +1,0 @@
-🚀 Starting Scarlet/Violet JSON data fix...
-📋 Tasks:
-  1. Fix stat_changes and target for all moves
-  2. Add evolution-inherited moves to evolved Pokemon
-
-Traceback (most recent call last):
-  File "/Users/yusuke/Development/Pokedex-SwiftUI/fix_scarlet_violet_data.py", line 17, in <module>
-    with open(json_path, 'r', encoding='utf-8') as f:
-FileNotFoundError: [Errno 2] No such file or directory: '/Users/yusuke/Development/Pokedex-SwiftUI/Pokedex/Resources/PreloadedData/scarlet_violet.json'
