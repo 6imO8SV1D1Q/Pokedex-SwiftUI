@@ -118,6 +118,8 @@
 "filter.stat_multiplier" = "Stat Multiplier";
 "filter.move_power_multiplier" = "Move Power Multiplier";
 "filter.activation_rate" = "Activation Rate";
+"filter.ability_category_description_empty" = "Filter by ability type";
+"filter.ability_category_description" = "Show Pokémon with abilities matching any selected category";
 
 // MARK: - Move Targets
 "target.selected_pokemon" = "Single Opponent";

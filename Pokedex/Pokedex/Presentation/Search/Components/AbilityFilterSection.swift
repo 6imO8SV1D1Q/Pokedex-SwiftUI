@@ -22,14 +22,14 @@ struct AbilityFilterSection: View {
                 ProgressView()
             } else {
                 // OR/AND切り替え
-                Picker("検索モード", selection: $filterMode) {
-                    Text("OR（いずれか）").tag(FilterMode.or)
-                    Text("AND（全て）").tag(FilterMode.and)
+                Picker(L10n.Filter.searchMode, selection: $filterMode) {
+                    Text(L10n.Filter.or).tag(FilterMode.or)
+                    Text(L10n.Filter.and).tag(FilterMode.and)
                 }
                 .pickerStyle(.segmented)
 
                 // 検索バー
-                TextField("特性を検索", text: $searchText)
+                TextField(L10n.Filter.abilitySearchPlaceholder, text: $searchText)
                     .textFieldStyle(.roundedBorder)
 
                 // 選択済み特性の表示
@@ -68,7 +68,7 @@ struct AbilityFilterSection: View {
                     abilityMetadataFilters.append(filter)
                 })) {
                     HStack {
-                        Text("特性の条件を追加")
+                        Text(L10n.Filter.abilityAddCondition)
                         Spacer()
                         Image(systemName: "plus.circle")
                     }
@@ -77,7 +77,7 @@ struct AbilityFilterSection: View {
                 // 設定中の条件を表示
                 if !abilityMetadataFilters.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("設定中の条件")
+                        Text(L10n.Filter.abilityConditionsHeader)
                             .font(.caption)
                             .foregroundColor(.secondary)
 
@@ -104,11 +104,9 @@ struct AbilityFilterSection: View {
                 }
             }
         } header: {
-            Text("特性")
+            Text(L10n.Filter.ability)
         } footer: {
-            Text(filterMode == .or
-                 ? "選択した特性のいずれかを持つポケモンを表示"
-                 : "選択した特性を全て持つポケモンを表示")
+            Text(filterMode == .or ? L10n.Filter.abilityOrDescription : L10n.Filter.abilityAndDescription)
         }
     }
 

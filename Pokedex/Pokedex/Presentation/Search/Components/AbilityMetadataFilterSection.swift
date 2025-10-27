@@ -43,12 +43,12 @@ struct AbilityMetadataFilterSection: View {
                 }
             }
         } header: {
-            Text("特性カテゴリ")
+            Text(L10n.Filter.abilityCategory)
         } footer: {
             if selectedCategories.isEmpty {
-                Text("特性の種類でフィルタリングできます")
+                Text(L10n.Filter.abilityCategoryDescriptionEmpty)
             } else {
-                Text("選択したカテゴリのいずれかに該当する特性を持つポケモンを表示")
+                Text(L10n.Filter.abilityCategoryDescription)
             }
         }
     }

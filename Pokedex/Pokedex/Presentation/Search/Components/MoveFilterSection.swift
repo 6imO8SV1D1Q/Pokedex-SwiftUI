@@ -23,20 +23,20 @@ struct MoveFilterSection: View {
                 ProgressView()
             } else {
                 // OR/AND切り替え
-                Picker("検索モード", selection: $filterMode) {
-                    Text("OR（いずれか）").tag(FilterMode.or)
-                    Text("AND（全て）").tag(FilterMode.and)
+                Picker(L10n.Filter.searchMode, selection: $filterMode) {
+                    Text(L10n.Filter.or).tag(FilterMode.or)
+                    Text(L10n.Filter.and).tag(FilterMode.and)
                 }
                 .pickerStyle(.segmented)
 
                 // 検索バー
-                TextField("技を検索", text: $searchText)
+                TextField(L10n.Filter.moveSearchPlaceholder, text: $searchText)
                     .textFieldStyle(.roundedBorder)
 
                 // 選択済み技の表示
                 if !selectedMoves.isEmpty {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("選択中: \(selectedMoves.count)件")
+                        Text(L10n.Filter.selectedCount(selectedMoves.count))
                             .font(.caption)
                             .foregroundColor(.secondary)
 
@@ -75,7 +75,7 @@ struct MoveFilterSection: View {
                     moveMetadataFilters.append(filter)
                 })) {
                     HStack {
-                        Text("技の条件を追加")
+                        Text(L10n.Filter.moveAddCondition)
                         Spacer()
                         Image(systemName: "plus.circle")
                     }
@@ -84,7 +84,7 @@ struct MoveFilterSection: View {
                 // 設定中の条件を表示
                 if !moveMetadataFilters.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("設定中の条件")
+                        Text(L10n.Filter.moveConditionsHeader)
                             .font(.caption)
                             .foregroundColor(.secondary)
 
@@ -111,16 +111,14 @@ struct MoveFilterSection: View {
                 }
             }
         } header: {
-            Text("技")
+            Text(L10n.Filter.move)
         } footer: {
             VStack(alignment: .leading, spacing: 4) {
                 if !moveMetadataFilters.isEmpty {
-                    Text("技の条件: メタデータで絞り込んだ技も含まれます")
+                    Text(L10n.Filter.moveNote)
                         .font(.caption)
                 }
-                Text(filterMode == .or
-                     ? "選択した技のいずれかを覚えられるポケモンを表示"
-                     : "選択した技を全て覚えられるポケモンを表示")
+                Text(filterMode == .or ? L10n.Filter.moveOrDescription : L10n.Filter.moveAndDescription)
                     .font(.caption)
             }
         }

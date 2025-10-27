@@ -118,6 +118,8 @@
 "filter.stat_multiplier" = "能力値倍率";
 "filter.move_power_multiplier" = "技威力倍率";
 "filter.activation_rate" = "発動確率";
+"filter.ability_category_description_empty" = "特性の種類でフィルタリングできます";
+"filter.ability_category_description" = "選択したカテゴリのいずれかに該当する特性を持つポケモンを表示";
 
 // MARK: - Move Targets
 "target.selected_pokemon" = "相手1体";

@@ -123,6 +123,8 @@ enum L10n {
         static let statMultiplier = LocalizedStringKey("filter.stat_multiplier")
         static let movePowerMultiplier = LocalizedStringKey("filter.move_power_multiplier")
         static let activationRate = LocalizedStringKey("filter.activation_rate")
+        static let abilityCategoryDescriptionEmpty = LocalizedStringKey("filter.ability_category_description_empty")
+        static let abilityCategoryDescription = LocalizedStringKey("filter.ability_category_description")
 
         static func condition(_ number: Int) -> String {
             return String(format: NSLocalizedString("filter.condition", comment: ""), number)
