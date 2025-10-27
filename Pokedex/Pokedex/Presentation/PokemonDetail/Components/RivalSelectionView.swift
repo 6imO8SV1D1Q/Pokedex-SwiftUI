@@ -158,7 +158,7 @@ struct RivalSelectionView: View {
             } label: {
                 HStack {
                     Image(systemName: "magnifyingglass")
-                    Text("検索")
+                    Text(L10n.PokemonDetail.searchButton)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
@@ -176,7 +176,7 @@ struct RivalSelectionView: View {
         if shouldShowResults {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Text("絞り込み結果: \(filteredPokemon.count)匹")
+                    Text(L10n.PokemonDetail.filterResultsCount(filteredPokemon.count))
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Spacer()
@@ -387,7 +387,7 @@ struct RivalSelectionView: View {
                 }
             }
         } label: {
-            Text("クリア")
+            Text(L10n.PokemonDetail.clearButton)
         }
         .disabled(selectedRivals.isEmpty && !hasActiveFilters)
     }

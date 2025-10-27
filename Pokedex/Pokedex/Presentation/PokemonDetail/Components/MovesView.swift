@@ -167,7 +167,7 @@ struct MovesView: View {
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
 
-                                Text("(\(group.moves.count))")
+                                Text(L10n.PokemonDetail.moveCount(group.moves.count))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
@@ -286,7 +286,7 @@ struct MoveRow: View {
                 case "level-up":
                     if let level = move.level, level > 0 {
                         // レベルアップ技の場合
-                        Text("Lv.\(level)")
+                        Text(L10n.PokemonDetail.levelPrefix(level))
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)

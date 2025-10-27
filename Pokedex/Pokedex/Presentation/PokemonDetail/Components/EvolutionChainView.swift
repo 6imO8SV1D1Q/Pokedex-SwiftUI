@@ -148,7 +148,7 @@ struct EvolutionChainView: View {
             Text("ID: \(speciesId)")
                 .font(.caption)
                 .foregroundColor(.secondary)
-            Text("データ読込中...")
+            Text(L10n.PokemonDetail.loadingData)
                 .font(.caption2)
                 .foregroundColor(.secondary)
                 .opacity(0.6)
