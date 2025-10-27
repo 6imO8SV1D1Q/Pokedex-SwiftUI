@@ -190,10 +190,20 @@
 "pokemon_detail.evolution" = "進化";
 
 // MARK: - Move Learn Methods
+"learn_method.all" = "すべて";
 "learn_method.level_up" = "レベルアップ";
-"learn_method.egg" = "タマゴ技";
+"learn_method.egg" = "タマゴわざ";
 "learn_method.tutor" = "教え技";
 "learn_method.machine" = "わざマシン";
+
+// MARK: - Move Details
+"move.exclude_rivals" = "ライバル除外";
+"move.rival_count" = "(%d匹)";
+"move.select_button" = "選択";
+"move.no_moves_available" = "この方法で習得できる技はありません";
+"move.power_label" = "威力:";
+"move.accuracy_label" = "命中:";
+"move.pp_label" = "PP:";
 
 // MARK: - Settings
 "settings.title" = "設定";

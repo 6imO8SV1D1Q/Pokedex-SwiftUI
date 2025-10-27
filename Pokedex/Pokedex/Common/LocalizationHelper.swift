@@ -285,10 +285,36 @@ enum L10n {
 
     // MARK: - Move Learn Methods
     enum LearnMethod {
-        static let levelUp = LocalizedStringKey("learn_method.level_up")
-        static let egg = LocalizedStringKey("learn_method.egg")
-        static let tutor = LocalizedStringKey("learn_method.tutor")
-        static let machine = LocalizedStringKey("learn_method.machine")
+        static let all = NSLocalizedString("learn_method.all", comment: "")
+        static let levelUp = NSLocalizedString("learn_method.level_up", comment: "")
+        static let egg = NSLocalizedString("learn_method.egg", comment: "")
+        static let tutor = NSLocalizedString("learn_method.tutor", comment: "")
+        static let machine = NSLocalizedString("learn_method.machine", comment: "")
+
+        static func displayName(_ method: String) -> String {
+            switch method {
+            case "all": return all
+            case "level-up": return levelUp
+            case "egg": return egg
+            case "tutor": return tutor
+            case "machine": return machine
+            default: return method.replacingOccurrences(of: "-", with: " ").capitalized
+            }
+        }
+    }
+
+    // MARK: - Move Details
+    enum Move {
+        static let excludeRivals = LocalizedStringKey("move.exclude_rivals")
+        static let selectButton = LocalizedStringKey("move.select_button")
+        static let noMovesAvailable = LocalizedStringKey("move.no_moves_available")
+        static let powerLabel = NSLocalizedString("move.power_label", comment: "")
+        static let accuracyLabel = NSLocalizedString("move.accuracy_label", comment: "")
+        static let ppLabel = NSLocalizedString("move.pp_label", comment: "")
+
+        static func rivalCount(_ count: Int) -> String {
+            return String(format: NSLocalizedString("move.rival_count", comment: ""), count)
+        }
     }
 
     // MARK: - Settings

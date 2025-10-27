@@ -190,10 +190,20 @@
 "pokemon_detail.evolution" = "Evolution";
 
 // MARK: - Move Learn Methods
+"learn_method.all" = "All";
 "learn_method.level_up" = "Level Up";
 "learn_method.egg" = "Egg Move";
 "learn_method.tutor" = "Tutor";
 "learn_method.machine" = "TM/HM";
+
+// MARK: - Move Details
+"move.exclude_rivals" = "Exclude Rivals";
+"move.rival_count" = "(%d)";
+"move.select_button" = "Select";
+"move.no_moves_available" = "No moves available with this method";
+"move.power_label" = "Power:";
+"move.accuracy_label" = "Acc:";
+"move.pp_label" = "PP:";
 
 // MARK: - Settings
 "settings.title" = "Settings";
