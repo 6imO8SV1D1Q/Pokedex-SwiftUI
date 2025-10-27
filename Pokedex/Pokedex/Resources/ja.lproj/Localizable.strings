@@ -56,8 +56,8 @@
 "section.type_matchup" = "タイプ相性";
 "section.base_stats" = "種族値";
 "section.calculated_stats" = "実数値（Lv.50）";
-"section.abilities" = "特性";
-"section.moves" = "覚える技";
+"section.abilities" = "とくせい";
+"section.moves" = "覚えるわざ";
 "section.ecology" = "生態";
 "section.battle" = "バトル";
 
@@ -79,7 +79,7 @@
 "filter.max_selection" = "最大4つまで選択可能 (%d/4)";
 "filter.hp_drain" = "HP吸収";
 "filter.hp_healing" = "HP回復";
-"filter.move_note" = "技の条件: メタデータで絞り込んだ技も含まれます";
+"filter.move_note" = "わざの条件: メタデータで絞り込んだわざも含まれます";
 "filter.trigger" = "発動";
 "filter.effect" = "効果";
 "filter.weather" = "天候";
@@ -98,28 +98,28 @@
 "filter.type_and_description" = "選択したタイプを全て持つポケモンを表示";
 "filter.region" = "区分";
 "filter.region_description" = "選択した区分のいずれかに該当するポケモンを表示";
-"filter.ability" = "特性";
-"filter.ability_search_placeholder" = "特性を検索";
-"filter.ability_add_condition" = "特性の条件を追加";
+"filter.ability" = "とくせい";
+"filter.ability_search_placeholder" = "とくせいを検索";
+"filter.ability_add_condition" = "とくせいの条件を追加";
 "filter.ability_conditions_header" = "設定中の条件";
-"filter.ability_or_description" = "選択した特性のいずれかを持つポケモンを表示";
-"filter.ability_and_description" = "選択した特性を全て持つポケモンを表示";
-"filter.ability_category" = "特性カテゴリ";
-"filter.move" = "技";
-"filter.move_search_placeholder" = "技を検索";
-"filter.move_add_condition" = "技の条件を追加";
+"filter.ability_or_description" = "選択したとくせいのいずれかを持つポケモンを表示";
+"filter.ability_and_description" = "選択したとくせいを全て持つポケモンを表示";
+"filter.ability_category" = "とくせいカテゴリ";
+"filter.move" = "わざ";
+"filter.move_search_placeholder" = "わざを検索";
+"filter.move_add_condition" = "わざの条件を追加";
 "filter.move_conditions_header" = "設定中の条件";
-"filter.move_or_description" = "選択した技のいずれかを覚えられるポケモンを表示";
-"filter.move_and_description" = "選択した技を全て覚えられるポケモンを表示";
+"filter.move_or_description" = "選択したわざのいずれかを覚えられるポケモンを表示";
+"filter.move_and_description" = "選択したわざを全て覚えられるポケモンを表示";
 "filter.recovery" = "回復";
 "filter.stat_change" = "能力変化";
 "filter.categories" = "カテゴリー";
 "filter.categories_count" = "カテゴリー: %d件";
 "filter.stat_multiplier" = "能力値倍率";
-"filter.move_power_multiplier" = "技威力倍率";
+"filter.move_power_multiplier" = "わざ威力倍率";
 "filter.activation_rate" = "発動確率";
-"filter.ability_category_description_empty" = "特性の種類でフィルタリングできます";
-"filter.ability_category_description" = "選択したカテゴリのいずれかに該当する特性を持つポケモンを表示";
+"filter.ability_category_description_empty" = "とくせいの種類でフィルタリングできます";
+"filter.ability_category_description" = "選択したカテゴリのいずれかに該当するとくせいを持つポケモンを表示";
 "filter.power_label" = "威力";
 "filter.accuracy_label" = "命中率";
 "filter.pp_label" = "PP";
@@ -152,7 +152,7 @@
 "target.user_and_allies" = "自分と味方";
 "target.all_pokemon" = "場の全員";
 "target.all_allies" = "味方全体";
-"target.specific_move" = "特定の技";
+"target.specific_move" = "特定のわざ";
 "target.fainting_pokemon" = "ひんし直前";
 
 // MARK: - Messages
@@ -169,7 +169,7 @@
 "pokemon_list.filter_result" = "絞り込み結果: %d匹";
 "pokemon_list.total_count" = "全%d匹";
 "pokemon_list.count_separator" = " / ";
-"pokemon_list.filtering_moves" = "技フィルター処理中...";
+"pokemon_list.filtering_moves" = "わざフィルター処理中...";
 "pokemon_list.please_wait" = "しばらくお待ちください";
 "pokemon_list.empty_title" = "ポケモンが見つかりません";
 "pokemon_list.empty_message" = "検索条件やフィルターを変更してみてください";
@@ -178,8 +178,8 @@
 // MARK: - Pokemon Detail
 "pokemon_detail.normal" = "通常";
 "pokemon_detail.shiny" = "色違い";
-"pokemon_detail.ability_label" = "特性:";
-"pokemon_detail.hidden_ability" = " (隠れ特性)";
+"pokemon_detail.ability_label" = "とくせい:";
+"pokemon_detail.hidden_ability" = " (隠れとくせい)";
 "pokemon_detail.ability_overflow" = "+%d";
 "pokemon_detail.flavor_text_source" = "出典: %@";
 "pokemon_detail.level" = "Lv.%d";
@@ -204,21 +204,21 @@
 "learn_method.all" = "すべて";
 "learn_method.level_up" = "レベルアップ";
 "learn_method.egg" = "タマゴわざ";
-"learn_method.tutor" = "教え技";
+"learn_method.tutor" = "教えわざ";
 "learn_method.machine" = "わざマシン";
 
 // MARK: - Move Details
 "move.exclude_rivals" = "ライバル除外";
 "move.rival_count" = "(%d匹)";
 "move.select_button" = "選択";
-"move.no_moves_available" = "この方法で習得できる技はありません";
+"move.no_moves_available" = "この方法で習得できるわざはありません";
 "move.power_label" = "威力:";
 "move.accuracy_label" = "命中:";
 "move.pp_label" = "PP:";
 
 // MARK: - Ability Details
-"ability.hidden" = "隠れ特性";
-"ability.loading" = "特性の詳細を読み込み中...";
+"ability.hidden" = "隠れとくせい";
+"ability.loading" = "とくせいの詳細を読み込み中...";
 
 // MARK: - Sort Options
 "sort.title" = "並び替え";
@@ -229,11 +229,11 @@
 "sort.section_basic" = "基本";
 "sort.section_base_stats" = "種族値";
 "sort.pokedex_number" = "図鑑番号";
-"sort.attack" = "攻撃";
-"sort.defense" = "防御";
-"sort.special_attack" = "特攻";
-"sort.special_defense" = "特防";
-"sort.speed" = "素早さ";
+"sort.attack" = "こうげき";
+"sort.defense" = "ぼうぎょ";
+"sort.special_attack" = "とくこう";
+"sort.special_defense" = "とくぼう";
+"sort.speed" = "すばやさ";
 "sort.total_stats" = "種族値合計";
 
 // MARK: - Settings
@@ -248,14 +248,14 @@
 
 // MARK: - Loading
 "loading.pokemon" = "ポケモンを読み込み中...";
-"loading.move_filter_disabled" = "技フィルターはバージョングループを選択した場合のみ利用可能です。";
+"loading.move_filter_disabled" = "わざフィルターはバージョングループを選択した場合のみ利用可能です。";
 
 // MARK: - Move Filter (not in Search)
-"move_filter.title" = "技フィルター";
-"move_filter.search_placeholder" = "技を検索";
+"move_filter.title" = "わざフィルター";
+"move_filter.search_placeholder" = "わざを検索";
 "move_filter.max_selection_with_count" = "最大4つまで選択可能 (%d/4)";
 
 // MARK: - Accessibility
 "accessibility.pokemon_image" = "ポケモン画像";
 "accessibility.type_icon" = "タイプアイコン";
-"accessibility.ability_icon" = "特性アイコン";
+"accessibility.ability_icon" = "とくせいアイコン";
