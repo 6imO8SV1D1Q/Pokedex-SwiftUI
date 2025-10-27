@@ -83,7 +83,7 @@ struct PokemonDetailView: View {
 
                 HStack(spacing: DesignConstants.Spacing.large) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("高さ")
+                        Text(L10n.PokemonDetail.heightLabel)
                             .font(.caption)
                             .foregroundColor(.secondary)
                         Text(String(format: "%.1f m", viewModel.pokemon.heightInMeters))
@@ -92,7 +92,7 @@ struct PokemonDetailView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("重さ")
+                        Text(L10n.PokemonDetail.weightLabel)
                             .font(.caption)
                             .foregroundColor(.secondary)
                         Text(String(format: "%.1f kg", viewModel.pokemon.weightInKilograms))

@@ -13,7 +13,7 @@ struct TypeListView: View {
 
     var body: some View {
         if types.isEmpty {
-            Text("なし")
+            Text(L10n.PokemonDetail.none)
                 .foregroundColor(.secondary)
         } else {
             FlowLayout(spacing: 4) {

@@ -188,6 +188,17 @@
 "pokemon_detail.gender_ratio" = "性別比";
 "pokemon_detail.egg_groups" = "たまごグループ";
 "pokemon_detail.evolution" = "進化";
+"pokemon_detail.height_label" = "高さ";
+"pokemon_detail.weight_label" = "重さ";
+"pokemon_detail.form" = "フォルム";
+"pokemon_detail.total_stats" = "合計";
+"pokemon_detail.none" = "なし";
+"pokemon_detail.loading_data" = "データ読込中...";
+"pokemon_detail.move_count" = "(%d)";
+"pokemon_detail.level_prefix" = "Lv.%d";
+"pokemon_detail.filter_results_count" = "絞り込み結果: %d匹";
+"pokemon_detail.search_button" = "検索";
+"pokemon_detail.clear_button" = "クリア";
 
 // MARK: - Move Learn Methods
 "learn_method.all" = "すべて";

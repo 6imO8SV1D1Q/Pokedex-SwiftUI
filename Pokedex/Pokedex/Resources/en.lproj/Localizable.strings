@@ -188,6 +188,17 @@
 "pokemon_detail.gender_ratio" = "Gender Ratio";
 "pokemon_detail.egg_groups" = "Egg Groups";
 "pokemon_detail.evolution" = "Evolution";
+"pokemon_detail.height_label" = "Height";
+"pokemon_detail.weight_label" = "Weight";
+"pokemon_detail.form" = "Form";
+"pokemon_detail.total_stats" = "Total";
+"pokemon_detail.none" = "None";
+"pokemon_detail.loading_data" = "Loading data...";
+"pokemon_detail.move_count" = "(%d)";
+"pokemon_detail.level_prefix" = "Lv.%d";
+"pokemon_detail.filter_results_count" = "Filtered: %d";
+"pokemon_detail.search_button" = "Search";
+"pokemon_detail.clear_button" = "Clear";
 
 // MARK: - Move Learn Methods
 "learn_method.all" = "All";

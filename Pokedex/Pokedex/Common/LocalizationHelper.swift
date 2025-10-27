@@ -261,6 +261,14 @@ enum L10n {
         static let genderRatio = LocalizedStringKey("pokemon_detail.gender_ratio")
         static let eggGroups = LocalizedStringKey("pokemon_detail.egg_groups")
         static let evolution = LocalizedStringKey("pokemon_detail.evolution")
+        static let heightLabel = LocalizedStringKey("pokemon_detail.height_label")
+        static let weightLabel = LocalizedStringKey("pokemon_detail.weight_label")
+        static let form = LocalizedStringKey("pokemon_detail.form")
+        static let totalStats = LocalizedStringKey("pokemon_detail.total_stats")
+        static let none = LocalizedStringKey("pokemon_detail.none")
+        static let loadingData = LocalizedStringKey("pokemon_detail.loading_data")
+        static let searchButton = LocalizedStringKey("pokemon_detail.search_button")
+        static let clearButton = LocalizedStringKey("pokemon_detail.clear_button")
 
         static func abilityOverflow(_ count: Int) -> String {
             return String(format: NSLocalizedString("pokemon_detail.ability_overflow", comment: ""), count)
@@ -280,6 +288,18 @@ enum L10n {
 
         static func weight(_ weight: Double) -> String {
             return String(format: NSLocalizedString("pokemon_detail.weight", comment: ""), weight)
+        }
+
+        static func moveCount(_ count: Int) -> String {
+            return String(format: NSLocalizedString("pokemon_detail.move_count", comment: ""), count)
+        }
+
+        static func levelPrefix(_ level: Int) -> String {
+            return String(format: NSLocalizedString("pokemon_detail.level_prefix", comment: ""), level)
+        }
+
+        static func filterResultsCount(_ count: Int) -> String {
+            return String(format: NSLocalizedString("pokemon_detail.filter_results_count", comment: ""), count)
         }
     }
 
