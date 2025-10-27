@@ -143,6 +143,12 @@ enum L10n {
     // MARK: - Pokemon List
     enum PokemonList {
         static let title = LocalizedStringKey("pokemon_list.title")
+        static let searchPrompt = LocalizedStringKey("pokemon_list.search_prompt")
+        static let filteringMoves = LocalizedStringKey("pokemon_list.filtering_moves")
+        static let pleaseWait = LocalizedStringKey("pokemon_list.please_wait")
+        static let emptyTitle = LocalizedStringKey("pokemon_list.empty_title")
+        static let emptyMessage = LocalizedStringKey("pokemon_list.empty_message")
+        static let clearFilters = LocalizedStringKey("pokemon_list.clear_filters")
 
         static func filterResult(_ count: Int) -> String {
             return String(format: NSLocalizedString("pokemon_list.filter_result", comment: ""), count)

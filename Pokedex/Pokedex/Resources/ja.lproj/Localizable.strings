@@ -110,9 +110,15 @@
 
 // MARK: - Pokemon List
 "pokemon_list.title" = "Pokédex";
+"pokemon_list.search_prompt" = "ポケモンを検索";
 "pokemon_list.filter_result" = "絞り込み結果: %d匹";
 "pokemon_list.total_count" = "全%d匹";
 "pokemon_list.count_separator" = " / ";
+"pokemon_list.filtering_moves" = "技フィルター処理中...";
+"pokemon_list.please_wait" = "しばらくお待ちください";
+"pokemon_list.empty_title" = "ポケモンが見つかりません";
+"pokemon_list.empty_message" = "検索条件やフィルターを変更してみてください";
+"pokemon_list.clear_filters" = "フィルターをクリア";
 
 // MARK: - Pokemon Detail
 "pokemon_detail.normal" = "通常";

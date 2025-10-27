@@ -110,9 +110,15 @@
 
 // MARK: - Pokemon List
 "pokemon_list.title" = "Pokédex";
+"pokemon_list.search_prompt" = "Search Pokémon";
 "pokemon_list.filter_result" = "Filtered: %d";
 "pokemon_list.total_count" = "Total: %d";
 "pokemon_list.count_separator" = " / ";
+"pokemon_list.filtering_moves" = "Filtering moves...";
+"pokemon_list.please_wait" = "Please wait";
+"pokemon_list.empty_title" = "No Pokémon Found";
+"pokemon_list.empty_message" = "Try changing your search criteria or filters";
+"pokemon_list.clear_filters" = "Clear Filters";
 
 // MARK: - Pokemon Detail
 "pokemon_detail.normal" = "Normal";
