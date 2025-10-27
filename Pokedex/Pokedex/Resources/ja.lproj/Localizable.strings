@@ -235,6 +235,15 @@
 "settings.data_section_header" = "図鑑データ";
 "settings.data_section_footer" = "スカーレット・バイオレットで図鑑説明が異なる場合、どちらを表示するか選択できます。";
 
+// MARK: - Loading
+"loading.pokemon" = "ポケモンを読み込み中...";
+"loading.move_filter_disabled" = "技フィルターはバージョングループを選択した場合のみ利用可能です。";
+
+// MARK: - Move Filter (not in Search)
+"move_filter.title" = "技フィルター";
+"move_filter.search_placeholder" = "技を検索";
+"move_filter.max_selection_with_count" = "最大4つまで選択可能 (%d/4)";
+
 // MARK: - Accessibility
 "accessibility.pokemon_image" = "ポケモン画像";
 "accessibility.type_icon" = "タイプアイコン";

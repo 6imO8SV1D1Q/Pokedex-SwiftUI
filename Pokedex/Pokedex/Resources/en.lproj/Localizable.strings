@@ -235,6 +235,15 @@
 "settings.data_section_header" = "Pokédex Data";
 "settings.data_section_footer" = "Choose which Pokédex description to display when Scarlet and Violet have different entries.";
 
+// MARK: - Loading
+"loading.pokemon" = "Loading Pokémon...";
+"loading.move_filter_disabled" = "Move filter is only available when a version group is selected.";
+
+// MARK: - Move Filter (not in Search)
+"move_filter.title" = "Move Filter";
+"move_filter.search_placeholder" = "Search moves";
+"move_filter.max_selection_with_count" = "Max 4 selections (%d/4)";
+
 // MARK: - Accessibility
 "accessibility.pokemon_image" = "Pokémon Image";
 "accessibility.type_icon" = "Type Icon";

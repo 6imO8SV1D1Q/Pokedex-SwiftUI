@@ -15,7 +15,7 @@ struct LoadingProgressView: View {
     var body: some View {
         VStack(spacing: 16) {
             ProgressView(value: progress) {
-                Text("ポケモンを読み込み中...")
+                Text(L10n.Loading.pokemon)
                     .font(.headline)
             }
             .progressViewStyle(LinearProgressViewStyle())

@@ -352,4 +352,20 @@ enum L10n {
         static let speed = LocalizedStringKey("sort.speed")
         static let totalStats = LocalizedStringKey("sort.total_stats")
     }
+
+    // MARK: - Loading Messages
+    enum Loading {
+        static let pokemon = LocalizedStringKey("loading.pokemon")
+        static let moveFilterDisabled = LocalizedStringKey("loading.move_filter_disabled")
+    }
+
+    // MARK: - Move Filter (Common component)
+    enum MoveFilter {
+        static let title = LocalizedStringKey("move_filter.title")
+        static let searchPlaceholder = LocalizedStringKey("move_filter.search_placeholder")
+
+        static func maxSelectionWithCount(_ count: Int) -> String {
+            return String(format: NSLocalizedString("move_filter.max_selection_with_count", comment: ""), count)
+        }
+    }
 }

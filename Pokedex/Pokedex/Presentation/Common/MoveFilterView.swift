@@ -24,7 +24,7 @@ struct MoveFilterView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("技フィルター")
+            Text(L10n.MoveFilter.title)
                 .font(.headline)
 
             if !isEnabled {
@@ -41,7 +41,7 @@ struct MoveFilterView: View {
     }
 
     private var infoMessage: some View {
-        Text("技フィルターはバージョングループを選択した場合のみ利用可能です。")
+        Text(L10n.Loading.moveFilterDisabled)
             .font(.caption)
             .foregroundColor(.secondary)
             .padding()
@@ -52,8 +52,10 @@ struct MoveFilterView: View {
     private var enabledContent: some View {
         VStack(alignment: .leading, spacing: 8) {
             // 検索フィールド
-            TextField("技を検索", text: $searchText)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+            TextField(text: $searchText) {
+                Text(L10n.MoveFilter.searchPlaceholder)
+            }
+            .textFieldStyle(RoundedBorderTextFieldStyle())
 
             // 選択済みタグ
             if !selectedMoves.isEmpty {
@@ -61,7 +63,7 @@ struct MoveFilterView: View {
             }
 
             // カウンター
-            Text("最大4つまで選択可能 (\(selectedMoves.count)/4)")
+            Text(L10n.MoveFilter.maxSelectionWithCount(selectedMoves.count))
                 .font(.caption)
                 .foregroundColor(.secondary)
 
