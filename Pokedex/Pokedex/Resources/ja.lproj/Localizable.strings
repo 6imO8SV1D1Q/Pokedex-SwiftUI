@@ -205,6 +205,26 @@
 "move.accuracy_label" = "命中:";
 "move.pp_label" = "PP:";
 
+// MARK: - Ability Details
+"ability.hidden" = "隠れ特性";
+"ability.loading" = "特性の詳細を読み込み中...";
+
+// MARK: - Sort Options
+"sort.title" = "並び替え";
+"sort.done" = "完了";
+"sort.order" = "並び順";
+"sort.ascending" = "昇順 ↑";
+"sort.descending" = "降順 ↓";
+"sort.section_basic" = "基本";
+"sort.section_base_stats" = "種族値";
+"sort.pokedex_number" = "図鑑番号";
+"sort.attack" = "攻撃";
+"sort.defense" = "防御";
+"sort.special_attack" = "特攻";
+"sort.special_defense" = "特防";
+"sort.speed" = "素早さ";
+"sort.total_stats" = "種族値合計";
+
 // MARK: - Settings
 "settings.title" = "設定";
 "settings.done" = "完了";

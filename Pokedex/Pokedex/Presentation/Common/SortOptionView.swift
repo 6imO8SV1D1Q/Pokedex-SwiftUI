@@ -36,9 +36,11 @@ struct SortOptionView: View {
         NavigationView {
             VStack(spacing: 0) {
                 // 昇順/降順切り替え
-                Picker("並び順", selection: $isAscending) {
-                    Text("昇順 ↑").tag(true)
-                    Text("降順 ↓").tag(false)
+                Picker(selection: $isAscending) {
+                    Text(L10n.Sort.ascending).tag(true)
+                    Text(L10n.Sort.descending).tag(false)
+                } label: {
+                    Text(L10n.Sort.order)
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal, 20)
@@ -51,35 +53,39 @@ struct SortOptionView: View {
                 }
 
                 List {
-                    Section("基本") {
-                        sortButton(.pokedexNumber(ascending: isAscending), label: "図鑑番号")
+                    Section {
+                        sortButton(.pokedexNumber(ascending: isAscending), label: L10n.Sort.pokedexNumber)
+                    } header: {
+                        Text(L10n.Sort.sectionBasic)
                     }
 
-                    Section("種族値") {
-                        sortButton(.hp(ascending: isAscending), label: "HP")
-                        sortButton(.attack(ascending: isAscending), label: "攻撃")
-                        sortButton(.defense(ascending: isAscending), label: "防御")
-                        sortButton(.specialAttack(ascending: isAscending), label: "特攻")
-                        sortButton(.specialDefense(ascending: isAscending), label: "特防")
-                        sortButton(.speed(ascending: isAscending), label: "素早さ")
-                        sortButton(.totalStats(ascending: isAscending), label: "種族値合計")
+                    Section {
+                        sortButton(.hp(ascending: isAscending), label: L10n.Stat.hp)
+                        sortButton(.attack(ascending: isAscending), label: L10n.Sort.attack)
+                        sortButton(.defense(ascending: isAscending), label: L10n.Sort.defense)
+                        sortButton(.specialAttack(ascending: isAscending), label: L10n.Sort.specialAttack)
+                        sortButton(.specialDefense(ascending: isAscending), label: L10n.Sort.specialDefense)
+                        sortButton(.speed(ascending: isAscending), label: L10n.Sort.speed)
+                        sortButton(.totalStats(ascending: isAscending), label: L10n.Sort.totalStats)
+                    } header: {
+                        Text(L10n.Sort.sectionBaseStats)
                     }
                 }
                 .listStyle(.insetGrouped)
             }
-            .navigationTitle("並び替え")
+            .navigationTitle(L10n.Sort.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完了") {
-                        dismiss()
+                    Button(action: { dismiss() }) {
+                        Text(L10n.Sort.done)
                     }
                 }
             }
         }
     }
 
-    private func sortButton(_ option: SortOption, label: String) -> some View {
+    private func sortButton(_ option: SortOption, label: LocalizedStringKey) -> some View {
         Button(action: {
             currentSortOption = option
             onSortChange(option)

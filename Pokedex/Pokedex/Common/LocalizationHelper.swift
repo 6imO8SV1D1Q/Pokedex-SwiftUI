@@ -317,6 +317,12 @@ enum L10n {
         }
     }
 
+    // MARK: - Ability Details
+    enum Ability {
+        static let hidden = LocalizedStringKey("ability.hidden")
+        static let loading = LocalizedStringKey("ability.loading")
+    }
+
     // MARK: - Settings
     enum Settings {
         static let title = LocalizedStringKey("settings.title")
@@ -327,5 +333,23 @@ enum L10n {
         static let versionPreference = LocalizedStringKey("settings.version_preference")
         static let dataSectionHeader = LocalizedStringKey("settings.data_section_header")
         static let dataSectionFooter = LocalizedStringKey("settings.data_section_footer")
+    }
+
+    // MARK: - Sort Options
+    enum Sort {
+        static let title = LocalizedStringKey("sort.title")
+        static let done = LocalizedStringKey("sort.done")
+        static let order = LocalizedStringKey("sort.order")
+        static let ascending = LocalizedStringKey("sort.ascending")
+        static let descending = LocalizedStringKey("sort.descending")
+        static let sectionBasic = LocalizedStringKey("sort.section_basic")
+        static let sectionBaseStats = LocalizedStringKey("sort.section_base_stats")
+        static let pokedexNumber = LocalizedStringKey("sort.pokedex_number")
+        static let attack = LocalizedStringKey("sort.attack")
+        static let defense = LocalizedStringKey("sort.defense")
+        static let specialAttack = LocalizedStringKey("sort.special_attack")
+        static let specialDefense = LocalizedStringKey("sort.special_defense")
+        static let speed = LocalizedStringKey("sort.speed")
+        static let totalStats = LocalizedStringKey("sort.total_stats")
     }
 }

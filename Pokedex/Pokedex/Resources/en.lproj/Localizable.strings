@@ -205,6 +205,26 @@
 "move.accuracy_label" = "Acc:";
 "move.pp_label" = "PP:";
 
+// MARK: - Ability Details
+"ability.hidden" = "Hidden";
+"ability.loading" = "Loading ability details...";
+
+// MARK: - Sort Options
+"sort.title" = "Sort";
+"sort.done" = "Done";
+"sort.order" = "Order";
+"sort.ascending" = "Ascending ↑";
+"sort.descending" = "Descending ↓";
+"sort.section_basic" = "Basic";
+"sort.section_base_stats" = "Base Stats";
+"sort.pokedex_number" = "Pokédex Number";
+"sort.attack" = "Attack";
+"sort.defense" = "Defense";
+"sort.special_attack" = "Sp. Atk";
+"sort.special_defense" = "Sp. Def";
+"sort.speed" = "Speed";
+"sort.total_stats" = "Total Stats";
+
 // MARK: - Settings
 "settings.title" = "Settings";
 "settings.done" = "Done";
