@@ -145,6 +145,55 @@ enum L10n {
         static func categoriesCount(_ count: Int) -> String {
             return String(format: NSLocalizedString("filter.categories_count", comment: ""), count)
         }
+
+        static let powerLabel = NSLocalizedString("filter.power_label", comment: "")
+        static let accuracyLabel = NSLocalizedString("filter.accuracy_label", comment: "")
+        static let ppLabel = NSLocalizedString("filter.pp_label", comment: "")
+        static let priorityLabel = NSLocalizedString("filter.priority_label", comment: "")
+
+        static func priorityValue(_ value: String) -> String {
+            return String(format: NSLocalizedString("filter.priority_value", comment: ""), value)
+        }
+
+        static func affectedTypesValue(_ value: String) -> String {
+            return String(format: NSLocalizedString("filter.affected_types_value", comment: ""), value)
+        }
+
+        static func targetValue(_ value: String) -> String {
+            return String(format: NSLocalizedString("filter.target_value", comment: ""), value)
+        }
+
+        static func statusConditionValue(_ value: String) -> String {
+            return String(format: NSLocalizedString("filter.status_condition_value", comment: ""), value)
+        }
+
+        static func recoveryValue(_ value: String) -> String {
+            return String(format: NSLocalizedString("filter.recovery_value", comment: ""), value)
+        }
+
+        static func statChangeValue(_ value: String) -> String {
+            return String(format: NSLocalizedString("filter.stat_change_value", comment: ""), value)
+        }
+
+        static func triggerValue(_ value: String) -> String {
+            return String(format: NSLocalizedString("filter.trigger_value", comment: ""), value)
+        }
+
+        static func effectValue(_ value: String) -> String {
+            return String(format: NSLocalizedString("filter.effect_value", comment: ""), value)
+        }
+
+        static func weatherValue(_ value: String) -> String {
+            return String(format: NSLocalizedString("filter.weather_value", comment: ""), value)
+        }
+
+        static func terrainValue(_ value: String) -> String {
+            return String(format: NSLocalizedString("filter.terrain_value", comment: ""), value)
+        }
+
+        static func categoryValue(_ value: String) -> String {
+            return String(format: NSLocalizedString("filter.category_value", comment: ""), value)
+        }
     }
 
     // MARK: - Move Targets

@@ -15,52 +15,52 @@ struct MoveMetadataConditionRow: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("条件\(index + 1)")
+                Text(L10n.Filter.condition(index + 1))
                     .font(.caption)
                     .fontWeight(.bold)
 
                 if !filter.types.isEmpty {
-                    Text("タイプ: \(filter.types.map { FilterHelpers.typeJapaneseName($0) }.joined(separator: ", "))")
+                    Text(L10n.Filter.affectedTypesValue(filter.types.map { FilterHelpers.typeJapaneseName($0) }.joined(separator: ", ")))
                         .font(.caption)
                 }
                 if !filter.damageClasses.isEmpty {
-                    Text("分類: \(filter.damageClasses.map { FilterHelpers.damageClassLabel($0) }.joined(separator: ", "))")
+                    Text(NSLocalizedString("filter.category", comment: "") + ": " + filter.damageClasses.map { FilterHelpers.damageClassLabel($0) }.joined(separator: ", "))
                         .font(.caption)
                 }
                 if let condition = filter.powerCondition {
-                    Text(condition.displayText(label: "威力"))
+                    Text(condition.displayText(label: L10n.Filter.powerLabel))
                         .font(.caption)
                 }
                 if let condition = filter.accuracyCondition {
-                    Text(condition.displayText(label: "命中率"))
+                    Text(condition.displayText(label: L10n.Filter.accuracyLabel))
                         .font(.caption)
                 }
                 if let condition = filter.ppCondition {
-                    Text(condition.displayText(label: "PP"))
+                    Text(condition.displayText(label: L10n.Filter.ppLabel))
                         .font(.caption)
                 }
                 if let priority = filter.priority {
-                    Text("優先度: \(priority >= 0 ? "+\(priority)" : "\(priority)")")
+                    Text(L10n.Filter.priorityValue(priority >= 0 ? "+\(priority)" : "\(priority)"))
                         .font(.caption)
                 }
                 if !filter.targets.isEmpty {
-                    Text("対象: \(filter.targets.map { FilterHelpers.targetJapaneseName($0) }.joined(separator: ", "))")
+                    Text(L10n.Filter.targetValue(filter.targets.map { FilterHelpers.targetJapaneseName($0) }.joined(separator: ", ")))
                         .font(.caption)
                 }
                 if !filter.ailments.isEmpty {
-                    Text("状態異常: \(filter.ailments.map { $0.rawValue }.joined(separator: ", "))")
+                    Text(L10n.Filter.statusConditionValue(filter.ailments.map { $0.rawValue }.joined(separator: ", ")))
                         .font(.caption)
                 }
                 if filter.hasDrain || filter.hasHealing {
-                    Text("回復: \(FilterHelpers.healingEffectsText(filter: filter))")
+                    Text(L10n.Filter.recoveryValue(FilterHelpers.healingEffectsText(filter: filter)))
                         .font(.caption)
                 }
                 if !filter.statChanges.isEmpty {
-                    Text("能力変化: \(filter.statChanges.map { $0.rawValue }.joined(separator: ", "))")
+                    Text(L10n.Filter.statChangeValue(filter.statChanges.map { $0.rawValue }.joined(separator: ", ")))
                         .font(.caption)
                 }
                 if !filter.categories.isEmpty {
-                    Text("カテゴリー: \(filter.categories.count)件")
+                    Text(L10n.Filter.categoriesCount(filter.categories.count))
                         .font(.caption)
                 }
             }

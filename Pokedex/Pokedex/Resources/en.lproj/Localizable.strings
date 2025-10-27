@@ -120,6 +120,22 @@
 "filter.activation_rate" = "Activation Rate";
 "filter.ability_category_description_empty" = "Filter by ability type";
 "filter.ability_category_description" = "Show Pokémon with abilities matching any selected category";
+"filter.power_label" = "Power";
+"filter.accuracy_label" = "Accuracy";
+"filter.pp_label" = "PP";
+"filter.priority_label" = "Priority";
+"filter.priority_value" = "Priority: %@";
+"filter.affected_types" = "Type";
+"filter.affected_types_value" = "Type: %@";
+"filter.target_value" = "Target: %@";
+"filter.status_condition_value" = "Status: %@";
+"filter.recovery_value" = "Recovery: %@";
+"filter.stat_change_value" = "Stat Changes: %@";
+"filter.trigger_value" = "Trigger: %@";
+"filter.effect_value" = "Effect: %@";
+"filter.weather_value" = "Weather: %@";
+"filter.terrain_value" = "Terrain: %@";
+"filter.category_value" = "Category: %@";
 
 // MARK: - Move Targets
 "target.selected_pokemon" = "Single Opponent";

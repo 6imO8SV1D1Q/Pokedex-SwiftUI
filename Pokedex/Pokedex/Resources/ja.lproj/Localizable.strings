@@ -120,6 +120,22 @@
 "filter.activation_rate" = "発動確率";
 "filter.ability_category_description_empty" = "特性の種類でフィルタリングできます";
 "filter.ability_category_description" = "選択したカテゴリのいずれかに該当する特性を持つポケモンを表示";
+"filter.power_label" = "威力";
+"filter.accuracy_label" = "命中率";
+"filter.pp_label" = "PP";
+"filter.priority_label" = "優先度";
+"filter.priority_value" = "優先度: %@";
+"filter.affected_types" = "タイプ";
+"filter.affected_types_value" = "タイプ: %@";
+"filter.target_value" = "対象: %@";
+"filter.status_condition_value" = "状態異常: %@";
+"filter.recovery_value" = "回復: %@";
+"filter.stat_change_value" = "能力変化: %@";
+"filter.trigger_value" = "発動: %@";
+"filter.effect_value" = "効果: %@";
+"filter.weather_value" = "天候: %@";
+"filter.terrain_value" = "フィールド: %@";
+"filter.category_value" = "カテゴリ: %@";
 
 // MARK: - Move Targets
 "target.selected_pokemon" = "相手1体";
