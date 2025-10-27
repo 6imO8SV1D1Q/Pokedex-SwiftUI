@@ -1,0 +1,137 @@
+/*
+   Localizable.strings (Japanese)
+   Pokedex
+   Created: 2025-10-27
+*/
+
+// MARK: - Common
+"common.ok" = "OK";
+"common.cancel" = "キャンセル";
+"common.add" = "追加";
+"common.save" = "保存";
+"common.delete" = "削除";
+"common.all" = "すべて";
+"common.loading" = "読み込み中...";
+"common.error" = "エラー";
+
+// MARK: - Stats
+"stat.hp" = "HP";
+"stat.attack" = "こうげき";
+"stat.defense" = "ぼうぎょ";
+"stat.special_attack" = "とくこう";
+"stat.special_defense" = "とくぼう";
+"stat.speed" = "すばやさ";
+"stat.total" = "合計";
+"stat.power" = "威力";
+"stat.accuracy" = "命中";
+"stat.pp" = "PP";
+"stat.priority" = "優先度";
+
+// MARK: - Types
+"type.normal" = "ノーマル";
+"type.fire" = "ほのお";
+"type.water" = "みず";
+"type.grass" = "くさ";
+"type.electric" = "でんき";
+"type.ice" = "こおり";
+"type.fighting" = "かくとう";
+"type.poison" = "どく";
+"type.ground" = "じめん";
+"type.flying" = "ひこう";
+"type.psychic" = "エスパー";
+"type.bug" = "むし";
+"type.rock" = "いわ";
+"type.ghost" = "ゴースト";
+"type.dragon" = "ドラゴン";
+"type.dark" = "あく";
+"type.steel" = "はがね";
+"type.fairy" = "フェアリー";
+
+// MARK: - Damage Classes
+"damage_class.physical" = "物理";
+"damage_class.special" = "特殊";
+"damage_class.status" = "変化";
+
+// MARK: - Sections
+"section.type_matchup" = "タイプ相性";
+"section.base_stats" = "種族値";
+"section.calculated_stats" = "実数値（Lv.50）";
+"section.abilities" = "特性";
+"section.moves" = "覚える技";
+"section.ecology" = "生態";
+"section.battle" = "バトル";
+
+// MARK: - Filters
+"filter.or" = "OR（いずれか）";
+"filter.and" = "AND（全て）";
+"filter.type" = "タイプ";
+"filter.category" = "分類";
+"filter.target" = "対象";
+"filter.status_condition" = "状態異常";
+"filter.stat_change_user" = "自分の能力変化";
+"filter.stat_change_opponent" = "相手の能力変化";
+"filter.condition" = "条件%d";
+"filter.condition_count" = "条件: %d件";
+"filter.selected_count" = "選択中: %d件";
+"filter.max_selection" = "最大4つまで選択可能 (%d/4)";
+"filter.hp_drain" = "HP吸収";
+"filter.hp_healing" = "HP回復";
+"filter.move_note" = "技の条件: メタデータで絞り込んだ技も含まれます";
+"filter.trigger" = "発動";
+"filter.effect" = "効果";
+"filter.weather" = "天候";
+"filter.terrain" = "フィールド";
+
+// MARK: - Move Targets
+"target.selected_pokemon" = "相手1体";
+"target.selected_pokemon_me_first" = "相手1体（先制）";
+"target.ally" = "味方1体";
+"target.users_field" = "自分の場";
+"target.user_or_ally" = "自分か味方";
+"target.opponents_field" = "相手の場";
+"target.user" = "自分";
+"target.random_opponent" = "ランダムな相手";
+"target.all_other_pokemon" = "自分以外";
+"target.all_opponents" = "相手全体";
+"target.entire_field" = "場全体";
+"target.user_and_allies" = "自分と味方";
+"target.all_pokemon" = "場の全員";
+"target.all_allies" = "味方全体";
+"target.specific_move" = "特定の技";
+"target.fainting_pokemon" = "ひんし直前";
+
+// MARK: - Messages
+"message.loading" = "読み込み中...";
+"message.registering_data" = "データ登録中...";
+"message.loading_failed" = "ポケモンの読み込みに失敗しました: %@";
+"message.unexpected_error" = "予期しないエラーが発生しました: %@";
+"message.progress" = "%d / %d";
+"message.percent" = "%d%%";
+
+// MARK: - Pokemon List
+"pokemon_list.title" = "Pokédex";
+"pokemon_list.filter_result" = "絞り込み結果: %d匹";
+"pokemon_list.total_count" = "全%d匹";
+"pokemon_list.count_separator" = " / ";
+
+// MARK: - Pokemon Detail
+"pokemon_detail.normal" = "通常";
+"pokemon_detail.shiny" = "色違い";
+"pokemon_detail.ability_label" = "特性:";
+"pokemon_detail.hidden_ability" = " (隠れ特性)";
+"pokemon_detail.ability_overflow" = "+%d";
+"pokemon_detail.flavor_text_source" = "出典: %@";
+"pokemon_detail.level" = "Lv.%d";
+"pokemon_detail.height" = "%.1f m";
+"pokemon_detail.weight" = "%.1f kg";
+
+// MARK: - Move Learn Methods
+"learn_method.level_up" = "レベルアップ";
+"learn_method.egg" = "タマゴ技";
+"learn_method.tutor" = "教え技";
+"learn_method.machine" = "わざマシン";
+
+// MARK: - Accessibility
+"accessibility.pokemon_image" = "ポケモン画像";
+"accessibility.type_icon" = "タイプアイコン";
+"accessibility.ability_icon" = "特性アイコン";

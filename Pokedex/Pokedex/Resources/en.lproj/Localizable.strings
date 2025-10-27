@@ -1,0 +1,137 @@
+/*
+   Localizable.strings (English)
+   Pokedex
+   Created: 2025-10-27
+*/
+
+// MARK: - Common
+"common.ok" = "OK";
+"common.cancel" = "Cancel";
+"common.add" = "Add";
+"common.save" = "Save";
+"common.delete" = "Delete";
+"common.all" = "All";
+"common.loading" = "Loading...";
+"common.error" = "Error";
+
+// MARK: - Stats
+"stat.hp" = "HP";
+"stat.attack" = "Attack";
+"stat.defense" = "Defense";
+"stat.special_attack" = "Sp. Atk";
+"stat.special_defense" = "Sp. Def";
+"stat.speed" = "Speed";
+"stat.total" = "Total";
+"stat.power" = "Power";
+"stat.accuracy" = "Accuracy";
+"stat.pp" = "PP";
+"stat.priority" = "Priority";
+
+// MARK: - Types
+"type.normal" = "Normal";
+"type.fire" = "Fire";
+"type.water" = "Water";
+"type.grass" = "Grass";
+"type.electric" = "Electric";
+"type.ice" = "Ice";
+"type.fighting" = "Fighting";
+"type.poison" = "Poison";
+"type.ground" = "Ground";
+"type.flying" = "Flying";
+"type.psychic" = "Psychic";
+"type.bug" = "Bug";
+"type.rock" = "Rock";
+"type.ghost" = "Ghost";
+"type.dragon" = "Dragon";
+"type.dark" = "Dark";
+"type.steel" = "Steel";
+"type.fairy" = "Fairy";
+
+// MARK: - Damage Classes
+"damage_class.physical" = "Physical";
+"damage_class.special" = "Special";
+"damage_class.status" = "Status";
+
+// MARK: - Sections
+"section.type_matchup" = "Type Matchups";
+"section.base_stats" = "Base Stats";
+"section.calculated_stats" = "Stats (Lv.50)";
+"section.abilities" = "Abilities";
+"section.moves" = "Moves";
+"section.ecology" = "Ecology";
+"section.battle" = "Battle";
+
+// MARK: - Filters
+"filter.or" = "OR (Any)";
+"filter.and" = "AND (All)";
+"filter.type" = "Type";
+"filter.category" = "Category";
+"filter.target" = "Target";
+"filter.status_condition" = "Status";
+"filter.stat_change_user" = "User Stat Changes";
+"filter.stat_change_opponent" = "Opponent Stat Changes";
+"filter.condition" = "Condition %d";
+"filter.condition_count" = "Conditions: %d";
+"filter.selected_count" = "Selected: %d";
+"filter.max_selection" = "Max 4 selections (%d/4)";
+"filter.hp_drain" = "HP Drain";
+"filter.hp_healing" = "HP Healing";
+"filter.move_note" = "Note: Includes moves filtered by metadata";
+"filter.trigger" = "Trigger";
+"filter.effect" = "Effect";
+"filter.weather" = "Weather";
+"filter.terrain" = "Terrain";
+
+// MARK: - Move Targets
+"target.selected_pokemon" = "Single Opponent";
+"target.selected_pokemon_me_first" = "Single Opponent (Me First)";
+"target.ally" = "Single Ally";
+"target.users_field" = "User's Field";
+"target.user_or_ally" = "User or Ally";
+"target.opponents_field" = "Opponent's Field";
+"target.user" = "User";
+"target.random_opponent" = "Random Opponent";
+"target.all_other_pokemon" = "All Others";
+"target.all_opponents" = "All Opponents";
+"target.entire_field" = "Entire Field";
+"target.user_and_allies" = "User and Allies";
+"target.all_pokemon" = "All Pokémon";
+"target.all_allies" = "All Allies";
+"target.specific_move" = "Specific Move";
+"target.fainting_pokemon" = "Fainting Pokémon";
+
+// MARK: - Messages
+"message.loading" = "Loading...";
+"message.registering_data" = "Registering data...";
+"message.loading_failed" = "Failed to load Pokémon: %@";
+"message.unexpected_error" = "An unexpected error occurred: %@";
+"message.progress" = "%d / %d";
+"message.percent" = "%d%%";
+
+// MARK: - Pokemon List
+"pokemon_list.title" = "Pokédex";
+"pokemon_list.filter_result" = "Filtered: %d";
+"pokemon_list.total_count" = "Total: %d";
+"pokemon_list.count_separator" = " / ";
+
+// MARK: - Pokemon Detail
+"pokemon_detail.normal" = "Normal";
+"pokemon_detail.shiny" = "Shiny";
+"pokemon_detail.ability_label" = "Abilities:";
+"pokemon_detail.hidden_ability" = " (Hidden)";
+"pokemon_detail.ability_overflow" = "+%d";
+"pokemon_detail.flavor_text_source" = "Source: %@";
+"pokemon_detail.level" = "Lv.%d";
+"pokemon_detail.height" = "%.1f m";
+"pokemon_detail.weight" = "%.1f kg";
+
+// MARK: - Move Learn Methods
+"learn_method.level_up" = "Level Up";
+"learn_method.egg" = "Egg Move";
+"learn_method.tutor" = "Tutor";
+"learn_method.machine" = "TM/HM";
+
+// MARK: - Accessibility
+"accessibility.pokemon_image" = "Pokémon Image";
+"accessibility.type_icon" = "Type Icon";
+"accessibility.ability_icon" = "Ability Icon";
