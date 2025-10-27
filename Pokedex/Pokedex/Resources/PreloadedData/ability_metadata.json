@@ -4962,7 +4962,7 @@
       "special_mechanic"
     ],
     "effect": "",
-    "effectJa": "",
+    "effectJa": "このポケモンはきんちょうかんといななきの2つの特性を同時に持つ。\n\nきんちょうかん：相手はきのみを使用できない。\n\nいななき：相手をひんし状態にすると、攻撃が1段階上がる。",
     "effects": [
       {
         "effectType": "unknown",
@@ -4980,7 +4980,7 @@
       "special_mechanic"
     ],
     "effect": "",
-    "effectJa": "",
+    "effectJa": "このポケモンはきんちょうかんとくろいいななきの2つの特性を同時に持つ。\n\nきんちょうかん：相手はきのみを使用できない。\n\nくろいいななき：相手をひんし状態にすると、特攻が1段階上がる。",
     "effects": [
       {
         "effectType": "unknown",
