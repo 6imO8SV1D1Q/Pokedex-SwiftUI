@@ -33,7 +33,7 @@ struct PokemonLoadingView: View {
             if isLoading {
                 VStack {
                     ProgressView()
-                    Text("読み込み中...")
+                    Text(L10n.Common.loading)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -68,7 +68,7 @@ struct PokemonLoadingView: View {
             pokemon = fetchedPokemon
             onLoaded(fetchedPokemon)
         } catch {
-            errorMessage = "ポケモンの読み込みに失敗しました: \(error.localizedDescription)"
+            errorMessage = L10n.Message.loadingFailed(error.localizedDescription)
         }
 
         isLoading = false
