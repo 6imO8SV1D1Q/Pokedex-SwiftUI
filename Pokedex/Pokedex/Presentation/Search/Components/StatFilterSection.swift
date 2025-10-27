@@ -23,7 +23,7 @@ struct StatFilterSection: View {
                             .font(.body)
 
                         // 最小値入力
-                        TextField("最小", text: binding(for: statType, isMin: true))
+                        TextField(L10n.Filter.min, text: binding(for: statType, isMin: true))
                             .keyboardType(.numberPad)
                             .textFieldStyle(.roundedBorder)
                             .frame(width: 70)
@@ -35,7 +35,7 @@ struct StatFilterSection: View {
                             .foregroundColor(.secondary)
 
                         // 最大値入力
-                        TextField("最大", text: binding(for: statType, isMin: false))
+                        TextField(L10n.Filter.max, text: binding(for: statType, isMin: false))
                             .keyboardType(.numberPad)
                             .textFieldStyle(.roundedBorder)
                             .frame(width: 70)
@@ -60,12 +60,12 @@ struct StatFilterSection: View {
             }
             .padding(.vertical, 8)
         } header: {
-            Text("種族値")
+            Text(L10n.Filter.baseStats)
         } footer: {
             if statFilterConditions.isEmpty {
-                Text("ポケモンの種族値で絞り込みます")
+                Text(L10n.Filter.baseStatsDescription)
             } else {
-                Text("条件: \(statFilterConditions.count)件")
+                Text(L10n.Filter.conditionCount(statFilterConditions.count))
             }
         }
         .onAppear {

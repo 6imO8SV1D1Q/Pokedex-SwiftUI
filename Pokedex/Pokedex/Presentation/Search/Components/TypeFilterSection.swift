@@ -25,9 +25,9 @@ struct TypeFilterSection: View {
 
     var body: some View {
         Section {
-            Picker("検索モード", selection: $filterMode) {
-                Text("OR（いずれか）").tag(FilterMode.or)
-                Text("AND（全て）").tag(FilterMode.and)
+            Picker(L10n.Filter.searchMode, selection: $filterMode) {
+                Text(L10n.Filter.or).tag(FilterMode.or)
+                Text(L10n.Filter.and).tag(FilterMode.and)
             }
             .pickerStyle(.segmented)
 
@@ -42,11 +42,9 @@ struct TypeFilterSection: View {
             }
             .padding(.vertical, 8)
         } header: {
-            Text("タイプ")
+            Text(L10n.Filter.type)
         } footer: {
-            Text(filterMode == .or
-                 ? "選択したタイプのいずれかを持つポケモンを表示"
-                 : "選択したタイプを全て持つポケモンを表示")
+            Text(filterMode == .or ? L10n.Filter.typeOrDescription : L10n.Filter.typeAndDescription)
         }
     }
 

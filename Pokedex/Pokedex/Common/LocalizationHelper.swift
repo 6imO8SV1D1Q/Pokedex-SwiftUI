@@ -90,6 +90,39 @@ enum L10n {
         static let effect = LocalizedStringKey("filter.effect")
         static let weather = LocalizedStringKey("filter.weather")
         static let terrain = LocalizedStringKey("filter.terrain")
+        static let searchMode = LocalizedStringKey("filter.search_mode")
+        static let min = LocalizedStringKey("filter.min")
+        static let max = LocalizedStringKey("filter.max")
+        static let baseStats = LocalizedStringKey("filter.base_stats")
+        static let baseStatsDescription = LocalizedStringKey("filter.base_stats_description")
+        static let evolution = LocalizedStringKey("filter.evolution")
+        static let evolutionStageLabel = LocalizedStringKey("filter.evolution_stage_label")
+        static let evolutionAllDescription = LocalizedStringKey("filter.evolution_all_description")
+        static let evolutionFinalDescription = LocalizedStringKey("filter.evolution_final_description")
+        static let evolutionEvioliteDescription = LocalizedStringKey("filter.evolution_eviolite_description")
+        static let typeOrDescription = LocalizedStringKey("filter.type_or_description")
+        static let typeAndDescription = LocalizedStringKey("filter.type_and_description")
+        static let region = LocalizedStringKey("filter.region")
+        static let regionDescription = LocalizedStringKey("filter.region_description")
+        static let ability = LocalizedStringKey("filter.ability")
+        static let abilitySearchPlaceholder = LocalizedStringKey("filter.ability_search_placeholder")
+        static let abilityAddCondition = LocalizedStringKey("filter.ability_add_condition")
+        static let abilityConditionsHeader = LocalizedStringKey("filter.ability_conditions_header")
+        static let abilityOrDescription = LocalizedStringKey("filter.ability_or_description")
+        static let abilityAndDescription = LocalizedStringKey("filter.ability_and_description")
+        static let abilityCategory = LocalizedStringKey("filter.ability_category")
+        static let move = LocalizedStringKey("filter.move")
+        static let moveSearchPlaceholder = LocalizedStringKey("filter.move_search_placeholder")
+        static let moveAddCondition = LocalizedStringKey("filter.move_add_condition")
+        static let moveConditionsHeader = LocalizedStringKey("filter.move_conditions_header")
+        static let moveOrDescription = LocalizedStringKey("filter.move_or_description")
+        static let moveAndDescription = LocalizedStringKey("filter.move_and_description")
+        static let recovery = LocalizedStringKey("filter.recovery")
+        static let statChange = LocalizedStringKey("filter.stat_change")
+        static let categories = LocalizedStringKey("filter.categories")
+        static let statMultiplier = LocalizedStringKey("filter.stat_multiplier")
+        static let movePowerMultiplier = LocalizedStringKey("filter.move_power_multiplier")
+        static let activationRate = LocalizedStringKey("filter.activation_rate")
 
         static func condition(_ number: Int) -> String {
             return String(format: NSLocalizedString("filter.condition", comment: ""), number)
@@ -105,6 +138,10 @@ enum L10n {
 
         static func maxSelection(_ current: Int) -> String {
             return String(format: NSLocalizedString("filter.max_selection", comment: ""), current)
+        }
+
+        static func categoriesCount(_ count: Int) -> String {
+            return String(format: NSLocalizedString("filter.categories_count", comment: ""), count)
         }
     }
 

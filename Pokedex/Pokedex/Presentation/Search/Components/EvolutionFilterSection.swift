@@ -12,22 +12,22 @@ struct EvolutionFilterSection: View {
 
     var body: some View {
         Section {
-            Picker("表示する進化段階", selection: $evolutionFilterMode) {
+            Picker(L10n.Filter.evolutionStageLabel, selection: $evolutionFilterMode) {
                 ForEach(EvolutionFilterMode.allCases) { mode in
                     Text(mode.rawValue).tag(mode)
                 }
             }
             .pickerStyle(.menu)
         } header: {
-            Text("進化")
+            Text(L10n.Filter.evolution)
         } footer: {
             switch evolutionFilterMode {
             case .all:
-                Text("全ての進化段階のポケモンを表示します")
+                Text(L10n.Filter.evolutionAllDescription)
             case .finalOnly:
-                Text("最終進化形のポケモンのみを表示します")
+                Text(L10n.Filter.evolutionFinalDescription)
             case .evioliteOnly:
-                Text("進化のきせきが使用可能なポケモン（進化前・進化途中）のみを表示します")
+                Text(L10n.Filter.evolutionEvioliteDescription)
             }
         }
     }
