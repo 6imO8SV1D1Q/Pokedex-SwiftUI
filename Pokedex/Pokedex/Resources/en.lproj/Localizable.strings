@@ -62,6 +62,9 @@
 "section.battle" = "Battle";
 
 // MARK: - Filters
+"filter.title" = "Filters";
+"filter.clear" = "Clear";
+"filter.apply" = "Apply";
 "filter.or" = "OR (Any)";
 "filter.and" = "AND (All)";
 "filter.type" = "Type";
@@ -130,12 +133,25 @@
 "pokemon_detail.level" = "Lv.%d";
 "pokemon_detail.height" = "%.1f m";
 "pokemon_detail.weight" = "%.1f kg";
+"pokemon_detail.gender_ratio" = "Gender Ratio";
+"pokemon_detail.egg_groups" = "Egg Groups";
+"pokemon_detail.evolution" = "Evolution";
 
 // MARK: - Move Learn Methods
 "learn_method.level_up" = "Level Up";
 "learn_method.egg" = "Egg Move";
 "learn_method.tutor" = "Tutor";
 "learn_method.machine" = "TM/HM";
+
+// MARK: - Settings
+"settings.title" = "Settings";
+"settings.done" = "Done";
+"settings.language" = "Language";
+"settings.display_section_header" = "Display";
+"settings.display_section_footer" = "Change the display language of the app. Type names and other content will be shown in the selected language.";
+"settings.version_preference" = "Pokédex Version";
+"settings.data_section_header" = "Pokédex Data";
+"settings.data_section_footer" = "Choose which Pokédex description to display when Scarlet and Violet have different entries.";
 
 // MARK: - Accessibility
 "accessibility.pokemon_image" = "Pokémon Image";

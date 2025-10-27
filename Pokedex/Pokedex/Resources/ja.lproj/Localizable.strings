@@ -62,6 +62,9 @@
 "section.battle" = "バトル";
 
 // MARK: - Filters
+"filter.title" = "フィルター";
+"filter.clear" = "クリア";
+"filter.apply" = "適用";
 "filter.or" = "OR（いずれか）";
 "filter.and" = "AND（全て）";
 "filter.type" = "タイプ";
@@ -130,12 +133,25 @@
 "pokemon_detail.level" = "Lv.%d";
 "pokemon_detail.height" = "%.1f m";
 "pokemon_detail.weight" = "%.1f kg";
+"pokemon_detail.gender_ratio" = "性別比";
+"pokemon_detail.egg_groups" = "たまごグループ";
+"pokemon_detail.evolution" = "進化";
 
 // MARK: - Move Learn Methods
 "learn_method.level_up" = "レベルアップ";
 "learn_method.egg" = "タマゴ技";
 "learn_method.tutor" = "教え技";
 "learn_method.machine" = "わざマシン";
+
+// MARK: - Settings
+"settings.title" = "設定";
+"settings.done" = "完了";
+"settings.language" = "言語";
+"settings.display_section_header" = "表示設定";
+"settings.display_section_footer" = "アプリの表示言語を変更できます。タイプ名などが選択した言語で表示されます。";
+"settings.version_preference" = "図鑑説明バージョン";
+"settings.data_section_header" = "図鑑データ";
+"settings.data_section_footer" = "スカーレット・バイオレットで図鑑説明が異なる場合、どちらを表示するか選択できます。";
 
 // MARK: - Accessibility
 "accessibility.pokemon_image" = "ポケモン画像";

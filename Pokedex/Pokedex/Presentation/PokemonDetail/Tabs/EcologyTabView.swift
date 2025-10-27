@@ -51,7 +51,7 @@ struct EcologyTabView: View {
         VStack(spacing: DesignConstants.Spacing.small) {
             // 性別比
             HStack {
-                Text("性別比")
+                Text(L10n.PokemonDetail.genderRatio)
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Spacer()
@@ -65,7 +65,7 @@ struct EcologyTabView: View {
 
             // たまごグループ
             HStack {
-                Text("たまごグループ")
+                Text(L10n.PokemonDetail.eggGroups)
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Spacer()
@@ -90,7 +90,7 @@ struct EcologyTabView: View {
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text("出典: \(flavorText.versionGroup)")
+            Text(L10n.PokemonDetail.flavorTextSource(flavorText.versionGroup))
                 .font(.caption2)
                 .foregroundColor(.secondary)
         }
@@ -104,7 +104,7 @@ struct EcologyTabView: View {
 
     private func evolutionChainView(_ chain: EvolutionChainEntity) -> some View {
         VStack(alignment: .leading, spacing: DesignConstants.Spacing.small) {
-            Text("進化")
+            Text(L10n.PokemonDetail.evolution)
                 .font(.headline)
 
             EvolutionChainView(

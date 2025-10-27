@@ -72,6 +72,9 @@ enum L10n {
 
     // MARK: - Filters
     enum Filter {
+        static let title = LocalizedStringKey("filter.title")
+        static let clear = LocalizedStringKey("filter.clear")
+        static let apply = LocalizedStringKey("filter.apply")
         static let or = LocalizedStringKey("filter.or")
         static let and = LocalizedStringKey("filter.and")
         static let type = LocalizedStringKey("filter.type")
@@ -167,6 +170,9 @@ enum L10n {
         static let shiny = LocalizedStringKey("pokemon_detail.shiny")
         static let abilityLabel = LocalizedStringKey("pokemon_detail.ability_label")
         static let hiddenAbility = NSLocalizedString("pokemon_detail.hidden_ability", comment: "")
+        static let genderRatio = LocalizedStringKey("pokemon_detail.gender_ratio")
+        static let eggGroups = LocalizedStringKey("pokemon_detail.egg_groups")
+        static let evolution = LocalizedStringKey("pokemon_detail.evolution")
 
         static func abilityOverflow(_ count: Int) -> String {
             return String(format: NSLocalizedString("pokemon_detail.ability_overflow", comment: ""), count)
@@ -195,5 +201,17 @@ enum L10n {
         static let egg = LocalizedStringKey("learn_method.egg")
         static let tutor = LocalizedStringKey("learn_method.tutor")
         static let machine = LocalizedStringKey("learn_method.machine")
+    }
+
+    // MARK: - Settings
+    enum Settings {
+        static let title = LocalizedStringKey("settings.title")
+        static let done = LocalizedStringKey("settings.done")
+        static let language = LocalizedStringKey("settings.language")
+        static let displaySectionHeader = LocalizedStringKey("settings.display_section_header")
+        static let displaySectionFooter = LocalizedStringKey("settings.display_section_footer")
+        static let versionPreference = LocalizedStringKey("settings.version_preference")
+        static let dataSectionHeader = LocalizedStringKey("settings.data_section_header")
+        static let dataSectionFooter = LocalizedStringKey("settings.data_section_footer")
     }
 }

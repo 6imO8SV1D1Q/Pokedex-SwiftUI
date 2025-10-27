@@ -17,7 +17,7 @@ struct BattleTabView: View {
             VStack(spacing: 20) {
                 // タイプ相性
                 if let matchup = viewModel.typeMatchup {
-                    GroupBoxSection(title: "タイプ相性", icon: "shield.fill") {
+                    GroupBoxSection(title: NSLocalizedString("section.type_matchup", comment: ""), icon: "shield.fill") {
                         TypeMatchupView(matchup: matchup)
                             .padding(.horizontal, -16)
                             .padding(.vertical, -12)
@@ -25,13 +25,13 @@ struct BattleTabView: View {
                 }
 
                 // 種族値
-                GroupBoxSection(title: "種族値", icon: "chart.bar.fill") {
+                GroupBoxSection(title: NSLocalizedString("section.base_stats", comment: ""), icon: "chart.bar.fill") {
                     PokemonStatsView(stats: viewModel.displayStats)
                 }
 
                 // 実数値
                 if let calculatedStats = viewModel.calculatedStats {
-                    GroupBoxSection(title: "実数値（Lv.50）", icon: "number") {
+                    GroupBoxSection(title: NSLocalizedString("section.calculated_stats", comment: ""), icon: "number") {
                         CalculatedStatsView(
                             stats: calculatedStats,
                             baseStats: viewModel.displayStats
@@ -42,7 +42,7 @@ struct BattleTabView: View {
                 }
 
                 // 特性
-                GroupBoxSection(title: "特性", icon: "star.fill") {
+                GroupBoxSection(title: NSLocalizedString("section.abilities", comment: ""), icon: "star.fill") {
                     if !viewModel.abilityDetails.isEmpty {
                         AbilitiesView(
                             abilities: viewModel.displayAbilities,
@@ -62,7 +62,7 @@ struct BattleTabView: View {
                 }
 
                 // 覚える技
-                GroupBoxSection(title: "覚える技", icon: "bolt.fill") {
+                GroupBoxSection(title: NSLocalizedString("section.moves", comment: ""), icon: "bolt.fill") {
                     MovesView(
                         moves: viewModel.pokemon.moves,
                         moveDetails: viewModel.moveDetails,
