@@ -64,6 +64,7 @@ final class MoveRepository: MoveRepositoryProtocol {
                 pp: model.pp,
                 damageClass: model.damageClass,
                 effect: model.effect,
+                effectJa: model.effectJa,
                 machineNumber: nil,  // TODO: 技マシン番号は別途管理
                 categories: model.categories,
                 priority: model.priority,
@@ -193,6 +194,7 @@ final class MoveRepository: MoveRepositoryProtocol {
                     pp: moveModel.pp,
                     damageClass: moveModel.damageClass,
                     effect: moveModel.effect,
+                    effectJa: moveModel.effectJa,
                     machineNumber: learnedMove.machineNumber,
                     categories: moveModel.categories,
                     priority: moveModel.priority,
@@ -261,6 +263,7 @@ final class MoveRepository: MoveRepositoryProtocol {
             pp: model.pp,
             damageClass: model.damageClass,
             effect: model.effect,
+            effectJa: model.effectJa,
             machineNumber: nil,  // TODO: 技マシン番号の管理
             categories: model.categories,
             priority: model.priority,

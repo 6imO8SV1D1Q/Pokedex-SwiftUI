@@ -71,7 +71,8 @@ final class AbilityRepository: AbilityRepositoryProtocol {
             id: model.id,
             name: model.name,
             effect: model.effect,
-            flavorText: model.effectJa.isEmpty ? nil : model.effectJa,
+            effectJa: model.effectJa.isEmpty ? nil : model.effectJa,
+            flavorText: nil,  // フレーバーテキストは別データ（現状未使用）
             isHidden: false  // isHiddenはポケモンとの関係性なのでここでは不明
         )
 
@@ -99,7 +100,8 @@ final class AbilityRepository: AbilityRepositoryProtocol {
             id: model.id,
             name: model.name,
             effect: model.effect,
-            flavorText: model.effectJa.isEmpty ? nil : model.effectJa,
+            effectJa: model.effectJa.isEmpty ? nil : model.effectJa,
+            flavorText: nil,  // フレーバーテキストは別データ（現状未使用）
             isHidden: false  // isHiddenはポケモンとの関係性なのでここでは不明
         )
 
