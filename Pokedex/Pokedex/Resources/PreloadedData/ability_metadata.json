@@ -1859,7 +1859,7 @@
       "special_mechanic"
     ],
     "effect": "Each stage of this Pokémon's stat modifiers acts as two stages.  These doubled stages are still limited to a minimum of -6 and a maximum of 6.\n\nThis Pokémon can still accumulate less than -3 or more than 3 stages of stat modifiers, even though the extra ones have no effect after doubling.",
-    "effectJa": "このポケモンの能力ランクの変化が通常の2倍になる。1段階上昇する効果は2段階上昇し、1段階下降する効果は2段階下降する。\n\n能力ランクは-6〜+6の範囲に制限される。この特性を持つポケモンはバトンタッチで能力変化を渡す時も2倍として扱われる。",
+    "effectJa": "このポケモンの能力ランクの変化が通常の2倍になる。1段階上昇する効果は2段階上昇し、1段階下降する効果は2段階下降する。\n\n能力ランクは-6〜+6の範囲に制限される。",
     "effects": [
       {
         "effectType": "unknown",
@@ -2315,7 +2315,7 @@
       "special_mechanic"
     ],
     "effect": "When this Pokémon enters battle, if one of its opponents has a move that is super effective against it, self destruct, explosion, or a one-hit knockout move, all participating trainers are notified.\n\nThe move itself is not revealed; only that there is such a move.  Moves that inflict typeless damage, such as future sight, and moves of variable type, such as hidden power, count as their listed types.  counter, metal burst, mirror coat, and one-hit KO moves to which this Pokémon is immune do not trigger this ability.",
-    "effectJa": "このポケモンが場に出た時、相手が効果抜群の技、一撃必殺技、だいばくはつ、じばくを持っている場合に反応して「〜は 　ふるえている！」と表示される。\n\n複数の相手がいる場合、そのうち1匹でも該当する技を持っていれば反応する。\n\nフィールド：このポケモンが先頭にいると、タマゴが見つかりやすくなる。",
+    "effectJa": "このポケモンが場に出た時、相手が効果抜群の技、一撃必殺技、だいばくはつ、じばくを持っている場合に反応して「〜は 　みぶるいした！」と表示される。\n\n複数の相手がいる場合、そのうち1匹でも該当する技を持っていれば反応する。",
     "effects": [
       {
         "effectType": "unknown",
@@ -2351,7 +2351,7 @@
       "special_mechanic"
     ],
     "effect": "This Pokémon ignores other Pokémon's stat modifiers for the purposes of damage and accuracy calculation.\n\nEffectively, this affects modifiers of every stat except Speed.\n\nThe power of punishment and stored power is calculated as usual.  When this Pokémon hurts itself in confusion, its stat modifiers affect damage as usual.",
-    "effectJa": "このポケモンは相手の能力ランク変化を無視してダメージ計算と命中判定を行う。\n\n相手の攻撃・特攻の上昇、防御・特防・回避率の上昇、このポケモンの防御・特防・命中率の下降を全て無視する。ただし、素早さと急所率の変化は無視しない。",
+    "effectJa": "このポケモンは相手の能力ランク変化を無視してダメージ計算と命中判定を行う。\n\n相手の攻撃・特攻の上昇、防御・特防・回避率の上昇、このポケモンの防御・特防・命中率の下降を全て無視する。ただし、素早さの変化は無視しない。",
     "effects": [
       {
         "effectType": "unknown",
@@ -3001,7 +3001,7 @@
       "random_effect"
     ],
     "effect": "After each turn, one of this Pokémon's stats at random rises two stages, and another falls one stage.\n\nIf a stat is already at 6 or -6 stages, it will not be chosen to be increased or decreased, respectively.",
-    "effectJa": "毎ターン終了時、このポケモンのランダムな能力が2段階上がり、別のランダムな能力が1段階下がる。\n\n能力が既に最大（+6）または最小（-6）の場合、その能力は選ばれない。すべての能力が+6の場合は効果が発動しない。",
+    "effectJa": "毎ターン終了時、このポケモンのランダムな能力が2段階上がり、別のランダムな能力が1段階下がる。\n\n能力が既に最大（+6）または最小（-6）の場合、その能力は選ばれない。",
     "effects": [
       {
         "effectType": "random_stat_change",
@@ -3161,7 +3161,7 @@
       "special_mechanic"
     ],
     "effect": "This Pokémon's moves have 1.3× their power when it moves last in a turn.\n\nfuture sight and doom desire are unaffected.",
-    "effectJa": "このポケモンが後攻で攻撃した時、技の威力が1.3倍になる。\n\n同じターンに行動する相手より後に行動した場合に適用される。相手が技を使用せずに交代したり、道具を使用した場合も後攻として扱われる。未来予知、破滅の願いには効果がない。",
+    "effectJa": "このポケモンが後攻で攻撃した時、技の威力が1.3倍になる。\n\n同じターンに行動する相手より後に行動した場合に適用される。相手が技を使用せずに交代したり、道具を使用した場合も後攻として扱われる。みらいよち、はめつのねがいには効果がない。",
     "effects": [
       {
         "effectType": "unknown",
@@ -3476,7 +3476,7 @@
       "special_mechanic"
     ],
     "effect": "Protects friendly grass Pokémon from having their stats lowered by other Pokémon.",
-    "effectJa": "くさタイプの味方は、能力ランクを下げられず、状態異常にもならない。このポケモン自身がくさタイプでなくても効果が発動する。",
+    "effectJa": "くさタイプの味方は、能力ランクを下げられず、状態異常にもならない。",
     "effects": [
       {
         "effectType": "unknown",
@@ -4402,7 +4402,7 @@
       "special_mechanic"
     ],
     "effect": "This Pokémon's stats cannot be lowered by other Pokémon's moves or abilities.  This effect only applies to normal stat modifications and not more exotic effects such as topsy turvy or power swap.\n\nThis Ability is not bypassed by mold breaker, teravolt, or turboblaze.",
-    "effectJa": "このポケモンは相手の技や特性によって能力ランクを下げられない。\n\nこの特性はクリアボディ、しろいけむりと同じ効果。自分で能力ランクを下げる技は通常通り機能する。ソルガレオ、ドーブル専用。",
+    "effectJa": "このポケモンは相手の技や特性によって能力ランクを下げられない。\n\nこの特性はクリアボディ、しろいけむりと同じ効果。自分で能力ランクを下げる技は通常通り機能する。ソルガレオ専用。",
     "effects": [
       {
         "effectType": "unknown",
@@ -5219,7 +5219,7 @@
       "special_mechanic"
     ],
     "effect": "The Pokémon transforms into its Hero Form when it switches out.",
-    "effectJa": "パルデアウーラオス専用の特性。戦闘終了後、マイティフォルムにフォルムチェンジする。手持ちに戻すとマイティフォルムを維持する。",
+    "effectJa": "イルカマン専用の特性。戦闘終了後、マイティフォルムにフォルムチェンジする。手持ちに戻すとマイティフォルムを維持する。",
     "effects": [
       {
         "effectType": "unknown",
