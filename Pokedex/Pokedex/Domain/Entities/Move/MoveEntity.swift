@@ -25,8 +25,10 @@ struct MoveEntity: Identifiable, Equatable {
     let pp: Int?
     /// ダメージクラス（"physical", "special", "status"）
     let damageClass: String
-    /// 技の説明文（effectテキスト）
+    /// 技の説明文（英語）
     let effect: String?
+    /// 技の説明文（日本語）
+    let effectJa: String?
     /// 技マシン番号（例: "TM24", "HM03", "TR12"）
     let machineNumber: String?
     /// 技カテゴリー（例: ["sound", "punch"]）
@@ -93,6 +95,16 @@ struct MoveEntity: Identifiable, Equatable {
     /// 説明文の表示用テキスト
     var displayEffect: String {
         effect ?? "説明なし"
+    }
+
+    /// 現在の言語設定に応じた説明文を返す
+    func localizedEffect(language: AppLanguage) -> String {
+        switch language {
+        case .japanese:
+            return effectJa ?? effect ?? "説明なし"
+        case .english:
+            return effect ?? "No description"
+        }
     }
 }
 
