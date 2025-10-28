@@ -585,3 +585,34 @@
 "move_category.slash" = "切る技";
 "move_category.contact" = "接触技";
 "move_category.defrost" = "こおり解除";
+
+// MARK: - Egg Groups
+"egg_group.monster" = "かいじゅう";
+"egg_group.water1" = "すいちゅう1";
+"egg_group.water2" = "すいちゅう2";
+"egg_group.water3" = "すいちゅう3";
+"egg_group.bug" = "むし";
+"egg_group.flying" = "ひこう";
+"egg_group.field" = "りくじょう";
+"egg_group.fairy" = "ようせい";
+"egg_group.grass" = "しょくぶつ";
+"egg_group.plant" = "しょくぶつ";
+"egg_group.human_like" = "ひとがた";
+"egg_group.mineral" = "こうぶつ";
+"egg_group.amorphous" = "ふていけい";
+"egg_group.ditto" = "メタモン";
+"egg_group.dragon" = "ドラゴン";
+"egg_group.undiscovered" = "みはっけん";
+
+// MARK: - Stats Pattern Names
+"pattern_name.ideal" = "理想";
+"pattern_name.max" = "252";
+"pattern_name.neutral" = "無振り";
+"pattern_name.min" = "最低";
+"pattern_name.hindered" = "下降";
+
+// MARK: - Gender Ratio
+"gender_ratio.unknown" = "性別不明";
+
+// MARK: - Move
+"move.no_description" = "説明なし";

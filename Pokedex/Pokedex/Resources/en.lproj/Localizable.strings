@@ -585,3 +585,34 @@
 "move_category.slash" = "Slash";
 "move_category.contact" = "Contact";
 "move_category.defrost" = "Defrost";
+
+// MARK: - Egg Groups
+"egg_group.monster" = "Monster";
+"egg_group.water1" = "Water 1";
+"egg_group.water2" = "Water 2";
+"egg_group.water3" = "Water 3";
+"egg_group.bug" = "Bug";
+"egg_group.flying" = "Flying";
+"egg_group.field" = "Field";
+"egg_group.fairy" = "Fairy";
+"egg_group.grass" = "Grass";
+"egg_group.plant" = "Grass";
+"egg_group.human_like" = "Human-Like";
+"egg_group.mineral" = "Mineral";
+"egg_group.amorphous" = "Amorphous";
+"egg_group.ditto" = "Ditto";
+"egg_group.dragon" = "Dragon";
+"egg_group.undiscovered" = "Undiscovered";
+
+// MARK: - Stats Pattern Names
+"pattern_name.ideal" = "Ideal";
+"pattern_name.max" = "252 EVs";
+"pattern_name.neutral" = "No EVs";
+"pattern_name.min" = "Min";
+"pattern_name.hindered" = "Hindered";
+
+// MARK: - Gender Ratio
+"gender_ratio.unknown" = "Genderless";
+
+// MARK: - Move
+"move.no_description" = "No description";

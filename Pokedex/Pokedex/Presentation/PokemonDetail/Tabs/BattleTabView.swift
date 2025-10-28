@@ -46,7 +46,8 @@ struct BattleTabView: View {
                     if !viewModel.abilityDetails.isEmpty {
                         AbilitiesView(
                             abilities: viewModel.displayAbilities,
-                            abilityDetails: viewModel.abilityDetails
+                            abilityDetails: viewModel.abilityDetails,
+                            currentLanguage: viewModel.currentLanguage
                         )
                         .padding(.horizontal, -16)
                         .padding(.vertical, -12)

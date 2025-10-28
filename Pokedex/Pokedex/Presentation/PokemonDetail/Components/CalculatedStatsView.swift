@@ -33,7 +33,7 @@ struct CalculatedStatsView: View {
                         // 各パターンのヘッダー
                         ForEach(orderedPatterns) { pattern in
                             VStack(spacing: 2) {
-                                Text(pattern.displayName)
+                                Text(FilterHelpers.patternName(pattern.id))
                                     .font(.caption)
                                     .fontWeight(.semibold)
                                 Text(pattern.config.displayText)
@@ -47,12 +47,12 @@ struct CalculatedStatsView: View {
                     Divider()
 
                     // 各ステータス行
-                    StatsTableRow(name: "HP", getValue: { $0.hp })
-                    StatsTableRow(name: "攻撃", getValue: { $0.attack })
-                    StatsTableRow(name: "防御", getValue: { $0.defense })
-                    StatsTableRow(name: "特攻", getValue: { $0.specialAttack })
-                    StatsTableRow(name: "特防", getValue: { $0.specialDefense })
-                    StatsTableRow(name: "素早さ", getValue: { $0.speed })
+                    StatsTableRow(name: FilterHelpers.statName("hp"), getValue: { $0.hp })
+                    StatsTableRow(name: FilterHelpers.statName("attack"), getValue: { $0.attack })
+                    StatsTableRow(name: FilterHelpers.statName("defense"), getValue: { $0.defense })
+                    StatsTableRow(name: FilterHelpers.statName("special-attack"), getValue: { $0.specialAttack })
+                    StatsTableRow(name: FilterHelpers.statName("special-defense"), getValue: { $0.specialDefense })
+                    StatsTableRow(name: FilterHelpers.statName("speed"), getValue: { $0.speed })
                 }
                 .padding()
             }

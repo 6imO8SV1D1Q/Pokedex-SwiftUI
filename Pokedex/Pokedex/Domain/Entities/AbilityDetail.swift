@@ -15,6 +15,9 @@ struct AbilityDetail: Equatable, Identifiable {
     /// 特性名（英語）
     let name: String
 
+    /// 特性名（日本語）
+    let nameJa: String?
+
     /// 特性の効果説明（英語）
     let effect: String
 
@@ -32,6 +35,20 @@ struct AbilityDetail: Equatable, Identifiable {
         name.split(separator: "-")
             .map { $0.capitalized }
             .joined(separator: " ")
+    }
+
+    /// 現在の言語設定に応じた特性名を返す
+    func localizedName(language: AppLanguage) -> String {
+        switch language {
+        case .japanese:
+            return nameJa ?? name.split(separator: "-")
+                .map { $0.capitalized }
+                .joined(separator: " ")
+        case .english:
+            return name.split(separator: "-")
+                .map { $0.capitalized }
+                .joined(separator: " ")
+        }
     }
 
     /// 現在の言語設定に応じた説明文を返す

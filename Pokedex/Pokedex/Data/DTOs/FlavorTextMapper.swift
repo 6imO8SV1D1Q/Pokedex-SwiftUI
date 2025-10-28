@@ -13,11 +13,14 @@ enum FlavorTextMapper {
     nonisolated static func mapFlavorText(
         from species: PKMPokemonSpecies,
         versionGroup: String?,
-        preferredVersion: String? = nil
+        preferredVersion: String? = nil,
+        preferredLanguage: String = "ja"
     ) -> PokemonFlavorText? {
         guard let flavorTextEntries = species.flavorTextEntries else {
             return nil
         }
+
+        let secondaryLanguage = preferredLanguage == "ja" ? "en" : "ja"
 
         // preferredVersionが指定されている場合（例: "scarlet" または "violet"）
         if let preferredVersion = preferredVersion {
@@ -26,20 +29,20 @@ enum FlavorTextMapper {
                 entry.version?.name == preferredVersion
             }
 
-            // 日本語を優先的に取得
-            if let jaText = matchingTexts.first(where: { $0.language?.name == "ja" }) {
+            // 優先言語を取得
+            if let preferredText = matchingTexts.first(where: { $0.language?.name == preferredLanguage }) {
                 return PokemonFlavorText(
-                    text: jaText.flavorText ?? "",
-                    language: "ja",
+                    text: preferredText.flavorText ?? "",
+                    language: preferredLanguage,
                     versionGroup: preferredVersion
                 )
             }
 
-            // 日本語がなければ英語
-            if let enText = matchingTexts.first(where: { $0.language?.name == "en" }) {
+            // 優先言語がなければ代替言語
+            if let fallbackText = matchingTexts.first(where: { $0.language?.name == secondaryLanguage }) {
                 return PokemonFlavorText(
-                    text: enText.flavorText ?? "",
-                    language: "en",
+                    text: fallbackText.flavorText ?? "",
+                    language: secondaryLanguage,
                     versionGroup: preferredVersion
                 )
             }
@@ -55,40 +58,40 @@ enum FlavorTextMapper {
                 return false
             }
 
-            // マッチした中から日本語を優先的に取得（最後のものが最新）
-            if let jaText = matchingTexts.last(where: { $0.language?.name == "ja" }) {
+            // マッチした中から優先言語を取得（最後のものが最新）
+            if let preferredText = matchingTexts.last(where: { $0.language?.name == preferredLanguage }) {
                 return PokemonFlavorText(
-                    text: jaText.flavorText ?? "",
-                    language: "ja",
-                    versionGroup: versionGroup  // 指定されたversionGroupをそのまま使用
+                    text: preferredText.flavorText ?? "",
+                    language: preferredLanguage,
+                    versionGroup: versionGroup
                 )
             }
 
-            // 日本語がなければ英語（最後のものが最新）
-            if let enText = matchingTexts.last(where: { $0.language?.name == "en" }) {
+            // 優先言語がなければ代替言語（最後のものが最新）
+            if let fallbackText = matchingTexts.last(where: { $0.language?.name == secondaryLanguage }) {
                 return PokemonFlavorText(
-                    text: enText.flavorText ?? "",
-                    language: "en",
-                    versionGroup: versionGroup  // 指定されたversionGroupをそのまま使用
+                    text: fallbackText.flavorText ?? "",
+                    language: secondaryLanguage,
+                    versionGroup: versionGroup
                 )
             }
         }
 
-        // バージョングループ指定なし、または見つからない場合は最新の日本語テキスト
-        if let jaText = flavorTextEntries.last(where: { $0.language?.name == "ja" }) {
+        // バージョングループ指定なし、または見つからない場合は優先言語のテキスト
+        if let preferredText = flavorTextEntries.last(where: { $0.language?.name == preferredLanguage }) {
             return PokemonFlavorText(
-                text: jaText.flavorText ?? "",
-                language: "ja",
-                versionGroup: versionGroup ?? jaText.version?.name ?? "unknown"
+                    text: preferredText.flavorText ?? "",
+                language: preferredLanguage,
+                versionGroup: versionGroup ?? preferredText.version?.name ?? "unknown"
             )
         }
 
-        // 日本語がなければ最新の英語テキスト
-        if let enText = flavorTextEntries.last(where: { $0.language?.name == "en" }) {
+        // 優先言語がなければ代替言語のテキスト
+        if let fallbackText = flavorTextEntries.last(where: { $0.language?.name == secondaryLanguage }) {
             return PokemonFlavorText(
-                text: enText.flavorText ?? "",
-                language: "en",
-                versionGroup: versionGroup ?? enText.version?.name ?? "unknown"
+                text: fallbackText.flavorText ?? "",
+                language: secondaryLanguage,
+                versionGroup: versionGroup ?? fallbackText.version?.name ?? "unknown"
             )
         }
 

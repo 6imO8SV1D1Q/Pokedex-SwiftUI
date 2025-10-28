@@ -70,6 +70,7 @@ final class AbilityRepository: AbilityRepositoryProtocol {
         let detail = AbilityDetail(
             id: model.id,
             name: model.name,
+            nameJa: model.nameJa.isEmpty ? nil : model.nameJa,
             effect: model.effect,
             effectJa: model.effectJa.isEmpty ? nil : model.effectJa,
             flavorText: nil,  // フレーバーテキストは別データ（現状未使用）
@@ -99,6 +100,7 @@ final class AbilityRepository: AbilityRepositoryProtocol {
         let detail = AbilityDetail(
             id: model.id,
             name: model.name,
+            nameJa: model.nameJa.isEmpty ? nil : model.nameJa,
             effect: model.effect,
             effectJa: model.effectJa.isEmpty ? nil : model.effectJa,
             flavorText: nil,  // フレーバーテキストは別データ（現状未使用）

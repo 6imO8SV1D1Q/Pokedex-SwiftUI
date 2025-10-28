@@ -28,25 +28,45 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 /// 言語設定を管理するマネージャー
 @MainActor
 class LocalizationManager: ObservableObject {
-    /// 現在の言語設定
-    @Published var currentLanguage: AppLanguage {
-        didSet {
-            UserDefaults.standard.set(currentLanguage.rawValue, forKey: "app_language")
-        }
-    }
+    /// 現在の言語設定（システム言語から自動取得）
+    @Published var currentLanguage: AppLanguage
 
     /// シングルトンインスタンス
     static let shared = LocalizationManager()
 
     private init() {
-        // UserDefaultsから言語設定を読み込む
-        if let savedLanguage = UserDefaults.standard.string(forKey: "app_language"),
-           let language = AppLanguage(rawValue: savedLanguage) {
-            self.currentLanguage = language
-        } else {
-            // デフォルトは日本語
-            self.currentLanguage = .japanese
+        // システムの優先言語から判定
+        self.currentLanguage = Self.detectSystemLanguage()
+        print("🌐 [LocalizationManager] Initialized with system language: \(self.currentLanguage.rawValue)")
+        print("🌐 [LocalizationManager] Locale.preferredLanguages: \(Locale.preferredLanguages)")
+
+        // 言語設定の変更を監視（システム設定変更時）
+        NotificationCenter.default.addObserver(
+            forName: NSLocale.currentLocaleDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                let newLanguage = Self.detectSystemLanguage()
+                print("🌐 [LocalizationManager] System language changed to: \(newLanguage.rawValue)")
+                self?.currentLanguage = newLanguage
+            }
         }
+    }
+
+    /// システムの言語設定から AppLanguage を判定
+    nonisolated private static func detectSystemLanguage() -> AppLanguage {
+        let preferredLanguages = Locale.preferredLanguages
+
+        // 最優先言語が日本語かチェック
+        if let firstLanguage = preferredLanguages.first {
+            if firstLanguage.hasPrefix("ja") {
+                return .japanese
+            }
+        }
+
+        // デフォルトは英語
+        return .english
     }
 
     /// タイプ名の表示

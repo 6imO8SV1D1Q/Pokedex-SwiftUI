@@ -38,7 +38,7 @@ protocol PokemonRepositoryProtocol {
     ///   - preferredVersion: 優先バージョン（例: "scarlet" または "violet"）
     /// - Returns: フレーバーテキスト
     /// - Throws: データ取得時のエラー
-    func fetchFlavorText(speciesId: Int, versionGroup: String?, preferredVersion: String?) async throws -> PokemonFlavorText?
+    func fetchFlavorText(speciesId: Int, versionGroup: String?, preferredVersion: String?, preferredLanguage: String) async throws -> PokemonFlavorText?
 
     /// 進化チェーン情報を取得（v3拡張版）
     /// - Parameter speciesId: 種族ID

@@ -362,6 +362,7 @@ enum L10n {
         static let powerLabel = NSLocalizedString("move.power_label", comment: "")
         static let accuracyLabel = NSLocalizedString("move.accuracy_label", comment: "")
         static let ppLabel = NSLocalizedString("move.pp_label", comment: "")
+        static let noDescription = NSLocalizedString("move.no_description", comment: "")
 
         static func rivalCount(_ count: Int) -> String {
             return String(format: NSLocalizedString("move.rival_count", comment: ""), count)
@@ -547,4 +548,25 @@ enum L10n {
             return NSLocalizedString("move_category.\(category)", comment: "")
         }
     }
+
+    // MARK: - Egg Group
+    enum EggGroup {
+        static func localizedString(_ name: String) -> String {
+            let key = name.replacingOccurrences(of: "-", with: "_")
+            return NSLocalizedString("egg_group.\(key)", comment: "")
+        }
+    }
+
+    // MARK: - Pattern Name
+    enum PatternName {
+        static func localizedString(_ patternId: String) -> String {
+            return NSLocalizedString("pattern_name.\(patternId)", comment: "")
+        }
+    }
+
+    // MARK: - Gender Ratio
+    enum GenderRatio {
+        static let unknown = NSLocalizedString("gender_ratio.unknown", comment: "")
+    }
+
 }
