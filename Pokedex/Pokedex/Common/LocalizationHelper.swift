@@ -17,9 +17,14 @@ enum L10n {
         static let add = LocalizedStringKey("common.add")
         static let save = LocalizedStringKey("common.save")
         static let delete = LocalizedStringKey("common.delete")
+        static let done = LocalizedStringKey("common.done")
+        static let clear = LocalizedStringKey("common.clear")
         static let all = LocalizedStringKey("common.all")
         static let loading = LocalizedStringKey("common.loading")
         static let error = LocalizedStringKey("common.error")
+        static let unknownError = NSLocalizedString("common.unknown_error", comment: "")
+        static let pokedex = LocalizedStringKey("common.pokedex")
+        static let versionGroup = LocalizedStringKey("common.version_group")
     }
 
     // MARK: - Stats
@@ -125,6 +130,29 @@ enum L10n {
         static let activationRate = LocalizedStringKey("filter.activation_rate")
         static let abilityCategoryDescriptionEmpty = LocalizedStringKey("filter.ability_category_description_empty")
         static let abilityCategoryDescription = LocalizedStringKey("filter.ability_category_description")
+        static let moveConditions = LocalizedStringKey("filter.move_conditions")
+        static let abilityConditions = LocalizedStringKey("filter.ability_conditions")
+        static let moveCategoryHeader = LocalizedStringKey("filter.move_category_header")
+        static let moveCategoryFooter = LocalizedStringKey("filter.move_category_footer")
+        static let numericConditions = LocalizedStringKey("filter.numeric_conditions")
+        static let numericConditionsDescription = LocalizedStringKey("filter.numeric_conditions_description")
+        static let activationRatePercent = LocalizedStringKey("filter.activation_rate_percent")
+        static let powerAccuracyPP = LocalizedStringKey("filter.power_accuracy_pp")
+        static let setConditionsDescription = LocalizedStringKey("filter.set_conditions_description")
+        static let notSpecified = LocalizedStringKey("filter.not_specified")
+        static let priorityDescription = LocalizedStringKey("filter.priority_description")
+        static let damageClassHeader = LocalizedStringKey("filter.damage_class_header")
+        static let effectType = LocalizedStringKey("filter.effect_type")
+        static let effectTypeDescriptionEmpty = LocalizedStringKey("filter.effect_type_description_empty")
+        static let effectTypeDescription = LocalizedStringKey("filter.effect_type_description")
+        static let weatherTerrain = LocalizedStringKey("filter.weather_terrain")
+        static let weatherTerrainDescriptionEmpty = LocalizedStringKey("filter.weather_terrain_description_empty")
+        static let weatherTerrainDescription = LocalizedStringKey("filter.weather_terrain_description")
+        static let moveTarget = LocalizedStringKey("filter.move_target")
+        static let moveType = LocalizedStringKey("filter.move_type")
+        static let triggerTiming = LocalizedStringKey("filter.trigger_timing")
+        static let triggerTimingDescriptionEmpty = LocalizedStringKey("filter.trigger_timing_description_empty")
+        static let triggerTimingDescription = LocalizedStringKey("filter.trigger_timing_description")
 
         static func condition(_ number: Int) -> String {
             return String(format: NSLocalizedString("filter.condition", comment: ""), number)
@@ -269,6 +297,9 @@ enum L10n {
         static let loadingData = LocalizedStringKey("pokemon_detail.loading_data")
         static let searchButton = LocalizedStringKey("pokemon_detail.search_button")
         static let clearButton = LocalizedStringKey("pokemon_detail.clear_button")
+        static let rivalSelection = LocalizedStringKey("pokemon_detail.rival_selection")
+        static let clearSelection = NSLocalizedString("pokemon_detail.clear_selection", comment: "")
+        static let clearFilter = NSLocalizedString("pokemon_detail.clear_filter", comment: "")
 
         static func abilityOverflow(_ count: Int) -> String {
             return String(format: NSLocalizedString("pokemon_detail.ability_overflow", comment: ""), count)
@@ -425,5 +456,20 @@ enum L10n {
         static func evRemaining(_ count: Int) -> String {
             return String(format: NSLocalizedString("stats_calc.ev_remaining", comment: ""), count)
         }
+    }
+
+    // MARK: - Pokemon Category
+    enum Category {
+        static let normal = NSLocalizedString("category.normal", comment: "")
+        static let subLegendary = NSLocalizedString("category.sub_legendary", comment: "")
+        static let legendary = NSLocalizedString("category.legendary", comment: "")
+        static let mythical = NSLocalizedString("category.mythical", comment: "")
+    }
+
+    // MARK: - Evolution Filter Mode
+    enum EvolutionMode {
+        static let all = NSLocalizedString("evolution_mode.all", comment: "")
+        static let finalOnly = NSLocalizedString("evolution_mode.final_only", comment: "")
+        static let evioliteOnly = NSLocalizedString("evolution_mode.eviolite_only", comment: "")
     }
 }

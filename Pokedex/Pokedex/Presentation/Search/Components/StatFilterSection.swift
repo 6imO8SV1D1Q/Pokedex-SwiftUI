@@ -18,7 +18,7 @@ struct StatFilterSection: View {
                 ForEach(StatType.allCases) { statType in
                     HStack(spacing: 8) {
                         // ステータス名
-                        Text(statType.rawValue)
+                        Text(statType.localizedName)
                             .frame(width: 80, alignment: .leading)
                             .font(.body)
 

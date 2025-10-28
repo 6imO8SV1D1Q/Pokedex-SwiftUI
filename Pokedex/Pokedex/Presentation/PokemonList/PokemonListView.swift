@@ -40,7 +40,7 @@ struct PokemonListView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // 図鑑切り替えSegmented Control
-                Picker("図鑑", selection: $viewModel.selectedPokedex) {
+                Picker(L10n.Common.pokedex, selection: $viewModel.selectedPokedex) {
                     ForEach(PokedexType.allCases) { pokedex in
                         Text(localizationManager.displayName(for: pokedex))
                             .tag(pokedex)
@@ -165,11 +165,11 @@ struct PokemonListView: View {
                                 }
                             }
                         }
-                        .navigationTitle("バージョングループ")
+                        .navigationTitle(L10n.Common.versionGroup)
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button("完了") {
+                                Button(L10n.Common.done) {
                                     activeSheet = nil
                                 }
                             }
@@ -180,8 +180,8 @@ struct PokemonListView: View {
                     SettingsView()
                 }
             }
-            .alert("エラー", isPresented: $viewModel.showError) {
-                Button("OK") {
+            .alert(L10n.Common.error, isPresented: $viewModel.showError) {
+                Button(L10n.Common.ok) {
                     viewModel.showError = false
                 }
                 Button("再試行") {
@@ -190,7 +190,7 @@ struct PokemonListView: View {
                     }
                 }
             } message: {
-                Text(viewModel.errorMessage ?? "不明なエラーが発生しました")
+                Text(viewModel.errorMessage ?? L10n.Common.unknownError)
             }
             .onAppear {
                 if !hasLoaded {

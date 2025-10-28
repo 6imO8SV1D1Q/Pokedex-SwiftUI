@@ -10,9 +10,14 @@
 "common.add" = "追加";
 "common.save" = "保存";
 "common.delete" = "削除";
+"common.done" = "完了";
+"common.clear" = "クリア";
 "common.all" = "すべて";
 "common.loading" = "読み込み中...";
 "common.error" = "エラー";
+"common.unknown_error" = "不明なエラーが発生しました";
+"common.pokedex" = "図鑑";
+"common.version_group" = "バージョングループ";
 
 // MARK: - Stats
 "stat.hp" = "HP";
@@ -136,6 +141,40 @@
 "filter.weather_value" = "天候: %@";
 "filter.terrain_value" = "フィールド: %@";
 "filter.category_value" = "カテゴリ: %@";
+"filter.move_conditions" = "技の条件";
+"filter.ability_conditions" = "特性の条件";
+"filter.move_category_header" = "技カテゴリー";
+"filter.move_category_footer" = "各カテゴリーを個別に選択できます。";
+"filter.numeric_conditions" = "数値条件";
+"filter.numeric_conditions_description" = "倍率や確率の範囲を設定して絞り込みます";
+"filter.activation_rate_percent" = "発動確率（%）";
+"filter.power_accuracy_pp" = "威力・命中率・PP";
+"filter.set_conditions_description" = "条件を設定して絞り込みます";
+"filter.not_specified" = "指定なし";
+"filter.priority_description" = "スライダーを動かすと即座に優先度が設定されます。";
+"filter.damage_class_header" = "分類";
+"filter.effect_type" = "効果タイプ";
+"filter.effect_type_description_empty" = "効果のタイプでフィルタリングできます";
+"filter.effect_type_description" = "選択した効果タイプのいずれかを持つ特性を表示";
+"filter.weather_terrain" = "天候・フィールド";
+"filter.weather_terrain_description_empty" = "天候やフィールドに関連する特性を絞り込みます";
+"filter.weather_terrain_description" = "選択した天候またはフィールドに関連する特性を表示";
+"filter.move_target" = "技の対象";
+"filter.move_type" = "技のタイプ";
+"filter.trigger_timing" = "発動タイミング";
+"filter.trigger_timing_description_empty" = "発動タイミングでフィルタリングできます";
+"filter.trigger_timing_description" = "選択したタイミングのいずれかで発動する特性を表示";
+
+// MARK: - Pokemon Category
+"category.normal" = "一般";
+"category.sub_legendary" = "準伝説";
+"category.legendary" = "伝説";
+"category.mythical" = "幻";
+
+// MARK: - Evolution Filter Mode
+"evolution_mode.all" = "全て表示";
+"evolution_mode.final_only" = "最終進化のみ";
+"evolution_mode.eviolite_only" = "進化のきせき適用可のみ";
 
 // MARK: - Move Targets
 "target.selected_pokemon" = "相手1体";
@@ -199,6 +238,9 @@
 "pokemon_detail.filter_results_count" = "絞り込み結果: %d匹";
 "pokemon_detail.search_button" = "検索";
 "pokemon_detail.clear_button" = "クリア";
+"pokemon_detail.rival_selection" = "ライバル選択";
+"pokemon_detail.clear_selection" = "選択をクリア";
+"pokemon_detail.clear_filter" = "フィルタをクリア";
 
 // MARK: - Move Learn Methods
 "learn_method.all" = "すべて";

@@ -45,6 +45,26 @@ enum StatType: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// ローカライズされた表示名
+    var localizedName: String {
+        switch self {
+        case .hp:
+            return NSLocalizedString("stat.hp", comment: "")
+        case .attack:
+            return NSLocalizedString("stat.attack", comment: "")
+        case .defense:
+            return NSLocalizedString("stat.defense", comment: "")
+        case .specialAttack:
+            return NSLocalizedString("stat.special_attack", comment: "")
+        case .specialDefense:
+            return NSLocalizedString("stat.special_defense", comment: "")
+        case .speed:
+            return NSLocalizedString("stat.speed", comment: "")
+        case .total:
+            return NSLocalizedString("stat.total", comment: "")
+        }
+    }
+
     /// PokemonStatで使用される名前
     var statName: String {
         switch self {
@@ -120,23 +140,23 @@ struct StatFilterCondition: Identifiable, Equatable {
             let hasMax = maxValue != nil
 
             if hasMin && hasMax {
-                return "\(statType.rawValue) \(minValue) 〜 \(maxValue!)"
+                return "\(statType.localizedName) \(minValue) 〜 \(maxValue!)"
             } else if hasMin {
-                return "\(statType.rawValue) \(minValue) 以上"
+                return "\(statType.localizedName) \(minValue) 以上"
             } else if hasMax {
-                return "\(statType.rawValue) \(maxValue!) 以下"
+                return "\(statType.localizedName) \(maxValue!) 以下"
             } else {
-                return "\(statType.rawValue) すべて"
+                return "\(statType.localizedName) すべて"
             }
         }
 
         switch mode {
         case .above:
-            return "\(statType.rawValue) \(mode.rawValue) \(minValue)"
+            return "\(statType.localizedName) \(mode.rawValue) \(minValue)"
         case .below:
-            return "\(statType.rawValue) \(mode.rawValue) \(minValue)"
+            return "\(statType.localizedName) \(mode.rawValue) \(minValue)"
         case .exact:
-            return "\(statType.rawValue) \(mode.rawValue) \(minValue)"
+            return "\(statType.localizedName) \(mode.rawValue) \(minValue)"
         case .range:
             return "" // 上で処理済み
         }

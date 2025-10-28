@@ -331,7 +331,7 @@ struct RivalSelectionView: View {
             contentView
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("完了") {
+                        Button(L10n.Common.done) {
                             dismiss()
                         }
                     }
@@ -366,7 +366,7 @@ struct RivalSelectionView: View {
             searchButtonView
             resultsView
         }
-        .navigationTitle("ライバル選択")
+        .navigationTitle(L10n.PokemonDetail.rivalSelection)
         .navigationBarTitleDisplayMode(.inline)
         .onChange(of: filterHash) { _, _ in
             shouldShowResults = false
@@ -377,12 +377,12 @@ struct RivalSelectionView: View {
     private var clearMenuButton: some View {
         Menu {
             if !selectedRivals.isEmpty {
-                Button("選択をクリア") {
+                Button(L10n.PokemonDetail.clearSelection) {
                     selectedRivals.removeAll()
                 }
             }
             if hasActiveFilters {
-                Button("フィルタをクリア") {
+                Button(L10n.PokemonDetail.clearFilter) {
                     clearFilters()
                 }
             }

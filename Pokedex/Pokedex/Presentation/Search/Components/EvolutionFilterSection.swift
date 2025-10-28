@@ -14,7 +14,7 @@ struct EvolutionFilterSection: View {
         Section {
             Picker(L10n.Filter.evolutionStageLabel, selection: $evolutionFilterMode) {
                 ForEach(EvolutionFilterMode.allCases) { mode in
-                    Text(mode.rawValue).tag(mode)
+                    Text(mode.displayName).tag(mode)
                 }
             }
             .pickerStyle(.menu)

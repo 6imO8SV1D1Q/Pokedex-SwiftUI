@@ -11,11 +11,23 @@ import Kingfisher
 
 /// 進化段階フィルターモード
 enum EvolutionFilterMode: String, CaseIterable, Identifiable {
-    case all = "全て表示"
-    case finalOnly = "最終進化のみ"
-    case evioliteOnly = "進化のきせき適用可のみ"
+    case all
+    case finalOnly
+    case evioliteOnly
 
     var id: String { rawValue }
+
+    /// 表示名
+    var displayName: String {
+        switch self {
+        case .all:
+            return L10n.EvolutionMode.all
+        case .finalOnly:
+            return L10n.EvolutionMode.finalOnly
+        case .evioliteOnly:
+            return L10n.EvolutionMode.evioliteOnly
+        }
+    }
 }
 
 /// ポケモン一覧画面のViewModel

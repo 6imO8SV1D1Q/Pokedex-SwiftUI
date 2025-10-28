@@ -41,9 +41,9 @@ struct MoveCategorySection: View {
                 }
             }
         } header: {
-            Text("技カテゴリー")
+            Text(L10n.Filter.moveCategoryHeader)
         } footer: {
-            Text("各カテゴリーを個別に選択できます。")
+            Text(L10n.Filter.moveCategoryFooter)
         }
     }
 

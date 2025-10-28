@@ -10,9 +10,14 @@
 "common.add" = "Add";
 "common.save" = "Save";
 "common.delete" = "Delete";
+"common.done" = "Done";
+"common.clear" = "Clear";
 "common.all" = "All";
 "common.loading" = "Loading...";
 "common.error" = "Error";
+"common.unknown_error" = "An unknown error occurred";
+"common.pokedex" = "Pokédex";
+"common.version_group" = "Version Group";
 
 // MARK: - Stats
 "stat.hp" = "HP";
@@ -136,6 +141,40 @@
 "filter.weather_value" = "Weather: %@";
 "filter.terrain_value" = "Terrain: %@";
 "filter.category_value" = "Category: %@";
+"filter.move_conditions" = "Move Conditions";
+"filter.ability_conditions" = "Ability Conditions";
+"filter.move_category_header" = "Move Category";
+"filter.move_category_footer" = "Select categories individually.";
+"filter.numeric_conditions" = "Numeric Conditions";
+"filter.numeric_conditions_description" = "Filter by ranges of multipliers or probabilities";
+"filter.activation_rate_percent" = "Activation Rate (%)";
+"filter.power_accuracy_pp" = "Power/Accuracy/PP";
+"filter.set_conditions_description" = "Set conditions to filter";
+"filter.not_specified" = "Not Specified";
+"filter.priority_description" = "Move the slider to set priority immediately.";
+"filter.damage_class_header" = "Damage Class";
+"filter.effect_type" = "Effect Type";
+"filter.effect_type_description_empty" = "Filter by effect type";
+"filter.effect_type_description" = "Show abilities with any selected effect type";
+"filter.weather_terrain" = "Weather & Terrain";
+"filter.weather_terrain_description_empty" = "Filter by weather or terrain-related abilities";
+"filter.weather_terrain_description" = "Show abilities related to selected weather or terrain";
+"filter.move_target" = "Move Target";
+"filter.move_type" = "Move Type";
+"filter.trigger_timing" = "Trigger Timing";
+"filter.trigger_timing_description_empty" = "Filter by trigger timing";
+"filter.trigger_timing_description" = "Show abilities that trigger at any selected timing";
+
+// MARK: - Pokemon Category
+"category.normal" = "Normal";
+"category.sub_legendary" = "Sub-Legendary";
+"category.legendary" = "Legendary";
+"category.mythical" = "Mythical";
+
+// MARK: - Evolution Filter Mode
+"evolution_mode.all" = "Show All";
+"evolution_mode.final_only" = "Final Evolution Only";
+"evolution_mode.eviolite_only" = "Eviolite-Compatible Only";
 
 // MARK: - Move Targets
 "target.selected_pokemon" = "Single Opponent";
@@ -199,6 +238,9 @@
 "pokemon_detail.filter_results_count" = "Filtered: %d";
 "pokemon_detail.search_button" = "Search";
 "pokemon_detail.clear_button" = "Clear";
+"pokemon_detail.rival_selection" = "Rival Selection";
+"pokemon_detail.clear_selection" = "Clear Selection";
+"pokemon_detail.clear_filter" = "Clear Filter";
 
 // MARK: - Move Learn Methods
 "learn_method.all" = "All";
