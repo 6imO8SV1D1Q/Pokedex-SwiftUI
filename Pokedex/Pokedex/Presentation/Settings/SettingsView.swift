@@ -16,17 +16,18 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                // システム言語情報の表示（読み取り専用）
                 Section {
-                    Picker(L10n.Settings.language, selection: $localizationManager.currentLanguage) {
-                        ForEach(AppLanguage.allCases) { language in
-                            Text(language.displayName).tag(language)
-                        }
+                    HStack {
+                        Text(L10n.Settings.language)
+                        Spacer()
+                        Text(localizationManager.currentLanguage.displayName)
+                            .foregroundColor(.secondary)
                     }
-                    .pickerStyle(.segmented)
                 } header: {
                     Text(L10n.Settings.displaySectionHeader)
                 } footer: {
-                    Text(L10n.Settings.displaySectionFooter)
+                    Text("言語はデバイスの設定に従います。\nLanguage follows device settings.")
                 }
 
                 Section {

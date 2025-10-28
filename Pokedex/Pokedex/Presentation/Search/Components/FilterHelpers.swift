@@ -30,4 +30,30 @@ enum FilterHelpers {
     static func targetJapaneseName(_ target: String) -> String {
         return L10n.Target.localizedString(target)
     }
+
+    /// たまごグループ名をローカライズして取得
+    static func eggGroupName(_ name: String) -> String {
+        return L10n.EggGroup.localizedString(name)
+    }
+
+    /// ステータス名をローカライズして取得
+    static func statName(_ name: String) -> String {
+        let key = name.replacingOccurrences(of: "-", with: "_")
+        return NSLocalizedString("stat.\(key)", comment: "")
+    }
+
+    /// パターン名をローカライズして取得
+    static func patternName(_ patternId: String) -> String {
+        return L10n.PatternName.localizedString(patternId)
+    }
+
+    /// 性別比の表示テキストを生成
+    static func genderRatioText(genderRate: Int) -> String {
+        if genderRate == -1 {
+            return L10n.GenderRatio.unknown
+        }
+        let femaleRate = Double(genderRate) / 8.0 * 100.0
+        let maleRate = 100.0 - femaleRate
+        return String(format: "♂ %.1f%% / ♀ %.1f%%", maleRate, femaleRate)
+    }
 }

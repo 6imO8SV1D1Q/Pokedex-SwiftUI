@@ -11,13 +11,15 @@ import SwiftUI
 struct AbilitiesView: View {
     let abilities: [PokemonAbility]
     let abilityDetails: [String: AbilityDetail]
+    let currentLanguage: AppLanguage
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             ForEach(abilities, id: \.name) { ability in
                 AbilityCard(
                     ability: ability,
-                    detail: abilityDetails[ability.name]
+                    detail: abilityDetails[ability.name],
+                    currentLanguage: currentLanguage
                 )
             }
         }
@@ -29,7 +31,7 @@ struct AbilitiesView: View {
 struct AbilityCard: View {
     let ability: PokemonAbility
     let detail: AbilityDetail?
-    @EnvironmentObject private var localizationManager: LocalizationManager
+    let currentLanguage: AppLanguage
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -41,7 +43,7 @@ struct AbilityCard: View {
 
                 // 隠れ特性バッジ
                 if ability.isHidden {
-                    Text(L10n.Ability.hidden)
+                    Text(hiddenBadgeText)
                         .font(.caption2)
                         .foregroundColor(.white)
                         .padding(.horizontal, 6)
@@ -55,14 +57,14 @@ struct AbilityCard: View {
 
             // 特性の効果説明
             if let detail = detail {
-                Text(detail.effect)
+                Text(detail.localizedEffect(language: currentLanguage))
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
                 // 詳細データがない場合
-                Text(L10n.Ability.loading)
+                Text(loadingText)
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .opacity(0.6)
@@ -76,21 +78,40 @@ struct AbilityCard: View {
 
     /// 特性名を表示
     private var abilityDisplayName: String {
-        switch localizationManager.currentLanguage {
+        // detailがあればlocalizedNameを使用、なければability.nameJaまたはability.nameを使用
+        if let detail = detail {
+            return detail.localizedName(language: currentLanguage)
+        }
+
+        switch currentLanguage {
         case .japanese:
-            // 優先順位: ability.nameJa > detail.name > ability.name
-            if let nameJa = ability.nameJa {
-                return nameJa
-            }
-            if let detail = detail, !detail.name.isEmpty {
-                return detail.name
-            }
-            return ability.name.capitalized
+            return ability.nameJa ?? ability.name
+                .replacingOccurrences(of: "-", with: " ")
+                .capitalized
         case .english:
-            // 英語の場合は元の英語名を整形
             return ability.name
                 .replacingOccurrences(of: "-", with: " ")
                 .capitalized
+        }
+    }
+
+    /// 隠れ特性バッジのテキスト
+    private var hiddenBadgeText: String {
+        switch currentLanguage {
+        case .japanese:
+            return "隠れ特性"
+        case .english:
+            return "Hidden"
+        }
+    }
+
+    /// ローディングテキスト
+    private var loadingText: String {
+        switch currentLanguage {
+        case .japanese:
+            return "読み込み中..."
+        case .english:
+            return "Loading..."
         }
     }
 }
@@ -112,21 +133,25 @@ struct AbilityCard: View {
         abilityDetails: [
             "overgrow": AbilityDetail(
                 id: 65,
-                name: "しんりょく",
-                effect: "HPが1/3以下のとき、くさタイプの技の威力が1.5倍になる。",
+                name: "overgrow",
+                nameJa: "しんりょく",
+                effect: "Boosts Grass moves in a pinch.",
+                effectJa: "HPが1/3以下のとき、くさタイプの技の威力が1.5倍になる。",
                 flavorText: nil,
                 isHidden: false
             ),
             "chlorophyll": AbilityDetail(
                 id: 34,
-                name: "ようりょくそ",
-                effect: "天気が「ひざしがつよい」のとき、すばやさが2倍になる。",
+                name: "chlorophyll",
+                nameJa: "ようりょくそ",
+                effect: "Boosts Speed in sunshine.",
+                effectJa: "天気が「ひざしがつよい」のとき、すばやさが2倍になる。",
                 flavorText: nil,
                 isHidden: true
             )
-        ]
+        ],
+        currentLanguage: .japanese
     )
-    .environmentObject(LocalizationManager.shared)
 }
 
 #Preview("詳細なし") {
@@ -138,7 +163,7 @@ struct AbilityCard: View {
                 isHidden: false
             )
         ],
-        abilityDetails: [:]
+        abilityDetails: [:],
+        currentLanguage: .japanese
     )
-    .environmentObject(LocalizationManager.shared)
 }

@@ -349,9 +349,9 @@ final class PokemonRepository: PokemonRepositoryProtocol {
         return locations
     }
 
-    func fetchFlavorText(speciesId: Int, versionGroup: String?, preferredVersion: String?) async throws -> PokemonFlavorText? {
+    func fetchFlavorText(speciesId: Int, versionGroup: String?, preferredVersion: String?, preferredLanguage: String = "ja") async throws -> PokemonFlavorText? {
         // 図鑑テキストは頻繁に変わらないので、APIから直接取得
-        return try await apiClient.fetchFlavorText(speciesId: speciesId, versionGroup: versionGroup, preferredVersion: preferredVersion)
+        return try await apiClient.fetchFlavorText(speciesId: speciesId, versionGroup: versionGroup, preferredVersion: preferredVersion, preferredLanguage: preferredLanguage)
     }
 
     func fetchEvolutionChainEntity(speciesId: Int) async throws -> EvolutionChainEntity {

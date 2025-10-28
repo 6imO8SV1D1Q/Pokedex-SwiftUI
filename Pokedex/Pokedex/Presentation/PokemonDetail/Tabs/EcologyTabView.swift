@@ -45,6 +45,18 @@ struct EcologyTabView: View {
         .padding(DesignConstants.Spacing.medium)
     }
 
+    // MARK: - Helpers
+
+    /// たまごグループの表示テキストを生成
+    private func eggGroupsDisplayText(species: PokemonSpecies) -> String {
+        if species.eggGroups.isEmpty {
+            return FilterHelpers.eggGroupName("undiscovered")
+        }
+        return species.eggGroups
+            .map { FilterHelpers.eggGroupName($0.name) }
+            .joined(separator: localizationManager.currentLanguage == .japanese ? "、" : ", ")
+    }
+
     // MARK: - Breeding Info
 
     private func breedingInfoView(species: PokemonSpecies) -> some View {
@@ -55,7 +67,7 @@ struct EcologyTabView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Spacer()
-                Text(species.genderRatioDisplay)
+                Text(FilterHelpers.genderRatioText(genderRate: species.genderRate))
                     .font(.subheadline)
                     .fontWeight(.medium)
             }
@@ -69,7 +81,7 @@ struct EcologyTabView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Spacer()
-                Text(species.eggGroupsDisplay)
+                Text(eggGroupsDisplayText(species: species))
                     .font(.subheadline)
                     .fontWeight(.medium)
             }

@@ -86,7 +86,16 @@ final class PokemonDetailViewModel: ObservableObject {
     /// 全ポケモンリスト（ライバル選択用）
     @Published var allPokemon: [PokemonWithMatchInfo] = []
 
+    /// 現在の言語設定（LocalizationManagerから）
+    @Published var currentLanguage: AppLanguage = .japanese
+
     // MARK: - Private Properties
+
+    /// LocalizationManager
+    private var localizationManager: LocalizationManager
+
+    /// Combine subscriptions
+    private var cancellables = Set<AnyCancellable>()
 
     /// 進化チェーン取得UseCase
     private let fetchEvolutionChainUseCase: FetchEvolutionChainUseCaseProtocol
@@ -196,6 +205,7 @@ final class PokemonDetailViewModel: ObservableObject {
         pokemon: Pokemon,
         allPokemon: [PokemonWithMatchInfo] = [],
         versionGroup: String? = nil,
+        localizationManager: LocalizationManager? = nil,
         fetchEvolutionChainUseCase: FetchEvolutionChainUseCaseProtocol? = nil,
         fetchPokemonFormsUseCase: FetchPokemonFormsUseCaseProtocol? = nil,
         fetchTypeMatchupUseCase: FetchTypeMatchupUseCaseProtocol? = nil,
@@ -209,6 +219,7 @@ final class PokemonDetailViewModel: ObservableObject {
         self.pokemon = pokemon
         self.allPokemon = allPokemon
         self.versionGroup = versionGroup
+        self.localizationManager = localizationManager ?? .shared
         self.fetchEvolutionChainUseCase = fetchEvolutionChainUseCase ?? DIContainer.shared.makeFetchEvolutionChainUseCase()
         self.fetchPokemonFormsUseCase = fetchPokemonFormsUseCase ?? DIContainer.shared.makeFetchPokemonFormsUseCase()
         self.fetchTypeMatchupUseCase = fetchTypeMatchupUseCase ?? DIContainer.shared.makeFetchTypeMatchupUseCase()
@@ -218,6 +229,16 @@ final class PokemonDetailViewModel: ObservableObject {
         self.fetchFlavorTextUseCase = fetchFlavorTextUseCase ?? DIContainer.shared.makeFetchFlavorTextUseCase()
         self.moveRepository = moveRepository ?? DIContainer.shared.makeMoveRepository()
         self.pokemonRepository = pokemonRepository ?? DIContainer.shared.makePokemonRepository()
+
+        // 初期言語を設定
+        self.currentLanguage = self.localizationManager.currentLanguage
+
+        // LocalizationManagerの言語変更を監視
+        self.localizationManager.$currentLanguage
+            .sink { [weak self] newLanguage in
+                self?.currentLanguage = newLanguage
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Public Methods
@@ -243,7 +264,7 @@ final class PokemonDetailViewModel: ObservableObject {
             let preferredVersion = AppSettings.shared.preferredVersion.rawValue
             async let formsTask = fetchPokemonFormsUseCase.execute(pokemonId: speciesId, versionGroup: versionGroup)
             async let locationsTask = fetchPokemonLocationsUseCase.execute(pokemonId: speciesId, versionGroup: versionGroup)
-            async let flavorTextTask = fetchFlavorTextUseCase.execute(speciesId: speciesId, versionGroup: versionGroup, preferredVersion: preferredVersion)
+            async let flavorTextTask = fetchFlavorTextUseCase.execute(speciesId: speciesId, versionGroup: versionGroup, preferredVersion: preferredVersion, preferredLanguage: localizationManager.currentLanguage.rawValue)
             async let speciesTask = pokemonRepository.fetchPokemonSpecies(id: speciesId)
             async let evolutionChainTask = fetchEvolutionChainUseCase.executeV3(pokemonId: speciesId)
 
@@ -297,7 +318,7 @@ final class PokemonDetailViewModel: ObservableObject {
             if form.speciesId != pokemon.speciesId {
                 let preferredVersion = AppSettings.shared.preferredVersion.rawValue
                 async let speciesTask = pokemonRepository.fetchPokemonSpecies(id: form.speciesId)
-                async let flavorTextTask = fetchFlavorTextUseCase.execute(speciesId: form.speciesId, versionGroup: versionGroup, preferredVersion: preferredVersion)
+                async let flavorTextTask = fetchFlavorTextUseCase.execute(speciesId: form.speciesId, versionGroup: versionGroup, preferredVersion: preferredVersion, preferredLanguage: localizationManager.currentLanguage.rawValue)
                 async let evolutionChainTask = fetchEvolutionChainUseCase.executeV3(pokemonId: form.speciesId)
 
                 pokemonSpecies = try await speciesTask

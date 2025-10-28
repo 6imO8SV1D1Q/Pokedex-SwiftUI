@@ -278,6 +278,22 @@ struct MoveRow: View {
         self.moveDetail = moveDetail
     }
 
+    /// 技名の表示
+    private var moveDisplayName: String {
+        guard let detail = moveDetail else {
+            return move.displayName
+        }
+
+        switch localizationManager.currentLanguage {
+        case .japanese:
+            return detail.nameJa
+        case .english:
+            return detail.name
+                .replacingOccurrences(of: "-", with: " ")
+                .capitalized
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center, spacing: 12) {
@@ -318,8 +334,8 @@ struct MoveRow: View {
                     Color.clear.frame(width: 50)
                 }
 
-                // 技名（moveDetailがあれば日本語名、なければ英語名）
-                Text(moveDetail?.nameJa ?? move.displayName)
+                // 技名（言語に応じて日本語名または英語名）
+                Text(moveDisplayName)
                     .font(.subheadline)
                     .fontWeight(.medium)
 
@@ -333,7 +349,7 @@ struct MoveRow: View {
                         .font(.caption)
 
                     // 開閉ボタン（説明がある場合のみ）
-                    if detail.effect != nil {
+                    if detail.effect != nil || detail.effectJa != nil {
                         Button {
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 isExpanded.toggle()
@@ -396,8 +412,8 @@ struct MoveRow: View {
                 }
 
                 // 説明文（展開時のみ表示）
-                if isExpanded, let effect = detail.effect {
-                    Text(effect)
+                if isExpanded {
+                    Text(detail.localizedEffect(language: localizationManager.currentLanguage))
                         .font(.caption2)
                         .foregroundColor(.secondary)
                         .fixedSize(horizontal: false, vertical: true)

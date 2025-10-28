@@ -18,7 +18,7 @@ struct PokemonStatsView: View {
         VStack(spacing: 8) {
             ForEach(stats, id: \.name) { stat in
                 HStack {
-                    Text(stat.displayName)
+                    Text(FilterHelpers.statName(stat.name))
                         .frame(width: 80, alignment: .leading)
                         .font(.subheadline)
 
