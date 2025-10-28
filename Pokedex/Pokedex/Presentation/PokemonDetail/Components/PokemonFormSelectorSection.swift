@@ -15,7 +15,7 @@ struct PokemonFormSelectorSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("フォルム")
+            Text(L10n.PokemonDetail.form)
                 .font(.headline)
 
             Menu {

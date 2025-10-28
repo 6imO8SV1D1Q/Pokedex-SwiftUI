@@ -30,9 +30,9 @@ struct CategoryFilterSection: View {
             }
             .padding(.vertical, 8)
         } header: {
-            Text("区分")
+            Text(L10n.Filter.region)
         } footer: {
-            Text("選択した区分のいずれかに該当するポケモンを表示")
+            Text(L10n.Filter.regionDescription)
         }
     }
 

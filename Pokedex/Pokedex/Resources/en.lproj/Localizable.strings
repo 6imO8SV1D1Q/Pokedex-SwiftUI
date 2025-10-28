@@ -1,0 +1,587 @@
+/*
+   Localizable.strings (English)
+   Pokedex
+   Created: 2025-10-27
+*/
+
+// MARK: - Common
+"common.ok" = "OK";
+"common.cancel" = "Cancel";
+"common.add" = "Add";
+"common.save" = "Save";
+"common.delete" = "Delete";
+"common.done" = "Done";
+"common.clear" = "Clear";
+"common.all" = "All";
+"common.loading" = "Loading...";
+"common.error" = "Error";
+"common.unknown_error" = "An unknown error occurred";
+"common.pokedex" = "Pokédex";
+"common.version_group" = "Version Group";
+
+// MARK: - Stats
+"stat.hp" = "HP";
+"stat.attack" = "Attack";
+"stat.defense" = "Defense";
+"stat.special_attack" = "Sp. Atk";
+"stat.special_defense" = "Sp. Def";
+"stat.speed" = "Speed";
+"stat.total" = "Total";
+"stat.power" = "Power";
+"stat.accuracy" = "Accuracy";
+"stat.pp" = "PP";
+"stat.priority" = "Priority";
+
+// MARK: - Types
+"type.normal" = "Normal";
+"type.fire" = "Fire";
+"type.water" = "Water";
+"type.grass" = "Grass";
+"type.electric" = "Electric";
+"type.ice" = "Ice";
+"type.fighting" = "Fighting";
+"type.poison" = "Poison";
+"type.ground" = "Ground";
+"type.flying" = "Flying";
+"type.psychic" = "Psychic";
+"type.bug" = "Bug";
+"type.rock" = "Rock";
+"type.ghost" = "Ghost";
+"type.dragon" = "Dragon";
+"type.dark" = "Dark";
+"type.steel" = "Steel";
+"type.fairy" = "Fairy";
+
+// MARK: - Damage Classes
+"damage_class.physical" = "Physical";
+"damage_class.special" = "Special";
+"damage_class.status" = "Status";
+
+// MARK: - Sections
+"section.type_matchup" = "Type Matchups";
+"section.base_stats" = "Base Stats";
+"section.calculated_stats" = "Stats (Lv.50)";
+"section.abilities" = "Abilities";
+"section.moves" = "Moves";
+"section.ecology" = "Ecology";
+"section.battle" = "Battle";
+
+// MARK: - Filters
+"filter.title" = "Filters";
+"filter.clear" = "Clear";
+"filter.apply" = "Apply";
+"filter.or" = "OR (Any)";
+"filter.and" = "AND (All)";
+"filter.type" = "Type";
+"filter.category" = "Category";
+"filter.target" = "Target";
+"filter.status_condition" = "Status";
+"filter.stat_change_user" = "User Stat Changes";
+"filter.stat_change_opponent" = "Opponent Stat Changes";
+"filter.condition" = "Condition %d";
+"filter.condition_count" = "Conditions: %d";
+"filter.selected_count" = "Selected: %d";
+"filter.max_selection" = "Max 4 selections (%d/4)";
+"filter.hp_drain" = "HP Drain";
+"filter.hp_healing" = "HP Healing";
+"filter.move_note" = "Note: Includes moves filtered by metadata";
+"filter.trigger" = "Trigger";
+"filter.effect" = "Effect";
+"filter.weather" = "Weather";
+"filter.terrain" = "Terrain";
+"filter.search_mode" = "Search Mode";
+"filter.min" = "Min";
+"filter.max" = "Max";
+"filter.base_stats" = "Base Stats";
+"filter.base_stats_description" = "Filter by Pokémon base stats";
+"filter.evolution" = "Evolution";
+"filter.evolution_stage_label" = "Evolution Stage";
+"filter.evolution_all_description" = "Show Pokémon of all evolution stages";
+"filter.evolution_final_description" = "Show only fully evolved Pokémon";
+"filter.evolution_eviolite_description" = "Show Pokémon that can use Eviolite (pre-evolutions and mid-stage evolutions)";
+"filter.type_or_description" = "Show Pokémon with any of the selected types";
+"filter.type_and_description" = "Show Pokémon with all selected types";
+"filter.region" = "Region";
+"filter.region_description" = "Show Pokémon from any selected region";
+"filter.ability" = "Ability";
+"filter.ability_search_placeholder" = "Search abilities";
+"filter.ability_add_condition" = "Add ability condition";
+"filter.ability_conditions_header" = "Active Conditions";
+"filter.ability_or_description" = "Show Pokémon with any of the selected abilities";
+"filter.ability_and_description" = "Show Pokémon with all selected abilities";
+"filter.ability_category" = "Ability Category";
+"filter.move" = "Move";
+"filter.move_search_placeholder" = "Search moves";
+"filter.move_add_condition" = "Add move condition";
+"filter.move_conditions_header" = "Active Conditions";
+"filter.move_or_description" = "Show Pokémon that can learn any of the selected moves";
+"filter.move_and_description" = "Show Pokémon that can learn all selected moves";
+"filter.recovery" = "Recovery";
+"filter.stat_change" = "Stat Change";
+"filter.categories" = "Categories";
+"filter.categories_count" = "Categories: %d";
+"filter.stat_multiplier" = "Stat Multiplier";
+"filter.move_power_multiplier" = "Move Power Multiplier";
+"filter.activation_rate" = "Activation Rate";
+"filter.ability_category_description_empty" = "Filter by ability type";
+"filter.ability_category_description" = "Show Pokémon with abilities matching any selected category";
+"filter.power_label" = "Power";
+"filter.accuracy_label" = "Accuracy";
+"filter.pp_label" = "PP";
+"filter.priority_label" = "Priority";
+"filter.priority_value" = "Priority: %@";
+"filter.affected_types" = "Type";
+"filter.affected_types_value" = "Type: %@";
+"filter.target_value" = "Target: %@";
+"filter.status_condition_value" = "Status: %@";
+"filter.recovery_value" = "Recovery: %@";
+"filter.stat_change_value" = "Stat Changes: %@";
+"filter.trigger_value" = "Trigger: %@";
+"filter.effect_value" = "Effect: %@";
+"filter.weather_value" = "Weather: %@";
+"filter.terrain_value" = "Terrain: %@";
+"filter.category_value" = "Category: %@";
+"filter.move_conditions" = "Move Conditions";
+"filter.ability_conditions" = "Ability Conditions";
+"filter.move_category_header" = "Move Category";
+"filter.move_category_footer" = "Select categories individually.";
+"filter.numeric_conditions" = "Numeric Conditions";
+"filter.numeric_conditions_description" = "Filter by ranges of multipliers or probabilities";
+"filter.activation_rate_percent" = "Activation Rate (%)";
+"filter.power_accuracy_pp" = "Power/Accuracy/PP";
+"filter.set_conditions_description" = "Set conditions to filter";
+"filter.not_specified" = "Not Specified";
+"filter.priority_description" = "Move the slider to set priority immediately.";
+"filter.damage_class_header" = "Damage Class";
+"filter.effect_type" = "Effect Type";
+"filter.effect_type_description_empty" = "Filter by effect type";
+"filter.effect_type_description" = "Show abilities with any selected effect type";
+"filter.weather_terrain" = "Weather & Terrain";
+"filter.weather_terrain_description_empty" = "Filter by weather or terrain-related abilities";
+"filter.weather_terrain_description" = "Show abilities related to selected weather or terrain";
+"filter.move_target" = "Move Target";
+"filter.move_type" = "Move Type";
+"filter.trigger_timing" = "Trigger Timing";
+"filter.trigger_timing_description_empty" = "Filter by trigger timing";
+"filter.trigger_timing_description" = "Show abilities that trigger at any selected timing";
+
+// MARK: - Pokemon Category
+"category.normal" = "Normal";
+"category.sub_legendary" = "Sub-Legendary";
+"category.legendary" = "Legendary";
+"category.mythical" = "Mythical";
+
+// MARK: - Evolution Filter Mode
+"evolution_mode.all" = "Show All";
+"evolution_mode.final_only" = "Final Evolution Only";
+"evolution_mode.eviolite_only" = "Eviolite-Compatible Only";
+
+// MARK: - Ability Category
+"ability_category.weather_setter" = "Weather Setter";
+"ability_category.weather_dependent" = "Weather Dependent";
+"ability_category.terrain_setter" = "Terrain Setter";
+"ability_category.terrain_dependent" = "Terrain Dependent";
+"ability_category.stat_boost" = "Stat Boost";
+"ability_category.stat_reducer" = "Stat Reducer";
+"ability_category.type_boost" = "Type Boost";
+"ability_category.type_immunity" = "Type Immunity";
+"ability_category.type_defense" = "Type Defense";
+"ability_category.status_immunity" = "Status Immunity";
+"ability_category.status_inflictor" = "Status Inflictor";
+"ability_category.damage_reduction" = "Damage Reduction";
+"ability_category.damage_increase" = "Damage Increase";
+"ability_category.healing" = "HP Recovery";
+"ability_category.switch_in_effect" = "Switch-In Effect";
+"ability_category.switch_out_effect" = "Switch-Out Effect";
+"ability_category.random_effect" = "Random Effect";
+"ability_category.hp_dependent" = "HP Dependent";
+
+"ability_category.weather_setter_desc" = "Abilities that change the weather";
+"ability_category.weather_dependent_desc" = "Abilities that depend on weather";
+"ability_category.terrain_setter_desc" = "Abilities that change the terrain";
+"ability_category.terrain_dependent_desc" = "Abilities that depend on terrain";
+"ability_category.stat_boost_desc" = "Abilities that boost user's stats";
+"ability_category.stat_reducer_desc" = "Abilities that reduce opponent's stats";
+"ability_category.type_boost_desc" = "Abilities that boost specific types";
+"ability_category.type_immunity_desc" = "Abilities that grant type immunity";
+"ability_category.type_defense_desc" = "Abilities that reduce type damage";
+"ability_category.status_immunity_desc" = "Abilities that prevent status conditions";
+"ability_category.status_inflictor_desc" = "Abilities that inflict status conditions";
+"ability_category.damage_reduction_desc" = "Abilities that reduce damage taken";
+"ability_category.damage_increase_desc" = "Abilities that increase damage dealt";
+"ability_category.healing_desc" = "Abilities that restore HP";
+"ability_category.switch_in_effect_desc" = "Abilities that activate on switch-in";
+"ability_category.switch_out_effect_desc" = "Abilities that activate on switch-out";
+"ability_category.random_effect_desc" = "Abilities with random effects";
+"ability_category.hp_dependent_desc" = "Abilities that depend on HP status";
+
+"ability_category_group.weather_terrain" = "Weather & Terrain";
+"ability_category_group.stat_change" = "Stat Changes";
+"ability_category_group.type_related" = "Type Related";
+"ability_category_group.status_condition" = "Status Conditions";
+"ability_category_group.damage_recovery" = "Damage & Recovery";
+"ability_category_group.special_effects" = "Special Effects";
+
+// MARK: - Ability Trigger
+"ability_trigger.passive" = "Passive";
+"ability_trigger.on_switch_in" = "On Switch-In";
+"ability_trigger.on_attacking" = "On Attacking";
+"ability_trigger.on_being_hit" = "On Being Hit";
+"ability_trigger.on_contact" = "On Contact (Defender)";
+"ability_trigger.on_making_contact" = "On Contact (Attacker)";
+"ability_trigger.on_turn_end" = "On Turn End";
+"ability_trigger.on_switch_out" = "On Switch-Out";
+"ability_trigger.on_stat_change" = "On Stat Change";
+"ability_trigger.on_ko" = "On Knocking Out Foe";
+"ability_trigger.on_ally_fainted" = "On Ally Fainted";
+"ability_trigger.on_hp_threshold" = "On HP Threshold";
+"ability_trigger.after_move" = "After Move";
+"ability_trigger.on_critical_hit" = "On Critical Hit Taken";
+"ability_trigger.on_flinch" = "On Flinch";
+"ability_trigger.on_ally_move" = "On Ally's Move";
+"ability_trigger.on_any_pokemon_move" = "On Any Pokémon's Move";
+"ability_trigger.after_specific_move" = "After Specific Move";
+"ability_trigger.on_item_consumed" = "On Item Consumed";
+"ability_trigger.on_faint_any" = "On Any Faint";
+"ability_trigger.unknown" = "Unknown";
+
+// MARK: - Ability Effect Type
+"effect_type.stat_multiplier" = "Stat Multiplier";
+"effect_type.stat_stage_change" = "Stat Stage Change";
+"effect_type.prevent_stat_decrease" = "Prevent Stat Decrease";
+"effect_type.ignore_stat_changes" = "Ignore Stat Changes";
+"effect_type.reverse_stat_changes" = "Reverse Stat Changes";
+"effect_type.double_stat_changes" = "Double Stat Changes";
+"effect_type.move_power_multiplier" = "Move Power Multiplier";
+"effect_type.damage_multiplier" = "Damage Multiplier";
+"effect_type.immune_to_move" = "Immune to Move";
+"effect_type.immune_to_type" = "Type Immunity";
+"effect_type.absorb_type" = "Type Absorption";
+"effect_type.contact_damage" = "Contact Damage";
+"effect_type.survive_hit" = "Survive Hit";
+"effect_type.immune_to_status" = "Status Immunity";
+"effect_type.inflict_status" = "Inflict Status";
+"effect_type.cure_status" = "Cure Status";
+"effect_type.sync_status" = "Sync Status";
+"effect_type.set_weather" = "Set Weather";
+"effect_type.set_terrain" = "Set Terrain";
+"effect_type.nullify_weather" = "Nullify Weather";
+"effect_type.heal_hp" = "HP Recovery";
+"effect_type.accuracy_multiplier" = "Accuracy Multiplier";
+"effect_type.evasion_multiplier" = "Evasion Multiplier";
+"effect_type.critical_rate_change" = "Critical Rate Change";
+"effect_type.critical_damage_multiplier" = "Critical Damage Multiplier";
+"effect_type.prevent_critical" = "Prevent Critical";
+"effect_type.always_hit" = "Always Hit";
+"effect_type.additional_effect_chance" = "Additional Effect Chance";
+"effect_type.remove_additional_effect" = "Remove Additional Effect";
+"effect_type.prevent_additional_effect" = "Prevent Additional Effect";
+"effect_type.multi_hit_count" = "Multi-Hit Count";
+"effect_type.priority_change" = "Priority Change";
+"effect_type.convert_move_type" = "Convert Move Type";
+"effect_type.make_non_contact" = "Make Non-Contact";
+"effect_type.reflect_status_move" = "Reflect Status Move";
+"effect_type.change_user_type" = "Change User Type";
+"effect_type.change_target_type" = "Change Target Type";
+"effect_type.ignore_ability" = "Ignore Ability";
+"effect_type.nullify_abilities" = "Nullify Abilities";
+"effect_type.copy_ability" = "Copy Ability";
+"effect_type.change_ability" = "Change Ability";
+"effect_type.swap_ability" = "Swap Ability";
+"effect_type.prevent_item_loss" = "Prevent Item Loss";
+"effect_type.steal_item" = "Steal Item";
+"effect_type.disable_item" = "Disable Item";
+"effect_type.berry_effect" = "Berry Effect";
+"effect_type.prevent_switch" = "Prevent Switch";
+"effect_type.prevent_forced_switch" = "Prevent Forced Switch";
+"effect_type.force_switch" = "Force Switch";
+"effect_type.redirect_move" = "Redirect Move";
+"effect_type.form_change" = "Form Change";
+"effect_type.transform" = "Transform";
+"effect_type.disguise" = "Disguise";
+"effect_type.prevent_recoil" = "Prevent Recoil";
+"effect_type.immune_to_indirect_damage" = "Immune to Indirect Damage";
+"effect_type.increase_pp_cost" = "Increase PP Cost";
+"effect_type.disable_move" = "Disable Move";
+"effect_type.weight_multiplier" = "Weight Multiplier";
+"effect_type.prevent_action" = "Prevent Action";
+"effect_type.protect_ally" = "Protect Ally";
+"effect_type.damage_reduction_full_hp" = "Damage Reduction at Full HP";
+"effect_type.bypass_protection" = "Bypass Protection";
+"effect_type.reflect_stat_changes" = "Reflect Stat Changes";
+"effect_type.copy_stat_changes" = "Copy Stat Changes";
+"effect_type.cumulative_stat_boost" = "Cumulative Stat Boost";
+"effect_type.random_stat_change" = "Random Stat Change";
+"effect_type.set_accuracy_fixed" = "Set Fixed Accuracy";
+"effect_type.force_slow_status_move" = "Force Slow Status Move";
+"effect_type.multi_hit_exact" = "Exact Multi-Hit";
+"effect_type.replicate_move" = "Replicate Move";
+"effect_type.create_hazard" = "Create Hazard";
+"effect_type.grant_ability_to_ally" = "Grant Ability to Ally";
+"effect_type.boost_ally_move_power" = "Boost Ally Move Power";
+"effect_type.heal_ally" = "Heal Ally";
+"effect_type.pass_item_to_ally" = "Pass Item to Ally";
+"effect_type.protect_ally_from_status" = "Protect Ally from Status";
+"effect_type.set_flag" = "Set Flag";
+"effect_type.consume_item_again" = "Consume Item Again";
+"effect_type.unknown" = "Unknown";
+
+// MARK: - Weather
+"weather.sun" = "Sun";
+"weather.rain" = "Rain";
+"weather.sandstorm" = "Sandstorm";
+"weather.hail" = "Hail";
+"weather.snow" = "Snow";
+"weather.unknown" = "Unknown";
+"weather.header" = "Weather";
+
+// MARK: - Terrain
+"terrain.electric" = "Electric Terrain";
+"terrain.grassy" = "Grassy Terrain";
+"terrain.misty" = "Misty Terrain";
+"terrain.psychic" = "Psychic Terrain";
+"terrain.unknown" = "Unknown";
+"terrain.header" = "Terrain";
+
+// MARK: - Move Ailment (Status Conditions)
+"ailment.paralysis" = "Paralysis";
+"ailment.burn" = "Burn";
+"ailment.poison" = "Poison";
+"ailment.badly_poison" = "Badly Poisoned";
+"ailment.freeze" = "Freeze";
+"ailment.sleep" = "Sleep";
+"ailment.confusion" = "Confusion";
+
+// MARK: - Move Stat Change
+"stat_change.user_attack_up" = "User Attack ↑";
+"stat_change.user_defense_up" = "User Defense ↑";
+"stat_change.user_sp_attack_up" = "User Sp. Atk ↑";
+"stat_change.user_sp_defense_up" = "User Sp. Def ↑";
+"stat_change.user_speed_up" = "User Speed ↑";
+"stat_change.user_accuracy_up" = "User Accuracy ↑";
+"stat_change.user_evasion_up" = "User Evasion ↑";
+"stat_change.user_crit_rate_up" = "User Crit Rate ↑";
+"stat_change.opponent_attack_down" = "Opponent Attack ↓";
+"stat_change.opponent_defense_down" = "Opponent Defense ↓";
+"stat_change.opponent_sp_attack_down" = "Opponent Sp. Atk ↓";
+"stat_change.opponent_sp_defense_down" = "Opponent Sp. Def ↓";
+"stat_change.opponent_speed_down" = "Opponent Speed ↓";
+"stat_change.opponent_accuracy_down" = "Opponent Accuracy ↓";
+"stat_change.opponent_evasion_down" = "Opponent Evasion ↓";
+
+// MARK: - Move Targets
+"target.selected_pokemon" = "Single Opponent";
+"target.selected_pokemon_me_first" = "Single Opponent (Me First)";
+"target.ally" = "Single Ally";
+"target.users_field" = "User's Field";
+"target.user_or_ally" = "User or Ally";
+"target.opponents_field" = "Opponent's Field";
+"target.user" = "User";
+"target.random_opponent" = "Random Opponent";
+"target.all_other_pokemon" = "All Others";
+"target.all_opponents" = "All Opponents";
+"target.entire_field" = "Entire Field";
+"target.user_and_allies" = "User and Allies";
+"target.all_pokemon" = "All Pokémon";
+"target.all_allies" = "All Allies";
+"target.specific_move" = "Specific Move";
+"target.fainting_pokemon" = "Fainting Pokémon";
+
+// MARK: - Messages
+"message.loading" = "Loading...";
+"message.registering_data" = "Registering data...";
+"message.loading_failed" = "Failed to load Pokémon: %@";
+"message.unexpected_error" = "An unexpected error occurred: %@";
+"message.progress" = "%d / %d";
+"message.percent" = "%d%%";
+
+// MARK: - Pokemon List
+"pokemon_list.title" = "Pokédex";
+"pokemon_list.search_prompt" = "Search Pokémon";
+"pokemon_list.filter_result" = "Filtered: %d";
+"pokemon_list.total_count" = "Total: %d";
+"pokemon_list.count_separator" = " / ";
+"pokemon_list.filtering_moves" = "Filtering moves...";
+"pokemon_list.please_wait" = "Please wait";
+"pokemon_list.empty_title" = "No Pokémon Found";
+"pokemon_list.empty_message" = "Try changing your search criteria or filters";
+"pokemon_list.clear_filters" = "Clear Filters";
+
+// MARK: - Pokemon Detail
+"pokemon_detail.normal" = "Normal";
+"pokemon_detail.shiny" = "Shiny";
+"pokemon_detail.ability_label" = "Abilities:";
+"pokemon_detail.hidden_ability" = " (Hidden)";
+"pokemon_detail.ability_overflow" = "+%d";
+"pokemon_detail.flavor_text_source" = "Source: %@";
+"pokemon_detail.level" = "Lv.%d";
+"pokemon_detail.height" = "%.1f m";
+"pokemon_detail.weight" = "%.1f kg";
+"pokemon_detail.gender_ratio" = "Gender Ratio";
+"pokemon_detail.egg_groups" = "Egg Groups";
+"pokemon_detail.evolution" = "Evolution";
+"pokemon_detail.height_label" = "Height";
+"pokemon_detail.weight_label" = "Weight";
+"pokemon_detail.form" = "Form";
+"pokemon_detail.total_stats" = "Total";
+"pokemon_detail.none" = "None";
+"pokemon_detail.loading_data" = "Loading data...";
+"pokemon_detail.move_count" = "(%d)";
+"pokemon_detail.level_prefix" = "Lv.%d";
+"pokemon_detail.filter_results_count" = "Filtered: %d";
+"pokemon_detail.search_button" = "Search";
+"pokemon_detail.clear_button" = "Clear";
+"pokemon_detail.rival_selection" = "Rival Selection";
+"pokemon_detail.clear_selection" = "Clear Selection";
+"pokemon_detail.clear_filter" = "Clear Filter";
+
+// MARK: - Move Learn Methods
+"learn_method.all" = "All";
+"learn_method.level_up" = "Level Up";
+"learn_method.egg" = "Egg Move";
+"learn_method.tutor" = "Tutor";
+"learn_method.machine" = "TM/HM";
+
+// MARK: - Move Details
+"move.exclude_rivals" = "Exclude Rivals";
+"move.rival_count" = "(%d)";
+"move.select_button" = "Select";
+"move.no_moves_available" = "No moves available with this method";
+"move.power_label" = "Power:";
+"move.accuracy_label" = "Acc:";
+"move.pp_label" = "PP:";
+
+// MARK: - Ability Details
+"ability.hidden" = "Hidden";
+"ability.loading" = "Loading ability details...";
+
+// MARK: - Sort Options
+"sort.title" = "Sort";
+"sort.done" = "Done";
+"sort.order" = "Order";
+"sort.ascending" = "Ascending ↑";
+"sort.descending" = "Descending ↓";
+"sort.section_basic" = "Basic";
+"sort.section_base_stats" = "Base Stats";
+"sort.pokedex_number" = "Pokédex Number";
+"sort.attack" = "Attack";
+"sort.defense" = "Defense";
+"sort.special_attack" = "Sp. Atk";
+"sort.special_defense" = "Sp. Def";
+"sort.speed" = "Speed";
+"sort.total_stats" = "Total Stats";
+
+// MARK: - Settings
+"settings.title" = "Settings";
+"settings.done" = "Done";
+"settings.language" = "Language";
+"settings.display_section_header" = "Display";
+"settings.display_section_footer" = "Change the display language of the app. Type names and other content will be shown in the selected language.";
+"settings.version_preference" = "Pokédex Version";
+"settings.data_section_header" = "Pokédex Data";
+"settings.data_section_footer" = "Choose which Pokédex description to display when Scarlet and Violet have different entries.";
+
+// MARK: - Loading
+"loading.pokemon" = "Loading Pokémon...";
+"loading.move_filter_disabled" = "Move filter is only available when a version group is selected.";
+
+// MARK: - Move Filter (not in Search)
+"move_filter.title" = "Move Filter";
+"move_filter.search_placeholder" = "Search moves";
+"move_filter.max_selection_with_count" = "Max 4 selections (%d/4)";
+
+// MARK: - Accessibility
+"accessibility.pokemon_image" = "Pokémon Image";
+"accessibility.type_icon" = "Type Icon";
+"accessibility.ability_icon" = "Ability Icon";
+
+// MARK: - Stats Calculator
+"stats_calc.title" = "Stats Calculator";
+"stats_calc.level" = "Level";
+"stats_calc.level_range" = "(1-100)";
+"stats_calc.iv" = "Individual Values (IV)";
+"stats_calc.iv_short" = "IV";
+"stats_calc.iv_range" = "(0-31)";
+"stats_calc.iv_set_max" = "All 31";
+"stats_calc.iv_set_max_short" = "IV 31";
+"stats_calc.iv_set_min" = "All 0";
+"stats_calc.iv_set_min_short" = "IV 0";
+"stats_calc.ev" = "Effort Values (EV)";
+"stats_calc.ev_short" = "EV";
+"stats_calc.ev_range" = "(0-252)";
+"stats_calc.ev_remaining" = "EV Remaining: %d";
+"stats_calc.ev_over_limit" = "(Over 510)";
+"stats_calc.ev_over_limit_message" = "EVs exceed 510 limit";
+"stats_calc.ev_set_max" = "Set to 252";
+"stats_calc.ev_set_zero" = "Set to 0";
+"stats_calc.ev_button_252" = "252";
+"stats_calc.nature" = "Nature";
+"stats_calc.nature_correction" = "Nature Modifier";
+"stats_calc.nature_description" = "Set one ↑ and one ↓ (HP has no nature modifier)";
+"stats_calc.base_stat" = "Base";
+"stats_calc.calculated_stat" = "Stat";
+"stats_calc.result" = "Result";
+"stats_calc.pokemon_search" = "Search Pokémon";
+"stats_calc.pokemon_search_placeholder" = "Search by name or number";
+"stats_calc.pokemon_selected" = "Selected Pokémon";
+"stats_calc.pokemon_change" = "Change";
+"stats_calc.pokemon_loading" = "Loading Pokémon...";
+"stats_calc.pokemon_not_found" = "No Pokémon found";
+// MARK: - Move Category Groups
+"move_category_group.status_condition" = "Status Conditions";
+"move_category_group.disruption" = "Disruption";
+"move_category_group.attack_timing" = "Attack Timing";
+"move_category_group.damage_boost" = "Damage Boost";
+"move_category_group.risk" = "Risk Moves";
+"move_category_group.stat_change" = "Stat Changes";
+"move_category_group.defense_counter" = "Defense & Counter";
+"move_category_group.recovery_support" = "Recovery & Support";
+"move_category_group.switch" = "Switch";
+"move_category_group.field_control" = "Field Control";
+"move_category_group.move_types" = "Move Types";
+"move_category_group.other" = "Other";
+
+// MARK: - Move Categories
+"move_category.poison" = "Poison";
+"move_category.paralyze" = "Paralyze";
+"move_category.burn" = "Burn";
+"move_category.freeze" = "Freeze";
+"move_category.sleep" = "Sleep";
+"move_category.confusion" = "Confusion";
+"move_category.flinch" = "Flinch";
+"move_category.bind" = "Bind";
+"move_category.never_miss" = "Never Miss";
+"move_category.fixed_damage" = "Fixed Damage";
+"move_category.priority" = "Priority";
+"move_category.delayed" = "Delayed";
+"move_category.power_boost" = "Power Boost";
+"move_category.multi_hit" = "Multi-Hit";
+"move_category.high_crit" = "High Crit";
+"move_category.recoil" = "Recoil";
+"move_category.recharge" = "Recharge";
+"move_category.charge" = "Charge";
+"move_category.ohko" = "OHKO";
+"move_category.stat_change" = "Stat Change";
+"move_category.setup" = "Setup";
+"move_category.type_change" = "Type Change";
+"move_category.ability_change" = "Ability Change";
+"move_category.counter" = "Counter";
+"move_category.protect" = "Protect";
+"move_category.healing" = "Healing";
+"move_category.drain" = "Drain";
+"move_category.revival" = "Revival";
+"move_category.switch" = "Switch";
+"move_category.hazard" = "Hazard";
+"move_category.weather" = "Weather";
+"move_category.terrain" = "Terrain";
+"move_category.sound" = "Sound";
+"move_category.punch" = "Punch";
+"move_category.powder" = "Powder";
+"move_category.pulse" = "Pulse";
+"move_category.bite" = "Bite";
+"move_category.ball" = "Ball";
+"move_category.dance" = "Dance";
+"move_category.wind" = "Wind";
+"move_category.slash" = "Slash";
+"move_category.contact" = "Contact";
+"move_category.defrost" = "Defrost";

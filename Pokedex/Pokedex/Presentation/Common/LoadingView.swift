@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoadingView: View {
-    var message: String = "読み込み中..."
+    var message: LocalizedStringKey = L10n.Common.loading
 
     var body: some View {
         VStack(spacing: DesignConstants.Spacing.medium) {

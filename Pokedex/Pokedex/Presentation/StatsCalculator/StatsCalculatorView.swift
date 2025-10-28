@@ -69,7 +69,7 @@ struct StatsCalculatorView: View {
                 .padding()
             }
             .scrollDismissesKeyboard(.interactively)
-            .navigationTitle("実数値計算機")
+            .navigationTitle(L10n.StatsCalc.title)
         }
     }
 }

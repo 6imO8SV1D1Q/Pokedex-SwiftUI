@@ -46,7 +46,7 @@ struct AbilityMetadataFilterView: View {
                     selectedTerrains: $tempFilter.terrains
                 )
             }
-            .navigationTitle("特性の条件")
+            .navigationTitle(L10n.Filter.abilityConditions)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 clearButton
@@ -59,7 +59,7 @@ struct AbilityMetadataFilterView: View {
 
     private var clearButton: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
-            Button("クリア") {
+            Button(L10n.Common.clear) {
                 tempFilter = AbilityMetadataFilter()
             }
         }
@@ -67,7 +67,7 @@ struct AbilityMetadataFilterView: View {
 
     private var applyButton: some ToolbarContent {
         ToolbarItem(placement: .confirmationAction) {
-            Button(initialFilter == nil ? "追加" : "保存") {
+            Button(initialFilter == nil ? L10n.Common.add : L10n.Common.save) {
                 onSave(tempFilter)
                 dismiss()
             }

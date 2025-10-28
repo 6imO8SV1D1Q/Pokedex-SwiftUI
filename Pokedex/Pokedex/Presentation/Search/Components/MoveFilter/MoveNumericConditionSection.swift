@@ -24,7 +24,7 @@ struct MoveNumericConditionSection: View {
             VStack(alignment: .leading, spacing: 12) {
                 // 威力
                 rangeConditionRow(
-                    label: "威力",
+                    label: NSLocalizedString("stat.power", comment: ""),
                     minValue: $powerMin,
                     maxValue: $powerMax,
                     onUpdate: updatePowerCondition,
@@ -34,7 +34,7 @@ struct MoveNumericConditionSection: View {
 
                 // 命中率
                 rangeConditionRow(
-                    label: "命中率",
+                    label: NSLocalizedString("stat.accuracy", comment: ""),
                     minValue: $accuracyMin,
                     maxValue: $accuracyMax,
                     onUpdate: updateAccuracyCondition,
@@ -44,7 +44,7 @@ struct MoveNumericConditionSection: View {
 
                 // PP
                 rangeConditionRow(
-                    label: "PP",
+                    label: NSLocalizedString("stat.pp", comment: ""),
                     minValue: $ppMin,
                     maxValue: $ppMax,
                     onUpdate: updatePPCondition,
@@ -54,13 +54,13 @@ struct MoveNumericConditionSection: View {
             }
             .padding(.vertical, 8)
         } header: {
-            Text("威力・命中率・PP")
+            Text(L10n.Filter.powerAccuracyPP)
         } footer: {
             let count = [powerCondition, accuracyCondition, ppCondition].compactMap { $0 }.count
             if count == 0 {
-                Text("条件を設定して絞り込みます")
+                Text(L10n.Filter.setConditionsDescription)
             } else {
-                Text("条件: \(count)件")
+                Text(L10n.Filter.conditionCount(count))
             }
         }
         .onAppear {
@@ -81,7 +81,7 @@ struct MoveNumericConditionSection: View {
                 .frame(width: 60, alignment: .leading)
                 .font(.body)
 
-            TextField("最小", text: minValue)
+            TextField(L10n.Filter.min, text: minValue)
                 .keyboardType(.numberPad)
                 .textFieldStyle(.roundedBorder)
                 .frame(width: 70)
@@ -92,7 +92,7 @@ struct MoveNumericConditionSection: View {
             Text("〜")
                 .foregroundColor(.secondary)
 
-            TextField("最大", text: maxValue)
+            TextField(L10n.Filter.max, text: maxValue)
                 .keyboardType(.numberPad)
                 .textFieldStyle(.roundedBorder)
                 .frame(width: 70)

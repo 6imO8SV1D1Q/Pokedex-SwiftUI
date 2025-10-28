@@ -66,10 +66,10 @@ struct CompactStatsInputView: View {
 
     private var levelInput: some View {
         HStack {
-            Text("レベル")
+            Text(L10n.StatsCalc.level)
                 .font(.subheadline)
 
-            TextField("レベル", value: $level, format: .number)
+            TextField("", value: $level, format: .number)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .keyboardType(.numberPad)
                 .frame(width: 60)
@@ -82,20 +82,24 @@ struct CompactStatsInputView: View {
                     }
                 }
 
-            Text("(1-100)")
+            Text(L10n.StatsCalc.levelRange)
                 .font(.system(size: 10))
                 .foregroundColor(.secondary)
 
             Spacer()
 
-            Button("IV 31") {
+            Button {
                 onSetAllIVsToMax()
+            } label: {
+                Text(L10n.StatsCalc.ivSetMaxShort)
             }
             .buttonStyle(.bordered)
             .font(.system(size: 9))
 
-            Button("IV 0") {
+            Button {
                 onSetAllIVsToMin()
+            } label: {
+                Text(L10n.StatsCalc.ivSetMinShort)
             }
             .buttonStyle(.bordered)
             .font(.system(size: 9))
@@ -109,19 +113,19 @@ struct CompactStatsInputView: View {
             Text("")
                 .frame(width: 56, alignment: .leading)
 
-            Text("種族値")
+            Text(L10n.StatsCalc.baseStat)
                 .font(.system(size: 9))
                 .fontWeight(.semibold)
                 .foregroundColor(.secondary)
                 .frame(width: 32)
 
-            Text("IV")
+            Text(L10n.StatsCalc.ivShort)
                 .font(.system(size: 9))
                 .fontWeight(.semibold)
                 .foregroundColor(.secondary)
                 .frame(width: 28)
 
-            Text("EV")
+            Text(L10n.StatsCalc.evShort)
                 .font(.system(size: 9))
                 .fontWeight(.semibold)
                 .foregroundColor(.secondary)
@@ -129,13 +133,13 @@ struct CompactStatsInputView: View {
 
             Spacer()
 
-            Text("性格")
+            Text(L10n.StatsCalc.nature)
                 .font(.system(size: 9))
                 .fontWeight(.semibold)
                 .foregroundColor(.secondary)
                 .frame(width: 44)
 
-            Text("実数値")
+            Text(L10n.StatsCalc.calculatedStat)
                 .font(.system(size: 9))
                 .fontWeight(.semibold)
                 .foregroundColor(.secondary)
@@ -209,11 +213,15 @@ struct CompactStatsInputView: View {
                 .frame(width: 20, height: 20)
 
                 Menu {
-                    Button("252にする") {
+                    Button {
                         evs[stat.key] = 252
+                    } label: {
+                        Text(L10n.StatsCalc.evSetMax)
                     }
-                    Button("0にする") {
+                    Button {
                         evs[stat.key] = 0
+                    } label: {
+                        Text(L10n.StatsCalc.evSetZero)
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle.fill")
@@ -291,12 +299,12 @@ struct CompactStatsInputView: View {
 
     private var evSummary: some View {
         HStack {
-            Text("努力値 残り: \(remainingEVs)")
+            Text(L10n.StatsCalc.evRemaining(remainingEVs))
                 .font(.caption)
                 .foregroundColor(isEVOverLimit ? .red : .secondary)
 
             if isEVOverLimit {
-                Text("（510を超えています）")
+                Text(L10n.StatsCalc.evOverLimit)
                     .font(.system(size: 10))
                     .foregroundColor(.red)
             }

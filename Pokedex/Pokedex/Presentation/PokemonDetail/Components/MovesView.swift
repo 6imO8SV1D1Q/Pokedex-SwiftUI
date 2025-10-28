@@ -88,11 +88,11 @@ struct MovesView: View {
                     HStack(spacing: 6) {
                         Image(systemName: viewModel.excludeRivalMoves ? "checkmark.square.fill" : "square")
                             .foregroundColor(viewModel.excludeRivalMoves ? .blue : .secondary)
-                        Text("ライバル除外")
+                        Text(L10n.Move.excludeRivals)
                             .font(.caption)
                             .foregroundColor(.primary)
                         if !viewModel.selectedRivals.isEmpty {
-                            Text("(\(viewModel.selectedRivals.count)匹)")
+                            Text(L10n.Move.rivalCount(viewModel.selectedRivals.count))
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
                         }
@@ -105,7 +105,7 @@ struct MovesView: View {
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "person.2")
-                            Text("選択")
+                            Text(L10n.Move.selectButton)
                         }
                         .font(.caption)
                         .foregroundColor(.white)
@@ -167,7 +167,7 @@ struct MovesView: View {
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
 
-                                Text("(\(group.moves.count))")
+                                Text(L10n.PokemonDetail.moveCount(group.moves.count))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
@@ -187,7 +187,7 @@ struct MovesView: View {
             } else {
                 // 特定の習得方法が選択されている場合
                 if filteredMoves.isEmpty {
-                    Text("この方法で習得できる技はありません")
+                    Text(L10n.Move.noMovesAvailable)
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .padding()
@@ -220,24 +220,9 @@ struct MovesView: View {
         }
     }
 
-    /// 習得方法を日本語表示に変換
+    /// 習得方法を表示用に変換
     private func learnMethodDisplayName(_ method: String) -> String {
-        switch method {
-        case "all":
-            return "すべて"
-        case "level-up":
-            return "レベルアップ"
-        case "machine":
-            return "わざマシン"
-        case "egg":
-            return "タマゴわざ"
-        case "tutor":
-            return "教え技"
-        default:
-            return method
-                .replacingOccurrences(of: "-", with: " ")
-                .capitalized
-        }
+        return L10n.LearnMethod.displayName(method)
     }
 }
 
@@ -275,24 +260,9 @@ struct LearnMethodPicker: View {
         }
     }
 
-    /// 習得方法を日本語表示に変換
+    /// 習得方法を表示用に変換
     private func learnMethodDisplayName(_ method: String) -> String {
-        switch method {
-        case "all":
-            return "すべて"
-        case "level-up":
-            return "レベルアップ"
-        case "machine":
-            return "わざマシン"
-        case "egg":
-            return "タマゴわざ"
-        case "tutor":
-            return "教え技"
-        default:
-            return method
-                .replacingOccurrences(of: "-", with: " ")
-                .capitalized
-        }
+        return L10n.LearnMethod.displayName(method)
     }
 }
 
@@ -316,7 +286,7 @@ struct MoveRow: View {
                 case "level-up":
                     if let level = move.level, level > 0 {
                         // レベルアップ技の場合
-                        Text("Lv.\(level)")
+                        Text(L10n.PokemonDetail.levelPrefix(level))
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
@@ -387,7 +357,7 @@ struct MoveRow: View {
 
                     // 威力
                     HStack(spacing: 2) {
-                        Text("威力:")
+                        Text(L10n.Move.powerLabel)
                         Text(detail.displayPower)
                     }
                     .font(.caption)
@@ -395,7 +365,7 @@ struct MoveRow: View {
 
                     // 命中率
                     HStack(spacing: 2) {
-                        Text("命中:")
+                        Text(L10n.Move.accuracyLabel)
                         Text(detail.displayAccuracy)
                     }
                     .font(.caption)
@@ -403,7 +373,7 @@ struct MoveRow: View {
 
                     // PP
                     HStack(spacing: 2) {
-                        Text("PP:")
+                        Text(L10n.Move.ppLabel)
                         Text(detail.displayPP)
                     }
                     .font(.caption)

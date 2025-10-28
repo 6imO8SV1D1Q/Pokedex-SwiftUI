@@ -22,7 +22,7 @@ struct MoveStatChangeSection: View {
             LazyVGrid(columns: gridColumns, spacing: 10) {
                 ForEach(StatChangeFilter.allCases.filter { $0.statChangeInfo.isUser == isUser }) { statChange in
                     GridButtonView(
-                        text: statChange.rawValue,
+                        text: statChange.displayName,
                         isSelected: selectedStatChanges.contains(statChange),
                         action: { toggleStatChange(statChange) }
                     )
@@ -30,7 +30,7 @@ struct MoveStatChangeSection: View {
             }
             .padding(.vertical, 8)
         } header: {
-            Text(isUser ? "自分の能力変化" : "相手の能力変化")
+            Text(isUser ? L10n.Filter.statChangeUser : L10n.Filter.statChangeOpponent)
         }
     }
 

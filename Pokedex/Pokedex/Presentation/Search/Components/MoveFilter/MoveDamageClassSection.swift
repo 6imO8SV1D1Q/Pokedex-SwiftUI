@@ -10,10 +10,10 @@ import SwiftUI
 struct MoveDamageClassSection: View {
     @Binding var selectedDamageClasses: Set<String>
 
-    private let damageClasses: [(id: String, label: String)] = [
-        ("physical", "物理"),
-        ("special", "特殊"),
-        ("status", "変化")
+    private let damageClasses: [String] = [
+        "physical",
+        "special",
+        "status"
     ]
 
     private let gridColumns = [
@@ -25,17 +25,17 @@ struct MoveDamageClassSection: View {
     var body: some View {
         Section {
             LazyVGrid(columns: gridColumns, spacing: 10) {
-                ForEach(damageClasses, id: \.id) { damageClass in
+                ForEach(damageClasses, id: \.self) { damageClass in
                     GridButtonView(
-                        text: damageClass.label,
-                        isSelected: selectedDamageClasses.contains(damageClass.id),
-                        action: { toggleDamageClass(damageClass.id) }
+                        text: FilterHelpers.damageClassLabel(damageClass),
+                        isSelected: selectedDamageClasses.contains(damageClass),
+                        action: { toggleDamageClass(damageClass) }
                     )
                 }
             }
             .padding(.vertical, 8)
         } header: {
-            Text("分類")
+            Text(L10n.Filter.damageClassHeader)
         }
     }
 

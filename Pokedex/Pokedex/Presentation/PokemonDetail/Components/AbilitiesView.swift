@@ -41,7 +41,7 @@ struct AbilityCard: View {
 
                 // 隠れ特性バッジ
                 if ability.isHidden {
-                    Text("隠れ特性")
+                    Text(L10n.Ability.hidden)
                         .font(.caption2)
                         .foregroundColor(.white)
                         .padding(.horizontal, 6)
@@ -62,7 +62,7 @@ struct AbilityCard: View {
                     .fixedSize(horizontal: false, vertical: true)
             } else {
                 // 詳細データがない場合
-                Text("特性の詳細を読み込み中...")
+                Text(L10n.Ability.loading)
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .opacity(0.6)

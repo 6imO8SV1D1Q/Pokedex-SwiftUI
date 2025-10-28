@@ -14,14 +14,14 @@ struct MovePrioritySection: View {
         Section {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Text("優先度:")
+                    Text(L10n.Filter.priorityLabel)
                     Spacer()
                     if let priority = priority {
                         Text(priority >= 0 ? "+\(priority)" : "\(priority)")
                             .fontWeight(.semibold)
                             .foregroundColor(.blue)
                     } else {
-                        Text("指定なし")
+                        Text(L10n.Filter.notSpecified)
                             .foregroundColor(.secondary)
                     }
                 }
@@ -39,7 +39,7 @@ struct MovePrioritySection: View {
                     Button {
                         priority = nil
                     } label: {
-                        Text("解除")
+                        Text(L10n.Common.clear)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 8)
                             .background(Color.secondary.opacity(0.2))
@@ -50,9 +50,9 @@ struct MovePrioritySection: View {
             }
             .padding(.vertical, 8)
         } header: {
-            Text("優先度")
+            Text(L10n.Stat.priority)
         } footer: {
-            Text("スライダーを動かすと即座に優先度が設定されます。")
+            Text(L10n.Filter.priorityDescription)
         }
     }
 }

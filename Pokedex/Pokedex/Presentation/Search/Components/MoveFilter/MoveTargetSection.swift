@@ -10,13 +10,13 @@ import SwiftUI
 struct MoveTargetSection: View {
     @Binding var selectedTargets: Set<String>
 
-    private let targets: [(id: String, label: String)] = [
-        ("selected-pokemon", "相手単体"),
-        ("user", "自分"),
-        ("all-opponents", "相手全体"),
-        ("all-other-pokemon", "自分以外"),
-        ("user-and-allies", "味方全体"),
-        ("all-pokemon", "全員")
+    private let targets: [String] = [
+        "selected-pokemon",
+        "user",
+        "all-opponents",
+        "all-other-pokemon",
+        "user-and-allies",
+        "all-pokemon"
     ]
 
     private let gridColumns = [
@@ -28,17 +28,17 @@ struct MoveTargetSection: View {
     var body: some View {
         Section {
             LazyVGrid(columns: gridColumns, spacing: 10) {
-                ForEach(targets, id: \.id) { target in
+                ForEach(targets, id: \.self) { target in
                     GridButtonView(
-                        text: target.label,
-                        isSelected: selectedTargets.contains(target.id),
-                        action: { toggleTarget(target.id) }
+                        text: FilterHelpers.targetJapaneseName(target),
+                        isSelected: selectedTargets.contains(target),
+                        action: { toggleTarget(target) }
                     )
                 }
             }
             .padding(.vertical, 8)
         } header: {
-            Text("技の対象")
+            Text(L10n.Filter.moveTarget)
         }
     }
 

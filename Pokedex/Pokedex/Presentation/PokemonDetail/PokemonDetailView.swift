@@ -83,7 +83,7 @@ struct PokemonDetailView: View {
 
                 HStack(spacing: DesignConstants.Spacing.large) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("高さ")
+                        Text(L10n.PokemonDetail.heightLabel)
                             .font(.caption)
                             .foregroundColor(.secondary)
                         Text(String(format: "%.1f m", viewModel.pokemon.heightInMeters))
@@ -92,7 +92,7 @@ struct PokemonDetailView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("重さ")
+                        Text(L10n.PokemonDetail.weightLabel)
                             .font(.caption)
                             .foregroundColor(.secondary)
                         Text(String(format: "%.1f kg", viewModel.pokemon.weightInKilograms))
@@ -138,7 +138,7 @@ struct PokemonDetailView: View {
         } label: {
             HStack(spacing: 4) {
                 Image(systemName: viewModel.isShiny ? "arrow.uturn.backward.circle.fill" : "sparkles")
-                Text(viewModel.isShiny ? "通常" : "色違い")
+                Text(viewModel.isShiny ? L10n.PokemonDetail.normal : L10n.PokemonDetail.shiny)
             }
             .font(.caption)
         }
@@ -158,9 +158,9 @@ struct PokemonDetailView: View {
 
     private var segmentedControl: some View {
         Picker("タブ", selection: $selectedTab) {
-            Label("生態", systemImage: "book.fill")
+            Label(L10n.Section.ecology, systemImage: "book.fill")
                 .tag(DetailTab.ecology)
-            Label("バトル", systemImage: "bolt.fill")
+            Label(L10n.Section.battle, systemImage: "bolt.fill")
                 .tag(DetailTab.battle)
         }
         .pickerStyle(.segmented)

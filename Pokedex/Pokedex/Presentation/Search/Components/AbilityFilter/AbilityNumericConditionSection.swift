@@ -24,11 +24,11 @@ struct AbilityNumericConditionSection: View {
             VStack(alignment: .leading, spacing: 12) {
                 // 能力値倍率
                 HStack(spacing: 8) {
-                    Text("能力値倍率")
+                    Text(L10n.Filter.statMultiplier)
                         .frame(width: 100, alignment: .leading)
                         .font(.body)
 
-                    TextField("最小", text: $statMultiplierMin)
+                    TextField(L10n.Filter.min, text: $statMultiplierMin)
                         .keyboardType(.decimalPad)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 70)
@@ -39,7 +39,7 @@ struct AbilityNumericConditionSection: View {
                     Text("〜")
                         .foregroundColor(.secondary)
 
-                    TextField("最大", text: $statMultiplierMax)
+                    TextField(L10n.Filter.max, text: $statMultiplierMax)
                         .keyboardType(.decimalPad)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 70)
@@ -63,11 +63,11 @@ struct AbilityNumericConditionSection: View {
 
                 // 技威力倍率
                 HStack(spacing: 8) {
-                    Text("技威力倍率")
+                    Text(L10n.Filter.movePowerMultiplier)
                         .frame(width: 100, alignment: .leading)
                         .font(.body)
 
-                    TextField("最小", text: $movePowerMultiplierMin)
+                    TextField(L10n.Filter.min, text: $movePowerMultiplierMin)
                         .keyboardType(.decimalPad)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 70)
@@ -78,7 +78,7 @@ struct AbilityNumericConditionSection: View {
                     Text("〜")
                         .foregroundColor(.secondary)
 
-                    TextField("最大", text: $movePowerMultiplierMax)
+                    TextField(L10n.Filter.max, text: $movePowerMultiplierMax)
                         .keyboardType(.decimalPad)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 70)
@@ -102,11 +102,11 @@ struct AbilityNumericConditionSection: View {
 
                 // 発動確率
                 HStack(spacing: 8) {
-                    Text("発動確率（%）")
+                    Text(L10n.Filter.activationRatePercent)
                         .frame(width: 100, alignment: .leading)
                         .font(.body)
 
-                    TextField("最小", text: $probabilityMin)
+                    TextField(L10n.Filter.min, text: $probabilityMin)
                         .keyboardType(.numberPad)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 70)
@@ -117,7 +117,7 @@ struct AbilityNumericConditionSection: View {
                     Text("〜")
                         .foregroundColor(.secondary)
 
-                    TextField("最大", text: $probabilityMax)
+                    TextField(L10n.Filter.max, text: $probabilityMax)
                         .keyboardType(.numberPad)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 70)
@@ -141,13 +141,13 @@ struct AbilityNumericConditionSection: View {
             }
             .padding(.vertical, 8)
         } header: {
-            Text("数値条件")
+            Text(L10n.Filter.numericConditions)
         } footer: {
             let count = [statMultiplierCondition, movePowerMultiplierCondition, probabilityCondition].compactMap { $0 }.count
             if count == 0 {
-                Text("倍率や確率の範囲を設定して絞り込みます")
+                Text(L10n.Filter.numericConditionsDescription)
             } else {
-                Text("条件: \(count)件")
+                Text(L10n.Filter.conditionCount(count))
             }
         }
         .onAppear {

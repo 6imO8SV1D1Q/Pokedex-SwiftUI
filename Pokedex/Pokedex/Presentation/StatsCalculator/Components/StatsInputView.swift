@@ -23,11 +23,11 @@ struct StatsInputView: View {
 
     private let statNames: [(key: String, label: String)] = [
         ("hp", "HP"),
-        ("attack", "攻撃"),
-        ("defense", "防御"),
-        ("special-attack", "特攻"),
-        ("special-defense", "特防"),
-        ("speed", "素早さ")
+        ("attack", "こうげき"),
+        ("defense", "ぼうぎょ"),
+        ("special-attack", "とくこう"),
+        ("special-defense", "とくぼう"),
+        ("speed", "すばやさ")
     ]
 
     var body: some View {
@@ -54,11 +54,11 @@ struct StatsInputView: View {
 
     private var levelInput: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("レベル")
+            Text(L10n.StatsCalc.level)
                 .font(.headline)
 
             HStack {
-                TextField("レベル", value: $level, format: .number)
+                TextField("", value: $level, format: .number)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .keyboardType(.numberPad)
                     .frame(width: 80)
@@ -71,7 +71,7 @@ struct StatsInputView: View {
                         }
                     }
 
-                Text("(1-100)")
+                Text(L10n.StatsCalc.levelRange)
                     .font(.caption)
                     .foregroundColor(.secondary)
 
@@ -85,19 +85,23 @@ struct StatsInputView: View {
     private var ivInput: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("個体値 (IV)")
+                Text(L10n.StatsCalc.iv)
                     .font(.headline)
 
                 Spacer()
 
-                Button("すべて31") {
+                Button {
                     onSetAllIVsToMax()
+                } label: {
+                    Text(L10n.StatsCalc.ivSetMax)
                 }
                 .buttonStyle(.bordered)
                 .font(.caption)
 
-                Button("すべて0") {
+                Button {
                     onSetAllIVsToMin()
+                } label: {
+                    Text(L10n.StatsCalc.ivSetMin)
                 }
                 .buttonStyle(.bordered)
                 .font(.caption)
@@ -119,7 +123,7 @@ struct StatsInputView: View {
                     .keyboardType(.numberPad)
                     .frame(width: 60)
 
-                    Text("(0-31)")
+                    Text(L10n.StatsCalc.ivRange)
                         .font(.caption2)
                         .foregroundColor(.secondary)
 
@@ -134,18 +138,18 @@ struct StatsInputView: View {
     private var evInput: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("努力値 (EV)")
+                Text(L10n.StatsCalc.ev)
                     .font(.headline)
 
                 Spacer()
 
-                Text("残り: \(remainingEVs)")
+                Text(L10n.StatsCalc.evRemaining(remainingEVs))
                     .font(.subheadline)
                     .foregroundColor(isEVOverLimit ? .red : .secondary)
             }
 
             if isEVOverLimit {
-                Text("努力値が510を超えています")
+                Text(L10n.StatsCalc.evOverLimitMessage)
                     .font(.caption)
                     .foregroundColor(.red)
             }
@@ -188,7 +192,7 @@ struct StatsInputView: View {
                     Button {
                         evs[stat.key] = 252
                     } label: {
-                        Text("252")
+                        Text(L10n.StatsCalc.evButton252)
                             .font(.caption2)
                     }
                     .buttonStyle(.bordered)

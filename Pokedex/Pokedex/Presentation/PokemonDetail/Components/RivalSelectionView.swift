@@ -158,7 +158,7 @@ struct RivalSelectionView: View {
             } label: {
                 HStack {
                     Image(systemName: "magnifyingglass")
-                    Text("検索")
+                    Text(L10n.PokemonDetail.searchButton)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
@@ -176,7 +176,7 @@ struct RivalSelectionView: View {
         if shouldShowResults {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Text("絞り込み結果: \(filteredPokemon.count)匹")
+                    Text(L10n.PokemonDetail.filterResultsCount(filteredPokemon.count))
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Spacer()
@@ -331,7 +331,7 @@ struct RivalSelectionView: View {
             contentView
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("完了") {
+                        Button(L10n.Common.done) {
                             dismiss()
                         }
                     }
@@ -366,7 +366,7 @@ struct RivalSelectionView: View {
             searchButtonView
             resultsView
         }
-        .navigationTitle("ライバル選択")
+        .navigationTitle(L10n.PokemonDetail.rivalSelection)
         .navigationBarTitleDisplayMode(.inline)
         .onChange(of: filterHash) { _, _ in
             shouldShowResults = false
@@ -377,17 +377,17 @@ struct RivalSelectionView: View {
     private var clearMenuButton: some View {
         Menu {
             if !selectedRivals.isEmpty {
-                Button("選択をクリア") {
+                Button(L10n.PokemonDetail.clearSelection) {
                     selectedRivals.removeAll()
                 }
             }
             if hasActiveFilters {
-                Button("フィルタをクリア") {
+                Button(L10n.PokemonDetail.clearFilter) {
                     clearFilters()
                 }
             }
         } label: {
-            Text("クリア")
+            Text(L10n.PokemonDetail.clearButton)
         }
         .disabled(selectedRivals.isEmpty && !hasActiveFilters)
     }

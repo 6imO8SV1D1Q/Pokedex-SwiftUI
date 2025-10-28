@@ -15,16 +15,16 @@ struct StatsResultView: View {
 
     private let statNames: [(key: String, label: String)] = [
         ("hp", "HP"),
-        ("attack", "攻撃"),
-        ("defense", "防御"),
-        ("special-attack", "特攻"),
-        ("special-defense", "特防"),
-        ("speed", "素早さ")
+        ("attack", "こうげき"),
+        ("defense", "ぼうぎょ"),
+        ("special-attack", "とくこう"),
+        ("special-defense", "とくぼう"),
+        ("speed", "すばやさ")
     ]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("計算結果")
+            Text(L10n.StatsCalc.result)
                 .font(.headline)
 
             VStack(spacing: 12) {

@@ -27,13 +27,13 @@ enum PokemonCategory: String, CaseIterable, Identifiable, Codable {
     var displayName: String {
         switch self {
         case .normal:
-            return "一般"
+            return L10n.Category.normal
         case .subLegendary:
-            return "準伝説"
+            return L10n.Category.subLegendary
         case .legendary:
-            return "伝説"
+            return L10n.Category.legendary
         case .mythical:
-            return "幻"
+            return L10n.Category.mythical
         }
     }
 

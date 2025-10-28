@@ -56,7 +56,7 @@ struct SearchFilterView: View {
                     isLoading: isLoadingMoves
                 )
             }
-            .navigationTitle("フィルター")
+            .navigationTitle(L10n.Filter.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 clearButton
@@ -73,7 +73,7 @@ struct SearchFilterView: View {
 
     private var clearButton: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
-            Button("クリア") {
+            Button(L10n.Filter.clear) {
                 clearAllFilters()
             }
         }
@@ -81,7 +81,7 @@ struct SearchFilterView: View {
 
     private var applyButton: some ToolbarContent {
         ToolbarItem(placement: .confirmationAction) {
-            Button("適用") {
+            Button(L10n.Filter.apply) {
                 viewModel.applyFilters()
                 dismiss()
             }

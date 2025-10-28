@@ -17,36 +17,36 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section {
-                    Picker("言語", selection: $localizationManager.currentLanguage) {
+                    Picker(L10n.Settings.language, selection: $localizationManager.currentLanguage) {
                         ForEach(AppLanguage.allCases) { language in
                             Text(language.displayName).tag(language)
                         }
                     }
                     .pickerStyle(.segmented)
                 } header: {
-                    Text("表示設定")
+                    Text(L10n.Settings.displaySectionHeader)
                 } footer: {
-                    Text("アプリの表示言語を変更できます。タイプ名などが選択した言語で表示されます。")
+                    Text(L10n.Settings.displaySectionFooter)
                 }
 
                 Section {
-                    Picker("図鑑説明バージョン", selection: $appSettings.preferredVersion) {
+                    Picker(L10n.Settings.versionPreference, selection: $appSettings.preferredVersion) {
                         ForEach(AppSettings.PreferredVersion.allCases) { version in
                             Text(version.displayName).tag(version)
                         }
                     }
                     .pickerStyle(.segmented)
                 } header: {
-                    Text("図鑑データ")
+                    Text(L10n.Settings.dataSectionHeader)
                 } footer: {
-                    Text("スカーレット・バイオレットで図鑑説明が異なる場合、どちらを表示するか選択できます。")
+                    Text(L10n.Settings.dataSectionFooter)
                 }
             }
-            .navigationTitle("設定")
+            .navigationTitle(L10n.Settings.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("完了") {
+                    Button(L10n.Settings.done) {
                         dismiss()
                     }
                 }

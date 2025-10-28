@@ -36,7 +36,7 @@ struct PokemonStatsView: View {
                 .padding(.vertical, 4)
 
             HStack {
-                Text("合計")
+                Text(L10n.PokemonDetail.totalStats)
                     .frame(width: 80, alignment: .leading)
                     .font(.subheadline)
                     .fontWeight(.bold)

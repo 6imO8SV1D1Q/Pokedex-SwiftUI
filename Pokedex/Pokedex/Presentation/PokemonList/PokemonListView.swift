@@ -40,7 +40,7 @@ struct PokemonListView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // 図鑑切り替えSegmented Control
-                Picker("図鑑", selection: $viewModel.selectedPokedex) {
+                Picker(L10n.Common.pokedex, selection: $viewModel.selectedPokedex) {
                     ForEach(PokedexType.allCases) { pokedex in
                         Text(localizationManager.displayName(for: pokedex))
                             .tag(pokedex)
@@ -69,8 +69,8 @@ struct PokemonListView: View {
                 contentView
             }
             .frame(maxHeight: .infinity, alignment: .top)
-            .navigationTitle("Pokédex")
-            .searchable(text: $viewModel.searchText, prompt: "ポケモンを検索")
+            .navigationTitle(L10n.PokemonList.title)
+            .searchable(text: $viewModel.searchText, prompt: Text(L10n.PokemonList.searchPrompt))
             .onChange(of: viewModel.searchText) { _, _ in
                 viewModel.applyFilters()
             }
@@ -165,11 +165,11 @@ struct PokemonListView: View {
                                 }
                             }
                         }
-                        .navigationTitle("バージョングループ")
+                        .navigationTitle(L10n.Common.versionGroup)
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button("完了") {
+                                Button(L10n.Common.done) {
                                     activeSheet = nil
                                 }
                             }
@@ -180,8 +180,8 @@ struct PokemonListView: View {
                     SettingsView()
                 }
             }
-            .alert("エラー", isPresented: $viewModel.showError) {
-                Button("OK") {
+            .alert(L10n.Common.error, isPresented: $viewModel.showError) {
+                Button(L10n.Common.ok) {
                     viewModel.showError = false
                 }
                 Button("再試行") {
@@ -190,7 +190,7 @@ struct PokemonListView: View {
                     }
                 }
             } message: {
-                Text(viewModel.errorMessage ?? "不明なエラーが発生しました")
+                Text(viewModel.errorMessage ?? L10n.Common.unknownError)
             }
             .onAppear {
                 if !hasLoaded {
@@ -214,16 +214,16 @@ struct PokemonListView: View {
                             ProgressView(value: viewModel.loadingProgress)
                                 .progressViewStyle(.linear)
                                 .frame(width: 200)
-                            Text(viewModel.loadingProgress > 0.1 ? "データ登録中..." : "読み込み中...")
+                            Text(viewModel.loadingProgress > 0.1 ? L10n.Message.registeringData : L10n.Message.loading)
                                 .font(.headline)
                                 .foregroundColor(.secondary)
-                            Text("\(Int(viewModel.loadingProgress * 100))%")
+                            Text(L10n.Message.percent(Int(viewModel.loadingProgress * 100)))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         } else {
                             // 進捗が0の場合は不定形プログレス
                             ProgressView()
-                            Text("読み込み中...")
+                            Text(L10n.Message.loading)
                                 .font(.headline)
                                 .foregroundColor(.secondary)
                         }
@@ -237,10 +237,10 @@ struct PokemonListView: View {
                     Spacer()
                     VStack(spacing: 16) {
                         ProgressView()
-                        Text("技フィルター処理中...")
+                        Text(L10n.PokemonList.filteringMoves)
                             .font(.headline)
                             .foregroundColor(.secondary)
-                        Text("しばらくお待ちください")
+                        Text(L10n.PokemonList.pleaseWait)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -282,10 +282,10 @@ struct PokemonListView: View {
 
     private var emptyStateView: some View {
         EmptyStateView(
-            title: "ポケモンが見つかりません",
-            message: "検索条件やフィルターを変更してみてください",
+            title: NSLocalizedString("pokemon_list.empty_title", comment: ""),
+            message: NSLocalizedString("pokemon_list.empty_message", comment: ""),
             systemImage: "magnifyingglass",
-            actionTitle: "フィルターをクリア",
+            actionTitle: NSLocalizedString("pokemon_list.clear_filters", comment: ""),
             action: {
                 viewModel.clearFilters()
             }
@@ -296,15 +296,15 @@ struct PokemonListView: View {
         HStack(spacing: 0) {
             if hasActiveFilters {
                 // フィルターがある場合
-                Text("絞り込み結果: \(viewModel.filteredPokemons.count)匹")
+                Text(L10n.PokemonList.filterResult(viewModel.filteredPokemons.count))
                     .font(.caption)
                     .foregroundColor(.primary)
-                Text(" / 全\(viewModel.pokemons.count)匹")
+                Text(L10n.PokemonList.countSeparator + L10n.PokemonList.totalCount(viewModel.pokemons.count))
                     .font(.caption)
                     .foregroundColor(.secondary)
             } else {
                 // フィルターがない場合
-                Text("全\(viewModel.filteredPokemons.count)匹")
+                Text(L10n.PokemonList.totalCount(viewModel.filteredPokemons.count))
                     .font(.caption)
                     .foregroundColor(.secondary)
             }

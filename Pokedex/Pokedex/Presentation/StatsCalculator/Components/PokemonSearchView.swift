@@ -32,14 +32,16 @@ struct PokemonSearchView: View {
     private func selectedPokemonCard(_ pokemon: Pokemon) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("選択中のポケモン")
+                Text(L10n.StatsCalc.pokemonSelected)
                     .font(.headline)
 
                 Spacer()
 
-                Button("変更") {
+                Button {
                     selectedPokemon = nil
                     searchText = ""
+                } label: {
+                    Text(L10n.StatsCalc.pokemonChange)
                 }
                 .buttonStyle(.bordered)
             }
@@ -99,11 +101,11 @@ struct PokemonSearchView: View {
 
     private var searchSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("ポケモンを検索")
+            Text(L10n.StatsCalc.pokemonSearch)
                 .font(.headline)
 
             // 検索ボックス
-            TextField("名前または図鑑番号で検索", text: $searchText)
+            TextField(L10n.StatsCalc.pokemonSearchPlaceholder, text: $searchText)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .autocapitalization(.none)
 
@@ -119,7 +121,7 @@ struct PokemonSearchView: View {
         if isLoadingPokemon {
             HStack {
                 ProgressView()
-                Text("ポケモンを読み込み中...")
+                Text(L10n.StatsCalc.pokemonLoading)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -131,7 +133,7 @@ struct PokemonSearchView: View {
                 }
             }
         } else if !searchText.isEmpty {
-            Text("該当するポケモンが見つかりません")
+            Text(L10n.StatsCalc.pokemonNotFound)
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .padding()

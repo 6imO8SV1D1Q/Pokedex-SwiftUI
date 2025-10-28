@@ -35,7 +35,7 @@ struct MoveTypeSection: View {
             }
             .padding(.vertical, 8)
         } header: {
-            Text("技のタイプ")
+            Text(L10n.Filter.moveType)
         }
     }
 

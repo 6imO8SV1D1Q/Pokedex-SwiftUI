@@ -97,15 +97,20 @@ struct MoveMetadataFilter: Identifiable {
 
 /// 状態異常の種類
 enum Ailment: String, CaseIterable, Identifiable {
-    case paralysis = "まひ"
-    case burn = "やけど"
-    case poison = "どく"
-    case badlyPoison = "もうどく"
-    case freeze = "こおり"
-    case sleep = "ねむり"
-    case confusion = "こんらん"
+    case paralysis
+    case burn
+    case poison
+    case badlyPoison = "badly_poison"
+    case freeze
+    case sleep
+    case confusion
 
     var id: String { rawValue }
+
+    /// ローカライズされた表示名
+    var displayName: String {
+        return L10n.Ailment.displayName(rawValue)
+    }
 
     /// PokéAPIでの名前
     var apiName: String {
@@ -124,25 +129,30 @@ enum Ailment: String, CaseIterable, Identifiable {
 /// 能力変化フィルター（自分/相手を明確に区別）
 enum StatChangeFilter: String, CaseIterable, Identifiable {
     // 自分の能力上昇
-    case userAttackUp = "自分こうげき↑"
-    case userDefenseUp = "自分ぼうぎょ↑"
-    case userSpAttackUp = "自分とくこう↑"
-    case userSpDefenseUp = "自分とくぼう↑"
-    case userSpeedUp = "自分すばやさ↑"
-    case userAccuracyUp = "自分命中↑"
-    case userEvasionUp = "自分回避↑"
-    case userCritRateUp = "自分急所ランク↑"
+    case userAttackUp = "user_attack_up"
+    case userDefenseUp = "user_defense_up"
+    case userSpAttackUp = "user_sp_attack_up"
+    case userSpDefenseUp = "user_sp_defense_up"
+    case userSpeedUp = "user_speed_up"
+    case userAccuracyUp = "user_accuracy_up"
+    case userEvasionUp = "user_evasion_up"
+    case userCritRateUp = "user_crit_rate_up"
 
     // 相手の能力下降
-    case opponentAttackDown = "相手こうげき↓"
-    case opponentDefenseDown = "相手ぼうぎょ↓"
-    case opponentSpAttackDown = "相手とくこう↓"
-    case opponentSpDefenseDown = "相手とくぼう↓"
-    case opponentSpeedDown = "相手すばやさ↓"
-    case opponentAccuracyDown = "相手命中↓"
-    case opponentEvasionDown = "相手回避↓"
+    case opponentAttackDown = "opponent_attack_down"
+    case opponentDefenseDown = "opponent_defense_down"
+    case opponentSpAttackDown = "opponent_sp_attack_down"
+    case opponentSpDefenseDown = "opponent_sp_defense_down"
+    case opponentSpeedDown = "opponent_speed_down"
+    case opponentAccuracyDown = "opponent_accuracy_down"
+    case opponentEvasionDown = "opponent_evasion_down"
 
     var id: String { rawValue }
+
+    /// ローカライズされた表示名
+    var displayName: String {
+        return L10n.StatChange.displayName(rawValue)
+    }
 
     /// PokéAPIでのステータス名、変化量、対象
     var statChangeInfo: (stat: String, change: Int, isUser: Bool) {
