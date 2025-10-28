@@ -7,8 +7,11 @@
 
 import SwiftUI
 
-/// コンパクトなステータス入力UI（個体値・努力値・性格を1つの表に統合）
+/// コンパクトなステータス入力UI（種族値・個体値・努力値・性格・実数値を1つの表に統合）
 struct CompactStatsInputView: View {
+    let pokemon: Pokemon?
+    let calculatedStats: [String: Int]
+
     @Binding var level: Int
     @Binding var ivs: [String: Int]
     @Binding var evs: [String: Int]
@@ -25,11 +28,11 @@ struct CompactStatsInputView: View {
 
     private let statNames: [(key: String, label: String)] = [
         ("hp", "HP"),
-        ("attack", "攻撃"),
-        ("defense", "防御"),
-        ("special-attack", "特攻"),
-        ("special-defense", "特防"),
-        ("speed", "素早さ")
+        ("attack", "こうげき"),
+        ("defense", "ぼうぎょ"),
+        ("special-attack", "とくこう"),
+        ("special-defense", "とくぼう"),
+        ("speed", "すばやさ")
     ]
 
     var body: some View {
@@ -84,63 +87,80 @@ struct CompactStatsInputView: View {
                 .foregroundColor(.secondary)
 
             Spacer()
+
+            Button("IV 31") {
+                onSetAllIVsToMax()
+            }
+            .buttonStyle(.bordered)
+            .font(.system(size: 9))
+
+            Button("IV 0") {
+                onSetAllIVsToMin()
+            }
+            .buttonStyle(.bordered)
+            .font(.system(size: 9))
         }
     }
 
     // MARK: - ヘッダー行
 
     private var headerRow: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 3) {
-                Text("")
-                    .frame(width: 44, alignment: .leading)
+        HStack(spacing: 2) {
+            Text("")
+                .frame(width: 56, alignment: .leading)
 
-                Text("IV")
-                    .font(.system(size: 10))
-                    .fontWeight(.semibold)
-                    .foregroundColor(.secondary)
-                    .frame(width: 32)
-
-                Text("EV")
-                    .font(.system(size: 10))
-                    .fontWeight(.semibold)
-                    .foregroundColor(.secondary)
-                    .frame(width: 32)
-
-                Spacer()
-
-                Text("性格")
-                    .font(.system(size: 10))
-                    .fontWeight(.semibold)
-                    .foregroundColor(.secondary)
-            }
-
-            HStack(spacing: 4) {
-                Spacer()
-
-                Button("IV 31") {
-                    onSetAllIVsToMax()
-                }
-                .buttonStyle(.bordered)
+            Text("種族値")
                 .font(.system(size: 9))
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
+                .frame(width: 32)
 
-                Button("IV 0") {
-                    onSetAllIVsToMin()
-                }
-                .buttonStyle(.bordered)
+            Text("IV")
                 .font(.system(size: 9))
-            }
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
+                .frame(width: 28)
+
+            Text("EV")
+                .font(.system(size: 9))
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
+                .frame(width: 28)
+
+            Spacer()
+
+            Text("性格")
+                .font(.system(size: 9))
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
+                .frame(width: 44)
+
+            Text("実数値")
+                .font(.system(size: 9))
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
+                .frame(width: 36, alignment: .trailing)
         }
     }
 
     // MARK: - ステータス行
 
     private func statRow(stat: (key: String, label: String)) -> some View {
-        HStack(spacing: 3) {
+        let baseStat = pokemon?.stats.first(where: { $0.name == stat.key })?.baseStat ?? 0
+        let calculatedStat = calculatedStats[stat.key] ?? 0
+        let natureModifier = natureModifiers[stat.key]
+
+        return HStack(spacing: 2) {
             // ステータス名
             Text(stat.label)
-                .frame(width: 44, alignment: .leading)
+                .frame(width: 56, alignment: .leading)
                 .font(.system(size: 11))
+
+            // 種族値
+            Text("\(baseStat)")
+                .frame(width: 32)
+                .font(.system(size: 11))
+                .foregroundColor(.secondary)
 
             // 個体値（IV）
             TextField("", value: Binding(
@@ -151,8 +171,8 @@ struct CompactStatsInputView: View {
             ), format: .number)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .keyboardType(.numberPad)
-            .frame(width: 32)
-            .font(.system(size: 11))
+            .frame(width: 28)
+            .font(.system(size: 10))
             .multilineTextAlignment(.center)
 
             // 努力値（EV）
@@ -164,54 +184,64 @@ struct CompactStatsInputView: View {
             ), format: .number)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .keyboardType(.numberPad)
-            .frame(width: 32)
-            .font(.system(size: 11))
+            .frame(width: 28)
+            .font(.system(size: 10))
             .multilineTextAlignment(.center)
 
             // EV調整ボタン
-            HStack(spacing: 1) {
+            HStack(spacing: 0) {
                 Button {
                     onDecrementEV(stat.key)
                 } label: {
-                    Text("-")
-                        .font(.system(size: 10, weight: .bold))
+                    Image(systemName: "minus.circle.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
                 }
-                .buttonStyle(.bordered)
                 .frame(width: 20, height: 20)
 
                 Button {
                     onIncrementEV(stat.key)
                 } label: {
-                    Text("+")
-                        .font(.system(size: 10, weight: .bold))
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
                 }
-                .buttonStyle(.bordered)
                 .frame(width: 20, height: 20)
 
-                Button {
-                    evs[stat.key] = 252
+                Menu {
+                    Button("252にする") {
+                        evs[stat.key] = 252
+                    }
+                    Button("0にする") {
+                        evs[stat.key] = 0
+                    }
                 } label: {
-                    Text("252")
-                        .font(.system(size: 9, weight: .bold))
+                    Image(systemName: "ellipsis.circle.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
                 }
-                .buttonStyle(.bordered)
-                .frame(width: 26, height: 20)
+                .frame(width: 20, height: 20)
             }
 
-            Spacer()
-                .frame(maxWidth: 2)
+            Spacer(minLength: 2)
 
             // 性格補正（HPは除外）
             if stat.key != "hp" {
-                HStack(spacing: 1) {
+                HStack(spacing: 2) {
                     natureButton(stat: stat.key, modifier: .boosted, label: "↑", color: .red)
                     natureButton(stat: stat.key, modifier: .hindered, label: "↓", color: .blue)
                 }
             } else {
                 // HPの場合は空白
                 Color.clear
-                    .frame(width: 41)
+                    .frame(width: 44)
             }
+
+            // 実数値
+            Text("\(calculatedStat)")
+                .frame(width: 36, alignment: .trailing)
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(natureColor(natureModifier))
         }
     }
 
@@ -227,8 +257,8 @@ struct CompactStatsInputView: View {
             onSetNature(stat, modifier)
         } label: {
             Text(label)
-                .font(.system(size: 10, weight: .semibold))
-                .frame(width: 20, height: 20)
+                .font(.system(size: 11, weight: .semibold))
+                .frame(width: 21, height: 21)
                 .background(isNatureSelected(stat: stat, modifier: modifier) ? color.opacity(0.2) : Color(.systemGray5))
                 .foregroundColor(isNatureSelected(stat: stat, modifier: modifier) ? color : .secondary)
                 .cornerRadius(4)
@@ -241,6 +271,20 @@ struct CompactStatsInputView: View {
 
     private func isNatureSelected(stat: String, modifier: NatureModifier) -> Bool {
         natureModifiers[stat] == modifier
+    }
+
+    // MARK: - 色の決定
+
+    private func natureColor(_ modifier: NatureModifier?) -> Color {
+        guard let modifier = modifier else { return .primary }
+        switch modifier {
+        case .boosted:
+            return .red
+        case .hindered:
+            return .blue
+        case .neutral:
+            return .primary
+        }
     }
 
     // MARK: - 努力値サマリー
@@ -264,6 +308,47 @@ struct CompactStatsInputView: View {
 
 #Preview {
     CompactStatsInputView(
+        pokemon: Pokemon(
+            id: 898,
+            speciesId: 898,
+            name: "calyrex-shadow",
+            nameJa: "バドレックス",
+            genus: nil,
+            genusJa: nil,
+            height: 24,
+            weight: 536,
+            category: nil,
+            types: [
+                PokemonType(slot: 1, name: "psychic", nameJa: "エスパー"),
+                PokemonType(slot: 2, name: "ghost", nameJa: "ゴースト")
+            ],
+            stats: [
+                PokemonStat(name: "hp", baseStat: 100),
+                PokemonStat(name: "attack", baseStat: 85),
+                PokemonStat(name: "defense", baseStat: 80),
+                PokemonStat(name: "special-attack", baseStat: 165),
+                PokemonStat(name: "special-defense", baseStat: 100),
+                PokemonStat(name: "speed", baseStat: 150)
+            ],
+            abilities: [],
+            sprites: PokemonSprites(frontDefault: "", frontShiny: nil, other: nil),
+            moves: [],
+            availableGenerations: [8],
+            nationalDexNumber: 898,
+            eggGroups: nil,
+            genderRate: nil,
+            pokedexNumbers: nil,
+            varieties: nil,
+            evolutionChain: nil
+        ),
+        calculatedStats: [
+            "hp": 175,
+            "attack": 105,
+            "defense": 100,
+            "special-attack": 252,
+            "special-defense": 120,
+            "speed": 222
+        ],
         level: .constant(50),
         ivs: .constant([
             "hp": 31, "attack": 31, "defense": 31,
@@ -276,11 +361,11 @@ struct CompactStatsInputView: View {
         natureModifiers: .constant([
             "attack": .neutral,
             "defense": .neutral,
-            "special-attack": .neutral,
+            "special-attack": .boosted,
             "special-defense": .neutral,
-            "speed": .boosted
+            "speed": .neutral
         ]),
-        remainingEVs: 254,
+        remainingEVs: 2,
         isEVOverLimit: false,
         onSetAllIVsToMax: {},
         onSetAllIVsToMin: {},

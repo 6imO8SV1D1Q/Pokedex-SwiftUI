@@ -32,8 +32,10 @@ struct StatsCalculatorView: View {
 
                     // ポケモン選択後の入力UI
                     if viewModel.selectedPokemon != nil {
-                        // コンパクトなステータス入力（個体値・努力値・性格を統合）
+                        // コンパクトなステータス入力（種族値・個体値・努力値・性格・実数値を統合）
                         CompactStatsInputView(
+                            pokemon: viewModel.selectedPokemon,
+                            calculatedStats: viewModel.calculatedStats,
                             level: $viewModel.level,
                             ivs: $viewModel.ivs,
                             evs: $viewModel.evs,
@@ -61,16 +63,6 @@ struct StatsCalculatorView: View {
                         }
                         .onChange(of: viewModel.ivs) {
                             viewModel.calculateStats()
-                        }
-
-                        // 計算結果表示
-                        if !viewModel.calculatedStats.isEmpty,
-                           let pokemon = viewModel.selectedPokemon {
-                            StatsResultView(
-                                pokemon: pokemon,
-                                calculatedStats: viewModel.calculatedStats,
-                                natureModifiers: viewModel.nature
-                            )
                         }
                     }
                 }
