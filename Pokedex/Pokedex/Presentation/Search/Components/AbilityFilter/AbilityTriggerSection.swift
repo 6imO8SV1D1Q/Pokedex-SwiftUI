@@ -28,12 +28,12 @@ struct AbilityTriggerSection: View {
                 }
             }
         } header: {
-            Text("発動タイミング")
+            Text(L10n.Filter.triggerTiming)
         } footer: {
             if selectedTriggers.isEmpty {
-                Text("発動タイミングでフィルタリングできます")
+                Text(L10n.Filter.triggerTimingDescriptionEmpty)
             } else {
-                Text("選択したタイミングのいずれかで発動する特性を表示")
+                Text(L10n.Filter.triggerTimingDescription)
             }
         }
     }

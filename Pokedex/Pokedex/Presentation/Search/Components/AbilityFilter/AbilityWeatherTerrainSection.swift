@@ -25,7 +25,7 @@ struct AbilityWeatherTerrainSection: View {
             VStack(alignment: .leading, spacing: 16) {
                 // 天候
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("天候")
+                    Text(L10n.Weather.header)
                         .font(.subheadline)
                         .fontWeight(.semibold)
 
@@ -46,7 +46,7 @@ struct AbilityWeatherTerrainSection: View {
 
                 // フィールド
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("フィールド")
+                    Text(L10n.Terrain.header)
                         .font(.subheadline)
                         .fontWeight(.semibold)
 
@@ -63,13 +63,13 @@ struct AbilityWeatherTerrainSection: View {
                 }
             }
         } header: {
-            Text("天候・フィールド")
+            Text(L10n.Filter.weatherTerrain)
         } footer: {
             let count = selectedWeathers.count + selectedTerrains.count
             if count == 0 {
-                Text("天候やフィールドに関連する特性を絞り込みます")
+                Text(L10n.Filter.weatherTerrainDescriptionEmpty)
             } else {
-                Text("選択した天候またはフィールドに関連する特性を表示")
+                Text(L10n.Filter.weatherTerrainDescription)
             }
         }
     }

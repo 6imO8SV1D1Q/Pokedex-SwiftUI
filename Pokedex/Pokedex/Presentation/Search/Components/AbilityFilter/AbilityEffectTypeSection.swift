@@ -29,12 +29,12 @@ struct AbilityEffectTypeSection: View {
                 }
             }
         } header: {
-            Text("効果タイプ")
+            Text(L10n.Filter.effectType)
         } footer: {
             if selectedEffectTypes.isEmpty {
-                Text("効果のタイプでフィルタリングできます")
+                Text(L10n.Filter.effectTypeDescriptionEmpty)
             } else {
-                Text("選択した効果タイプのいずれかを持つ特性を表示")
+                Text(L10n.Filter.effectTypeDescription)
             }
         }
     }

@@ -26,7 +26,7 @@ enum AbilityCategory: String, CaseIterable, Identifiable {
 
     // 状態異常
     case statusImmunity = "status_immunity"
-    case statusInflictor = "status_inflict"
+    case statusInflictor = "status_inflictor"
 
     // ダメージ・回復
     case damageReduction = "damage_reduction"
@@ -42,49 +42,11 @@ enum AbilityCategory: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     var displayName: String {
-        switch self {
-        case .weatherSetter: return "天候設定"
-        case .weatherDependent: return "天候依存"
-        case .terrainSetter: return "フィールド設定"
-        case .terrainDependent: return "フィールド依存"
-        case .statBoost: return "自分能力上昇"
-        case .statReducer: return "相手能力下降"
-        case .typeBoost: return "タイプ強化"
-        case .typeImmunity: return "タイプ無効"
-        case .typeDefense: return "タイプ耐性"
-        case .statusImmunity: return "状態異常無効"
-        case .statusInflictor: return "状態異常付与"
-        case .damageReduction: return "ダメージ軽減"
-        case .damageIncrease: return "ダメージ増加"
-        case .healing: return "HP回復"
-        case .switchInEffect: return "登場時効果"
-        case .switchOutEffect: return "交代時効果"
-        case .randomEffect: return "ランダム効果"
-        case .hpDependent: return "HP依存"
-        }
+        return L10n.AbilityCategory.displayName(rawValue)
     }
 
     var description: String {
-        switch self {
-        case .weatherSetter: return "天候を変更する特性"
-        case .weatherDependent: return "天候によって効果が変わる特性"
-        case .terrainSetter: return "フィールドを変更する特性"
-        case .terrainDependent: return "フィールドによって効果が変わる特性"
-        case .statBoost: return "自分の能力を上昇させる特性"
-        case .statReducer: return "相手の能力を下げる特性"
-        case .typeBoost: return "特定タイプの技を強化する特性"
-        case .typeImmunity: return "特定タイプを無効化する特性"
-        case .typeDefense: return "特定タイプのダメージを軽減する特性"
-        case .statusImmunity: return "状態異常を防ぐ特性"
-        case .statusInflictor: return "状態異常を付与する特性"
-        case .damageReduction: return "受けるダメージを軽減する特性"
-        case .damageIncrease: return "与えるダメージを増加させる特性"
-        case .healing: return "HPを回復する特性"
-        case .switchInEffect: return "場に出たときに効果を発動する特性"
-        case .switchOutEffect: return "交代時に効果を発動する特性"
-        case .randomEffect: return "ランダムに効果を発動する特性"
-        case .hpDependent: return "HPの状態によって効果が変わる特性"
-        }
+        return L10n.AbilityCategory.description(rawValue)
     }
 
     // MARK: - Category Groups
@@ -96,36 +58,38 @@ enum AbilityCategory: String, CaseIterable, Identifiable {
     }
 
     /// グループ分けされたカテゴリー
-    static let categoryGroups: [CategoryGroup] = [
-        CategoryGroup(name: "天候・フィールド", categories: [
-            .weatherSetter,
-            .weatherDependent,
-            .terrainSetter,
-            .terrainDependent
-        ]),
-        CategoryGroup(name: "能力変化", categories: [
-            .statBoost,
-            .statReducer
-        ]),
-        CategoryGroup(name: "タイプ関連", categories: [
-            .typeBoost,
-            .typeImmunity,
-            .typeDefense
-        ]),
-        CategoryGroup(name: "状態異常", categories: [
-            .statusImmunity,
-            .statusInflictor
-        ]),
-        CategoryGroup(name: "ダメージ・回復", categories: [
-            .damageReduction,
-            .damageIncrease,
-            .healing
-        ]),
-        CategoryGroup(name: "特殊効果", categories: [
-            .switchInEffect,
-            .switchOutEffect,
-            .randomEffect,
-            .hpDependent
-        ])
-    ]
+    static var categoryGroups: [CategoryGroup] {
+        return [
+            CategoryGroup(name: L10n.AbilityCategory.groupName("weather_terrain"), categories: [
+                .weatherSetter,
+                .weatherDependent,
+                .terrainSetter,
+                .terrainDependent
+            ]),
+            CategoryGroup(name: L10n.AbilityCategory.groupName("stat_change"), categories: [
+                .statBoost,
+                .statReducer
+            ]),
+            CategoryGroup(name: L10n.AbilityCategory.groupName("type_related"), categories: [
+                .typeBoost,
+                .typeImmunity,
+                .typeDefense
+            ]),
+            CategoryGroup(name: L10n.AbilityCategory.groupName("status_condition"), categories: [
+                .statusImmunity,
+                .statusInflictor
+            ]),
+            CategoryGroup(name: L10n.AbilityCategory.groupName("damage_recovery"), categories: [
+                .damageReduction,
+                .damageIncrease,
+                .healing
+            ]),
+            CategoryGroup(name: L10n.AbilityCategory.groupName("special_effects"), categories: [
+                .switchInEffect,
+                .switchOutEffect,
+                .randomEffect,
+                .hpDependent
+            ])
+        ]
+    }
 }

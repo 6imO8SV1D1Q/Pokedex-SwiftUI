@@ -472,4 +472,51 @@ enum L10n {
         static let finalOnly = NSLocalizedString("evolution_mode.final_only", comment: "")
         static let evioliteOnly = NSLocalizedString("evolution_mode.eviolite_only", comment: "")
     }
+
+    // MARK: - Ability Category
+    enum AbilityCategory {
+        static func displayName(_ category: String) -> String {
+            return NSLocalizedString("ability_category.\(category)", comment: "")
+        }
+
+        static func description(_ category: String) -> String {
+            return NSLocalizedString("ability_category.\(category)_desc", comment: "")
+        }
+
+        static func groupName(_ group: String) -> String {
+            return NSLocalizedString("ability_category_group.\(group)", comment: "")
+        }
+    }
+
+    // MARK: - Ability Trigger
+    enum AbilityTrigger {
+        static func displayName(_ trigger: String) -> String {
+            return NSLocalizedString("ability_trigger.\(trigger)", comment: "")
+        }
+    }
+
+    // MARK: - Effect Type
+    enum EffectType {
+        static func displayName(_ effectType: String) -> String {
+            return NSLocalizedString("effect_type.\(effectType)", comment: "")
+        }
+    }
+
+    // MARK: - Weather
+    enum Weather {
+        static func displayName(_ weather: String) -> String {
+            return NSLocalizedString("weather.\(weather)", comment: "")
+        }
+
+        static let header = NSLocalizedString("weather.header", comment: "")
+    }
+
+    // MARK: - Terrain
+    enum Terrain {
+        static func displayName(_ terrain: String) -> String {
+            return NSLocalizedString("terrain.\(terrain)", comment: "")
+        }
+
+        static let header = NSLocalizedString("terrain.header", comment: "")
+    }
 }
