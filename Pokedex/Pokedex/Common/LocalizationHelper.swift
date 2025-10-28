@@ -388,4 +388,42 @@ enum L10n {
             return String(format: NSLocalizedString("move_filter.max_selection_with_count", comment: ""), count)
         }
     }
+
+    // MARK: - Stats Calculator
+    enum StatsCalc {
+        static let title = LocalizedStringKey("stats_calc.title")
+        static let level = LocalizedStringKey("stats_calc.level")
+        static let levelRange = LocalizedStringKey("stats_calc.level_range")
+        static let iv = LocalizedStringKey("stats_calc.iv")
+        static let ivShort = LocalizedStringKey("stats_calc.iv_short")
+        static let ivRange = LocalizedStringKey("stats_calc.iv_range")
+        static let ivSetMax = LocalizedStringKey("stats_calc.iv_set_max")
+        static let ivSetMaxShort = LocalizedStringKey("stats_calc.iv_set_max_short")
+        static let ivSetMin = LocalizedStringKey("stats_calc.iv_set_min")
+        static let ivSetMinShort = LocalizedStringKey("stats_calc.iv_set_min_short")
+        static let ev = LocalizedStringKey("stats_calc.ev")
+        static let evShort = LocalizedStringKey("stats_calc.ev_short")
+        static let evRange = LocalizedStringKey("stats_calc.ev_range")
+        static let evOverLimit = LocalizedStringKey("stats_calc.ev_over_limit")
+        static let evOverLimitMessage = LocalizedStringKey("stats_calc.ev_over_limit_message")
+        static let evSetMax = LocalizedStringKey("stats_calc.ev_set_max")
+        static let evSetZero = LocalizedStringKey("stats_calc.ev_set_zero")
+        static let evButton252 = LocalizedStringKey("stats_calc.ev_button_252")
+        static let nature = LocalizedStringKey("stats_calc.nature")
+        static let natureCorrection = LocalizedStringKey("stats_calc.nature_correction")
+        static let natureDescription = LocalizedStringKey("stats_calc.nature_description")
+        static let baseStat = LocalizedStringKey("stats_calc.base_stat")
+        static let calculatedStat = LocalizedStringKey("stats_calc.calculated_stat")
+        static let result = LocalizedStringKey("stats_calc.result")
+        static let pokemonSearch = LocalizedStringKey("stats_calc.pokemon_search")
+        static let pokemonSearchPlaceholder = LocalizedStringKey("stats_calc.pokemon_search_placeholder")
+        static let pokemonSelected = LocalizedStringKey("stats_calc.pokemon_selected")
+        static let pokemonChange = LocalizedStringKey("stats_calc.pokemon_change")
+        static let pokemonLoading = LocalizedStringKey("stats_calc.pokemon_loading")
+        static let pokemonNotFound = LocalizedStringKey("stats_calc.pokemon_not_found")
+
+        static func evRemaining(_ count: Int) -> String {
+            return String(format: NSLocalizedString("stats_calc.ev_remaining", comment: ""), count)
+        }
+    }
 }

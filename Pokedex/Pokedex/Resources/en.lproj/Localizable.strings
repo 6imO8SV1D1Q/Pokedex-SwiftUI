@@ -259,3 +259,36 @@
 "accessibility.pokemon_image" = "Pokémon Image";
 "accessibility.type_icon" = "Type Icon";
 "accessibility.ability_icon" = "Ability Icon";
+
+// MARK: - Stats Calculator
+"stats_calc.title" = "Stats Calculator";
+"stats_calc.level" = "Level";
+"stats_calc.level_range" = "(1-100)";
+"stats_calc.iv" = "Individual Values (IV)";
+"stats_calc.iv_short" = "IV";
+"stats_calc.iv_range" = "(0-31)";
+"stats_calc.iv_set_max" = "All 31";
+"stats_calc.iv_set_max_short" = "IV 31";
+"stats_calc.iv_set_min" = "All 0";
+"stats_calc.iv_set_min_short" = "IV 0";
+"stats_calc.ev" = "Effort Values (EV)";
+"stats_calc.ev_short" = "EV";
+"stats_calc.ev_range" = "(0-252)";
+"stats_calc.ev_remaining" = "EV Remaining: %d";
+"stats_calc.ev_over_limit" = "(Over 510)";
+"stats_calc.ev_over_limit_message" = "EVs exceed 510 limit";
+"stats_calc.ev_set_max" = "Set to 252";
+"stats_calc.ev_set_zero" = "Set to 0";
+"stats_calc.ev_button_252" = "252";
+"stats_calc.nature" = "Nature";
+"stats_calc.nature_correction" = "Nature Modifier";
+"stats_calc.nature_description" = "Set one ↑ and one ↓ (HP has no nature modifier)";
+"stats_calc.base_stat" = "Base";
+"stats_calc.calculated_stat" = "Stat";
+"stats_calc.result" = "Result";
+"stats_calc.pokemon_search" = "Search Pokémon";
+"stats_calc.pokemon_search_placeholder" = "Search by name or number";
+"stats_calc.pokemon_selected" = "Selected Pokémon";
+"stats_calc.pokemon_change" = "Change";
+"stats_calc.pokemon_loading" = "Loading Pokémon...";
+"stats_calc.pokemon_not_found" = "No Pokémon found";

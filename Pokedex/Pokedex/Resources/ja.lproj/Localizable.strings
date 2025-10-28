@@ -259,3 +259,36 @@
 "accessibility.pokemon_image" = "ポケモン画像";
 "accessibility.type_icon" = "タイプアイコン";
 "accessibility.ability_icon" = "とくせいアイコン";
+
+// MARK: - Stats Calculator
+"stats_calc.title" = "実数値計算機";
+"stats_calc.level" = "レベル";
+"stats_calc.level_range" = "(1-100)";
+"stats_calc.iv" = "個体値 (IV)";
+"stats_calc.iv_short" = "IV";
+"stats_calc.iv_range" = "(0-31)";
+"stats_calc.iv_set_max" = "すべて31";
+"stats_calc.iv_set_max_short" = "IV 31";
+"stats_calc.iv_set_min" = "すべて0";
+"stats_calc.iv_set_min_short" = "IV 0";
+"stats_calc.ev" = "努力値 (EV)";
+"stats_calc.ev_short" = "EV";
+"stats_calc.ev_range" = "(0-252)";
+"stats_calc.ev_remaining" = "努力値 残り: %d";
+"stats_calc.ev_over_limit" = "（510を超えています）";
+"stats_calc.ev_over_limit_message" = "努力値が510を超えています";
+"stats_calc.ev_set_max" = "252にする";
+"stats_calc.ev_set_zero" = "0にする";
+"stats_calc.ev_button_252" = "252";
+"stats_calc.nature" = "性格";
+"stats_calc.nature_correction" = "性格補正";
+"stats_calc.nature_description" = "1つを↑、1つを↓に設定できます（HPには性格補正なし）";
+"stats_calc.base_stat" = "種族値";
+"stats_calc.calculated_stat" = "実数値";
+"stats_calc.result" = "計算結果";
+"stats_calc.pokemon_search" = "ポケモンを検索";
+"stats_calc.pokemon_search_placeholder" = "名前または図鑑番号で検索";
+"stats_calc.pokemon_selected" = "選択中のポケモン";
+"stats_calc.pokemon_change" = "変更";
+"stats_calc.pokemon_loading" = "ポケモンを読み込み中...";
+"stats_calc.pokemon_not_found" = "該当するポケモンが見つかりません";

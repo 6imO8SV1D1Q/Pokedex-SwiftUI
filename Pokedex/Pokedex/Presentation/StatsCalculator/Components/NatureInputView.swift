@@ -14,19 +14,19 @@ struct NatureInputView: View {
     let onSetNature: (String, NatureModifier) -> Void
 
     private let statNames: [(key: String, label: String)] = [
-        ("attack", "攻撃"),
-        ("defense", "防御"),
-        ("special-attack", "特攻"),
-        ("special-defense", "特防"),
-        ("speed", "素早さ")
+        ("attack", "こうげき"),
+        ("defense", "ぼうぎょ"),
+        ("special-attack", "とくこう"),
+        ("special-defense", "とくぼう"),
+        ("speed", "すばやさ")
     ]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("性格補正")
+            Text(L10n.StatsCalc.natureCorrection)
                 .font(.headline)
 
-            Text("1つを↑、1つを↓に設定できます（HPには性格補正なし）")
+            Text(L10n.StatsCalc.natureDescription)
                 .font(.caption)
                 .foregroundColor(.secondary)
 
