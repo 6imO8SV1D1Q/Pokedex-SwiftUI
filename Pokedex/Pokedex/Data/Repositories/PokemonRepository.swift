@@ -117,12 +117,12 @@ final class PokemonRepository: PokemonRepositoryProtocol {
 
         // スキーマ変更検出: movesが埋め込み型になったため、必ず再ロード
         // UserDefaultsでスキーマバージョンを管理
-        let currentSchemaVersion = "v4.1-embedded"
+        let currentSchemaVersion = "v4.2-fulldata"
         let savedSchemaVersion = UserDefaults.standard.string(forKey: "swiftdata_schema_version")
         let isSchemaChanged = savedSchemaVersion != currentSchemaVersion
 
         let pokedexCount = try modelContext.fetchCount(FetchDescriptor<PokedexModel>())
-        let isOldCache = !cachedModels.isEmpty && (cachedModels.count != 866 || pokedexCount == 0 || isSchemaChanged)
+        let isOldCache = !cachedModels.isEmpty && (cachedModels.count != 925 || pokedexCount == 0 || isSchemaChanged)
 
         if isOldCache {
             let reason = isSchemaChanged ? "schema changed to \(currentSchemaVersion)" : "\(cachedModels.count) pokemon, \(pokedexCount) pokedexes"
@@ -141,7 +141,7 @@ final class PokemonRepository: PokemonRepositoryProtocol {
         // 再度キャッシュチェック
         let freshModels = try modelContext.fetch(descriptor)
 
-        if !freshModels.isEmpty && freshModels.count == 866 {
+        if !freshModels.isEmpty && freshModels.count == 925 {
             // キャッシュヒット（正しいJSONデータ）
             print("✅ [SwiftData] Cache hit! Found \(freshModels.count) pokemon")
             // キャッシュヒット時は即座に100%
