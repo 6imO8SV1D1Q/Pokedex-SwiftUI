@@ -343,6 +343,32 @@
 "terrain.unknown" = "Unknown";
 "terrain.header" = "Terrain";
 
+// MARK: - Move Ailment (Status Conditions)
+"ailment.paralysis" = "Paralysis";
+"ailment.burn" = "Burn";
+"ailment.poison" = "Poison";
+"ailment.badly_poison" = "Badly Poisoned";
+"ailment.freeze" = "Freeze";
+"ailment.sleep" = "Sleep";
+"ailment.confusion" = "Confusion";
+
+// MARK: - Move Stat Change
+"stat_change.user_attack_up" = "User Attack ↑";
+"stat_change.user_defense_up" = "User Defense ↑";
+"stat_change.user_sp_attack_up" = "User Sp. Atk ↑";
+"stat_change.user_sp_defense_up" = "User Sp. Def ↑";
+"stat_change.user_speed_up" = "User Speed ↑";
+"stat_change.user_accuracy_up" = "User Accuracy ↑";
+"stat_change.user_evasion_up" = "User Evasion ↑";
+"stat_change.user_crit_rate_up" = "User Crit Rate ↑";
+"stat_change.opponent_attack_down" = "Opponent Attack ↓";
+"stat_change.opponent_defense_down" = "Opponent Defense ↓";
+"stat_change.opponent_sp_attack_down" = "Opponent Sp. Atk ↓";
+"stat_change.opponent_sp_defense_down" = "Opponent Sp. Def ↓";
+"stat_change.opponent_speed_down" = "Opponent Speed ↓";
+"stat_change.opponent_accuracy_down" = "Opponent Accuracy ↓";
+"stat_change.opponent_evasion_down" = "Opponent Evasion ↓";
+
 // MARK: - Move Targets
 "target.selected_pokemon" = "Single Opponent";
 "target.selected_pokemon_me_first" = "Single Opponent (Me First)";
@@ -501,3 +527,61 @@
 "stats_calc.pokemon_change" = "Change";
 "stats_calc.pokemon_loading" = "Loading Pokémon...";
 "stats_calc.pokemon_not_found" = "No Pokémon found";
+// MARK: - Move Category Groups
+"move_category_group.status_condition" = "Status Conditions";
+"move_category_group.disruption" = "Disruption";
+"move_category_group.attack_timing" = "Attack Timing";
+"move_category_group.damage_boost" = "Damage Boost";
+"move_category_group.risk" = "Risk Moves";
+"move_category_group.stat_change" = "Stat Changes";
+"move_category_group.defense_counter" = "Defense & Counter";
+"move_category_group.recovery_support" = "Recovery & Support";
+"move_category_group.switch" = "Switch";
+"move_category_group.field_control" = "Field Control";
+"move_category_group.move_types" = "Move Types";
+"move_category_group.other" = "Other";
+
+// MARK: - Move Categories
+"move_category.poison" = "Poison";
+"move_category.paralyze" = "Paralyze";
+"move_category.burn" = "Burn";
+"move_category.freeze" = "Freeze";
+"move_category.sleep" = "Sleep";
+"move_category.confusion" = "Confusion";
+"move_category.flinch" = "Flinch";
+"move_category.bind" = "Bind";
+"move_category.never_miss" = "Never Miss";
+"move_category.fixed_damage" = "Fixed Damage";
+"move_category.priority" = "Priority";
+"move_category.delayed" = "Delayed";
+"move_category.power_boost" = "Power Boost";
+"move_category.multi_hit" = "Multi-Hit";
+"move_category.high_crit" = "High Crit";
+"move_category.recoil" = "Recoil";
+"move_category.recharge" = "Recharge";
+"move_category.charge" = "Charge";
+"move_category.ohko" = "OHKO";
+"move_category.stat_change" = "Stat Change";
+"move_category.setup" = "Setup";
+"move_category.type_change" = "Type Change";
+"move_category.ability_change" = "Ability Change";
+"move_category.counter" = "Counter";
+"move_category.protect" = "Protect";
+"move_category.healing" = "Healing";
+"move_category.drain" = "Drain";
+"move_category.revival" = "Revival";
+"move_category.switch" = "Switch";
+"move_category.hazard" = "Hazard";
+"move_category.weather" = "Weather";
+"move_category.terrain" = "Terrain";
+"move_category.sound" = "Sound";
+"move_category.punch" = "Punch";
+"move_category.powder" = "Powder";
+"move_category.pulse" = "Pulse";
+"move_category.bite" = "Bite";
+"move_category.ball" = "Ball";
+"move_category.dance" = "Dance";
+"move_category.wind" = "Wind";
+"move_category.slash" = "Slash";
+"move_category.contact" = "Contact";
+"move_category.defrost" = "Defrost";

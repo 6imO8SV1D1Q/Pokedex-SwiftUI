@@ -519,4 +519,32 @@ enum L10n {
 
         static let header = NSLocalizedString("terrain.header", comment: "")
     }
+
+    // MARK: - Move Ailment
+    enum Ailment {
+        static func displayName(_ ailment: String) -> String {
+            return NSLocalizedString("ailment.\(ailment)", comment: "")
+        }
+    }
+
+    // MARK: - Move Stat Change
+    enum StatChange {
+        static func displayName(_ statChange: String) -> String {
+            return NSLocalizedString("stat_change.\(statChange)", comment: "")
+        }
+    }
+
+    // MARK: - Move Category Group
+    enum MoveCategoryGroup {
+        static func displayName(_ group: String) -> String {
+            return NSLocalizedString("move_category_group.\(group)", comment: "")
+        }
+    }
+
+    // MARK: - Move Category
+    enum MoveCategory {
+        static func displayName(_ category: String) -> String {
+            return NSLocalizedString("move_category.\(category)", comment: "")
+        }
+    }
 }

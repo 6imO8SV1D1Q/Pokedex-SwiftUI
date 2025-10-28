@@ -16,143 +16,119 @@ enum MoveCategory {
     }
 
     /// グループ分けされたカテゴリー
-    static let categoryGroups: [CategoryGroup] = [
-        CategoryGroup(name: "状態異常", categories: [
-            ("poison", "どく"),
-            ("paralyze", "まひ"),
-            ("burn", "やけど"),
-            ("freeze", "こおり"),
-            ("sleep", "ねむり")
-        ]),
-        CategoryGroup(name: "妨害効果", categories: [
-            ("confusion", "こんらん"),
-            ("flinch", "ひるみ"),
-            ("bind", "バインド技"),
-            ("never-miss", "必中技"),
-            ("fixed-damage", "固定ダメ技")
-        ]),
-        CategoryGroup(name: "攻撃タイミング", categories: [
-            ("priority", "先制技"),
-            ("delayed", "後攻技")
-        ]),
-        CategoryGroup(name: "ダメージ増強", categories: [
-            ("power-boost", "威力上昇"),
-            ("multi-hit", "連続攻撃"),
-            ("high-crit", "急所")
-        ]),
-        CategoryGroup(name: "リスク技", categories: [
-            ("recoil", "反動ダメ"),
-            ("recharge", "反動ターン"),
-            ("charge", "ターン技"),
-            ("ohko", "一撃必殺")
-        ]),
-        CategoryGroup(name: "能力変化", categories: [
-            ("stat-change", "ランク変化"),
-            ("setup", "積み技"),
-            ("type-change", "タイプ変化"),
-            ("ability-change", "特性変化")
-        ]),
-        CategoryGroup(name: "防御・カウンター", categories: [
-            ("counter", "カウンター"),
-            ("protect", "まもる")
-        ]),
-        CategoryGroup(name: "回復・補助", categories: [
-            ("healing", "回復"),
-            ("drain", "HP吸収"),
-            ("revival", "蘇生")
-        ]),
-        CategoryGroup(name: "交代・退場", categories: [
-            ("switch", "交代技")
-        ]),
-        CategoryGroup(name: "フィールド操作", categories: [
-            ("hazard", "設置技"),
-            ("weather", "天候"),
-            ("terrain", "フィールド")
-        ]),
-        CategoryGroup(name: "技の系統", categories: [
-            ("sound", "音系"),
-            ("punch", "パンチ系"),
-            ("powder", "粉/胞子"),
-            ("pulse", "波動技"),
-            ("bite", "あご系"),
-            ("ball", "弾"),
-            ("dance", "踊り"),
-            ("wind", "風技"),
-            ("slash", "切る技")
-        ]),
-        CategoryGroup(name: "その他", categories: [
-            ("contact", "接触技"),
-            ("defrost", "こおり解除")
-        ])
-    ]
-
-    /// 全カテゴリーのリスト（順序は画像の表示順）
-    static let allCategories: [(id: String, name: String)] = [
-        // 行1
-        ("poison", "どく"),
-        ("paralyze", "まひ"),
-        ("burn", "やけど"),
-        ("freeze", "こおり"),
-        ("sleep", "ねむり"),
-
-        // 行2
-        ("confusion", "こんらん"),
-        ("flinch", "ひるみ"),
-        ("bind", "バインド技"),
-        ("never-miss", "必中技"),
-        ("fixed-damage", "固定ダメ技"),
-
-        // 行3
-        ("priority", "先制技"),
-        ("delayed", "後攻技"),
-        ("power-boost", "威力上昇"),
-        ("multi-hit", "連続攻撃"),
-        ("high-crit", "急所"),
-
-        // 行4
-        ("recoil", "反動ダメ"),
-        ("recharge", "反動ターン"),
-        ("charge", "ターン技"),
-        ("ohko", "一撃必殺"),
-        ("stat-change", "ランク変化"),
-
-        // 行5
-        ("setup", "積み技"),
-        ("type-change", "タイプ変化"),
-        ("ability-change", "特性変化"),
-        ("counter", "カウンター"),
-        ("protect", "まもる"),
-
-        // 行6
-        ("healing", "回復"),
-        ("drain", "HP吸収"),
-        ("revival", "蘇生"),
-        ("switch", "交代技"),
-        ("hazard", "設置技"),
-
-        // 行7
-        ("weather", "天候"),
-        ("terrain", "フィールド"),
-        ("sound", "音系"),
-        ("punch", "パンチ系"),
-        ("powder", "粉/胞子"),
-
-        // 行8
-        ("pulse", "波動技"),
-        ("bite", "あご系"),
-        ("ball", "弾"),
-        ("dance", "踊り"),
-        ("wind", "風技"),
-
-        // 行9
-        ("slash", "切る技"),
-        ("contact", "接触技"),
-        ("defrost", "こおり解除")
-    ]
+    static var categoryGroups: [CategoryGroup] {
+        return [
+            CategoryGroup(
+                name: L10n.MoveCategoryGroup.displayName("status_condition"),
+                categories: [
+                    ("poison", L10n.MoveCategory.displayName("poison")),
+                    ("paralyze", L10n.MoveCategory.displayName("paralyze")),
+                    ("burn", L10n.MoveCategory.displayName("burn")),
+                    ("freeze", L10n.MoveCategory.displayName("freeze")),
+                    ("sleep", L10n.MoveCategory.displayName("sleep"))
+                ]
+            ),
+            CategoryGroup(
+                name: L10n.MoveCategoryGroup.displayName("disruption"),
+                categories: [
+                    ("confusion", L10n.MoveCategory.displayName("confusion")),
+                    ("flinch", L10n.MoveCategory.displayName("flinch")),
+                    ("bind", L10n.MoveCategory.displayName("bind")),
+                    ("never-miss", L10n.MoveCategory.displayName("never_miss")),
+                    ("fixed-damage", L10n.MoveCategory.displayName("fixed_damage"))
+                ]
+            ),
+            CategoryGroup(
+                name: L10n.MoveCategoryGroup.displayName("attack_timing"),
+                categories: [
+                    ("priority", L10n.MoveCategory.displayName("priority")),
+                    ("delayed", L10n.MoveCategory.displayName("delayed"))
+                ]
+            ),
+            CategoryGroup(
+                name: L10n.MoveCategoryGroup.displayName("damage_boost"),
+                categories: [
+                    ("power-boost", L10n.MoveCategory.displayName("power_boost")),
+                    ("multi-hit", L10n.MoveCategory.displayName("multi_hit")),
+                    ("high-crit", L10n.MoveCategory.displayName("high_crit"))
+                ]
+            ),
+            CategoryGroup(
+                name: L10n.MoveCategoryGroup.displayName("risk"),
+                categories: [
+                    ("recoil", L10n.MoveCategory.displayName("recoil")),
+                    ("recharge", L10n.MoveCategory.displayName("recharge")),
+                    ("charge", L10n.MoveCategory.displayName("charge")),
+                    ("ohko", L10n.MoveCategory.displayName("ohko"))
+                ]
+            ),
+            CategoryGroup(
+                name: L10n.MoveCategoryGroup.displayName("stat_change"),
+                categories: [
+                    ("stat-change", L10n.MoveCategory.displayName("stat_change")),
+                    ("setup", L10n.MoveCategory.displayName("setup")),
+                    ("type-change", L10n.MoveCategory.displayName("type_change")),
+                    ("ability-change", L10n.MoveCategory.displayName("ability_change"))
+                ]
+            ),
+            CategoryGroup(
+                name: L10n.MoveCategoryGroup.displayName("defense_counter"),
+                categories: [
+                    ("counter", L10n.MoveCategory.displayName("counter")),
+                    ("protect", L10n.MoveCategory.displayName("protect"))
+                ]
+            ),
+            CategoryGroup(
+                name: L10n.MoveCategoryGroup.displayName("recovery_support"),
+                categories: [
+                    ("healing", L10n.MoveCategory.displayName("healing")),
+                    ("drain", L10n.MoveCategory.displayName("drain")),
+                    ("revival", L10n.MoveCategory.displayName("revival"))
+                ]
+            ),
+            CategoryGroup(
+                name: L10n.MoveCategoryGroup.displayName("switch"),
+                categories: [
+                    ("switch", L10n.MoveCategory.displayName("switch"))
+                ]
+            ),
+            CategoryGroup(
+                name: L10n.MoveCategoryGroup.displayName("field_control"),
+                categories: [
+                    ("hazard", L10n.MoveCategory.displayName("hazard")),
+                    ("weather", L10n.MoveCategory.displayName("weather")),
+                    ("terrain", L10n.MoveCategory.displayName("terrain"))
+                ]
+            ),
+            CategoryGroup(
+                name: L10n.MoveCategoryGroup.displayName("move_types"),
+                categories: [
+                    ("sound", L10n.MoveCategory.displayName("sound")),
+                    ("punch", L10n.MoveCategory.displayName("punch")),
+                    ("powder", L10n.MoveCategory.displayName("powder")),
+                    ("pulse", L10n.MoveCategory.displayName("pulse")),
+                    ("bite", L10n.MoveCategory.displayName("bite")),
+                    ("ball", L10n.MoveCategory.displayName("ball")),
+                    ("dance", L10n.MoveCategory.displayName("dance")),
+                    ("wind", L10n.MoveCategory.displayName("wind")),
+                    ("slash", L10n.MoveCategory.displayName("slash"))
+                ]
+            ),
+            CategoryGroup(
+                name: L10n.MoveCategoryGroup.displayName("other"),
+                categories: [
+                    ("contact", L10n.MoveCategory.displayName("contact")),
+                    ("defrost", L10n.MoveCategory.displayName("defrost"))
+                ]
+            )
+        ]
+    }
 
     /// カテゴリーIDから表示名を取得
     static func displayName(for categoryId: String) -> String {
-        return allCategories.first { $0.id == categoryId }?.name ?? categoryId
+        // ハイフンをアンダースコアに変換してローカライゼーションキーを取得
+        let key = categoryId.replacingOccurrences(of: "-", with: "_")
+        return L10n.MoveCategory.displayName(key)
     }
 
     /// カテゴリーごとの技名リスト（手動定義）

@@ -343,6 +343,32 @@
 "terrain.unknown" = "不明";
 "terrain.header" = "フィールド";
 
+// MARK: - Move Ailment (Status Conditions)
+"ailment.paralysis" = "まひ";
+"ailment.burn" = "やけど";
+"ailment.poison" = "どく";
+"ailment.badly_poison" = "もうどく";
+"ailment.freeze" = "こおり";
+"ailment.sleep" = "ねむり";
+"ailment.confusion" = "こんらん";
+
+// MARK: - Move Stat Change
+"stat_change.user_attack_up" = "自分こうげき↑";
+"stat_change.user_defense_up" = "自分ぼうぎょ↑";
+"stat_change.user_sp_attack_up" = "自分とくこう↑";
+"stat_change.user_sp_defense_up" = "自分とくぼう↑";
+"stat_change.user_speed_up" = "自分すばやさ↑";
+"stat_change.user_accuracy_up" = "自分命中↑";
+"stat_change.user_evasion_up" = "自分回避↑";
+"stat_change.user_crit_rate_up" = "自分急所ランク↑";
+"stat_change.opponent_attack_down" = "相手こうげき↓";
+"stat_change.opponent_defense_down" = "相手ぼうぎょ↓";
+"stat_change.opponent_sp_attack_down" = "相手とくこう↓";
+"stat_change.opponent_sp_defense_down" = "相手とくぼう↓";
+"stat_change.opponent_speed_down" = "相手すばやさ↓";
+"stat_change.opponent_accuracy_down" = "相手命中↓";
+"stat_change.opponent_evasion_down" = "相手回避↓";
+
 // MARK: - Move Targets
 "target.selected_pokemon" = "相手1体";
 "target.selected_pokemon_me_first" = "相手1体（先制）";
@@ -501,3 +527,61 @@
 "stats_calc.pokemon_change" = "変更";
 "stats_calc.pokemon_loading" = "ポケモンを読み込み中...";
 "stats_calc.pokemon_not_found" = "該当するポケモンが見つかりません";
+// MARK: - Move Category Groups
+"move_category_group.status_condition" = "状態異常";
+"move_category_group.disruption" = "妨害効果";
+"move_category_group.attack_timing" = "攻撃タイミング";
+"move_category_group.damage_boost" = "ダメージ増強";
+"move_category_group.risk" = "リスク技";
+"move_category_group.stat_change" = "能力変化";
+"move_category_group.defense_counter" = "防御・カウンター";
+"move_category_group.recovery_support" = "回復・補助";
+"move_category_group.switch" = "交代・退場";
+"move_category_group.field_control" = "フィールド操作";
+"move_category_group.move_types" = "技の系統";
+"move_category_group.other" = "その他";
+
+// MARK: - Move Categories
+"move_category.poison" = "どく";
+"move_category.paralyze" = "まひ";
+"move_category.burn" = "やけど";
+"move_category.freeze" = "こおり";
+"move_category.sleep" = "ねむり";
+"move_category.confusion" = "こんらん";
+"move_category.flinch" = "ひるみ";
+"move_category.bind" = "バインド技";
+"move_category.never_miss" = "必中技";
+"move_category.fixed_damage" = "固定ダメ技";
+"move_category.priority" = "先制技";
+"move_category.delayed" = "後攻技";
+"move_category.power_boost" = "威力上昇";
+"move_category.multi_hit" = "連続攻撃";
+"move_category.high_crit" = "急所";
+"move_category.recoil" = "反動ダメ";
+"move_category.recharge" = "反動ターン";
+"move_category.charge" = "ターン技";
+"move_category.ohko" = "一撃必殺";
+"move_category.stat_change" = "ランク変化";
+"move_category.setup" = "積み技";
+"move_category.type_change" = "タイプ変化";
+"move_category.ability_change" = "特性変化";
+"move_category.counter" = "カウンター";
+"move_category.protect" = "まもる";
+"move_category.healing" = "回復";
+"move_category.drain" = "HP吸収";
+"move_category.revival" = "蘇生";
+"move_category.switch" = "交代技";
+"move_category.hazard" = "設置技";
+"move_category.weather" = "天候";
+"move_category.terrain" = "フィールド";
+"move_category.sound" = "音系";
+"move_category.punch" = "パンチ系";
+"move_category.powder" = "粉/胞子";
+"move_category.pulse" = "波動技";
+"move_category.bite" = "あご系";
+"move_category.ball" = "弾";
+"move_category.dance" = "踊り";
+"move_category.wind" = "風技";
+"move_category.slash" = "切る技";
+"move_category.contact" = "接触技";
+"move_category.defrost" = "こおり解除";
