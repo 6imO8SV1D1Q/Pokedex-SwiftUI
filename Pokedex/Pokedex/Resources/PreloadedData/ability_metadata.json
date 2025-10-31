@@ -352,7 +352,7 @@
       "status_immunity"
     ],
     "effect" : "This Pokémon cannot be poisoned.  This includes bad poison.\n\nIf a Pokémon is poisoned and acquires this ability, its poison is healed; this includes when regaining a lost ability upon leaving battle.",
-    "effectJa" : "このポケモンはどく・もうどく状態にならない。\n\nどく状態のポケモンがこの特性を獲得すると、どくが治る。",
+    "effectJa" : "このポケモンはどく・もうどく状態にならない。\n\nどく状態のポケモンがこの特性を獲得すると、どくが治る。これには戦闘から離れた際に失った特性を取り戻す場合も含まれる。",
     "effects" : [
       {
         "effectType" : "immune_to_status",
@@ -374,7 +374,7 @@
       "power_boost"
     ],
     "effect" : "This Pokémon is immune to fire-type moves.  Once this Pokémon has been hit by a Fire move, its own Fire moves will inflict 1.5× as much damage until it leaves battle.\n\nThis ability has no effect while the Pokémon is frozen.  The Fire damage bonus is retained even if the Pokémon is frozen and thawed or the ability is lost or disabled.  Fire moves will ignore this Pokémon's substitute.  This ability takes effect even on non-damaging moves, i.e. will o wisp.",
-    "effectJa" : "このポケモンはほのおタイプの技を無効化する。ほのおタイプの技を受けると、ほのおタイプの技の威力が1.5倍になる効果を得る（もらいび状態）。この効果は交代しても継続する。\n\n既にもらいび状態の時に再びほのおタイプの技を受けても、効果は重複しない。",
+    "effectJa" : "このポケモンはほのおタイプの技を無効化する。ほのおタイプの技を受けると、自分のほのおタイプの技の威力が1.5倍になる（もらいび状態）。この効果は交代するまで継続する。\n\nこおり状態の間、この特性は効果を発揮しない。ただし、もらいび状態でこおり状態になっても、こおりが治った後もほのおタイプ技の威力上昇は維持される。また、この特性を失ったり無効化されても、威力上昇効果は維持される。ほのおタイプの技はこのポケモンのみがわりを無視する。この効果はダメージを与えない技（おにび）にも適用される。",
     "effects" : [
       {
         "effectType" : "immune_to_type",
@@ -395,7 +395,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon is immune to the extra effects of moves used against it.\n\nAn extra effect is a move's chance, listed as an \"effect chance\", to inflict a status ailment, cause a stat change, or make the target flinch in addition to the move's main effect.  For example, thunder shock's paralysis is an extra effect, but thunder wave's is not, nor are knock off's item removal and air cutter's increased critical hit rate.",
-    "effectJa" : "このポケモンが受ける技の追加効果が発動しない。\n\n追加効果とは、技の説明に「〜%の確率で」と記載されている効果のこと（やけど、こおり、まひ、どく、こんらん、能力低下、ひるみなど）。ダメージ計算に影響する効果（タイプ相性、急所など）は防げない。",
+    "effectJa" : "このポケモンが受ける技の追加効果が発動しない。\n\n追加効果とは、技の「効果確率」として表示される、状態異常の付与、能力ランクの変化、ひるみなどの、技の主効果に加えて発生する可能性がある効果のこと。例えば、10まんボルトのまひは追加効果だが、でんじはのまひは主効果なので防げない。また、はたきおとすの道具除去やエアカッターの急所率上昇も主効果なので防げない。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -454,7 +454,7 @@
       "switch_in_effect"
     ],
     "effect" : "When this Pokémon enters battle, the opponent's Attack is lowered by one stage.  In a double battle, both opponents are affected.\n\nThis ability also takes effect when acquired during a battle, but will not take effect again if lost and reobtained without leaving battle.\n\nThis ability has no effect on an opponent that has a substitute.\n\nOverworld: If the first Pokémon in the party has this ability, any random encounter with a Pokémon five or more levels lower than it has a 50% chance of being skipped.",
-    "effectJa" : "このポケモンが場に出た時、相手全員の攻撃を1段階下げる。\n\nクリアボディ、しろいけむり、メタルプロテクト、かいりきバサミ、ちからずく、マイペースを持つポケモンには無効。\n\nフィールド：この特性を持つポケモンが先頭にいると、自分よりレベルの低い野生ポケモンとの遭遇率が半減する。",
+    "effectJa" : "このポケモンが場に出た時、相手の攻撃を1段階下げる。ダブルバトルでは、相手全員が影響を受ける。\n\nこの特性は戦闘中に獲得した場合も発動するが、戦闘から離れずに失って再び獲得しても再発動しない。\n\nこの特性は、みがわりを出している相手には効果がない。\n\nフィールド：手持ちの先頭にこの特性を持つポケモンがいる場合、自分より5レベル以上低い野生ポケモンとのランダムエンカウントが50%の確率でスキップされる。",
     "effects" : [
       {
         "effectType" : "stat_stage_change",
@@ -476,7 +476,7 @@
       "special_mechanic"
     ],
     "effect" : "While this Pokémon is in battle, opposing Pokémon cannot flee or switch out.\n\nOther Pokémon with this ability are unaffected.  Pokémon with run away can still flee.  Pokémon can still switch out with the use of a move or item.",
-    "effectJa" : "相手は交代や逃げることができなくなる。ゴーストタイプには無効。\n\n相手もシャドータッグを持っている場合、お互いに交代できる。",
+    "effectJa" : "このポケモンが場にいる間、相手は逃げたり交代したりできなくなる。\n\n同じかげふみの特性を持つポケモンには効果がない。にげあしを持つポケモンは逃げることができる。技やアイテムを使用しての交代は可能。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -545,7 +545,7 @@
       "status_inflict"
     ],
     "effect" : "Whenever a move makes contact with this Pokémon, the move's user has a 30% chance of being paralyzed, poisoned, or put to sleep, chosen at random.\n\nNothing is done to compensate if the move's user is immune to one of these ailments; there is simply a lower chance that the move's user will be affected.",
-    "effectJa" : "このポケモンに接触技を使用した相手は、30%の確率でどく、まひ、ねむりのいずれかの状態異常になる。各状態異常になる確率は10%ずつ。\n\nくさタイプのポケモンと、ぼうじんゴーグルを持つポケモンには無効。",
+    "effectJa" : "このポケモンに接触技を使用した相手は、30%の確率でどく、まひ、ねむりのいずれかの状態異常になる。\n\n状態異常は完全にランダムで選ばれる。技の使用者がいずれかの状態異常に免疫を持つ場合でも調整は行われず、単に発動確率が下がるだけ。くさタイプのポケモンと、ぼうじんゴーグルを持つポケモンには無効。",
     "effects" : [
       {
         "condition" : {
@@ -570,7 +570,7 @@
       "status_reflection"
     ],
     "effect" : "Whenever this Pokémon is burned, paralyzed, or poisoned, the Pokémon who gave this Pokémon that ailment is also given the ailment.\n\nThis ability passes back bad poison when this Pokémon is badly poisoned.  This ability cannot pass on a status ailment that the Pokémon did not directly receive from another Pokémon, such as the poison from toxic spikes or the burn from a flame orb.\n\nOverworld: If the lead Pokémon has this ability, wild Pokémon have a 50% chance of having the lead Pokémon's nature, and a 50% chance of being given a random nature as usual, including the lead Pokémon's nature.  This does not work on Pokémon received outside of battle or roaming legendaries.",
-    "effectJa" : "このポケモンがどく、もうどく、まひ、やけど状態になった時、その状態異常にした相手も同じ状態異常になる。\n\nこの特性は、自分で状態異常になった場合（どくどくだまなど）は発動しない。\n\nフィールド：この特性を持つポケモンが先頭にいると、野生ポケモンの性格が50%の確率で先頭のポケモンと同じになる。",
+    "effectJa" : "このポケモンがやけど、まひ、またはどく状態にされた時、その状態異常を与えたポケモンも同じ状態異常になる。\n\nこの特性は、このポケモンがもうどく状態にされた場合、もうどく状態を跳ね返す。この特性は、どくびしによるどくやかえんだまによるやけどなど、他のポケモンから直接受けていない状態異常は跳ね返せない。\n\nフィールド：手持ちの先頭にこの特性を持つポケモンがいる場合、野生ポケモンが先頭のポケモンと同じ性格を持つ確率が50%になる。通常の場合と同様に先頭のポケモンと同じ性格になる可能性もあるため、残りの50%の中にも含まれる。戦闘外で受け取るポケモンや徘徊系伝説ポケモンには効果がない。",
     "effects" : [
       {
         "effectType" : "sync_status",
@@ -588,7 +588,7 @@
       "stat_protection"
     ],
     "effect" : "This Pokémon cannot have its stats lowered by other Pokémon.\n\nThis ability does not prevent any stat losses other than stat modifiers, such as the Speed cut from paralysis.  This Pokémon can still be passed negative stat modifiers through guard swap, heart swap, or power swap.\n\nThis ability functions identically to white smoke in battle.",
-    "effectJa" : "このポケモンは相手の技や特性によって能力ランクを下げられない。\n\nこの特性は能力ランクの低下のみを防ぎ、素早さの半減（まひ）や攻撃の半減（やけど）などのステータス変化は防げない。自分で能力ランクを下げる技（オーバーヒート、インファイトなど）は通常通り機能する。",
+    "effectJa" : "このポケモンは他のポケモンによって能力ランクを下げられない。\n\nこの特性は能力ランク補正以外のステータス低下（まひによる素早さ半減など）は防げない。このポケモンは、ガードスワップ、ハートスワップ、パワースワップを通じて負の能力ランク補正を受け取ることができる。\n\nこの特性は戦闘中、しろいけむりと同じ効果。",
     "effects" : [
       {
         "effectType" : "prevent_stat_decrease",
@@ -625,7 +625,7 @@
       "stat_boost"
     ],
     "effect" : "All other Pokémon's single-target electric-type moves are redirected to this Pokémon if it is an eligible target.  Other Pokémon's Electric moves raise this Pokémon's Special Attack one stage, negating any other effect on it, and cannot miss it.\n\nIf the move's intended target also has this ability, the move is not redirected.  When multiple Pokémon with this ability are possible targets for redirection, the move is redirected to the one with the highest Speed stat, or, in the case of a tie, to a random tied Pokémon.  follow me takes precedence over this ability.\n\nIf the Pokémon is a ground-type and thus immune to Electric moves, its immunity prevents the Special Attack boost.",
-    "effectJa" : "でんきタイプの単体対象技を全て自分が受ける。受けた技を無効化し、特攻が1段階上がる。\n\nダブルバトルとトリプルバトルでのみ技を引き寄せる効果がある。シングルバトルでは特攻上昇効果のみ。でんきタイプに対しても技を引き寄せる。\n\nフィールド：この特性を持つポケモンが先頭にいると、でんきタイプの野生ポケモンとの遭遇率が上がる。",
+    "effectJa" : "他のポケモンの単体対象のでんきタイプの技は、このポケモンが対象として選択可能な場合、このポケモンに向き直る。他のポケモンのでんきタイプの技は、このポケモンの特攻を1段階上げ、他の効果を無効化し、必中になる。\n\n技の本来の対象もこの特性を持つ場合、技は向き直らない。この特性を持つ複数のポケモンが向き直りの対象になり得る場合、最も素早さの高いポケモンに向き直る。同速の場合はランダムに選ばれる。このゆびとまれはこの特性より優先される。\n\nこのポケモンがじめんタイプでありでんきタイプの技に免疫を持つ場合、免疫によって特攻上昇は発生しない。",
     "effects" : [
       {
         "effectType" : "immune_to_type",
@@ -661,7 +661,7 @@
       "effect_boost"
     ],
     "effect" : "This Pokémon's moves have twice their usual effect chance.\n\nAn effect chance is a move's chance to inflict a status ailment, cause a stat change, or make the target flinch in addition to the move's main effect.  For example, flamethrower's chance of burning the target is doubled, but protect's chance of success and air cutter's increased critical hit rate are unaffected.\n\nsecret power is unaffected.",
-    "effectJa" : "このポケモンの技の追加効果が発生する確率が2倍になる。\n\n追加効果とは、技の説明に「〜%の確率で」と記載されている効果のこと。例：エアスラッシュのひるみ率が30%→60%、かみなりパンチのまひ率が10%→20%になる。一撃必殺技の命中率は上昇しない。",
+    "effectJa" : "このポケモンの技は、追加効果の発生確率が通常の2倍になる。\n\n追加効果とは、技が主効果に加えて状態異常を付与したり、能力ランクを変化させたり、ひるませたりする確率のこと。例えば、かえんほうしゃの相手をやけどさせる確率は2倍になるが、まもるの成功率やエアカッターの急所率上昇は影響を受けない。\n\nひみつのちからは影響を受けない。",
     "effects" : [
       {
         "effectType" : "additional_effect_chance",
@@ -683,7 +683,7 @@
       "weather_dependent"
     ],
     "effect" : "This Pokémon's Speed is doubled during rain.\n\nThis bonus does not count as a stat modifier.",
-    "effectJa" : "あめの時、このポケモンの素早さが2倍になる。",
+    "effectJa" : "あめ状態の時、このポケモンの素早さが2倍になる。\n\nこの補正は能力ランク補正として扱われない。",
     "effects" : [
       {
         "condition" : {
@@ -777,7 +777,7 @@
       "stat_multiplier"
     ],
     "effect" : "This Pokémon's Attack is doubled while in battle.\n\nThis bonus does not count as a stat modifier.\n\nThis ability functions identically to pure power.",
-    "effectJa" : "このポケモンの物理技の威力が2倍になる。\n\nこれは攻撃の種族値を2倍にするのと同じ効果。ちからもちと同じ効果。",
+    "effectJa" : "このポケモンの攻撃が戦闘中2倍になる。\n\nこの補正は能力ランク補正として扱われない。\n\nこの特性はヨガパワーと同じ効果。",
     "effects" : [
       {
         "effectType" : "stat_multiplier",
@@ -846,7 +846,7 @@
       "status_immunity"
     ],
     "effect" : "This Pokémon cannot be frozen.\n\nIf a Pokémon is frozen and acquires this ability, it will immediately thaw out; this includes when regaining a lost ability upon leaving battle.\n\nOverworld: If any Pokémon in the party has this ability, each egg in the party has its hatch counter decreased by 2 (rather than 1) each step cycle, making eggs hatch roughly twice as quickly.  This effect does not stack if multiple Pokémon have this ability or flame body.",
-    "effectJa" : "このポケモンはこおり状態にならない。\n\nこおり状態のポケモンがこの特性を獲得した場合、即座にこおりが溶ける。\n\nフィールド：この特性を持つポケモンが手持ちにいると、タマゴの孵化速度が2倍になる。",
+    "effectJa" : "このポケモンはこおり状態にならない。\n\nこおり状態のポケモンがこの特性を獲得した場合、即座にこおりが溶ける。これには戦闘から離れた際に失った特性を取り戻す場合も含まれる。\n\nフィールド：手持ちにこの特性を持つポケモンがいる場合、手持ちの各タマゴの孵化カウンターが各歩数サイクルで2減少する（通常は1）。これによりタマゴが約2倍の速さで孵化する。この効果は、複数のポケモンがこの特性またはほのおのからだを持っていても重複しない。",
     "effects" : [
       {
         "effectType" : "immune_to_status",
@@ -867,7 +867,7 @@
       "status_immunity"
     ],
     "effect" : "This Pokémon cannot be burned.\n\nIf a Pokémon is burned and acquires this ability, its burn is healed; this includes when regaining a lost ability upon leaving battle.",
-    "effectJa" : "このポケモンはやけど状態にならない。\n\nやけど状態のポケモンがこの特性を獲得すると、やけどが治る。",
+    "effectJa" : "このポケモンはやけど状態にならない。\n\nやけど状態のポケモンがこの特性を獲得すると、やけどが治る。これには戦闘から離れた際に失った特性を取り戻す場合も含まれる。",
     "effects" : [
       {
         "effectType" : "immune_to_status",
@@ -888,7 +888,7 @@
       "special_mechanic"
     ],
     "effect" : "While this Pokémon is in battle, opposing steel-type Pokémon cannot flee or switch out.\n\nPokémon with run away can still flee.  Pokémon can still switch out with the use of a move or item.\n\nOverworld: If the lead Pokémon has this ability, Steel-type Pokémon have a higher encounter rate.",
-    "effectJa" : "はがねタイプの相手は交代や逃げることができなくなる。\n\nフィールド：この特性を持つポケモンが先頭にいると、はがねタイプの野生ポケモンとの遭遇率が50%上昇する。",
+    "effectJa" : "このポケモンが場にいる間、相手のはがねタイプのポケモンは逃げたり交代したりできなくなる。\n\nにげあしを持つポケモンは逃げることができる。技やアイテムを使用しての交代は可能。\n\nフィールド：手持ちの先頭にこの特性を持つポケモンがいる場合、はがねタイプの野生ポケモンとのエンカウント率が上昇する。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -906,7 +906,7 @@
       "move_immunity"
     ],
     "effect" : "This Pokémon is immune to moves flagged as being sound-based.\n\nheal bell is unaffected.  uproar still prevents this Pokémon from sleeping.  This Pokémon can still receive a Perish Song counter through baton pass, and will retain a Perish Song counter if it acquires this ability after Perish Song is used.\n\nhowl, roar of time, sonic boom, and yawn are not flagged as sound-based.",
-    "effectJa" : "音系の技を無効化する。\n\n音系の技：いびき、うたう、エコーボイス、おたけび、かまいたち、きんぞくおん、くさぶえ、さわぐ、チャームボイス、ちょうおんぱ、とおぼえ、なきごえ、バークアウト、ハイパーボイス、ばくおんぱ、ほえる、ほろびのうた、むしのさざめき、りんしょう、ほか。",
+    "effectJa" : "このポケモンは音系の技の判定がある技に対して免疫を持つ。\n\nいやしのすずは影響を受けない。さわぐは依然としてこのポケモンの眠りを防ぐ。このポケモンはバトンタッチを通じてほろびのうたのカウンターを受け取ることができ、ほろびのうた使用後にこの特性を獲得してもほろびのうたのカウンターは維持される。\n\nとおぼえ、ときのほうこう、ソニックブーム、あくびは音技として判定されない。",
     "effects" : [
       {
         "effectType" : "immune_to_move",
@@ -983,7 +983,7 @@
       "special_mechanic"
     ],
     "effect" : "Moves targetting this Pokémon use one extra PP.\n\nThis ability stacks if multiple targets have it.  This ability still affects moves that fail or miss.  This ability does not affect ally moves that target either the entire field or just its side, nor this Pokémon's self-targetted moves; it does, however, affect single-targetted ally moves aimed at this Pokémon, ally moves that target all other Pokémon, and opponents' moves that target the entire field.  If this ability raises a move's PP cost above its remaining PP, it will use all remaining PP.\n\nWhen this Pokémon enters battle, all participating trainers are notified that it has this ability.\n\nOverworld: If the lead Pokémon has this ability, higher-levelled Pokémon have their encounter rate increased.",
-    "effectJa" : "相手がこのポケモンを対象とした技を使用すると、その技のPPが通常より1多く減る（合計2減る）。\n\nこの特性を持つポケモンが複数対象になった場合、効果は重複する。技が失敗したり外れたりしても、PPは追加で減る。全体技には効果がない。\n\nフィールド：この特性を持つポケモンが先頭にいると、レベルの高い野生ポケモンと出会いやすくなる。",
+    "effectJa" : "このポケモンを対象とする技は、PPを1多く消費する。\n\nこの特性は、複数の対象がこの特性を持つ場合に重複する。この特性は、失敗したり外れたりする技にも影響する。この特性は、フィールド全体またはこのポケモンの陣営のみを対象とする味方の技や、このポケモン自身を対象とする技には影響しないが、このポケモンを狙った単体対象の味方の技、他のすべてのポケモンを対象とする味方の技、フィールド全体を対象とする相手の技には影響する。この特性によって技のPPコストが残りPPを超える場合、残りのすべてのPPを使用する。\n\nこのポケモンが場に出た時、参加しているすべてのトレーナーにこの特性を持つことが通知される。\n\nフィールド：手持ちの先頭にこの特性を持つポケモンがいる場合、レベルの高い野生ポケモンとのエンカウント率が上昇する。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -1053,7 +1053,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon's remaining sleep turn count falls by 2 rather than 1.\n\nIf this Pokémon's sleep counter is at 1, it will fall to 0 and then the Pokémon will wake up.",
-    "effectJa" : "このポケモンのねむり状態のターン数が通常の半分になる。ねむりターン数が1ターンずつではなく2ターンずつ減少する。",
+    "effectJa" : "このポケモンの残りねむりターンカウントは、1ではなく2ずつ減少する。\n\nこのポケモンのねむりカウンターが1の場合、0になり、その後ポケモンは目を覚ます。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -1072,7 +1072,7 @@
       "status_inflict"
     ],
     "effect" : "Whenever a move makes contact with this Pokémon, the move's user has a 30% chance of being burned.\n\nOverworld: If any Pokémon in the party has this ability, each egg in the party has its hatch counter decreased by 2 (rather than 1) each step cycle, making eggs hatch roughly twice as quickly.  This effect does not stack if multiple Pokémon have this ability or magma armor.",
-    "effectJa" : "このポケモンに接触技を使用した相手は30%の確率でやけど状態になる。\n\nフィールド：この特性を持つポケモンが手持ちにいると、タマゴの孵化速度が2倍になる。この効果はマグマのよろいと重複する。",
+    "effectJa" : "このポケモンに接触技を使用した相手は30%の確率でやけど状態になる。\n\nフィールド：手持ちにこの特性を持つポケモンがいる場合、手持ちの各タマゴの孵化カウンターが各歩数サイクルで2減少する（通常は1）。これによりタマゴが約2倍の速さで孵化する。この効果は、複数のポケモンがこの特性またはマグマのよろいを持っていても重複しない。",
     "effects" : [
       {
         "condition" : {
@@ -1115,7 +1115,7 @@
       "stat_protection"
     ],
     "effect" : "This Pokémon cannot have its accuracy lowered.\n\nThis ability does not prevent any accuracy losses other than stat modifiers, such as the accuracy cut from fog; nor does it prevent other Pokémon's evasion from making this Pokémon's moves less accurate.  This Pokémon can still be passed negative accuracy modifiers through heart swap.\n\nOverworld: If the first Pokémon in the party has this ability, any random encounter with a Pokémon five or more levels lower than it has a 50% chance of being skipped.",
-    "effectJa" : "このポケモンの命中率を下げられない。\n\nこの特性は命中率ランクの低下のみを防ぎ、技の命中率そのものを変える効果（すなあらし中のいわタイプの特防上昇など）は防げない。\n\nフィールド：この特性を持つポケモンが先頭にいると、レベルの低い野生ポケモンとの遭遇率が半減する。",
+    "effectJa" : "このポケモンは命中率を下げられない。\n\nこの特性は命中率のランク補正以外の命中率低下（きりによる命中率低下など）は防げない。また、相手の回避率が上がることによる命中率低下も防げない。このポケモンは、ハートスワップを通じて負の命中率ランク補正を受け取ることができる。\n\nフィールド：手持ちの先頭にこの特性を持つポケモンがいる場合、自分より5レベル以上低い野生ポケモンとのランダムエンカウントが50%の確率でスキップされる。",
     "effects" : [
       {
         "effectType" : "prevent_stat_decrease",
@@ -1136,7 +1136,7 @@
       "stat_protection"
     ],
     "effect" : "This Pokémon's Attack cannot be lowered by other Pokémon.\n\nThis ability does not prevent any Attack losses other than stat modifiers, such as the Attack cut from a burn.  This Pokémon can still be passed negative Attack modifiers through heart swap or power swap.",
-    "effectJa" : "相手の技や特性によって攻撃ランクを下げられない。\n\nいかくの効果を受けない。自分で攻撃ランクを下げる技（ばかぢから、アームハンマーなど）は通常通り機能する。",
+    "effectJa" : "このポケモンは他のポケモンによって攻撃ランクを下げられない。\n\nこの特性は攻撃ランク補正以外の攻撃低下（やけどによる攻撃半減など）は防げない。このポケモンは、ハートスワップやパワースワップを通じて負の攻撃ランク補正を受け取ることができる。",
     "effects" : [
       {
         "effectType" : "prevent_stat_decrease",
@@ -1157,7 +1157,7 @@
       "special_mechanic"
     ],
     "effect" : "At the end of each turn, if another Pokémon consumed or Flung a held item that turn, this Pokémon picks up the item if it is not already holding one.  After each battle, this Pokémon has a 10% chance of picking up an item if it is not already holding one.\n\nThe air balloon and eject button cannot be picked up.\n\nThe items that may be found vary by game, and, since Pokémon Emerald, by the Pokémon's level.  This ability is checked after the battle ends, at which point any temporary ability changes have worn off.",
-    "effectJa" : "毎ターン終了時、そのターンに他のポケモンが道具を消費したかなげつけるを使用した場合、このポケモンが道具を持っていなければその道具を拾う。\n\nフィールド：戦闘終了後、10%の確率でアイテムを拾ってくる。拾うアイテムとその確率はレベルによって異なる。既に持ち物を持っている場合は発動しない。",
+    "effectJa" : "毎ターン終了時、そのターンに他のポケモンが持ち物を消費したかなげつけるを使用した場合、このポケモンが持ち物を持っていない時にその道具を拾う。また、戦闘終了後、このポケモンが持ち物を持っていない場合、10%の確率でアイテムを拾う。\n\nふうせんとだっしゅつボタンは拾えない。\n\n拾えるアイテムはゲームによって異なり、ポケモンエメラルド以降では、ポケモンのレベルによっても変わる。この特性は戦闘終了後にチェックされ、その時点で一時的な特性変更は解除されている。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -1175,7 +1175,7 @@
       "special_mechanic"
     ],
     "effect" : "Every second turn on which this Pokémon should attempt to use a move, it will instead do nothing (\"loaf around\").\n\nLoafing around interrupts moves that take multiple turns the same way paralysis, flinching, etc do.  Most such moves, for example bide or rollout, are simply cut off upon loafing around.  Attacks with a recharge turn, such as hyper beam, do not have to recharge; attacks with a preparation turn, such as fly, do not end up being used.  Moves that are forced over multiple turns and keep going through failure, such as outrage, uproar, or any move forced by encore, keep going as usual.\n\nIf this Pokémon is confused, its confusion is not checked when loafing around; the Pokémon cannot hurt itself, and its confusion does not end or come closer to ending.\n\nIf this Pokémon attempts to move but fails, e.g. because of paralysis or gravity, it still counts as having moved and will loaf around the next turn.  If it does not attempt to move, e.g. because it is asleep or frozen, whatever it would have done will be postponed until its next attempt; that is, it will either loaf around or move as usual, depending on what it last did.\n\nThis ability cannot be changed with worry seed, but it can be disabled with gastro acid, changed with role play, or traded away with skill swap.",
-    "effectJa" : "このポケモンは技を使用した次のターンは何もできない（なまける）。\n\nなまけるは、複数ターン継続する技（そらをとぶ、あなをほる、はかいこうせんの反動ターンなど）を中断する。なまけているターンでも、とくせいカプセルなどでこの特性を失えば、次のターンから通常通り技を使用できる。スキルスワップでこの特性を渡された相手は、次のターンになまける。",
+    "effectJa" : "このポケモンが技を使用しようとするターンの2回に1回は、代わりに何もしない（なまける）。\n\nなまけるは、まひやひるみなどと同じように、複数ターンにわたる技を中断する。ほとんどのそのような技（ためる、ころがるなど）は、なまけることで単純に打ち切られる。はかいこうせんなどの反動ターンを持つ技は反動が不要になる。そらをとぶなどの準備ターンを持つ技は結局使用されない。げきりん、さわぐ、またはアンコールで強制された技など、失敗しても継続する技は通常通り継続する。\n\nこのポケモンがこんらん状態の場合、なまけている時にこんらんはチェックされない。ポケモンは自分を傷つけることができず、こんらんは終了しないし、終了に近づくこともない。\n\nこのポケモンが動こうとしたが、まひやじゅうりょくなどで失敗した場合、動いたとみなされ、次のターンになまける。動こうとしなかった場合（ねむりやこおりなど）、次の試行まで行動は延期される。つまり、最後に何をしたかに応じて、なまけるか通常通り動く。\n\nこの特性はなやみのタネで変更できないが、いえきで無効化したり、ロールプレイで変更したり、スキルスワップで交換したりできる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -1193,7 +1193,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon's physical moves do 1.5× as much regular damage, but have 0.8× their usual accuracy.\n\nSpecial moves are unaffected.  Moves that do set damage, such as seismic toss, have their accuracy affected, but not their damage.\n\nOverworld: If the lead Pokémon has this ability, higher-levelled Pokémon have their encounter rate increased.",
-    "effectJa" : "このポケモンの物理技の威力が1.5倍になるが、命中率が0.8倍になる。特殊技は影響を受けない。\n\nフィールド：このポケモンが先頭にいると、自分よりレベルの高い野生ポケモンとの遭遇率が上がる。",
+    "effectJa" : "このポケモンの物理技は通常の1.5倍のダメージを与えるが、命中率は通常の0.8倍になる。\n\n特殊技は影響を受けない。じわれなどの固定ダメージの技は、命中率は影響を受けるが、ダメージは影響を受けない。\n\nフィールド：手持ちの先頭にこの特性を持つポケモンがいる場合、レベルの高い野生ポケモンとのエンカウント率が上昇する。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -1211,7 +1211,7 @@
       "special_mechanic"
     ],
     "effect" : "Whenever a move makes contact with this Pokémon, the move's user has a 30% chance of being infatuated.\n\nOverworld: If the first Pokémon in the party has this ability, any wild Pokémon whose species can be either gender has a 2/3 chance of being set to the opposite gender, and a 1/3 chance of having a random gender as usual.",
-    "effectJa" : "このポケモンに接触技を使用した相手は30%の確率でメロメロ状態になる。\n\nメロメロは異性にのみ有効。同性や性別不明には無効。\n\nフィールド：この特性を持つポケモンが先頭にいると、性別が異なる野生ポケモンとの遭遇率が2/3になる。",
+    "effectJa" : "このポケモンに接触技を使用した相手は、30%の確率でメロメロ状態になる。\n\nフィールド：手持ちの先頭にこの特性を持つポケモンがいる場合、性別を持つことができる種の野生ポケモンは、2/3の確率で反対の性別に設定され、1/3の確率で通常通りランダムな性別を持つ。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -1275,7 +1275,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon's hold item cannot be removed by other Pokémon.\n\nDamaging moves that would remove this Pokémon's item can still inflict damage against this Pokémon, e.g. knock off or pluck.  This Pokémon can still use moves that involve the loss of its own item, e.g. fling or trick.\n\nOverworld: If the lead Pokémon has this ability, the encounter rate while fishing is increased.",
-    "effectJa" : "このポケモンの持ち物を相手に奪われない。持ち物を奪う技（どろぼう、トリックなど）を受けても失敗する。\n\nダメージを与える技で道具を奪う場合、ダメージは与えるが道具は奪えない。はたきおとすのダメージ増加効果は受ける。\n\nフィールド：このポケモンが先頭にいると、釣りの成功率が上がる。",
+    "effectJa" : "このポケモンの持ち物は、他のポケモンによって奪われない。\n\n持ち物を奪うダメージ技（はたきおとす、ついばむ）は、このポケモンに対してダメージを与えることはできる。このポケモンは、自分の持ち物を失う技（なげつける、トリック）を使用できる。\n\nフィールド：手持ちの先頭にこの特性を持つポケモンがいる場合、釣りをしている間のエンカウント率が上昇する。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -1293,7 +1293,7 @@
       "special_mechanic"
     ],
     "effect" : "After each turn, this Pokémon has a 33% of being cured of any major status ailment.",
-    "effectJa" : "毎ターン終了時に33%の確率で状態異常が治る。",
+    "effectJa" : "毎ターン終了後、このポケモンは33%の確率で主要な状態異常が治る。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -1361,7 +1361,7 @@
       "special_mechanic"
     ],
     "effect" : "Whenever a Pokémon would heal after hitting this Pokémon with a leeching move like absorb, it instead loses as many HP as it would usually gain.\n\ndream eater is unaffected.",
-    "effectJa" : "相手が吸収技（きゅうけつ、ギガドレインなど）でこのポケモンからHPを吸収しようとした時、回復する代わりに同じ量のダメージを受ける。",
+    "effectJa" : "このポケモンがきゅうけつなどの吸収技を受けた時、技の使用者は回復する代わりに、通常獲得するはずのHP分のダメージを受ける。\n\nゆめくいは影響を受けない。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -1381,7 +1381,7 @@
       "type_boost"
     ],
     "effect" : "When this Pokémon has 1/3 or less of its HP remaining, its grass-type moves inflict 1.5× as much regular damage.",
-    "effectJa" : "このポケモンのHPが1/3以下の時、くさタイプの技の威力が1.5倍になる。",
+    "effectJa" : "このポケモンのHPが1/3以下の時、くさタイプの技が通常の1.5倍のダメージを与える。",
     "effects" : [
       {
         "effectType" : "move_power_multiplier",
@@ -1405,7 +1405,7 @@
       "type_boost"
     ],
     "effect" : "When this Pokémon has 1/3 or less of its HP remaining, its fire-type moves inflict 1.5× as much regular damage.",
-    "effectJa" : "このポケモンのHPが1/3以下の時、ほのおタイプの技の威力が1.5倍になる。",
+    "effectJa" : "このポケモンのHPが1/3以下の時、ほのおタイプの技が通常の1.5倍のダメージを与える。",
     "effects" : [
       {
         "effectType" : "move_power_multiplier",
@@ -1429,7 +1429,7 @@
       "type_boost"
     ],
     "effect" : "When this Pokémon has 1/3 or less of its HP remaining, its water-type moves inflict 1.5× as much regular damage.",
-    "effectJa" : "このポケモンのHPが1/3以下の時、みずタイプの技の威力が1.5倍になる。",
+    "effectJa" : "このポケモンのHPが1/3以下の時、みずタイプの技が通常の1.5倍のダメージを与える。",
     "effects" : [
       {
         "effectType" : "move_power_multiplier",
@@ -1475,7 +1475,7 @@
       "defensive"
     ],
     "effect" : "This Pokémon does not receive recoil damage from its recoil moves.\n\nstruggle's recoil is unaffected.  This ability does not prevent crash damage from missing with jump kick or high jump kick.",
-    "effectJa" : "反動ダメージを受ける技（すてみタックル、もろはのずつきなど）を使用しても、反動ダメージを受けない。わるあがき、いのちがけは除く。",
+    "effectJa" : "このポケモンは反動技から反動ダメージを受けない。\n\nわるあがきの反動は影響を受けない。この特性は、とびひざげりやとびげりで技が外れた時の墜落ダメージを防ぐことはできない。",
     "effects" : [
       {
         "effectType" : "remove_additional_effect",
@@ -1497,7 +1497,7 @@
       "switch_in_effect"
     ],
     "effect" : "The weather changes to strong sunlight when this Pokémon enters battle and lasts for 5 turns (8 turns if the Pokémon is holding a Heat Rock), unless replaced by another weather condition.\n\nIf multiple Pokémon with this ability, drizzle, sand stream, or snow warning are sent out at the same time, the abilities will activate in order of Speed, respecting trick room. Each ability's weather will cancel the previous weather, and only the weather summoned by the slowest of the Pokémon will stay.",
-    "effectJa" : "このポケモンが場に出ると天候がにほんばれになり、5ターン継続する（あついいわを持っている場合は8ターン）。他の天候に置き換えられると終了する。\n\nこの特性、あめふらし、すなおこし、ゆきふらしを持つ複数のポケモンが同時に場に出た場合、素早さの順に特性が発動する。トリックルーム中はその逆。各特性の天候は前の天候をキャンセルし、最も遅いポケモンの天候のみが残る。",
+    "effectJa" : "このポケモンが場に出ると天候が強い日差し状態になり、5ターン継続する（あついいわを持っている場合は8ターン）。他の天候に置き換えられると終了する。\n\nこの特性、あめふらし、すなおこし、ゆきふらしを持つ複数のポケモンが同時に場に出た場合、素早さの順に特性が発動する。トリックルーム中はその逆。各特性の天候は前の天候をキャンセルし、最も遅いポケモンの天候のみが残る。",
     "effects" : [
       {
         "effectType" : "set_weather",
@@ -1518,7 +1518,7 @@
       "special_mechanic"
     ],
     "effect" : "While this Pokémon is in battle, opposing Pokémon cannot flee or switch out.  flying-type Pokémon and Pokémon in the air, e.g. due to levitate or magnet rise, are unaffected.\n\nPokémon with run away can still flee.  Pokémon can still switch out with the use of a move or item.\n\nOverworld: If the lead Pokémon has this ability, the wild encounter rate is doubled.",
-    "effectJa" : "このポケモンが場にいる間、相手のひこうタイプ以外のポケモンは交代や逃走ができなくなる。ふゆうの特性を持つポケモンやテレポートを使用するポケモンも捕らえる。\n\nゴーストタイプには効果がない。\n\nフィールド：このポケモンが先頭にいると、野生ポケモンとの遭遇率が2倍になる。",
+    "effectJa" : "このポケモンが場にいる間、相手は逃げたり交代したりできなくなる。ひこうタイプのポケモンと、ふゆうやでんじふゆうなどで空中にいるポケモンには影響しない。\n\nにげあしを持つポケモンは逃げることができる。技やアイテムを使用しての交代は可能。\n\nフィールド：手持ちの先頭にこの特性を持つポケモンがいる場合、野生ポケモンとのエンカウント率が2倍になる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -1536,7 +1536,7 @@
       "status_immunity"
     ],
     "effect" : "This Pokémon cannot be asleep.\n\nThis causes rest to fail altogether.  If a Pokémon is asleep and acquires this ability, it will immediately wake up; this includes when regaining a lost ability upon leaving battle.\n\nThis ability functions identically to insomnia in battle.\n\nOverworld: If the lead Pokémon has this ability, higher-levelled Pokémon have their encounter rate increased.",
-    "effectJa" : "このポケモンはねむり状態にならない。\n\nねむりを使用しても失敗する。あくびを使用された場合は、次のターンにねむり状態にならず効果が失敗する。ねむり状態のポケモンがこの特性を獲得した場合、即座に目を覚ます。\n\nフィールド：このポケモンが先頭にいると、自分よりレベルの高い野生ポケモンとの遭遇率が上がる。",
+    "effectJa" : "このポケモンはねむり状態にならない。",
     "effects" : [
       {
         "effectType" : "immune_to_status",
@@ -1557,7 +1557,7 @@
       "stat_protection"
     ],
     "effect" : "This Pokémon cannot have its stats lowered by other Pokémon.\n\nThis ability does not prevent any stat losses other than stat modifiers, such as the Speed cut from paralysis; nor self-inflicted stat drops, such as the Special Attack drop from overheat; nor opponent-triggered stat boosts, such as the Attack boost from swagger.  This Pokémon can still be passed negative stat modifiers through guard swap, heart swap, or power swap.\n\nThis ability functions identically to clear body in battle.\n\nOverworld: If the lead Pokémon has this ability, the wild encounter rate is halved.",
-    "effectJa" : "このポケモンは相手の技や特性によって能力ランクを下げられない。\n\nこの特性は能力ランクの低下のみを防ぎ、素早さの半減（まひ）や攻撃の半減（やけど）などのステータス変化は防げない。自分で能力ランクを下げる技（オーバーヒート、りゅうせいぐんなど）は通常通り機能する。\n\nフィールド：このポケモンが先頭にいると、自分よりレベルの低い野生ポケモンとの遭遇率が半減する。",
+    "effectJa" : "このポケモンは他のポケモンによって能力ランクを下げられない。\n\nこの特性は能力ランク補正以外のステータス低下（まひによる素早さ半減など）は防げない。このポケモンは、ガードスワップ、ハートスワップ、パワースワップを通じて負の能力ランク補正を受け取ることができる。\n\nこの特性は戦闘中、クリアボディと同じ効果。",
     "effects" : [
       {
         "effectType" : "prevent_stat_decrease",
@@ -1616,7 +1616,7 @@
       "weather_nullify"
     ],
     "effect" : "While this Pokémon is in battle, weather can still be in play, but will not have any of its effects.\n\nThis ability functions identically to cloud nine.",
-    "effectJa" : "このポケモンが場にいる間、全ての天候の効果が無効化される。天候は残るが、効果が発動しない。",
+    "effectJa" : "このポケモンが場にいる間、天候の効果がすべて無効化される。\n\nこの特性はノーてんきと同じ効果。",
     "effects" : [
       {
         "effectType" : "nullify_weather",
@@ -1653,7 +1653,7 @@
       "stat_boost"
     ],
     "effect" : "Whenever an electric-type move hits this Pokémon, its Speed rises one stage, negating any other effect on it.\n\nThis ability will not take effect if this Pokémon is immune to Electric moves.  Electric moves will ignore this Pokémon's substitute.\n\nThis effect includes non-damaging moves, i.e. thunder wave.",
-    "effectJa" : "このポケモンがでんきタイプの技を受けると、その技を無効化し、素早さが1段階上がる。\n\nこの特性はでんきタイプの技を受けた時のみ発動し、でんき状態になることはない。",
+    "effectJa" : "このポケモンはでんきタイプの技を無効化する。でんきタイプの技を受けると、素早さが1段階上がる。\n\nでんきタイプの技はこのポケモンのみがわりを無視する。この効果はダメージを与えない技（でんじは）にも適用される。",
     "effects" : [
       {
         "effectType" : "immune_to_type",
@@ -1689,7 +1689,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon inflicts 1.25× as much regular damage against Pokémon of the same gender and 0.75× as much regular damage against Pokémon of the opposite gender.\n\nIf either Pokémon is genderless, damage is unaffected.",
-    "effectJa" : "相手と性別が同じ場合、技の威力が1.25倍になる。性別が異なる場合、威力が0.75倍になる。性別不明の相手には効果がない。",
+    "effectJa" : "このポケモンは、同じ性別のポケモンに対して通常の1.25倍のダメージを与え、反対の性別のポケモンに対して0.75倍のダメージを与える。\n\nどちらかのポケモンが性別不明の場合、ダメージは通常通り。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -1730,7 +1730,7 @@
       "weather_dependent"
     ],
     "effect" : "During hail, this Pokémon has 1.25× its evasion, and it does not take hail damage regardless of type.\n\nThe evasion bonus does not count as a stat modifier.\n\nOverworld: If the lead Pokémon has this ability, the wild encounter rate is halved in snow.",
-    "effectJa" : "天候がゆき状態の時、回避率が1.25倍になる。あられによるダメージも受けない。\n\nフィールド：このポケモンが先頭にいると、あられ状態の時に野生ポケモンとの遭遇率が半減する。",
+    "effectJa" : "あられ（またはゆき）状態の時、このポケモンの回避率が1.25倍になり、あられによるダメージを受けない。タイプに関係なく無効。\n\n回避率の上昇は能力ランク補正として扱われない。\n\nフィールド：手持ちの先頭にこの特性を持つポケモンがいる場合、ゆき状態での野生ポケモンとのエンカウント率が半減する。",
     "effects" : [
       {
         "condition" : {
@@ -1859,7 +1859,7 @@
       "special_mechanic"
     ],
     "effect" : "Each stage of this Pokémon's stat modifiers acts as two stages.  These doubled stages are still limited to a minimum of -6 and a maximum of 6.\n\nThis Pokémon can still accumulate less than -3 or more than 3 stages of stat modifiers, even though the extra ones have no effect after doubling.",
-    "effectJa" : "このポケモンの能力ランクの変化が通常の2倍になる。1段階上昇する効果は2段階上昇し、1段階下降する効果は2段階下降する。\n\n能力ランクは-6〜+6の範囲に制限される。",
+    "effectJa" : "このポケモンの能力ランク補正の各段階は、2段階として機能する。これらの2倍の段階は、依然として最小-6、最大+6に制限される。\n\nこのポケモンは、-3未満または+3を超える能力ランク補正を蓄積できるが、実際の効果は-6または+6で頭打ちになる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -1997,7 +1997,7 @@
       "special_mechanic"
     ],
     "effect" : "If this Pokémon is poisoned, it will heal for 1/8 of its maximum HP after each turn rather than taking damage.  This includes bad poison.",
-    "effectJa" : "どく状態またはもうどく状態の時、毎ターン終了時にダメージを受けずに最大HPの1/8を回復する。",
+    "effectJa" : "このポケモンがどく状態の場合、毎ターン終了後、ダメージを受ける代わりに最大HPの1/8を回復する。これはもうどく状態も含む。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2016,7 +2016,7 @@
       "power_boost"
     ],
     "effect" : "This Pokémon inflicts twice as much damage with moves whose types match its own, rather than the usual same-type attack bonus of 1.5×.",
-    "effectJa" : "このポケモンがタイプ一致で技を使用した時、威力が通常の1.5倍ではなく2倍になる。",
+    "effectJa" : "このポケモンは、自身のタイプと一致する技で通常のタイプ一致ボーナス1.5倍ではなく、2倍のダメージを与える。",
     "effects" : [
       {
         "effectType" : "move_power_multiplier",
@@ -2056,7 +2056,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon is cured of any major status ailment after each turn during rain.",
-    "effectJa" : "天候があめの時、毎ターン終了時に状態異常が治る。",
+    "effectJa" : "このポケモンは、あめ状態の時、毎ターン終了後に主要な状態異常が治る。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2076,7 +2076,7 @@
       "weather_dependent"
     ],
     "effect" : "During strong sunlight, this Pokémon has 1.5× its Special Attack but takes 1/8 of its maximum HP in damage after each turn.",
-    "effectJa" : "天候がにほんばれの時、特攻が1.5倍になるが、毎ターン終了時に最大HPの1/8のダメージを受ける。",
+    "effectJa" : "強い日差し状態の時、このポケモンは特攻が1.5倍になるが、毎ターン終了後に最大HPの1/8のダメージを受ける。",
     "effects" : [
       {
         "condition" : {
@@ -2129,7 +2129,7 @@
       "critical_boost"
     ],
     "effect" : "This Pokémon inflicts triple damage with critical hits, rather than the usual double damage.",
-    "effectJa" : "急所に当てた時のダメージ倍率が、通常の1.5倍ではなく2.25倍になる。",
+    "effectJa" : "このポケモンは、急所に当てた時、通常の2倍ではなく3倍のダメージを与える。",
     "effects" : [
       {
         "effectType" : "critical_damage_multiplier",
@@ -2150,7 +2150,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon is immune to damage not directly caused by a move.\n\nFor example, this Pokémon takes no damage from from weather, recoil, status ailments, or spikes, but it still suffers from the Attack cut when burned, and a life orb will still power up this Pokémon's moves without damaging it.  Anything that directly depends on such damage will also not happen; for example, leech seed will neither hurt this Pokémon nor heal the opponent, and Pokémon with a jaboca berry or rowap berry will not consume the berry when hit by this Pokémon.\n\nThe following are unaffected: struggle, pain split (whether used by or against this Pokémon), belly drum, substitute, curse, moves that knock the user out, and damage from confusion.\n\nThis Pokémon will neither lose nor regain HP if it drains HP from a Pokémon with liquid ooze.\n\nIf this Pokémon is badly poisoned, the poison counter is still increased each turn; if the Pokémon loses this ability, it will begin taking as much damage as it would be if it had been taking increasing damage each turn.",
-    "effectJa" : "このポケモンは直接攻撃以外のダメージを受けない。\n\n無効化されるダメージ：天候ダメージ（すなあらし、あられ）、状態異常ダメージ（やけど、どく）、いのちのたま・かえんだまなどの道具によるダメージ、ステルスロック・まきびしなどの設置技、やどりぎのタネ、のろい（ゴーストタイプが使用）、はらだいこの反動、とっしんの反動、こんらんの自傷など。\n\n通常の技によるダメージは受ける。",
+    "effectJa" : "このポケモンは、技によって直接引き起こされないダメージに対して免疫を持つ。\n\n例えば、このポケモンは天候、反動、状態異常、まきびしからのダメージを受けないが、やけどによる攻撃低下は受ける。いのちのたまは依然としてこのポケモンの技を強化するが、ダメージは与えない。そのようなダメージに直接依存するものもすべて発生しない。例えば、やどりぎのタネはこのポケモンを傷つけることも相手を回復することもできず、ゴツゴツメットやさざめきのみを持つポケモンは、このポケモンに攻撃された時にそれらのアイテムを消費しない。\n\n以下は影響を受けない：わるあがき、いたみわけ（このポケモンが使用する場合も受ける場合も）、はらだいこ、みがわり、のろい、使用者がひんし状態になる技、こんらんによるダメージ。\n\nこのポケモンは、ヘドロえきを持つポケモンからHPを吸収した場合、HPを失うことも回復することもない。\n\nこのポケモンがもうどく状態の場合、毒カウンターは依然として毎ターン増加する。この特性を失った場合、毎ターン増加するダメージを受けていたかのように、同じ量のダメージを受け始める。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2168,7 +2168,7 @@
       "accuracy_boost"
     ],
     "effect" : "Moves used by or against this Pokémon never miss.\n\nOne-hit KO moves are unaffected.  Moves affected by this ability can hit Pokémon during the preparation turn of moves like dig or fly.\n\nOverworld: If the lead Pokémon has this ability, the wild encounter rate is doubled.",
-    "effectJa" : "このポケモンが使用する技と、このポケモンが受ける技が必ず命中する。命中率・回避率に関わらず必中になる。\n\nフィールド：このポケモンが先頭にいると、野生ポケモンとの遭遇率が上がる。",
+    "effectJa" : "このポケモンが使用する技と、このポケモンに対して使用される技は決して外れない。\n\n一撃必殺技は影響を受けない。この特性の影響を受ける技は、あなをほるやそらをとぶなどの準備ターン中のポケモンに当てることができる。\n\nフィールド：手持ちの先頭にこの特性を持つポケモンがいる場合、野生ポケモンとのエンカウント率が上昇する。",
     "effects" : [
       {
         "effectType" : "always_hit",
@@ -2186,7 +2186,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon moves last within its priority bracket.\n\nMultiple Pokémon with this ability move in order of Speed amongst themselves.\n\nThe full incense and lagging tail take precedence over this ability; that is, Pokémon with these items move after Pokémon with this ability.  Pokémon with both this ability and one of these items are delayed as much as if they had only the item.\n\nThis ability works as usual during trick room: Pokémon with this ability will move in reverse order of Speed after Pokémon without it.",
-    "effectJa" : "このポケモンは同じ優先度の技を使用する時、必ず後攻になる。\n\n複数のポケモンがこの特性を持つ場合、その中では素早さの順に行動する。こうこうのしっぽやまんぷくおこうを持つポケモンと同時に技を使用する場合、素早さの順に行動する。",
+    "effectJa" : "このポケモンは、同じ優先度ブラケット内で最後に行動する。\n\nこの特性を持つ複数のポケモンは、それらの間で素早さの順に行動する。\n\nまんぷくおこうとのんきのおこうは、この特性の影響を受けない。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2222,7 +2222,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon cannot be given a major status ailment during strong sunlight.\n\nThis ability does not heal prior status ailments.  rest will fail altogether with this ability in effect.  yawn will immediately fail if used on this Pokémon during strong sunlight, and an already-used Yawn will fail if the weather turns to strong sunlight in the meantime.",
-    "effectJa" : "天候がにほんばれの時、このポケモンは状態異常にならない。\n\nこの特性は新たな状態異常のみを防ぎ、既存の状態異常は治さない。ねむりを使用しても失敗する。あくびで受けたねむりは無効化される。",
+    "effectJa" : "このポケモンは、強い日差し状態の間、主要な状態異常を受けない。\n\nこの特性は以前の状態異常を治さない。ねむるは完全に失敗する。やけどによる攻撃低下は依然として有効。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2240,7 +2240,7 @@
       "special_mechanic"
     ],
     "effect" : "In battle, this Pokémon cannot use its held item, nor will the item have any passive effect on the battle, positive or negative.  This Pokémon also cannot use fling.\n\nThe Speed cut from the iron ball and the effort items (the macho brace, power weight, power bracer, power belt, power lens, power band, and power anklet) is unaffected.  Items that do not directly affect the battle, such as the exp share, the amulet coin, or the soothe bell, work as usual.  All held items work as usual out of battle.\n\nOther moves that use the held item, such as natural gift and switcheroo, work as usual.",
-    "effectJa" : "このポケモンは戦闘中に持ち物の効果を受けられない。持ち物を持っていても効果が発動しない。なげつける、しぜんのめぐみも使えない。\n\nくろいてっきゅうやきょうせいギプスなどの素早さを下げる効果は有効。戦闘外での持ち物の効果（がくしゅうそうち、おまもりこばんなど）は通常通り機能する。すりかえ、トリックなどで持ち物を交換することはできる。",
+    "effectJa" : "戦闘中、このポケモンは持ち物を使用できず、持ち物は戦闘にプラスまたはマイナスの受動的効果を持たない。このポケモンはなげつけるも使用できない。\n\nくろいてっきゅうと努力アイテム（きょうせいギプス、パワーウエイト、パワーリスト、パワーベルト、パワーレンズ、パワーバンド、パワーアンクル）による素早さ低下は影響を受けない。けいけんちシェアやおまもりこばん、やすらぎのすずなど、戦闘に直接影響しないアイテムは通常通り機能する。すべての持ち物は戦闘外では通常通り機能する。\n\nしぜんのめぐみやすりかえなど、持ち物を使用する他の技は通常通り機能する。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2258,7 +2258,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon's moves completely ignore abilities that could hinder or prevent their effect on the target.\n\nFor example, this Pokémon's moves ignore abilities that would fully negate them, such as water absorb; abilities that would prevent any of their effects, such as clear body, shell armor, or sticky hold; and abilities that grant any general protective benefit, such as simple, snow cloak, or thick fat.  If an ability could either hinder or help this Pokémon's moves, e.g. dry skin or unaware, the ability is ignored either way.\n\nAbilities that do not fit this description, even if they could hinder moves in some other way, are not affected.  For example, cursed body only affects potential future uses of the move, while liquid ooze and shadow tag can only hinder a move's effect on the user.  This ablity cannot ignore type or form changes granted by abilities, for example color change or forecast; nor effects that were caused by abilities but are no longer tied to an ability, such as the rain from drizzle.  This ability cannot ignore multitype at all.\n\nAn ability ignored by this ability is only nullified while the move is being used.  For example, this Pokémon's moves can paralyze a Pokémon with limber, but Limber will activate and heal the paralysis immediately thereafter, and this Pokémon's spikes are not affected by this ability after they have been placed.\n\nWhen this Pokémon enters battle, all participating trainers are notified that it has this ability.\n\nThis ability functions identically to teravolt and turboblaze.",
-    "effectJa" : "このポケモンの技は、相手の特性を無視して効果を発揮する。\n\n無視される特性の例：がんじょう、ふゆう、ちょすい、でんきエンジン、もらいび、あついしぼう、かんそうはだ、よびみず、ひらいしん、ぼうおん、マルチスケイル、ファーコート、フラワーベール、スイートベール、アロマベール、もふもふなど。\n\nこのポケモンが場に出た時、「〜は かたやぶり だ！」というメッセージが表示される。",
+    "effectJa" : "このポケモンの技は、対象の効果を妨げたり防いだりする可能性のある特性を完全に無視する。\n\n例えば、このポケモンの技は、ちょすいなど完全に無効化する特性、クリアボディ、シェルアーマー、ねんちゃくなど効果を防ぐ特性、シンプル、すながくれ、あついしぼうなど一般的な防御効果を与える特性を無視する。かんそうはだやてんねんなど、このポケモンの技を妨げることも助けることもできる特性がある場合、どちらの場合も無視される。\n\nこの説明に当てはまらない特性は、他の方法で技を妨げる可能性があっても影響を受けない。例えば、のろわれボディは技の将来の使用にのみ影響し、ヘドロえきとかげふみは使用者への技の効果にのみ影響する。この特性は、フォルムチェンジやウェザーボールなど、特性によって与えられるタイプやフォルム変更を無視できない。また、あめふらしによるあめなど、特性によって引き起こされたが特性に紐づいていない効果も無視できない。この特性はマルチタイプを全く無視できない。\n\nこの特性によって無視される特性は、技が使用されている間のみ無効化される。例えば、このポケモンの技は、じゅうなんを持つポケモンをまひさせることができるが、じゅうなんはその直後に発動してまひを治し、このポケモンのまきびしはこの特性の影響を受けない。\n\nこのポケモンが場に出た時、参加しているすべてのトレーナーにこの特性を持つことが通知される。\n\nこの特性はテラボルテージとターボブレイズと同じ効果。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2276,7 +2276,7 @@
       "critical_boost"
     ],
     "effect" : "This Pokémon's moves have critical hit rates one stage higher than normal.",
-    "effectJa" : "このポケモンの技の急所ランクが1段階高くなる。",
+    "effectJa" : "このポケモンの技は、急所率が通常より1段階高い。",
     "effects" : [
       {
         "effectType" : "critical_rate_change",
@@ -2297,7 +2297,7 @@
       "special_mechanic"
     ],
     "effect" : "When this Pokémon is knocked out by a move that makes contact, the move's user takes 1/4 its maximum HP in damage.",
-    "effectJa" : "このポケモンが接触技でひんし状態になった時、相手に最大HPの1/4のダメージを与える。",
+    "effectJa" : "このポケモンが接触技でひんし状態にされた時、技の使用者は最大HPの1/4のダメージを受ける。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2315,7 +2315,7 @@
       "special_mechanic"
     ],
     "effect" : "When this Pokémon enters battle, if one of its opponents has a move that is super effective against it, self destruct, explosion, or a one-hit knockout move, all participating trainers are notified.\n\nThe move itself is not revealed; only that there is such a move.  Moves that inflict typeless damage, such as future sight, and moves of variable type, such as hidden power, count as their listed types.  counter, metal burst, mirror coat, and one-hit KO moves to which this Pokémon is immune do not trigger this ability.",
-    "effectJa" : "このポケモンが場に出た時、相手が効果抜群の技、一撃必殺技、だいばくはつ、じばくを持っている場合に反応して「〜は 　みぶるいした！」と表示される。\n\n複数の相手がいる場合、そのうち1匹でも該当する技を持っていれば反応する。",
+    "effectJa" : "このポケモンが場に出た時、相手のいずれかがこのポケモンに対して効果抜群の技、じばく、だいばくはつ、または一撃必殺技を持っている場合、このポケモンは「震える」。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2333,7 +2333,7 @@
       "special_mechanic"
     ],
     "effect" : "When this Pokémon enters battle, it reveals the move with the highest base power known by any opposing Pokémon to all participating trainers.\n\nIn the event of a tie, one is chosen at random.\n\nMoves without a listed base power are assigned one as follows:\n\nPower | Moves\n----: | -----\n  160 | One-hit KO moves: fissure, guillotine, horn drill, and sheer cold\n  120 | Counter moves: counter, metal burst, and mirror coat\n   80 | Variable power or set damage: crush grip, dragon rage, electro ball, endeavor, final gambit, flail, frustration, grass knot, gyro ball, heat crash, heavy slam, hidden power, low kick, natural gift, night shade, psywave, return, reversal, seismic toss, sonic boom, trump card, and wring out\n    0 | Any such move not listed\n",
-    "effectJa" : "このポケモンが場に出た時、相手が持つ技の中で最も威力が高い技を知ることができる。\n\n威力が同じ技が複数ある場合、その中からランダムで選ばれる。変動威力の技は基本威力で判定される。カウンターなどの威力不定の技は威力1として扱われる。\n\nダブルバトルでは、両方の相手を含めて最も威力の高い技が判明する。",
+    "effectJa" : "このポケモンが場に出た時、参加しているすべてのトレーナーに対して、相手ポケモンが知っている技の中で最も威力の高い技が明らかになる。\n\n同点の場合、可能な技の中からランダムに選ばれる。技の威力がない場合、1として扱われる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2351,7 +2351,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon ignores other Pokémon's stat modifiers for the purposes of damage and accuracy calculation.\n\nEffectively, this affects modifiers of every stat except Speed.\n\nThe power of punishment and stored power is calculated as usual.  When this Pokémon hurts itself in confusion, its stat modifiers affect damage as usual.",
-    "effectJa" : "このポケモンは相手の能力ランク変化を無視してダメージ計算と命中判定を行う。\n\n相手の攻撃・特攻の上昇、防御・特防・回避率の上昇、このポケモンの防御・特防・命中率の下降を全て無視する。ただし、素早さの変化は無視しない。",
+    "effectJa" : "このポケモンは、ダメージおよび命中率の計算において、他のポケモンの能力ランク補正を無視する。\n\n実質的に、これは攻撃、防御、特攻、特防、回避率のすべての補正に影響し、素早さには影響しない。相手のじゃくてんほけんやこだわりメガネなどの道具は依然として効果を持つ。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2414,7 +2414,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon's Attack and Speed are halved for five turns upon entering battle.\n\nThis ability also takes effect when acquired during battle.  If this Pokémon loses its ability before the five turns are up, its Attack and Speed return to normal; if it then regains this ability without leaving battle, its Attack and Speed are halved again, but the counter keeps counting from where it was.",
-    "effectJa" : "このポケモンが場に出てから5ターンの間、攻撃と素早さが半減する。\n\n戦闘中にこの特性を獲得した場合も即座に効果が発動する。この特性を失うと効果は解除されるが、再度この特性を獲得すると5ターン再開する。交代すると効果はリセットされる。",
+    "effectJa" : "このポケモンは、場に出てから5ターンの間、攻撃と素早さが半減する。\n\nこの特性は、戦闘中に獲得した場合も発動する。この特性を持つポケモンが戦闘中に交代した場合、カウンターはリセットされる。\n\nこの特性はスキルスワップで交換できるが、交換されたポケモンのカウンターはリセットされない。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2434,7 +2434,7 @@
       "power_boost"
     ],
     "effect" : "This Pokémon ignores ghost-type Pokémon's immunity to normal- and fighting-type moves.\n\nGhost Pokémon's other types affect damage as usual.",
-    "effectJa" : "ゴーストタイプのポケモンに、ノーマル・かくとうタイプの技が当たるようになる。また、いかくを受けない。",
+    "effectJa" : "このポケモンは、ノーマルタイプおよびかくとうタイプの技に対するゴーストタイプのポケモンの免疫を無視する。\n\nゴーストタイプのポケモンの他のタイプは通常通りダメージに影響する。",
     "effects" : [
       {
         "effectType" : "move_power_multiplier",
@@ -2466,7 +2466,7 @@
       "stat_boost"
     ],
     "effect" : "All other Pokémon's single-target water-type moves are redirected to this Pokémon, if it is an eligible target.  Other Pokémon's Water moves raise this Pokémon's Special Attack one stage, negating any other effect on it, and cannot miss it.\n\nIf the move's intended target also has this ability, the move is not redirected.  When multiple Pokémon with this ability are possible targets for redirection, the move is redirected to the one with the highest Speed stat, or, in the case of a tie, to a random tied Pokémon.  follow me takes precedence over this ability.",
-    "effectJa" : "みずタイプの単体対象技を全て自分が受ける。受けた技を無効化し、特攻が1段階上がる。\n\nダブルバトルとトリプルバトルで味方へのみずタイプの技も引き寄せる。シングルバトルでは特攻上昇効果のみ。みずタイプに対しても技を引き寄せる。\n\nフィールド：このポケモンが先頭にいると、釣りの成功率が上がる。",
+    "effectJa" : "他のポケモンの単体対象のみずタイプの技は、このポケモンが対象として選択可能な場合、このポケモンに向き直る。他のポケモンのみずタイプの技は、このポケモンの特攻を1段階上げ、他の効果を無効化し、必中になる。\n\n技の本来の対象もこの特性を持つ場合、技は向き直らない。この特性を持つ複数のポケモンが向き直りの対象になり得る場合、最も素早さの高いポケモンに向き直る。同速の場合はランダムに選ばれる。このゆびとまれはこの特性より優先される。",
     "effects" : [
       {
         "effectType" : "immune_to_type",
@@ -2564,7 +2564,7 @@
       "weather_setter"
     ],
     "effect" : "The weather changes to snow when this Pokémon enters battle and lasts for 5 turns (8 turns if the Pokémon is holding an Icy Rock), unless replaced by another weather condition.\n\nIf multiple Pokémon with this ability, drizzle, drought, or sand stream are sent out at the same time, the abilities will activate in order of Speed, respecting trick room. Each ability's weather will cancel the previous weather, and only the weather summoned by the slowest of the Pokémon will stay.",
-    "effectJa" : "このポケモンが場に出ると天候がゆきになり、5ターン継続する（つめたいいわを持っている場合は8ターン）。他の天候に置き換えられると終了する。\n\nこの特性、あめふらし、ひでり、すなおこしを持つ複数のポケモンが同時に場に出た場合、素早さの順に特性が発動する。トリックルーム中はその逆。各特性の天候は前の天候をキャンセルし、最も遅いポケモンの天候のみが残る。",
+    "effectJa" : "このポケモンが場に出ると天候がゆき状態になり、5ターン継続する（つめたいいわを持っている場合は8ターン）。他の天候に置き換えられると終了する。\n\nこの特性、あめふらし、ひでり、すなおこしを持つ複数のポケモンが同時に場に出た場合、素早さの順に特性が発動する。トリックルーム中はその逆。各特性の天候は前の天候をキャンセルし、最も遅いポケモンの天候のみが残る。",
     "effects" : [
       {
         "effectType" : "set_weather",
@@ -2603,7 +2603,7 @@
       "special_mechanic"
     ],
     "effect" : "When this Pokémon enters battle, it reveals an opposing Pokémon's held item to all participating trainers.\n\nIn a double battle, if one opponent has an item, this Pokémon will Frisk that Pokémon; if both have an item, it will Frisk one at random.",
-    "effectJa" : "場に出た時、相手の持ち物を知ることができる。\n\nフィールド：このポケモンが先頭にいると、野生ポケモンが持ち物を持っている確率が上がる。",
+    "effectJa" : "このポケモンが場に出た時、参加しているすべてのトレーナーに対して、相手ポケモンの持ち物が明らかになる。\n\nダブルバトルでは、一方の相手が持ち物を持っている場合、このポケモンはそのポケモンを調べる。両方が持ち物を持っている場合、ランダムに1匹を調べる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2621,7 +2621,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon's recoil moves and crash moves have 1.2× their base power.\n\nstruggle is unaffected.\n\nThe \"crash moves\" are the moves that damage the user upon missing: jump kick and high jump kick.",
-    "effectJa" : "反動ダメージを受ける技（すてみタックル、フレアドライブなど）と、一部の技（とびひざげり、ボルテッカーなど）の威力が1.2倍になる。",
+    "effectJa" : "このポケモンの反動技と墜落技は、威力が1.2倍になる。\n\nわるあがきは影響を受けない。\n\n「墜落技」は、外れた際に使用者にダメージを与える技のこと：とびひざげりとととびげり。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2639,7 +2639,7 @@
       "type_change"
     ],
     "effect" : "If this Pokémon is holding an elemental Plate, its type and form change to match the Plate.\n\nThis Pokémon's held item, whether or not it is a Plate, cannot be taken by covet or thief, nor removed by knock off, nor traded by switcheroo or trick.  Covet, Thief, and Knock Off still inflict damage against this Pokémon.  Unlike with sticky hold, this Pokémon cannot use fling, Switcheroo, or Trick to lose its item itself, nor gain an item through Switcheroo or Trick if it does not have one.\n\nThis ability has no effect for any Pokémon other than arceus.  This ability cannot be traded with skill swap, nor copied with role play or trace, nor disabled with gastro acid, nor changed with worry seed.  This Pokémon cannot use Skill Swap or Role Play to lose its ability itself.  mold breaker cannot ignore this ability.\n\nIf a Pokémon Transforms into an Arceus with this ability, it will Transform into Arceus's default, normal-type form.  If the Transforming Pokémon is holding a Plate, this ability will then activate and change the Pokémon into the corresponding form.",
-    "effectJa" : "このポケモンが持っているプレートまたはZクリスタルに応じて、タイプとフォルムが変化する。\n\nアルセウス専用の特性。持ち物を変更することでタイプを変更できる。例：ひのたまプレートを持つとほのおタイプになる。通常の持ち物を持たせたり、持ち物を失うとノーマルタイプに戻る。\n\n特性を変更する技や道具の効果を受けない。",
+    "effectJa" : "このポケモンが元素プレートを持っている場合、そのタイプとフォルムがプレートに合わせて変化する。\n\nこのポケモンの持ち物は、プレートであるかどうかに関わらず、ほしがるやどろぼうで奪われたり、はたきおとすで除去されたり、すりかえやトリックで交換されたりすることはできない。ほしがる、どろぼう、はたきおとすは、このポケモンに対してダメージを与えることはできる。ねんちゃくとは異なり、このポケモンはなげつける、すりかえ、トリックを使用して自分の持ち物を失うことはできず、持ち物を持っていない場合、すりかえやトリックを通じて持ち物を獲得することもできない。\n\nこの特性はアルセウス以外のポケモンには効果がない。この特性はスキルスワップで交換したり、ロールプレイやトレースでコピーしたり、いえきで無効化したり、なやみのタネで変更したりすることはできない。このポケモンはスキルスワップやロールプレイを使用して自分の特性を失うことはできない。かたやぶりはこの特性を無視できない。\n\nポケモンがこの特性を持つアルセウスにへんしんした場合、アルセウスのデフォルトのノーマルタイプフォルムにへんしんする。へんしんするポケモンがプレートを持っている場合、この特性が発動し、ポケモンは対応するフォルムに変化する。",
     "effects" : [
       {
         "condition" : {
@@ -2669,7 +2669,7 @@
       "special_mechanic"
     ],
     "effect" : "Opposing Pokémon take 1/8 of their maximum HP in damage after each turn while they are asleep.",
-    "effectJa" : "ねむり状態の相手に、毎ターン終了時に最大HPの1/8のダメージを与える。",
+    "effectJa" : "相手のねむり状態のポケモンは、毎ターン終了後に最大HPの1/8のダメージを受ける。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2687,7 +2687,7 @@
       "special_mechanic"
     ],
     "effect" : "Whenever a move makes contact with this Pokémon, if it does not have a held item, it steals the attacker's held item.\n\nThis Pokémon cannot steal upon being knocked out.  It can steal if the attacker has a substitute, but cannot steal when its own Substitute is hit.  If a move hits multiple times, only the last hit triggers this ability.  If this Pokémon is wild, it cannot steal from a trained Pokémon.",
-    "effectJa" : "このポケモンが接触技を受けた時、自分が持ち物を持っていない場合、相手の持ち物を奪う。\n\nこの特性は自分が既に持ち物を持っている場合は発動しない。相手がメガストーン、Zクリスタル、メモリ、ねんちゃくやマルチタイプの特性を持つ場合は奪えない。みがわりで防がれた場合も発動しない。",
+    "effectJa" : "このポケモンに接触技を使用した時、このポケモンが持ち物を持っていない場合、攻撃者の持ち物を奪う。\n\nこのポケモンはひんし状態にされた時に奪うことはできない。攻撃者がみがわりを出している場合は奪えるが、自分のみがわりが攻撃された場合は奪えない。技が複数回ヒットする場合、最後のヒットのみがこの特性を発動する。このポケモンが野生の場合、訓練されたポケモンから奪うことはできない。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2705,7 +2705,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon's moves with extra effects have 1.3× their power, but lose their extra effects.\n\nAn effect chance is a move's chance to inflict a status ailment, cause a stat change, or make the target flinch in addition to the move's main effect. For example, thunder shock's paralysis is an extra effect, but thunder wave's is not, nor are knock off's item removal and air cutter's increased critical hit rate.\n\nMoves that lower the user's stats are unaffected.",
-    "effectJa" : "このポケモンが使用する追加効果がある技は、追加効果が発動しなくなるが、威力が1.3倍になる。\n\n追加効果とは、技の説明に「〜%の確率で」と記載されている効果のこと。この特性の効果中は、いのちのたま、かいがらのすずなどの反動や回復効果も発動しなくなる。ただし、技の威力は上がる。\n\nほのおのキバ、でんきショック、ボディプレスなど。",
+    "effectJa" : "このポケモンの追加効果を持つ技は、威力が1.3倍になるが、追加効果を失う。\n\n追加効果とは、技が主効果に加えて状態異常を付与したり、能力ランクを変化させたり、ひるませたりする確率のこと。例えば、10まんボルトのまひは追加効果だが、でんじはのまひは主効果なので影響を受けない。また、はたきおとすの道具除去やエアカッターの急所率上昇も主効果なので影響を受けない。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2723,7 +2723,7 @@
       "special_mechanic"
     ],
     "effect" : "Whenever this Pokémon's stats would be raised, they are instead lowered by the same amount, and vice versa.",
-    "effectJa" : "能力ランクの変化が逆になる。上昇効果は下降し、下降効果は上昇する。",
+    "effectJa" : "このポケモンの能力ランクが上がるはずの時、代わりに同じ量だけ下がり、その逆も同様。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2741,7 +2741,7 @@
       "special_mechanic"
     ],
     "effect" : "Opposing Pokémon cannot eat held Berries while this Pokémon is in battle.\n\nAffected Pokémon can still use bug bite or pluck to eat a target's Berry.",
-    "effectJa" : "このポケモンが場にいる間、相手はきのみを使用できない。\n\nむしくい、ついばむで奪われることは可能。",
+    "effectJa" : "このポケモンが場にいる間、相手は持っているきのみを食べることができない。\n\n影響を受けるポケモンは、むしくいやついばむを使用して対象のきのみを食べることはできる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -2963,7 +2963,7 @@
       "special_mechanic"
     ],
     "effect" : "After each turn, if the last item this Pokémon consumed was a Berry and it is not currently holding an item, it has a 50% chance of regaining that Berry, or a 100% chance during strong sunlight.",
-    "effectJa" : "このポケモンがきのみを使用した時、毎ターン終了時に50%の確率でそのきのみが復活する。にほんばれ状態の時は必ず復活する。",
+    "effectJa" : "毎ターン終了後、このポケモンが最後に消費したアイテムがきのみであり、現在持ち物を持っていない場合、50%の確率でそのきのみを取り戻す。強い日差し状態の時は100%の確率。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -3067,7 +3067,7 @@
       "switch_out_effect"
     ],
     "effect" : "This Pokémon regains 1/3 of its maximum HP when it is switched out for another Pokémon under any circumstances other than having fainted.\n\nThis ability does not take effect when a battle ends.",
-    "effectJa" : "このポケモンが手持ちに戻る時、最大HPの1/3を回復する。ひんし状態になって交代する場合は発動しない。",
+    "effectJa" : "このポケモンは、ひんし状態になる以外の状況で、他のポケモンと交代する時、最大HPの1/3を回復する。\n\nこの特性は、戦闘が終了する時には発動しない。",
     "effects" : [
       {
         "effectType" : "heal_hp",
@@ -3115,7 +3115,7 @@
       "stat_multiplier"
     ],
     "effect" : "This Pokémon's Speed is doubled during a sandstorm, and it does not take sandstorm damage, regardless of type.",
-    "effectJa" : "天候がすなあらし状態の時、素早さが2倍になる。すなあらしによるダメージも受けない。",
+    "effectJa" : "このポケモンは、すなあらし状態の時、素早さが2倍になり、タイプに関わらず、すなあらしのダメージを受けない。",
     "effects" : [
       {
         "condition" : {
@@ -3179,7 +3179,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon, upon being sent out, appears to have the species, nickname, and Poké Ball of the last Pokémon in the party that is able to battle.  This illusion breaks upon being hit by a damaging move.\n\nOther damage, e.g. from weather or spikes, does not break the illusion, nor does damage done to a substitute.\n\nIf the party order becomes temporarily shuffled around as Pokémon are switched out in battle, this ability chooses the last Pokémon according to that shuffled order.",
-    "effectJa" : "このポケモンが戦闘に出た時、手持ちの最後のポケモン（戦闘可能な最後尾のポケモン）の姿に化ける。攻撃を受けるまで正体がバレない。\n\nダメージを受けると正体が明らかになる。技のタイプや能力などは変わらず、見た目だけが変化する。みがわり状態でダメージを受けても正体がバレる。",
+    "effectJa" : "このポケモンは、場に出た時、手持ちの最後にいる戦闘可能なポケモンの種類、ニックネーム、モンスターボールを持っているように見える。この幻影は、ダメージ技を受けると解ける。\n\n天候やまきびしなどの他のダメージでは幻影は解けない。交代では幻影は解けない。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -3197,7 +3197,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon transforms into a random opponent upon entering battle.  This effect is identical to the move transform.",
-    "effectJa" : "場に出た時、目の前の相手に変身する。能力ランク変化もコピーする。",
+    "effectJa" : "このポケモンは、場に出た時、ランダムな相手にへんしんする。この効果は技「へんしん」と同じ。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -3233,7 +3233,7 @@
       "stat_boost_trigger"
     ],
     "effect" : "This Pokémon's Attack rises one stage upon knocking out another Pokémon, even a friendly Pokémon.\n\nThis ability does not take effect when the Pokémon indirectly causes another Pokémon to faint, e.g. through poison or spikes.\n\nIf this Pokémon knocks out a Pokémon with mummy, the former's ability will change without taking effect.",
-    "effectJa" : "このポケモンが相手をひんし状態にした時、攻撃が1段階上がる。\n\n味方をひんし状態にした場合も発動する。この特性はダメージで直接ひんしにした場合のみ発動し、どくややけどでひんしになった場合は発動しない。",
+    "effectJa" : "このポケモンは、他のポケモン（味方も含む）をひんし状態にした時、攻撃が1段階上がる。\n\nこの特性は、どくやまきびしなど、間接的に他のポケモンをひんし状態にした場合には発動しない。\n\nこのポケモンがミイラを持つポケモンをひんし状態にした場合、前者の特性は発動せずに変化する。",
     "effects" : [
       {
         "effectType" : "stat_stage_change",
@@ -3375,7 +3375,7 @@
       "weather_dependent"
     ],
     "effect" : "During a sandstorm, this Pokémon's rock-, ground-, and steel-type moves have 1.3× their base power.  This Pokémon does not take sandstorm damage, regardless of type.",
-    "effectJa" : "天候がすなあらし状態の時、いわ・じめん・はがねタイプの技の威力が1.3倍になる。すなあらしによるダメージも受けない。",
+    "effectJa" : "すなあらし状態の時、このポケモンのいわ、じめん、はがねタイプの技の威力が1.3倍になる。このポケモンは、タイプに関わらず、すなあらしのダメージを受けない。",
     "effects" : [
       {
         "condition" : {
@@ -3422,7 +3422,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon's moves completely ignore abilities that could hinder or prevent their effect on the target.\n\nFor example, this Pokémon's moves ignore abilities that would fully negate them, such as water absorb; abilities that would prevent any of their effects, such as clear body, shell armor, or sticky hold; and abilities that grant any general protective benefit, such as simple, snow cloak, or thick fat.  If an ability could either hinder or help this Pokémon's moves, e.g. dry skin or unaware, the ability is ignored either way.\n\nAbilities that do not fit this description, even if they could hinder moves in some other way, are not affected.  For example, cursed body only affects potential future uses of the move, while liquid ooze and shadow tag can only hinder a move's effect on the user.  This ablity cannot ignore type or form changes granted by abilities, for example color change or forecast; nor effects that were caused by abilities but are no longer tied to an ability, such as the rain from drizzle.  This ability cannot ignore multitype at all.\n\nAn ability ignored by this ability is only nullified while the move is being used.  For example, this Pokémon's moves can paralyze a Pokémon with limber, but Limber will activate and heal the paralysis immediately thereafter, and this Pokémon's spikes are not affected by this ability after they have been placed.\n\nWhen this Pokémon enters battle, all participating trainers are notified that it has this ability.\n\nThis ability functions identically to mold breaker and teravolt.",
-    "effectJa" : "このポケモンの技は、相手の特性を無視して効果を発揮する。\n\n無視される特性の例：がんじょう、ふゆう、ちょすい、でんきエンジン、もらいび、あついしぼう、かんそうはだ、よびみず、ひらいしん、ぼうおん、マルチスケイル、ファーコート、フラワーベール、スイートベール、アロマベール、もふもふなど。\n\nこのポケモンが場に出た時、「〜は　もうかのごとく　もえている！」というメッセージが表示される。\n\nこの特性はかたやぶり、テラボルテージと同じ効果。レシラム専用。",
+    "effectJa" : "このポケモンの技は、対象の効果を妨げたり防いだりする可能性のある特性を完全に無視する。\n\n例えば、このポケモンの技は、ちょすいなど完全に無効化する特性、クリアボディ、シェルアーマー、ねんちゃくなど効果を防ぐ特性、シンプル、すながくれ、あついしぼうなど一般的な防御効果を与える特性を無視する。かんそうはだやてんねんなど、このポケモンの技を妨げることも助けることもできる特性がある場合、どちらの場合も無視される。\n\nこの説明に当てはまらない特性は、他の方法で技を妨げる可能性があっても影響を受けない。例えば、のろわれボディは技の将来の使用にのみ影響し、ヘドロえきとかげふみは使用者への技の効果にのみ影響する。この特性は、フォルムチェンジやウェザーボールなど、特性によって与えられるタイプやフォルム変更を無視できない。また、あめふらしによるあめなど、特性によって引き起こされたが特性に紐づいていない効果も無視できない。この特性はマルチタイプを全く無視できない。\n\nこの特性によって無視される特性は、技が使用されている間のみ無効化される。例えば、このポケモンの技は、じゅうなんを持つポケモンをまひさせることができるが、じゅうなんはその直後に発動してまひを治し、このポケモンのまきびしはこの特性の影響を受けない。\n\nこのポケモンが場に出た時、参加しているすべてのトレーナーにこの特性を持つことが通知される。\n\nこの特性はかたやぶりとテラボルテージと同じ効果。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -3440,7 +3440,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon's moves completely ignore abilities that could hinder or prevent their effect on the target.\n\nFor example, this Pokémon's moves ignore abilities that would fully negate them, such as water absorb; abilities that would prevent any of their effects, such as clear body, shell armor, or sticky hold; and abilities that grant any general protective benefit, such as simple, snow cloak, or thick fat.  If an ability could either hinder or help this Pokémon's moves, e.g. dry skin or unaware, the ability is ignored either way.\n\nAbilities that do not fit this description, even if they could hinder moves in some other way, are not affected.  For example, cursed body only affects potential future uses of the move, while liquid ooze and shadow tag can only hinder a move's effect on the user.  This ablity cannot ignore type or form changes granted by abilities, for example color change or forecast; nor effects that were caused by abilities but are no longer tied to an ability, such as the rain from drizzle.  This ability cannot ignore multitype at all.\n\nAn ability ignored by this ability is only nullified while the move is being used.  For example, this Pokémon's moves can paralyze a Pokémon with limber, but Limber will activate and heal the paralysis immediately thereafter, and this Pokémon's spikes are not affected by this ability after they have been placed.\n\nWhen this Pokémon enters battle, all participating trainers are notified that it has this ability.\n\nThis ability functions identically to mold breaker and turboblaze.",
-    "effectJa" : "このポケモンの技は、相手の特性を無視して効果を発揮する。\n\n無視される特性の例：がんじょう、ふゆう、ちょすい、でんきエンジン、もらいび、あついしぼう、かんそうはだ、よびみず、ひらいしん、ぼうおん、マルチスケイル、ファーコート、フラワーベール、スイートベール、アロマベール、もふもふなど。\n\nこのポケモンが場に出た時、「〜の　まわりに　はげしい　でんりゅうが　あふれだす！」というメッセージが表示される。\n\nこの特性はかたやぶり、ターボブレイズと同じ効果。ゼクロム専用。",
+    "effectJa" : "このポケモンの技は、対象の効果を妨げたり防いだりする可能性のある特性を完全に無視する。\n\n例えば、このポケモンの技は、ちょすいなど完全に無効化する特性、クリアボディ、シェルアーマー、ねんちゃくなど効果を防ぐ特性、シンプル、すながくれ、あついしぼうなど一般的な防御効果を与える特性を無視する。かんそうはだやてんねんなど、このポケモンの技を妨げることも助けることもできる特性がある場合、どちらの場合も無視される。\n\nこの説明に当てはまらない特性は、他の方法で技を妨げる可能性があっても影響を受けない。例えば、のろわれボディは技の将来の使用にのみ影響し、ヘドロえきとかげふみは使用者への技の効果にのみ影響する。この特性は、フォルムチェンジやウェザーボールなど、特性によって与えられるタイプやフォルム変更を無視できない。また、あめふらしによるあめなど、特性によって引き起こされたが特性に紐づいていない効果も無視できない。この特性はマルチタイプを全く無視できない。\n\nこの特性によって無視される特性は、技が使用されている間のみ無効化される。例えば、このポケモンの技は、じゅうなんを持つポケモンをまひさせることができるが、じゅうなんはその直後に発動してまひを治し、このポケモンのまきびしはこの特性の影響を受けない。\n\nこのポケモンが場に出た時、参加しているすべてのトレーナーにこの特性を持つことが通知される。\n\nこの特性はかたやぶりとターボブレイズと同じ効果。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -3512,7 +3512,7 @@
       "special_mechanic"
     ],
     "effect" : "Changes the bearer's type to match each move it uses.\n\nThe type change takes place just before the move is used.",
-    "effectJa" : "技を使用する直前に、その技のタイプに自分のタイプが変化する。",
+    "effectJa" : "このポケモンは、技を使用する直前に、その技のタイプに変わる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -3732,7 +3732,7 @@
       "power_boost"
     ],
     "effect" : "Strengthens moves that make contact to 1.33× their power.",
-    "effectJa" : "接触技の威力が1.3倍になる。",
+    "effectJa" : "接触技の威力が1.33倍になる。",
     "effects" : [
       {
         "effectType" : "move_power_multiplier",
@@ -3756,7 +3756,7 @@
       "power_boost"
     ],
     "effect" : "Turns the bearer's normal-type moves into fairy moves.  Moves changed by this ability have 1.3× their power.",
-    "effectJa" : "ノーマルタイプの技がフェアリータイプになり、威力が1.2倍になる。",
+    "effectJa" : "このポケモンが使用するノーマルタイプの技がフェアリータイプになり、威力が1.3倍になる。",
     "effects" : [
       {
         "effectType" : "move_power_multiplier",
@@ -3809,7 +3809,7 @@
       "stat_boost_trigger"
     ],
     "effect" : "Raises this Pokémon's Defense by one stage when it takes damage from a move.",
-    "effectJa" : "このポケモンが技でダメージを受けた時、防御が1段階上がる。",
+    "effectJa" : "このポケモンが技でダメージを受けると、防御が1段階上がる。",
     "effects" : [
       {
         "effectType" : "stat_stage_change",
@@ -3872,7 +3872,7 @@
       "special_mechanic"
     ],
     "effect" : "When this Pokémon enters battle and at the end of each turn, if its HP is 50% or above, it changes into Meteor Form; otherwise, it changes into Core Form.  In Meteor Form, it cannot be given a major status ailment (though existing ones are not cured), cannot become drowsy from yawn, and cannot use rest (which will simply fail).\n\nThis ability cannot be copied, replaced, or nullified.  This ability only takes effect for Minior.",
-    "effectJa" : "このポケモンがメテノの時、HPが1/2以上の間はメテオフォルムで、防御と特防の能力ランクを下げられず、状態異常にならない。HPが1/2未満になるとコアフォルムにフォルムチェンジし、素早さが大幅に上昇するが防御・特防が下がる。\n\nコアフォルムになると、状態異常を受けるようになり、能力ランクも下げられるようになる。",
+    "effectJa" : "このポケモンが場に出た時と毎ターン終了時に、HPが50%以上の場合はりゅうせいのすがたになり、50%未満の場合はコアのすがたになる。りゅうせいのすがたの時、状態異常にならず（既存の状態異常は治らない）、あくびによるねむけ状態にならず、ねむるは失敗する。\n\nこの特性はコピー、置き換え、無効化ができない。この特性はメテノにのみ効果がある。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -3890,7 +3890,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon's moves have double power against Pokémon that switched in this turn.",
-    "effectJa" : "交代で出てきた相手に与えるダメージが2倍になる。",
+    "effectJa" : "このポケモンの技は、そのターンに交代して出てきたポケモンに対して威力が2倍になる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -3908,7 +3908,7 @@
       "status_immunity"
     ],
     "effect" : "When this Pokémon is hit by a Fire move, the damage is halved.  When this Pokémon uses a Water move, the power is doubled. This Pokémon cannot be burned, and if it becomes burned, the burn is immediately cured.",
-    "effectJa" : "このポケモンが受けるほのおタイプの技のダメージが半減する。やけど状態にならない。このポケモンのみずタイプの技の威力が2倍になる。",
+    "effectJa" : "このポケモンがほのおタイプの技を受けた時、ダメージが半減する。このポケモンがみずタイプの技を使用する時、威力が2倍になる。このポケモンはやけど状態にならず、やけど状態になった場合は即座に治る。",
     "effects" : [
       {
         "effectType" : "immune_to_status",
@@ -3988,7 +3988,7 @@
       "special_mechanic"
     ],
     "effect" : "When this Pokémon uses a move that is sound-based, that move's type is Water.",
-    "effectJa" : "このポケモンが使用する音系の技がみずタイプになる。",
+    "effectJa" : "このポケモンが音系の技を使用する時、その技のタイプがみずタイプになる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4120,7 +4120,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon always acts as though it were Asleep.  It cannot be given another status ailment; it's unaffected by yawn; it can use sleep talk; and so on.",
-    "effectJa" : "このポケモンは常にねむり状態として扱われるが、技を使用できる。ほかの状態異常にならない。",
+    "effectJa" : "このポケモンは常にねむり状態として扱われる。他の状態異常にならず、あくびの影響を受けず、ねごとを使用できる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4138,7 +4138,7 @@
       "special_mechanic"
     ],
     "effect" : "When an opposing Pokémon attempts to use a move that targets this Pokémon or an ally, and that move has priority, it will fail.",
-    "effectJa" : "このポケモンまたは味方が優先度が高い技で攻撃されようとした時、その技を無効化する。",
+    "effectJa" : "相手が先制技を使用してこのポケモンまたは味方を攻撃しようとすると、その技は失敗する。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4216,7 +4216,7 @@
       "special_mechanic"
     ],
     "effect" : "When an opposing Pokémon attempts to use a move that targets this Pokémon or an ally, and that move has priority, it will fail.",
-    "effectJa" : "このポケモンまたは味方が優先度が高い技で攻撃されようとした時、その技を無効化する。",
+    "effectJa" : "相手が先制技を使用してこのポケモンまたは味方を攻撃しようとすると、その技は失敗する。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4402,7 +4402,7 @@
       "special_mechanic"
     ],
     "effect" : "This Pokémon's stats cannot be lowered by other Pokémon's moves or abilities.  This effect only applies to normal stat modifications and not more exotic effects such as topsy turvy or power swap.\n\nThis Ability is not bypassed by mold breaker, teravolt, or turboblaze.",
-    "effectJa" : "このポケモンは相手の技や特性によって能力ランクを下げられない。\n\nこの特性はクリアボディ、しろいけむりと同じ効果。自分で能力ランクを下げる技は通常通り機能する。ソルガレオ専用。",
+    "effectJa" : "このポケモンの能力ランクは、相手の技や特性によって下げられない。この効果は通常の能力ランク変化にのみ適用され、ひっくりかえすやパワースワップなどの特殊な効果には適用されない。\n\nこの特性は、かたやぶり、ターボブレイズ、テラボルテージによって無視されない。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4544,7 +4544,7 @@
       "stat_protection"
     ],
     "effect" : "Bounces back only the stat-lowering effects that the Pokémon receives.",
-    "effectJa" : "相手から受ける能力ランク低下を跳ね返す。",
+    "effectJa" : "このポケモンが受けた能力ランクを下げる効果を、そのまま相手に跳ね返す。",
     "effects" : [
       {
         "effectType" : "reflect_stat_changes",
@@ -4634,7 +4634,7 @@
       "power_boost"
     ],
     "effect" : "Raises the user's Speed by three stages when it is hit by a Fire- or Water-type attack. The attack still deals damage.",
-    "effectJa" : "みずタイプまたはほのおタイプの技を受けた時、素早さが6段階上がる。",
+    "effectJa" : "このポケモンがほのおタイプまたはみずタイプの技を受けると、素早さが3段階上がる。技のダメージは通常通り受ける。",
     "effects" : [
       {
         "effectType" : "move_power_multiplier",
@@ -4656,7 +4656,7 @@
       "special_mechanic"
     ],
     "effect" : "Boosts the power of sound-based moves. The Pokémon also takes half the damage from these kinds of moves.",
-    "effectJa" : "音系の技の威力が1.3倍になる。相手の音系の技で受けるダメージが半減する。",
+    "effectJa" : "このポケモンが使用する音系の技の威力が1.3倍になる。このポケモンが受ける音系の技のダメージが半減する。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4674,7 +4674,7 @@
       "special_mechanic"
     ],
     "effect" : "The Pokémon creates a sandstorm when it’s hit by an attack.",
-    "effectJa" : "攻撃を受けた時、天候がすなあらし状態になる。",
+    "effectJa" : "このポケモンが技でダメージを受けると、すなあらし状態になる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4692,7 +4692,7 @@
       "special_mechanic"
     ],
     "effect" : "The Pokémon is protected by ice scales, which halve the damage taken from special moves.",
-    "effectJa" : "特殊技で受けるダメージが半減する。",
+    "effectJa" : "このポケモンは氷の鱗粉に守られており、特殊技で受けるダメージが半減する。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4710,7 +4710,7 @@
       "special_mechanic"
     ],
     "effect" : "Ripens Berries and doubles their effect.",
-    "effectJa" : "きのみの効果が2倍になる。",
+    "effectJa" : "きのみを熟成させ、効果を2倍にする。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4728,7 +4728,7 @@
       "special_mechanic"
     ],
     "effect" : "When an Eiscue that's in its Ice Face form is hit by a physical move, it takes no damage and changes into its Noice Face form. If a hailstorm or snowstorm begins while Eiscue is in its Noice Face form, or if it is sent out in its Noice Face form during hail, it will immediately revert to its Ice Face form.",
-    "effectJa" : "コオリッポ（アイスフェイス）の時、物理技を受けても無効化し、ナイスフェイスにフォルムチェンジする。天候があられまたはゆきの時、ナイスフェイスからアイスフェイスに戻る。",
+    "effectJa" : "アイスフェイスのすがたの時に物理技を受けると、ダメージを受けずにナイスフェイスのすがたに変わる。ナイスフェイスのすがたの時にあられ状態またはゆき状態になった場合、または既にあられ状態の場合に場に出た場合、即座にアイスフェイスのすがたに戻る。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4746,7 +4746,7 @@
       "special_mechanic"
     ],
     "effect" : " \"The power of moves used by the allies of the Pokémon with Power Spot is increased by 30%.\"",
-    "effectJa" : "ダブルバトルで、味方の技の威力が1.3倍になる。",
+    "effectJa" : "この特性を持つポケモンの味方が使用する技の威力が30%上がる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4806,7 +4806,7 @@
       "special_mechanic"
     ],
     "effect" : "The Pokémon changes its form, alternating between its Full Belly Mode and Hangry Mode after the end of every turn.",
-    "effectJa" : "毎ターン終了時にフォルムチェンジする。まんぷくもようとくうふくもようを交互に変化する。",
+    "effectJa" : "このポケモンは毎ターン終了後に、まんぷくもようとはらぺこもようを交互に切り替える。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4824,7 +4824,7 @@
       "special_mechanic"
     ],
     "effect" : "If a Pokémon with this Ability selects a damaging move, it has a 30% chance of going first in its priority bracket.",
-    "effectJa" : "技を使用する時、30%の確率で優先度が+1される。",
+    "effectJa" : "このポケモンがダメージを与える技を選択した時、30%の確率で同じ優先度内で先制できる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4842,7 +4842,7 @@
       "special_mechanic"
     ],
     "effect" : "If the Pokémon uses moves that make direct contact, it can attack the target even if the target protects itself.",
-    "effectJa" : "このポケモンの接触技は、まもる系の技を貫通する。",
+    "effectJa" : "このポケモンが接触技を使用する時、相手がまもる系の技を使用していても攻撃できる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4860,7 +4860,7 @@
       "special_mechanic"
     ],
     "effect" : "When the Pokémon enters a battle, it scatters medicine from its shell, which removes all stat changes from allies.",
-    "effectJa" : "場に出た時、味方の能力ランク変化をリセットする。",
+    "effectJa" : "このポケモンが場に出た時、殻から薬を撒き散らし、味方全員の能力ランク変化をリセットする。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4880,7 +4880,7 @@
       "power_boost"
     ],
     "effect" : "Increases the power of Electric-type moves used by this Pokémon by 50%.",
-    "effectJa" : "このポケモンのでんきタイプの技の威力が1.5倍になる。",
+    "effectJa" : "このポケモンが使用するでんきタイプの技の威力が50%上がる。",
     "effects" : [
       {
         "effectType" : "move_power_multiplier",
@@ -4926,7 +4926,7 @@
       "special_mechanic"
     ],
     "effect" : "When the Pokémon knocks out a target, it utters a chilling neigh, which boosts its Attack stat.",
-    "effectJa" : "相手をひんし状態にした時、攻撃が1段階上がる。",
+    "effectJa" : "このポケモンが相手をひんし状態にした時、冷たいいななきを発し、攻撃が1段階上がる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4944,7 +4944,7 @@
       "special_mechanic"
     ],
     "effect" : "When the Pokémon knocks out a target, it utters a terrifying neigh, which boosts its Sp. Atk stat.",
-    "effectJa" : "相手をひんし状態にした時、特攻が1段階上がる。",
+    "effectJa" : "このポケモンが相手をひんし状態にした時、恐ろしいいななきを発し、特攻が1段階上がる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -4998,7 +4998,7 @@
       "special_mechanic"
     ],
     "effect" : "Contact with the Pokémon changes the attacker’s Ability to Lingering Aroma.",
-    "effectJa" : "接触技を受けた時、相手の特性をとれないにおいに変える。",
+    "effectJa" : "このポケモンに接触した相手の特性が、とれないにおいに変わる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5016,7 +5016,7 @@
       "special_mechanic"
     ],
     "effect" : "Turns the ground into Grassy Terrain when the Pokémon is hit by an attack.",
-    "effectJa" : "攻撃を受けた時、グラスフィールド状態になる。",
+    "effectJa" : "このポケモンが技でダメージを受けると、場がグラスフィールド状態になる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5034,7 +5034,7 @@
       "status_immunity"
     ],
     "effect" : "Boosts the Attack stat when the Pokémon is hit by a Fire-type move. The Pokémon also cannot be burned.",
-    "effectJa" : "ほのおタイプの技を受けた時、攻撃が1段階上がる。やけど状態にならない。",
+    "effectJa" : "このポケモンがほのおタイプの技を受けると、攻撃が1段階上がる。このポケモンはやけど状態にならない。",
     "effects" : [
       {
         "effectType" : "immune_to_status",
@@ -5056,7 +5056,7 @@
       "hp_dependent"
     ],
     "effect" : "When an attack causes its HP to drop to half or less, the Pokémon gets angry. This lowers its Defense and Sp. Def stats but boosts its Attack, Sp. Atk, and Speed stats.",
-    "effectJa" : "HPが半分以下になった時、防御と特防が1段階下がり、攻撃・特攻・素早さが1段階上がる。",
+    "effectJa" : "このポケモンが技でダメージを受けてHPが半分以下になった時、怒って防御と特防が1段階下がり、攻撃、特攻、素早さが1段階上がる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5076,7 +5076,7 @@
       "type_boost"
     ],
     "effect" : "The Pokémon’s pure salt protects it from status conditions and halves the damage taken from Ghost-type moves.",
-    "effectJa" : "ゴーストタイプの技で受けるダメージが半減する。状態異常にならない。",
+    "effectJa" : "このポケモンは清めの塩に守られており、状態異常にならない。また、ゴーストタイプの技で受けるダメージが半減する。",
     "effects" : [
       {
         "effectType" : "move_power_multiplier",
@@ -5099,7 +5099,7 @@
       "stat_boost"
     ],
     "effect" : "The Pokémon takes no damage when hit by Fire-type moves. Instead, its Defense stat is sharply boosted.",
-    "effectJa" : "ほのおタイプの技を無効化し、防御を2段階上げる。",
+    "effectJa" : "このポケモンがほのおタイプの技を受けた時、ダメージを受けずに防御が2段階上がる。",
     "effects" : [
       {
         "effectType" : "immune_to_type",
@@ -5135,7 +5135,7 @@
       "special_mechanic"
     ],
     "effect" : "Boosts the Pokémon’s Attack stat if Tailwind takes effect or if the Pokémon is hit by a wind move. The Pokémon also takes no damage from wind moves.",
-    "effectJa" : "おいかぜ状態の時、攻撃が1段階上がる。風系の技を無効化し、攻撃を1段階上げる。",
+    "effectJa" : "おいかぜ状態になった時、または風系の技を受けた時、攻撃が1段階上がる。このポケモンは風系の技でダメージを受けない。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5153,7 +5153,7 @@
       "special_mechanic"
     ],
     "effect" : "Boosts the Pokémon’s Attack stat if intimidated. Moves and items that would force the Pokémon to switch out also fail to work.",
-    "effectJa" : "いかくを受けた時、攻撃が下がらずに1段階上がる。交代技やアイテムで強制交代させられない。",
+    "effectJa" : "いかく特性を受けると、攻撃が1段階上がる。また、強制的に交代させる技や道具の効果を受けない。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5173,7 +5173,7 @@
       "damage_increase"
     ],
     "effect" : "Increases the power of Rock-type moves used by this Pokémon by 50%.",
-    "effectJa" : "このポケモンのいわタイプの技の威力が1.5倍になる。",
+    "effectJa" : "このポケモンが使用するいわタイプの技の威力が50%上がる。",
     "effects" : [
       {
         "effectType" : "move_power_multiplier",
@@ -5197,7 +5197,7 @@
       "damage_increase"
     ],
     "effect" : "The Pokémon becomes charged when it is hit by a wind move, boosting the power of the next Electric-type move the Pokémon uses.",
-    "effectJa" : "風系の技を受けた時、でんきタイプの技の威力が上がるじゅうでん状態になる。",
+    "effectJa" : "このポケモンが風系の技を受けると、充電状態になり、次に使用するでんきタイプの技の威力が上がる。",
     "effects" : [
       {
         "effectType" : "move_power_multiplier",
@@ -5257,7 +5257,7 @@
       "damage_increase"
     ],
     "effect" : "The Pokémon becomes charged when it takes damage, boosting the power of the next Electric-type move the Pokémon uses.",
-    "effectJa" : "攻撃を受けた時、でんきタイプの技の威力が上がるじゅうでん状態になる。",
+    "effectJa" : "このポケモンがダメージを受けると、充電状態になり、次に使用するでんきタイプの技の威力が上がる。",
     "effects" : [
       {
         "effectType" : "move_power_multiplier",
@@ -5387,7 +5387,7 @@
       "special_mechanic"
     ],
     "effect" : "The power of the Pokémon’s ruinous vessel lowers the Sp. Atk stats of all Pokémon except itself.",
-    "effectJa" : "このポケモンが場にいる間、相手全員の特攻が0.75倍になる。",
+    "effectJa" : "このポケモンの災いの器の力により、このポケモン以外の全てのポケモンの特攻が下がる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5405,7 +5405,7 @@
       "special_mechanic"
     ],
     "effect" : "The power of the Pokémon’s ruinous sword lowers the Defense stats of all Pokémon except itself.",
-    "effectJa" : "このポケモンが場にいる間、相手全員の防御が0.75倍になる。",
+    "effectJa" : "このポケモンの災いの剣の力により、このポケモン以外の全てのポケモンの防御が下がる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5423,7 +5423,7 @@
       "special_mechanic"
     ],
     "effect" : "The power of the Pokémon’s ruinous wooden tablets lowers the Attack stats of all Pokémon except itself.",
-    "effectJa" : "このポケモンが場にいる間、相手全員の攻撃が0.75倍になる。",
+    "effectJa" : "このポケモンの災いの札の力により、このポケモン以外の全てのポケモンの攻撃が下がる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5441,7 +5441,7 @@
       "special_mechanic"
     ],
     "effect" : "The power of the Pokémon’s ruinous beads lowers the Sp. Def stats of all Pokémon except itself.",
-    "effectJa" : "このポケモンが場にいる間、相手全員の特防が0.75倍になる。",
+    "effectJa" : "このポケモンの災いの玉の力により、このポケモン以外の全てのポケモンの特防が下がる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5460,7 +5460,7 @@
       "switch_in_effect"
     ],
     "effect" : "Turns the sunlight harsh when the Pokémon enters a battle, lasting for 5 turns. The ancient pulse thrumming through the Pokémon also boosts its Attack stat by 1.33× in harsh sunlight.",
-    "effectJa" : "このポケモンが場に出ると天候がにほんばれになり、5ターン継続する。にほんばれ状態の時、このポケモンの攻撃が1.33倍になる。",
+    "effectJa" : "このポケモンが場に出ると天候がにほんばれになり、5ターン継続する（あついいわを持っている場合は8ターン）。このポケモンを貫く太古の鼓動により、にほんばれ状態の時、攻撃が1.33倍になる。",
     "effects" : [
       {
         "effectType" : "set_weather",
@@ -5482,7 +5482,7 @@
       "terrain_setter"
     ],
     "effect" : "Turns the ground into Electric Terrain when the Pokémon enters a battle. The futuristic engine within the Pokémon also boosts its Sp. Atk stat on Electric Terrain.",
-    "effectJa" : "このポケモンが場に出た時、エレキフィールド状態になる。エレキフィールド状態の時、このポケモンの特攻が1.33倍になる。",
+    "effectJa" : "このポケモンが場に出ると場がエレキフィールド状態になる。このポケモン内部の未来のエンジンにより、エレキフィールド状態の時、特攻が1.33倍になる。",
     "effects" : [
       {
         "effectType" : "set_terrain",
@@ -5503,7 +5503,7 @@
       "special_mechanic"
     ],
     "effect" : "If an opponent’s stat is boosted, the Pokémon seizes the opportunity to boost the same stat for itself.",
-    "effectJa" : "相手の能力ランクが上がった時、このポケモンも同じ能力ランクが同じだけ上がる。",
+    "effectJa" : "相手の能力ランクが上がった時、このポケモンも同じ能力ランクを上げる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5521,7 +5521,7 @@
       "special_mechanic"
     ],
     "effect" : "When the Pokémon eats a Berry, it will regurgitate that Berry at the end of the next turn and eat it one more time.",
-    "effectJa" : "きのみを使用した時、次のターン終了時にもう一度同じきのみを使用する。",
+    "effectJa" : "このポケモンがきのみを食べた時、次のターン終了時にそのきのみを反芻してもう一度食べる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5557,7 +5557,7 @@
       "special_mechanic"
     ],
     "effect" : "When the Pokémon enters a battle, its Attack and Sp. Atk stats are slightly boosted for each of the allies in its party that have already been defeated.",
-    "effectJa" : "このポケモンの技の威力が、ひんし状態になった味方1体につき10%ずつ上がる。最大50%上昇。",
+    "effectJa" : "このポケモンが場に出た時、既にひんし状態になった味方1匹につき、攻撃と特攻が少し上がる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5575,7 +5575,7 @@
       "special_mechanic"
     ],
     "effect" : "When the Pokémon enters a battle, it copies an ally’s stat changes.",
-    "effectJa" : "場に出た時、味方の能力ランク変化をコピーする。",
+    "effectJa" : "このポケモンが場に出た時、味方の能力ランク変化をコピーする。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5593,7 +5593,7 @@
       "special_mechanic"
     ],
     "effect" : "Scatters poison spikes at the feet of the opposing team when the Pokémon takes damage from physical moves.",
-    "effectJa" : "物理技を受けた時、相手の場にどくびしを撒く。",
+    "effectJa" : "このポケモンが物理技でダメージを受けた時、相手の場にどくびしを撒く。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5611,7 +5611,7 @@
       "special_mechanic"
     ],
     "effect" : "The mysterious tail covering the Pokémon’s head makes opponents unable to use priority moves against the Pokémon or its allies.",
-    "effectJa" : "このポケモンと味方は、相手の先制技を受けなくなる。",
+    "effectJa" : "このポケモンの頭を覆う不思議な尾により、相手は先制技を使用してこのポケモンまたは味方を攻撃できなくなる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5629,7 +5629,7 @@
       "type_immunity"
     ],
     "effect" : "If hit by a Ground-type move, the Pokémon has its HP restored instead of taking damage.",
-    "effectJa" : "じめんタイプの技を無効化し、最大HPの1/4を回復する。",
+    "effectJa" : "このポケモンがじめんタイプの技を受けた時、ダメージを受けずにHPが回復する。",
     "effects" : [
       {
         "condition" : {
@@ -5662,7 +5662,7 @@
       "special_mechanic"
     ],
     "effect" : "The Pokémon will always act more slowly when using status moves, but these moves will be unimpeded by the Ability of the target.",
-    "effectJa" : "変化技を使用する時、必ず後攻になるが、相手の特性を無視して技を使用できる。",
+    "effectJa" : "このポケモンが変化技を使用する時、必ず後攻になるが、相手の特性に妨害されない。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5682,7 +5682,7 @@
       "type_boost"
     ],
     "effect" : "Mind's Eye enables the Pokémon with this Ability to hit Ghost-type Pokémon with damage-dealing Normal- and Fighting-type moves. It also prevents other Pokémon from lowering the Pokémon's accuracy and ignores changes to the opponents' evasion.",
-    "effectJa" : "このポケモンの技は、相手の回避率上昇を無視して命中する。ノーマル・かくとうタイプの技がゴーストタイプに当たるようになる。いかくを受けない。",
+    "effectJa" : "この特性により、このポケモンはノーマルタイプとかくとうタイプのダメージ技でゴーストタイプのポケモンに攻撃できる。また、このポケモンの命中率は下げられず、相手の回避率の変化を無視する。",
     "effects" : [
       {
         "effectType" : "move_power_multiplier",
@@ -5713,7 +5713,7 @@
       "special_mechanic"
     ],
     "effect" : "A sickly sweet scent spreads across the field the first time the Pokémon enters a battle, lowering the evasiveness of opposing Pokémon.",
-    "effectJa" : "場に出た時、相手全員の回避率を1段階下げる。",
+    "effectJa" : "このポケモンが場に出た時、甘い香りが場に広がり、相手全員の回避率が1段階下がる。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5731,7 +5731,7 @@
       "special_mechanic"
     ],
     "effect" : "When the Pokémon enters a battle, it showers its ally with hospitality, restoring a small amount of the ally's HP.",
-    "effectJa" : "場に出た時、味方のHPを最大HPの1/4回復する。",
+    "effectJa" : "このポケモンが場に出た時、おもてなしで味方のHPを少し回復する。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5749,7 +5749,7 @@
       "special_mechanic"
     ],
     "effect" : "The power of the Pokémon's toxic chain may badly poison any target the Pokémon hits with a move.",
-    "effectJa" : "このポケモンの技が相手に命中した時、30%の確率で相手をもうどく状態にする。",
+    "effectJa" : "このポケモンの毒の鎖の力により、このポケモンが技を当てた時、相手をもうどく状態にすることがある。",
     "effects" : [
       {
         "effectType" : "unknown",
@@ -5786,7 +5786,7 @@
       "hp_dependent"
     ],
     "effect" : "The Pokémon’s shell contains the powers of each type. All damage-dealing moves that hit the Pokémon when its HP is full will not be very effective.",
-    "effectJa" : "HPが満タンの時、全てのタイプの技を効果いまひとつ（0.5倍）で受ける。",
+    "effectJa" : "このポケモンの殻は全てのタイプの力を宿している。HPが満タンの時に受ける全てのダメージ技の効果が今ひとつになる。",
     "effects" : [
       {
         "condition" : {
@@ -5813,7 +5813,7 @@
       "special_mechanic"
     ],
     "effect" : "When Terapagos changes into its Stellar Form, it uses its hidden powers to eliminate all effects of weather and terrain, reducing them to zero.",
-    "effectJa" : "このポケモンがテラスタルした時、全ての天候とフィールドの効果を消し去る。",
+    "effectJa" : "テラパゴスがステラフォルムになった時、隠された力を使って天候とフィールドの効果を全て消し去り、ゼロにする。",
     "effects" : [
       {
         "effectType" : "unknown",
