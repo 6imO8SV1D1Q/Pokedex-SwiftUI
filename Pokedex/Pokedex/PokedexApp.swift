@@ -100,14 +100,14 @@ struct ContentView: View {
                     PokemonListView(viewModel: pokemonListViewModel)
                         .environmentObject(LocalizationManager.shared)
                         .tabItem {
-                            Label("図鑑", systemImage: "book.fill")
+                            Label(NSLocalizedString("tab.pokedex", comment: "Pokédex tab title"), systemImage: "book.fill")
                         }
 
                     // 計算機タブ
                     StatsCalculatorView(viewModel: statsCalculatorViewModel)
                         .environmentObject(LocalizationManager.shared)
                         .tabItem {
-                            Label("計算機", systemImage: "function")
+                            Label(NSLocalizedString("tab.calculator", comment: "Calculator tab title"), systemImage: "function")
                         }
                 }
             } else {

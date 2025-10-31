@@ -4,6 +4,10 @@
    Created: 2025-10-27
 */
 
+// MARK: - Tabs
+"tab.pokedex" = "Pokédex";
+"tab.calculator" = "Calculator";
+
 // MARK: - Common
 "common.ok" = "OK";
 "common.cancel" = "Cancel";

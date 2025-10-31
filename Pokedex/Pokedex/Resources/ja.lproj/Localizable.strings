@@ -4,6 +4,10 @@
    Created: 2025-10-27
 */
 
+// MARK: - Tabs
+"tab.pokedex" = "図鑑";
+"tab.calculator" = "計算機";
+
 // MARK: - Common
 "common.ok" = "OK";
 "common.cancel" = "キャンセル";
