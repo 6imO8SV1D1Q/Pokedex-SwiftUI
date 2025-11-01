@@ -88,12 +88,14 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var pokemonListViewModel: PokemonListViewModel?
     @State private var statsCalculatorViewModel: StatsCalculatorViewModel?
+    @State private var damageCalculatorStore: DamageCalculatorStore?
     @State private var isInitialized = false
 
     var body: some View {
         Group {
             if let pokemonListViewModel = pokemonListViewModel,
-               let statsCalculatorViewModel = statsCalculatorViewModel {
+               let statsCalculatorViewModel = statsCalculatorViewModel,
+               let damageCalculatorStore = damageCalculatorStore {
                 // タブ構成
                 TabView {
                     // 図鑑タブ
@@ -103,11 +105,18 @@ struct ContentView: View {
                             Label(NSLocalizedString("tab.pokedex", comment: "Pokédex tab title"), systemImage: "book.fill")
                         }
 
-                    // 計算機タブ
+                    // 実数値計算タブ
                     StatsCalculatorView(viewModel: statsCalculatorViewModel)
                         .environmentObject(LocalizationManager.shared)
                         .tabItem {
                             Label(NSLocalizedString("tab.calculator", comment: "Calculator tab title"), systemImage: "function")
+                        }
+
+                    // ダメージ計算タブ
+                    DamageCalculatorView(store: damageCalculatorStore)
+                        .environmentObject(LocalizationManager.shared)
+                        .tabItem {
+                            Label("ダメージ計算", systemImage: "bolt.fill")
                         }
                 }
             } else {
@@ -123,6 +132,7 @@ struct ContentView: View {
                         print("🏗️ Creating ViewModels...")
                         pokemonListViewModel = DIContainer.shared.makePokemonListViewModel()
                         statsCalculatorViewModel = DIContainer.shared.makeStatsCalculatorViewModel()
+                        damageCalculatorStore = DIContainer.shared.makeDamageCalculatorStore()
 
                         print("✅ App initialization completed")
                     }

@@ -77,6 +77,12 @@ final class DIContainer: ObservableObject {
         TypeRepository()
     }()
 
+    // MARK: - v5.0 Providers
+
+    private lazy var itemProvider: ItemProviderProtocol = {
+        ItemProvider()
+    }()
+
     // MARK: - UseCases
     func makeFetchPokemonListUseCase() -> FetchPokemonListUseCaseProtocol {
         FetchPokemonListUseCase(repository: pokemonRepository)
@@ -187,6 +193,14 @@ final class DIContainer: ObservableObject {
     func makeStatsCalculatorViewModel() -> StatsCalculatorViewModel {
         StatsCalculatorViewModel(
             pokemonRepository: pokemonRepository
+        )
+    }
+
+    // MARK: - v5.0 ViewModels
+
+    func makeDamageCalculatorStore() -> DamageCalculatorStore {
+        DamageCalculatorStore(
+            itemProvider: itemProvider
         )
     }
 }
