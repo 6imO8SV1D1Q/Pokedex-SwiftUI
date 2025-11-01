@@ -26,14 +26,22 @@ final class DamageCalculatorStore: ObservableObject {
     /// エラーメッセージ
     @Published var errorMessage: String?
 
+    /// プリセット一覧
+    @Published var presets: [BattlePreset] = []
+
+    /// 選択中のプリセット
+    @Published var selectedPreset: BattlePreset?
+
     // MARK: - Dependencies
 
     private let itemProvider: ItemProviderProtocol
+    private let presetStore: BattlePresetStore
 
     // MARK: - Initialization
 
-    init(itemProvider: ItemProviderProtocol) {
+    init(itemProvider: ItemProviderProtocol, presetStore: BattlePresetStore = BattlePresetStore()) {
         self.itemProvider = itemProvider
+        self.presetStore = presetStore
         self.battleState = BattleState()
     }
 
@@ -201,6 +209,43 @@ final class DamageCalculatorStore: ObservableObject {
             errorMessage = "計算エラー: \(error.localizedDescription)"
             damageResult = nil
         }
+    }
+
+    // MARK: - Preset Management
+
+    /// プリセット一覧を読み込む
+    func loadPresets() async {
+        presets = await presetStore.listPresets()
+    }
+
+    /// プリセットを保存
+    func savePreset(name: String) async throws {
+        let preset = BattlePreset(name: name, battleState: battleState)
+        try await presetStore.savePreset(preset)
+        await loadPresets()
+    }
+
+    /// プリセットを読み込む
+    func loadPreset(_ preset: BattlePreset) {
+        battleState = preset.battleState
+        selectedPreset = preset
+    }
+
+    /// プリセットを削除
+    func deletePreset(_ preset: BattlePreset) async throws {
+        try await presetStore.deletePreset(id: preset.id)
+        await loadPresets()
+        if selectedPreset?.id == preset.id {
+            selectedPreset = nil
+        }
+    }
+
+    /// プリセットを更新
+    func updatePreset(_ preset: BattlePreset, name: String) async throws {
+        var updated = preset
+        updated.update(name: name, battleState: battleState)
+        try await presetStore.savePreset(updated)
+        await loadPresets()
     }
 }
 

@@ -15,6 +15,9 @@ struct DamageCalculatorView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
+                    // プリセット選択セクション
+                    presetSection
+
                     // セクションA: モード切替
                     battleModeSection
 
@@ -56,6 +59,97 @@ struct DamageCalculatorView: View {
     }
 
     // MARK: - Sections
+
+    /// プリセット選択セクション
+    private var presetSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("プリセット")
+                    .font(.headline)
+
+                Spacer()
+
+                Button(action: {
+                    Task {
+                        try? await store.savePreset(name: "設定 \(store.presets.count + 1)")
+                    }
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "square.and.arrow.down")
+                        Text("保存")
+                    }
+                    .font(.caption)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                }
+            }
+
+            if !store.presets.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(store.presets) { preset in
+                            Button(action: {
+                                store.loadPreset(preset)
+                            }) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(preset.name)
+                                        .font(.caption)
+                                        .fontWeight(.medium)
+                                    Text(preset.createdAt, style: .date)
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(
+                                    store.selectedPreset?.id == preset.id
+                                        ? Color.blue.opacity(0.2)
+                                        : Color.gray.opacity(0.1)
+                                )
+                                .cornerRadius(8)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(
+                                            store.selectedPreset?.id == preset.id
+                                                ? Color.blue
+                                                : Color.clear,
+                                            lineWidth: 2
+                                        )
+                                )
+                            }
+                            .buttonStyle(.plain)
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    Task {
+                                        try? await store.deletePreset(preset)
+                                    }
+                                } label: {
+                                    Label("削除", systemImage: "trash")
+                                }
+                            }
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            } else {
+                Text("保存されたプリセットはありません")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 8)
+            }
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+        .task {
+            await store.loadPresets()
+        }
+    }
 
     /// バトルモード切替セクション
     private var battleModeSection: some View {
@@ -303,6 +397,54 @@ struct DamageCalculatorView: View {
 
             if let result = store.damageResult {
                 VStack(alignment: .leading, spacing: 8) {
+                    // HPバー可視化
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("ダメージ範囲")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        GeometryReader { geometry in
+                            ZStack(alignment: .leading) {
+                                // 背景（最大HP）
+                                Rectangle()
+                                    .fill(Color.green.opacity(0.2))
+                                    .frame(width: geometry.size.width, height: 24)
+
+                                // 最大ダメージ範囲
+                                Rectangle()
+                                    .fill(Color.red.opacity(0.3))
+                                    .frame(
+                                        width: geometry.size.width * CGFloat(result.maxDamage) / CGFloat(result.defenderMaxHP),
+                                        height: 24
+                                    )
+
+                                // 最小ダメージ範囲
+                                Rectangle()
+                                    .fill(Color.red.opacity(0.6))
+                                    .frame(
+                                        width: geometry.size.width * CGFloat(result.minDamage) / CGFloat(result.defenderMaxHP),
+                                        height: 24
+                                    )
+
+                                // テキストオーバーレイ
+                                HStack {
+                                    Text("HP: \(result.defenderMaxHP)")
+                                        .font(.caption2)
+                                        .foregroundColor(.white)
+                                        .padding(.leading, 4)
+                                    Spacer()
+                                }
+                            }
+                            .cornerRadius(4)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                            )
+                        }
+                        .frame(height: 24)
+                    }
+                    .padding(.bottom, 8)
+
                     HStack {
                         Text("ダメージ:")
                             .foregroundColor(.secondary)
@@ -310,6 +452,14 @@ struct DamageCalculatorView: View {
                         Text("\(result.minDamage) ~ \(result.maxDamage)")
                             .font(.title3)
                             .bold()
+                    }
+
+                    HStack {
+                        Text("ダメージ割合:")
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text("\(Int(Double(result.minDamage) / Double(result.defenderMaxHP) * 100))% ~ \(Int(Double(result.maxDamage) / Double(result.defenderMaxHP) * 100))%")
+                            .font(.caption)
                     }
 
                     HStack {
