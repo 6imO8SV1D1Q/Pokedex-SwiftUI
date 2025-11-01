@@ -95,28 +95,110 @@ final class DamageCalculatorStore: ObservableObject {
         battleState.defender.isTerastallized.toggle()
     }
 
-    /// ダメージ計算を実行（Phase 2で実装）
+    /// ダメージ計算を実行
     func calculateDamage() async {
         isLoading = true
         defer { isLoading = false }
 
-        // TODO: Phase 2で実装
-        // 現時点ではダミーの結果を返す
-        damageResult = DamageResult(
-            minDamage: 0,
-            maxDamage: 0,
-            damageRange: [],
-            koChance: 0.0
-        )
+        // バリデーション
+        guard battleState.attacker.pokemonId != nil,
+              battleState.defender.pokemonId != nil,
+              battleState.selectedMoveId != nil else {
+            errorMessage = "ポケモンと技を選択してください"
+            return
+        }
+
+        do {
+            // アイテムを取得
+            let attackerItem: ItemEntity? = if let itemId = battleState.attacker.heldItemId {
+                try await itemProvider.fetchItem(id: itemId)
+            } else {
+                nil
+            }
+
+            // 簡易的なステータス計算（固定値）
+            // TODO: PokemonRepositoryから実際の種族値を取得
+            let attackStat = DamageFormulaEngine.calculateStat(
+                base: 100,  // 仮の種族値
+                level: battleState.attacker.level,
+                iv: battleState.attacker.individualValues.attack,
+                ev: battleState.attacker.effortValues.attack,
+                nature: 1.0,
+                statStage: battleState.attacker.statStages.attack
+            )
+
+            let defenseStat = DamageFormulaEngine.calculateStat(
+                base: 100,  // 仮の種族値
+                level: battleState.defender.level,
+                iv: battleState.defender.individualValues.defense,
+                ev: battleState.defender.effortValues.defense,
+                nature: 1.0,
+                statStage: battleState.defender.statStages.defense
+            )
+
+            let defenderMaxHP = DamageFormulaEngine.calculateHP(
+                base: 100,  // 仮の種族値
+                level: battleState.defender.level,
+                iv: battleState.defender.individualValues.hp,
+                ev: battleState.defender.effortValues.hp
+            )
+
+            // 補正を計算
+            let modifiers = BattleModifierResolver.resolveModifiers(
+                battleState: battleState,
+                moveType: "normal",  // TODO: MoveRepositoryから取得
+                isPhysical: true,
+                attackerItem: attackerItem
+            )
+
+            // ダメージを計算
+            let damageRange = DamageFormulaEngine.calculateDamage(
+                attackerLevel: battleState.attacker.level,
+                movePower: 80,  // TODO: MoveRepositoryから取得
+                attackStat: attackStat,
+                defenseStat: defenseStat,
+                modifiers: modifiers
+            )
+
+            let minDamage = damageRange.min() ?? 0
+            let maxDamage = damageRange.max() ?? 0
+
+            // 撃破確率を計算
+            let koCount = damageRange.filter { $0 >= defenderMaxHP }.count
+            let koChance = Double(koCount) / Double(damageRange.count)
+
+            // 確定数を計算
+            let hitsToKO = defenderMaxHP > 0 ? Int(ceil(Double(defenderMaxHP) / Double(maxDamage))) : 0
+
+            // 結果を設定
+            damageResult = DamageResult(
+                minDamage: minDamage,
+                maxDamage: maxDamage,
+                damageRange: damageRange,
+                koChance: koChance,
+                hitsToKO: hitsToKO,
+                defenderMaxHP: defenderMaxHP,
+                modifiers: modifiers
+            )
+
+            errorMessage = nil
+
+        } catch {
+            errorMessage = "計算エラー: \(error.localizedDescription)"
+            damageResult = nil
+        }
     }
 }
 
-// MARK: - Damage Result (Placeholder)
+// MARK: - Damage Result
 
-/// ダメージ計算結果（Phase 2で詳細実装）
+/// ダメージ計算結果
 struct DamageResult: Equatable {
     let minDamage: Int
     let maxDamage: Int
     let damageRange: [Int]
     let koChance: Double
+    let hitsToKO: Int
+    let defenderMaxHP: Int
+    let modifiers: DamageModifiers
 }

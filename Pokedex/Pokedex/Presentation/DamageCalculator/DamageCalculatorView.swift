@@ -289,18 +289,128 @@ struct DamageCalculatorView: View {
         .padding(.vertical, 8)
     }
 
-    /// 結果表示セクション（Phase 2で実装）
+    /// 結果表示セクション
     private var resultSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("計算結果")
                 .font(.headline)
 
+            if let error = store.errorMessage {
+                Text(error)
+                    .foregroundColor(.red)
+                    .font(.caption)
+            }
+
             if let result = store.damageResult {
-                Text("ダメージ: \(result.minDamage) ~ \(result.maxDamage)")
-                Text("撃破確率: \(result.koChance, specifier: "%.1f")%")
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("ダメージ:")
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text("\(result.minDamage) ~ \(result.maxDamage)")
+                            .font(.title3)
+                            .bold()
+                    }
+
+                    HStack {
+                        Text("確定数:")
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text("\(result.hitsToKO)発")
+                    }
+
+                    HStack {
+                        Text("撃破確率:")
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text("\(result.koChance * 100, specifier: "%.1f")%")
+                    }
+
+                    Divider()
+
+                    Text("補正倍率")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+
+                    HStack {
+                        Text("タイプ一致:")
+                            .font(.caption)
+                        Spacer()
+                        Text("×\(result.modifiers.stab, specifier: "%.2f")")
+                            .font(.caption)
+                    }
+
+                    HStack {
+                        Text("タイプ相性:")
+                            .font(.caption)
+                        Spacer()
+                        Text("×\(result.modifiers.typeEffectiveness, specifier: "%.2f")")
+                            .font(.caption)
+                    }
+
+                    HStack {
+                        Text("総合倍率:")
+                            .font(.caption)
+                            .bold()
+                        Spacer()
+                        Text("×\(result.modifiers.total, specifier: "%.2f")")
+                            .font(.caption)
+                            .bold()
+                    }
+                }
+
+                Button(action: {
+                    Task {
+                        await store.calculateDamage()
+                    }
+                }) {
+                    HStack {
+                        if store.isLoading {
+                            ProgressView()
+                                .progressViewStyle(.circular)
+                        }
+                        Text("再計算")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.green)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                }
+                .disabled(store.isLoading)
+
             } else {
                 Text("ポケモンと技を選択してください")
                     .foregroundColor(.secondary)
+
+                Button(action: {
+                    // テスト用にダミーデータを設定
+                    store.battleState.attacker.pokemonId = 1
+                    store.battleState.attacker.pokemonName = "テストポケモン"
+                    store.battleState.attacker.baseTypes = ["normal"]
+                    store.battleState.defender.pokemonId = 2
+                    store.battleState.defender.pokemonName = "テストポケモン2"
+                    store.battleState.defender.baseTypes = ["normal"]
+                    store.battleState.selectedMoveId = 1
+
+                    Task {
+                        await store.calculateDamage()
+                    }
+                }) {
+                    HStack {
+                        if store.isLoading {
+                            ProgressView()
+                                .progressViewStyle(.circular)
+                        }
+                        Text("計算実行（テスト）")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                }
+                .disabled(store.isLoading)
             }
         }
         .padding()
