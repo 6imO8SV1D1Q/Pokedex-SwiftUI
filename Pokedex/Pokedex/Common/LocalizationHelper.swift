@@ -16,6 +16,7 @@ enum L10n {
         static let cancel = LocalizedStringKey("common.cancel")
         static let add = LocalizedStringKey("common.add")
         static let save = LocalizedStringKey("common.save")
+        static let retry = LocalizedStringKey("common.retry")
         static let delete = LocalizedStringKey("common.delete")
         static let done = LocalizedStringKey("common.done")
         static let clear = LocalizedStringKey("common.clear")
@@ -61,6 +62,57 @@ enum L10n {
 
         static func localizedString(_ damageClass: String) -> String {
             return NSLocalizedString("damage_class.\(damageClass)", comment: "")
+        }
+    }
+
+    // MARK: - Damage Calculator
+
+    enum DamageCalculator {
+        static let title = LocalizedStringKey("damage_calc.title")
+        static let sectionMode = LocalizedStringKey("damage_calc.section.mode")
+        static let sectionAttacker = LocalizedStringKey("damage_calc.section.attacker")
+        static let sectionDefender = LocalizedStringKey("damage_calc.section.defender")
+        static let sectionEnvironment = LocalizedStringKey("damage_calc.section.environment")
+        static let sectionTurns = LocalizedStringKey("damage_calc.section.turns")
+        static let sectionResult = LocalizedStringKey("damage_calc.section.result")
+        static let placeholderPresets = LocalizedStringKey("damage_calc.placeholder.presets")
+        static let statusLoading = LocalizedStringKey("damage_calc.status.loading")
+        static let statusError = LocalizedStringKey("damage_calc.status.error")
+        static let statusCopied = LocalizedStringKey("damage_calc.status.copied")
+        static let resultPlaceholder = LocalizedStringKey("damage_calc.result.placeholder")
+        static let fieldPokemon = LocalizedStringKey("damage_calc.field.pokemon")
+        static let fieldLevel = LocalizedStringKey("damage_calc.field.level")
+        static let fieldNature = LocalizedStringKey("damage_calc.field.nature")
+        static let fieldMove = LocalizedStringKey("damage_calc.field.move")
+        static let fieldItem = LocalizedStringKey("damage_calc.field.item")
+        static let fieldAbility = LocalizedStringKey("damage_calc.field.ability")
+        static let fieldBaseTypes = LocalizedStringKey("damage_calc.field.base_types")
+        static let fieldTeraType = LocalizedStringKey("damage_calc.field.tera_type")
+        static let fieldTeraToggle = LocalizedStringKey("damage_calc.field.tera_toggle")
+        static let fieldEVs = LocalizedStringKey("damage_calc.field.evs")
+        static let fieldIVs = LocalizedStringKey("damage_calc.field.ivs")
+        static let fieldStatStages = LocalizedStringKey("damage_calc.field.stat_stages")
+        static let fieldRemainingEVsFormat = "damage_calc.field.remaining_evs_format"
+        static let fieldWeather = LocalizedStringKey("damage_calc.field.weather")
+        static let fieldTerrain = LocalizedStringKey("damage_calc.field.terrain")
+        static let fieldScreen = LocalizedStringKey("damage_calc.field.screen")
+        static let fieldHazards = LocalizedStringKey("damage_calc.field.hazards")
+        static let hazardHelp = LocalizedStringKey("damage_calc.hazard.label")
+        static let fieldFirstMove = LocalizedStringKey("damage_calc.field.first_move")
+        static let fieldSecondMove = LocalizedStringKey("damage_calc.field.second_move")
+        static let fieldApplyAccuracy = LocalizedStringKey("damage_calc.field.apply_accuracy")
+        static let fieldNone = LocalizedStringKey("damage_calc.field.none")
+
+        enum Mode {
+            static let single = LocalizedStringKey("damage_calc.mode.single")
+            static let double = LocalizedStringKey("damage_calc.mode.double")
+        }
+
+        enum Button {
+            static let swap = LocalizedStringKey("damage_calc.button.swap")
+            static let recalculate = LocalizedStringKey("damage_calc.button.recalculate")
+            static let copy = LocalizedStringKey("damage_calc.button.copy")
+            static let retry = LocalizedStringKey("damage_calc.button.retry")
         }
     }
 

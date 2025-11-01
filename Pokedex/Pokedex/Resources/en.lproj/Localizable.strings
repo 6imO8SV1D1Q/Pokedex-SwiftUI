@@ -7,12 +7,14 @@
 // MARK: - Tabs
 "tab.pokedex" = "Pokédex";
 "tab.calculator" = "Calculator";
+"tab.damage_calculator" = "Damage Calc";
 
 // MARK: - Common
 "common.ok" = "OK";
 "common.cancel" = "Cancel";
 "common.add" = "Add";
 "common.save" = "Save";
+"common.retry" = "Retry";
 "common.delete" = "Delete";
 "common.done" = "Done";
 "common.clear" = "Clear";
@@ -60,6 +62,69 @@
 "damage_class.physical" = "Physical";
 "damage_class.special" = "Special";
 "damage_class.status" = "Status";
+
+// MARK: - Damage Calculator
+"damage_calc.title" = "Damage Calculator";
+"damage_calc.section.mode" = "Mode & Presets";
+"damage_calc.section.attacker" = "Attacker";
+"damage_calc.section.defender" = "Defender";
+"damage_calc.section.environment" = "Battlefield";
+"damage_calc.section.turns" = "Turn Plan";
+"damage_calc.section.result" = "Results";
+"damage_calc.mode.single" = "Single";
+"damage_calc.mode.double" = "Double";
+"damage_calc.placeholder.presets" = "Preset save/load will be available in a future update.";
+"damage_calc.button.swap" = "Swap Attacker & Defender";
+"damage_calc.button.recalculate" = "Recalculate Summary";
+"damage_calc.button.copy" = "Copy Conditions";
+"damage_calc.button.retry" = "Retry";
+"damage_calc.status.loading" = "Loading battle data…";
+"damage_calc.status.error" = "Failed to load initial data.";
+"damage_calc.status.copied" = "Copied!";
+"damage_calc.result.placeholder" = "Select an attacker and defender, then tap Recalculate to preview damage assumptions.";
+"damage_calc.field.pokemon" = "Pokémon";
+"damage_calc.field.level" = "Level";
+"damage_calc.field.nature" = "Nature";
+"damage_calc.field.move" = "Move";
+"damage_calc.field.item" = "Held Item";
+"damage_calc.field.ability" = "Ability";
+"damage_calc.field.base_types" = "Base Type(s)";
+"damage_calc.field.tera_type" = "Tera Type";
+"damage_calc.field.tera_toggle" = "Terastallize";
+"damage_calc.field.evs" = "Effort Values";
+"damage_calc.field.ivs" = "Individual Values";
+"damage_calc.field.stat_stages" = "Stat Stages";
+"damage_calc.field.remaining_evs_format" = "%d EVs remaining";
+"damage_calc.field.weather" = "Weather";
+"damage_calc.field.terrain" = "Terrain";
+"damage_calc.field.screen" = "Screens";
+"damage_calc.field.hazards" = "Entry Damage";
+"damage_calc.hazard.label" = "Stealth Rock & Spikes damage";
+"damage_calc.field.first_move" = "Turn 1 Move";
+"damage_calc.field.second_move" = "Turn 2 Move";
+"damage_calc.field.apply_accuracy" = "Apply accuracy / crit odds";
+"damage_calc.field.none" = "None";
+"damage_calc.accuracy.on" = "On";
+"damage_calc.accuracy.off" = "Off";
+"damage_calc.summary.template" = "%@ Battle • %@ Lv.%d using %@ vs %@ Lv.%d\nWeather: %@ / Terrain: %@\nEntry hazard damage: %d%% HP • Accuracy applied: %@";
+"damage_calc.weather.clear" = "None";
+"damage_calc.weather.sunny" = "Harsh sunlight";
+"damage_calc.weather.rain" = "Rain";
+"damage_calc.weather.sandstorm" = "Sandstorm";
+"damage_calc.weather.snow" = "Snow";
+"damage_calc.weather.strong_winds" = "Strong winds";
+"damage_calc.terrain.none" = "None";
+"damage_calc.terrain.electric" = "Electric Terrain";
+"damage_calc.terrain.grassy" = "Grassy Terrain";
+"damage_calc.terrain.misty" = "Misty Terrain";
+"damage_calc.terrain.psychic" = "Psychic Terrain";
+"damage_calc.screen.none" = "None";
+"damage_calc.screen.reflect" = "Reflect";
+"damage_calc.screen.light_screen" = "Light Screen";
+"damage_calc.screen.aurora_veil" = "Aurora Veil";
+"damage_calc.nature.hardy" = "Hardy (Neutral)";
+"damage_calc.nature.adamant" = "Adamant (+Atk / -SpA)";
+"damage_calc.nature.timid" = "Timid (+Spe / -Atk)";
 
 // MARK: - Sections
 "section.type_matchup" = "Type Matchups";

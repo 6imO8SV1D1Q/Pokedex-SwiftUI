@@ -189,4 +189,12 @@ final class DIContainer: ObservableObject {
             pokemonRepository: pokemonRepository
         )
     }
+
+    func makeDamageCalculatorViewModel() -> DamageCalculatorViewModel {
+        DamageCalculatorViewModel(
+            pokemonRepository: pokemonRepository,
+            moveRepository: moveRepository,
+            abilityRepository: abilityRepository
+        )
+    }
 }
