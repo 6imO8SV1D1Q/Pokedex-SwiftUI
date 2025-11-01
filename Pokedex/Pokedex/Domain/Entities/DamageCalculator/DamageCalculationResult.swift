@@ -29,6 +29,12 @@ struct DamageCalculationResult: Equatable {
 
     /// 計算に使用した各種倍率
     let modifiers: DamageModifiers
+
+    /// 2ターン連続での撃破確率（nil = 計算していない）
+    let twoTurnKOChance: Double?
+
+    /// 平均ダメージ
+    let averageDamage: Double
 }
 
 /// ダメージ計算に使用した倍率

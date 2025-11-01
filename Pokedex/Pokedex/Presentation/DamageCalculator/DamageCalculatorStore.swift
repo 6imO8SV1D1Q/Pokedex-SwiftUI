@@ -164,11 +164,23 @@ final class DamageCalculatorStore: ObservableObject {
             let maxDamage = damageRange.max() ?? 0
 
             // 撃破確率を計算
-            let koCount = damageRange.filter { $0 >= defenderMaxHP }.count
-            let koChance = Double(koCount) / Double(damageRange.count)
+            let koChance = ProbabilityCalculator.calculateKOProbability(
+                damageRange: damageRange,
+                targetHP: defenderMaxHP
+            )
 
             // 確定数を計算
             let hitsToKO = defenderMaxHP > 0 ? Int(ceil(Double(defenderMaxHP) / Double(maxDamage))) : 0
+
+            // 平均ダメージを計算
+            let averageDamage = ProbabilityCalculator.calculateAverageDamage(damageRange: damageRange)
+
+            // 2ターン撃破確率を計算（簡易版：同じ技を使用）
+            let twoTurnKOChance = ProbabilityCalculator.calculateTwoTurnKOProbability(
+                firstTurnDamage: damageRange,
+                secondTurnDamage: damageRange,
+                targetHP: defenderMaxHP
+            )
 
             // 結果を設定
             damageResult = DamageResult(
@@ -178,7 +190,9 @@ final class DamageCalculatorStore: ObservableObject {
                 koChance: koChance,
                 hitsToKO: hitsToKO,
                 defenderMaxHP: defenderMaxHP,
-                modifiers: modifiers
+                modifiers: modifiers,
+                twoTurnKOChance: twoTurnKOChance,
+                averageDamage: averageDamage
             )
 
             errorMessage = nil
@@ -201,4 +215,6 @@ struct DamageResult: Equatable {
     let hitsToKO: Int
     let defenderMaxHP: Int
     let modifiers: DamageModifiers
+    let twoTurnKOChance: Double
+    let averageDamage: Double
 }

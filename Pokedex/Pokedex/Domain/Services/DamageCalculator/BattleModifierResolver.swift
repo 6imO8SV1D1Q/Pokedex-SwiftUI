@@ -16,12 +16,14 @@ struct BattleModifierResolver {
     ///   - moveType: 技のタイプ
     ///   - isPhysical: 物理技か
     ///   - attackerItem: 攻撃側のアイテム
+    ///   - isSpreadMove: 範囲技か（ダブルバトル用）
     /// - Returns: 補正倍率
     static func resolveModifiers(
         battleState: BattleState,
         moveType: String,
         isPhysical: Bool,
-        attackerItem: ItemEntity?
+        attackerItem: ItemEntity?,
+        isSpreadMove: Bool = false
     ) -> DamageModifiers {
         let stab = resolveSTAB(
             moveType: moveType,
@@ -57,6 +59,12 @@ struct BattleModifierResolver {
             attacker: battleState.attacker
         )
 
+        // ダブルバトルの範囲技補正
+        let doubleBattleModifier = resolveDoubleBattleModifier(
+            mode: battleState.mode,
+            isSpreadMove: isSpreadMove
+        )
+
         return DamageModifiers(
             stab: stab,
             typeEffectiveness: typeEffectiveness,
@@ -64,7 +72,7 @@ struct BattleModifierResolver {
             terrain: terrain,
             screen: screen,
             item: item,
-            other: 1.0
+            other: doubleBattleModifier
         )
     }
 
@@ -199,6 +207,16 @@ struct BattleModifierResolver {
             break
         }
 
+        return 1.0
+    }
+
+    private static func resolveDoubleBattleModifier(
+        mode: BattleMode,
+        isSpreadMove: Bool
+    ) -> Double {
+        if mode == .double && isSpreadMove {
+            return 0.75  // ダブルバトルの範囲技は0.75倍
+        }
         return 1.0
     }
 }

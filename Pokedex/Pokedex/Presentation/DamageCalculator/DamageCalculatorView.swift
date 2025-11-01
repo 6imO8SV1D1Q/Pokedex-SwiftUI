@@ -326,6 +326,22 @@ struct DamageCalculatorView: View {
                         Text("\(result.koChance * 100, specifier: "%.1f")%")
                     }
 
+                    if let twoTurnKO = result.twoTurnKOChance {
+                        HStack {
+                            Text("2ターン撃破確率:")
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Text("\(twoTurnKO * 100, specifier: "%.1f")%")
+                        }
+                    }
+
+                    HStack {
+                        Text("平均ダメージ:")
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text("\(result.averageDamage, specifier: "%.1f")")
+                    }
+
                     Divider()
 
                     Text("補正倍率")

@@ -24,19 +24,29 @@ struct BattleState: Equatable, Codable {
     /// 使用する技のID（nil = 未選択）
     var selectedMoveId: Int?
 
+    /// 2ターン目に使用する技のID（nil = 1ターン目と同じ）
+    var secondMoveId: Int?
+
+    /// 命中率を考慮するか
+    var applyAccuracy: Bool
+
     /// デフォルト値でイニシャライズ
     init(
         mode: BattleMode = .single,
         attacker: BattleParticipantState = .init(),
         defender: BattleParticipantState = .init(),
         environment: BattleEnvironmentState = .init(),
-        selectedMoveId: Int? = nil
+        selectedMoveId: Int? = nil,
+        secondMoveId: Int? = nil,
+        applyAccuracy: Bool = false
     ) {
         self.mode = mode
         self.attacker = attacker
         self.defender = defender
         self.environment = environment
         self.selectedMoveId = selectedMoveId
+        self.secondMoveId = secondMoveId
+        self.applyAccuracy = applyAccuracy
     }
 
     /// 攻撃側と防御側を入れ替える
