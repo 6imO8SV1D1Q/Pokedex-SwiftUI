@@ -7,12 +7,14 @@
 // MARK: - Tabs
 "tab.pokedex" = "図鑑";
 "tab.calculator" = "計算機";
+"tab.damage_calculator" = "ダメージ計算";
 
 // MARK: - Common
 "common.ok" = "OK";
 "common.cancel" = "キャンセル";
 "common.add" = "追加";
 "common.save" = "保存";
+"common.retry" = "再試行";
 "common.delete" = "削除";
 "common.done" = "完了";
 "common.clear" = "クリア";
@@ -60,6 +62,69 @@
 "damage_class.physical" = "物理";
 "damage_class.special" = "特殊";
 "damage_class.status" = "変化";
+
+// MARK: - Damage Calculator
+"damage_calc.title" = "ダメージ計算";
+"damage_calc.section.mode" = "モード・プリセット";
+"damage_calc.section.attacker" = "攻撃側";
+"damage_calc.section.defender" = "防御側";
+"damage_calc.section.environment" = "バトルフィールド";
+"damage_calc.section.turns" = "ターン計画";
+"damage_calc.section.result" = "結果";
+"damage_calc.mode.single" = "シングル";
+"damage_calc.mode.double" = "ダブル";
+"damage_calc.placeholder.presets" = "プリセットの保存・読み込みは今後のアップデートで対応予定です。";
+"damage_calc.button.swap" = "攻撃側と防御側を入れ替え";
+"damage_calc.button.recalculate" = "サマリーを再計算";
+"damage_calc.button.copy" = "条件をコピー";
+"damage_calc.button.retry" = "再試行";
+"damage_calc.status.loading" = "バトルデータを読み込み中…";
+"damage_calc.status.error" = "初期データの読み込みに失敗しました。";
+"damage_calc.status.copied" = "コピーしました。";
+"damage_calc.result.placeholder" = "攻撃側と防御側を選択し、再計算ボタンを押してダメージ条件を確認してください。";
+"damage_calc.field.pokemon" = "ポケモン";
+"damage_calc.field.level" = "レベル";
+"damage_calc.field.nature" = "性格";
+"damage_calc.field.move" = "技";
+"damage_calc.field.item" = "持ち物";
+"damage_calc.field.ability" = "特性";
+"damage_calc.field.base_types" = "元のタイプ";
+"damage_calc.field.tera_type" = "テラスタイプ";
+"damage_calc.field.tera_toggle" = "テラスタル";
+"damage_calc.field.evs" = "努力値";
+"damage_calc.field.ivs" = "個体値";
+"damage_calc.field.stat_stages" = "能力ランク";
+"damage_calc.field.remaining_evs_format" = "残りEV %d";
+"damage_calc.field.weather" = "天候";
+"damage_calc.field.terrain" = "フィールド";
+"damage_calc.field.screen" = "壁・ベール";
+"damage_calc.field.hazards" = "場のダメージ";
+"damage_calc.hazard.label" = "ステルスロック・まきびしのダメージ";
+"damage_calc.field.first_move" = "1ターン目の技";
+"damage_calc.field.second_move" = "2ターン目の技";
+"damage_calc.field.apply_accuracy" = "命中率・急所確率を考慮";
+"damage_calc.field.none" = "なし";
+"damage_calc.accuracy.on" = "有効";
+"damage_calc.accuracy.off" = "無効";
+"damage_calc.summary.template" = "%@バトル・%@ Lv.%d（%@） vs %@ Lv.%d\n天候: %@ / フィールド: %@\n場のダメージ: HP%d%% • 命中補正: %@";
+"damage_calc.weather.clear" = "なし";
+"damage_calc.weather.sunny" = "はれ";
+"damage_calc.weather.rain" = "あめ";
+"damage_calc.weather.sandstorm" = "すなあらし";
+"damage_calc.weather.snow" = "ゆき";
+"damage_calc.weather.strong_winds" = "らんぷく";
+"damage_calc.terrain.none" = "なし";
+"damage_calc.terrain.electric" = "エレキフィールド";
+"damage_calc.terrain.grassy" = "グラスフィールド";
+"damage_calc.terrain.misty" = "ミストフィールド";
+"damage_calc.terrain.psychic" = "サイコフィールド";
+"damage_calc.screen.none" = "なし";
+"damage_calc.screen.reflect" = "リフレクター";
+"damage_calc.screen.light_screen" = "ひかりのかべ";
+"damage_calc.screen.aurora_veil" = "オーロラベール";
+"damage_calc.nature.hardy" = "がんばりや（補正なし）";
+"damage_calc.nature.adamant" = "いじっぱり（攻↑ 特攻↓）";
+"damage_calc.nature.timid" = "おくびょう（素早さ↑ 攻↓）";
 
 // MARK: - Sections
 "section.type_matchup" = "タイプ相性";

@@ -88,12 +88,14 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var pokemonListViewModel: PokemonListViewModel?
     @State private var statsCalculatorViewModel: StatsCalculatorViewModel?
+    @State private var damageCalculatorViewModel: DamageCalculatorViewModel?
     @State private var isInitialized = false
 
     var body: some View {
         Group {
             if let pokemonListViewModel = pokemonListViewModel,
-               let statsCalculatorViewModel = statsCalculatorViewModel {
+               let statsCalculatorViewModel = statsCalculatorViewModel,
+               let damageCalculatorViewModel = damageCalculatorViewModel {
                 // タブ構成
                 TabView {
                     // 図鑑タブ
@@ -109,6 +111,12 @@ struct ContentView: View {
                         .tabItem {
                             Label(NSLocalizedString("tab.calculator", comment: "Calculator tab title"), systemImage: "function")
                         }
+
+                    DamageCalculatorView(viewModel: damageCalculatorViewModel)
+                        .environmentObject(LocalizationManager.shared)
+                        .tabItem {
+                            Label(NSLocalizedString("tab.damage_calculator", comment: "Damage calculator tab title"), systemImage: "burst.fill")
+                        }
                 }
             } else {
                 ProgressView("初期化中...")
@@ -123,6 +131,7 @@ struct ContentView: View {
                         print("🏗️ Creating ViewModels...")
                         pokemonListViewModel = DIContainer.shared.makePokemonListViewModel()
                         statsCalculatorViewModel = DIContainer.shared.makeStatsCalculatorViewModel()
+                        damageCalculatorViewModel = DIContainer.shared.makeDamageCalculatorViewModel()
 
                         print("✅ App initialization completed")
                     }
