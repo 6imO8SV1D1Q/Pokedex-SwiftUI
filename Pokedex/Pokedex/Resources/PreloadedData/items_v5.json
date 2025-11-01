@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "id": 2403,
+      "name": "wellspring-mask",
+      "nameJa": "いどのめん",
+      "category": "held-item",
+      "description": "Ogerpon's mask. It boosts the power of the holder's Water-type moves.",
+      "descriptionJa": "オーガポンのお面。持たせると水タイプの技の威力が上がる。",
+      "effects": {
+        "damageMultiplier": {
+          "condition": "same_type_as_mask",
+          "types": ["water"],
+          "baseMultiplier": 1.2,
+          "teraMultiplier": 1.3,
+          "appliesDuringTera": true,
+          "restrictedTo": ["ogerpon-wellspring-mask"]
+        }
+      }
+    },
+    {
+      "id": 2404,
+      "name": "hearthflame-mask",
+      "nameJa": "かまどのめん",
+      "category": "held-item",
+      "description": "Ogerpon's mask. It boosts the power of the holder's Fire-type moves.",
+      "descriptionJa": "オーガポンのお面。持たせると炎タイプの技の威力が上がる。",
+      "effects": {
+        "damageMultiplier": {
+          "condition": "same_type_as_mask",
+          "types": ["fire"],
+          "baseMultiplier": 1.2,
+          "teraMultiplier": 1.3,
+          "appliesDuringTera": true,
+          "restrictedTo": ["ogerpon-hearthflame-mask"]
+        }
+      }
+    },
+    {
+      "id": 2405,
+      "name": "cornerstone-mask",
+      "nameJa": "いしずえのめん",
+      "category": "held-item",
+      "description": "Ogerpon's mask. It boosts the power of the holder's Rock-type moves.",
+      "descriptionJa": "オーガポンのお面。持たせると岩タイプの技の威力が上がる。",
+      "effects": {
+        "damageMultiplier": {
+          "condition": "same_type_as_mask",
+          "types": ["rock"],
+          "baseMultiplier": 1.2,
+          "teraMultiplier": 1.3,
+          "appliesDuringTera": true,
+          "restrictedTo": ["ogerpon-cornerstone-mask"]
+        }
+      }
+    },
+    {
+      "id": 2406,
+      "name": "teal-mask",
+      "nameJa": "みどりのめん",
+      "category": "held-item",
+      "description": "Ogerpon's mask. It boosts the power of the holder's Grass-type moves.",
+      "descriptionJa": "オーガポンのお面。持たせると草タイプの技の威力が上がる。",
+      "effects": {
+        "damageMultiplier": {
+          "condition": "same_type_as_mask",
+          "types": ["grass"],
+          "baseMultiplier": 1.2,
+          "teraMultiplier": 1.3,
+          "appliesDuringTera": true,
+          "restrictedTo": ["ogerpon-teal-mask"]
+        }
+      }
+    },
+    {
+      "id": 234,
+      "name": "choice-band",
+      "nameJa": "こだわりハチマキ",
+      "category": "held-item",
+      "description": "An item to be held by a Pokémon. It boosts Attack, but allows only one move to be used.",
+      "descriptionJa": "持たせると攻撃は上がるが、同じ技しか出せなくなる。",
+      "effects": {
+        "statMultiplier": {
+          "stat": "attack",
+          "multiplier": 1.5
+        }
+      }
+    },
+    {
+      "id": 235,
+      "name": "choice-specs",
+      "nameJa": "こだわりメガネ",
+      "category": "held-item",
+      "description": "An item to be held by a Pokémon. It boosts Sp. Atk, but allows only one move to be used.",
+      "descriptionJa": "持たせると特攻は上がるが、同じ技しか出せなくなる。",
+      "effects": {
+        "statMultiplier": {
+          "stat": "special-attack",
+          "multiplier": 1.5
+        }
+      }
+    },
+    {
+      "id": 245,
+      "name": "life-orb",
+      "nameJa": "いのちのたま",
+      "category": "held-item",
+      "description": "An item to be held by a Pokémon. It boosts the power of moves, but at the cost of some HP on each hit.",
+      "descriptionJa": "持たせると技の威力が上がるが、攻撃する度にHPが少し減る。",
+      "effects": {
+        "damageMultiplier": {
+          "condition": "all_damaging_moves",
+          "baseMultiplier": 1.3
+        }
+      }
+    },
+    {
+      "id": 251,
+      "name": "expert-belt",
+      "nameJa": "たつじんのおび",
+      "category": "held-item",
+      "description": "An item to be held by a Pokémon. It boosts the power of super effective moves.",
+      "descriptionJa": "持たせると効果抜群の技の威力が少し上がる。",
+      "effects": {
+        "damageMultiplier": {
+          "condition": "super_effective",
+          "baseMultiplier": 1.2
+        }
+      }
+    },
+    {
+      "id": 270,
+      "name": "assault-vest",
+      "nameJa": "とつげきチョッキ",
+      "category": "held-item",
+      "description": "An item to be held by a Pokémon. It boosts Sp. Def, but prevents the use of status moves.",
+      "descriptionJa": "持たせると特防は上がるが、変化技が出せなくなる。",
+      "effects": {
+        "statMultiplier": {
+          "stat": "special-defense",
+          "multiplier": 1.5
+        }
+      }
+    },
+    {
+      "id": 299,
+      "name": "choice-scarf",
+      "nameJa": "こだわりスカーフ",
+      "category": "held-item",
+      "description": "An item to be held by a Pokémon. It boosts Speed, but allows only one move to be used.",
+      "descriptionJa": "持たせると素早さは上がるが、同じ技しか出せなくなる。",
+      "effects": {
+        "statMultiplier": {
+          "stat": "speed",
+          "multiplier": 1.5
+        }
+      }
+    },
+    {
+      "id": 229,
+      "name": "eviolite",
+      "nameJa": "しんかのきせき",
+      "category": "held-item",
+      "description": "A mysterious evolutionary lump. When held by a Pokémon that can still evolve, it raises both Defense and Sp. Def.",
+      "descriptionJa": "進化前のポケモンに持たせると防御と特防が上がる不思議なかたまり。",
+      "effects": {
+        "statMultiplier": {
+          "stat": "defense",
+          "multiplier": 1.5
+        }
+      }
+    },
+    {
+      "id": 0,
+      "name": "none",
+      "nameJa": "なし",
+      "category": "none",
+      "description": "No item held.",
+      "descriptionJa": "アイテムを持たせていない。",
+      "effects": null
+    }
+  ]
+}

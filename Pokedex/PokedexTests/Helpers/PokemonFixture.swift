@@ -208,3 +208,71 @@ extension MoveEntity {
         )
     }
 }
+
+// MARK: - Item Fixtures
+
+extension ItemEntity {
+    static func fixture(
+        id: Int = 1,
+        name: String = "choice-band",
+        nameJa: String = "こだわりハチマキ",
+        category: String = "held-item",
+        description: String? = "An item to be held by a Pokémon.",
+        descriptionJa: String? = "持たせると攻撃は上がるが、同じ技しか出せなくなる。",
+        effects: ItemEffects? = nil
+    ) -> ItemEntity {
+        ItemEntity(
+            id: id,
+            name: name,
+            nameJa: nameJa,
+            category: category,
+            description: description,
+            descriptionJa: descriptionJa,
+            effects: effects
+        )
+    }
+}
+
+extension ItemEffects {
+    static func fixture(
+        damageMultiplier: DamageMultiplierEffect? = nil,
+        statMultiplier: StatMultiplierEffect? = nil
+    ) -> ItemEffects {
+        ItemEffects(
+            damageMultiplier: damageMultiplier,
+            statMultiplier: statMultiplier
+        )
+    }
+}
+
+extension DamageMultiplierEffect {
+    static func fixture(
+        condition: String = "all_damaging_moves",
+        types: [String]? = nil,
+        baseMultiplier: Double = 1.3,
+        teraMultiplier: Double? = nil,
+        appliesDuringTera: Bool? = nil,
+        restrictedTo: [String]? = nil
+    ) -> DamageMultiplierEffect {
+        DamageMultiplierEffect(
+            condition: condition,
+            types: types,
+            baseMultiplier: baseMultiplier,
+            teraMultiplier: teraMultiplier,
+            appliesDuringTera: appliesDuringTera,
+            restrictedTo: restrictedTo
+        )
+    }
+}
+
+extension StatMultiplierEffect {
+    static func fixture(
+        stat: String = "attack",
+        multiplier: Double = 1.5
+    ) -> StatMultiplierEffect {
+        StatMultiplierEffect(
+            stat: stat,
+            multiplier: multiplier
+        )
+    }
+}
